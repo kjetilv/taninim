@@ -1,0 +1,11 @@
+**/gradlew*
+**/gradle/
+build/
+.gradle/
+.idea/
+
+taninim/env
+taninim/target
+taninim/figwheel_server.log
+taninim/.rebel_readline_history
+taninim/.lein-env

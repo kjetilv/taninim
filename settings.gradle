@@ -1,0 +1,3 @@
+rootProject.name = 'flacsefugl'
+
+include("flacsefugl", "mediaserver")
