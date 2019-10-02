@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import mediaserver.dto.AudioFile;
 import mediaserver.dto.Directory;
+import mediaserver.files.Media;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ final class DirectoryLister {
 
     DirectoryLister(Path root, Function<Directory, byte[]> ser) {
         this.root = root;
+        Media media = new Media(root);
         this.ser = ser;
     }
 

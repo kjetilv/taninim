@@ -3,104 +3,90 @@ package mediaserver.files;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Media {
 
-    private static final Map<File, Track> tracks = new ConcurrentHashMap<>();
-
-    private static final Map<File, Album> albums = new ConcurrentHashMap<>();
-
     private final List<Album> library;
 
-    private final Path root;
-
     public Media(Path root) {
-        this.root = root;
-        this.library = traverse(root).collect(Collectors.toList());
+        this.library = albums(root, root).collect(Collectors.toList());
     }
 
-    public Track track(String artist, String album, String name, File file) {
-        return track(artist, album, name, null, file);
+    public static Album album(Path root, Path path, File file, String artist, String name, List<Track> tracks) {
+        return new Album(artist, name, tracks, file, root.relativize(path.getParent().getParent()));
     }
 
-    public Album album(Path path, File file, String artist, String name, List<Track> tracks) {
-        return albums.computeIfAbsent(
-            file.getAbsoluteFile(),
-            key ->
-                new Album(artist, name, tracks, file, root.relativize(path.getParent().getParent())));
+    public static Track track(String artist, String album, String name, File file) {
+        return new Track(artist, album, name, file);
     }
 
-    public static Track track(String artist, String album, String name, Integer part, File file) {
-        return tracks.computeIfAbsent(
-            file.getAbsoluteFile(),
-            key ->
-                new Track(artist, name, album, part, file));
+    public Collection<Album> albums() {
+        return library.stream().sorted().collect(Collectors.toList());
     }
 
-    private Stream<Album> traverse(Path path) {
+    private static Stream<Album> albums(Path root, Path path) {
         return files(path)
             .filter(File::isDirectory)
             .flatMap(dir ->
                 Stream.concat(
-                    album(subPath(path, dir), dir),
-                    subDirs(dir)
-                        .flatMap(subDir ->
-                            traverse(subPath(path, dir).resolve(subDir.getName())))));
+                    album(root, subPath(path, dir), dir).stream(),
+                    subDirs(dir).flatMap(subDir ->
+                        albums(root, subPath(path, dir).resolve(subDir.getName())))));
     }
 
-    private Path subPath(Path path, File dir) {
+    private static Path subPath(Path path, File dir) {
         return path.resolve(dir.getName());
     }
 
-    private Stream<Album> album(Path path, File dir) {
-        return albumTracks(dir)
-            .map(tracks ->
-                album(
-                    path,
-                    dir,
+    private static Optional<Album> album(Path root, Path path, File dir) {
+        return trackFiles(dir).map(tracks ->
+            album(
+                root,
+                path,
+                dir,
+                artistName(dir),
+                albumName(dir),
+                tracks(dir, tracks).collect(Collectors.toList())));
+    }
+
+    private static Stream<Track> tracks(File dir, File[] tracks) {
+        return Arrays.stream(tracks)
+            .map(track ->
+                track(
                     artistName(dir),
                     albumName(dir),
-                    Arrays.stream(tracks)
-                        .map(track ->
-                            track(
-                                artistName(dir),
-                                albumName(dir),
-                                trackName(track),
-                                track))
-                        .collect(Collectors.toList())))
-            .stream();
+                    trackName(track),
+                    track));
     }
 
-    private Stream<File> subDirs(File dir) {
-        return Optional.ofNullable(dir.listFiles()).stream()
-            .flatMap(Arrays::stream);
+    private static Stream<File> subDirs(File dir) {
+        return Optional.ofNullable(dir.listFiles()).stream().flatMap(Arrays::stream);
     }
 
-    private Optional<File[]> albumTracks(File dir) {
+    private static Optional<File[]> trackFiles(File dir) {
         return Optional.ofNullable(dir.listFiles())
             .filter(files ->
                 files.length > 0 && Arrays.stream(files).allMatch(File::isFile));
     }
 
-    private String albumName(File dir) {
+    private static String albumName(File dir) {
         return dir.getName();
     }
 
-    private String trackName(File track) {
+    private static String trackName(File track) {
         return track.getName();
     }
 
-    private String artistName(File dir) {
+    private static String artistName(File dir) {
         return dir.getParentFile().getName();
     }
 
-    private Stream<File> files(Path path) {
+    private static Stream<File> files(Path path) {
         return subDirs(path.toFile());
     }
 }

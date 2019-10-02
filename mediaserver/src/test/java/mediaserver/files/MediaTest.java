@@ -11,6 +11,6 @@ public class MediaTest {
     @Test
     public void listall() {
         Media media = new Media(Path.of(System.getProperty("user.home"), "FLAC"));
-        System.out.print(media);
+        media.albums().stream().map(Album::print).forEach(System.out::println);
     }
 }
