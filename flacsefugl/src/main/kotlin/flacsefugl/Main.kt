@@ -10,7 +10,7 @@ fun main() {
             "file://${System.getProperty("user.home")}/Music/iTunes/iTunes%20Media/Music/"))
 //    val targetDir = Paths.get(".")
     val targetDir = Paths.get(URI.create(
-            "file:///Volumes/Moorlok/FLAC/John%20Zorn"))
+            "file://${System.getProperty("user.home")}/FLAC/John%20Zorn"))
 
     val conversion = Conversion(
             Mover(rootDir, targetDir, dists()),

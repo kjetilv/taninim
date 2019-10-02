@@ -28,7 +28,7 @@ class Conversion(
         }
         if (mover.unused().isNotEmpty()) {
             mover.unused().forEach {
-                println("Not used: ${it}")
+                println("Not used: $it")
             }
         }
         val conversions = paths.mapIndexed { i, path ->
