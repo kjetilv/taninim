@@ -77,7 +77,8 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         Paths.get("Masada", "Masada Book 1", "Live") to { path ->
             artist(path) == "masada" && album(path).contains("book 1 vol. ") ||
                     artist(path).contains("masada") && album(path).contains(" live ") ||
-                    artist(path).contains("masada") && album(path).contains("50th birthday")
+                    artist(path).contains("masada") && album(path).contains("50th birthday") ||
+                    album(path).contains("circle maker")
         },
 
         Paths.get("Hardcore miniatures", "Painkiller") to { path ->
@@ -89,7 +90,7 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         },
 
         Paths.get("Masada", "Various") to { path ->
-            artist(path) == "masada" || artist(path) == "masada string trio" || album(path).contains("circle maker")
+            artist(path) == "masada" || artist(path) == "masada string trio"
         },
 
         Paths.get("Cobra") to { path ->

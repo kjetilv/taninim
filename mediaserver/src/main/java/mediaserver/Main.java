@@ -11,11 +11,17 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.ResourceLeakDetector;
+import mediaserver.dto.AudioAlbum;
+import mediaserver.files.Media;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.nio.file.Path;
 
 public class Main {
+
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
@@ -26,30 +32,34 @@ public class Main {
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
+        Path root = Path.of(URI.create(
+            "file://" + System.getProperty("user.home") + "/FLAC/John%20Zorn"));
+        Media media = new Media(root);
+
+        ServerBootstrap bootstrap = new ServerBootstrap()
+            .group(listenGroup, workGroup)
+            .channel(NioServerSocketChannel.class)
+            .handler(new LoggingHandler(LogLevel.INFO))
+            .childHandler(new MediaServerInitializer(() ->
+                new MediaServerRouter(new DirectoryLister(root, media, objectMapper))
+            ));
         try {
-            ServerBootstrap bootstrap = new ServerBootstrap()
-                .group(listenGroup, workGroup)
-                .channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new MediaServerInitializer(
-                    () -> new MediaServerRouter(new DirectoryLister(
-                        Path.of(URI.create(
-                            "file://" + System.getProperty("user.home") + "/FLAC/John%20Zorn")),
-                        directory -> {
-                            try {
-                                return objectMapper.writeValueAsBytes(directory);
-                            } catch (JsonProcessingException e) {
-                                throw new IllegalStateException("Failed to write " + directory, e);
-                            }
-                        }))
-                ));
             Channel ch = bootstrap.bind(8080).sync().channel();
             ch.closeFuture().sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted", e);
         } finally {
             listenGroup.shutdownGracefully();
             workGroup.shutdownGracefully();
+        }
+    }
+
+    private static byte[] write(ObjectMapper objectMapper, AudioAlbum directory) {
+        try {
+            return objectMapper.writeValueAsBytes(directory);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to write " + directory, e);
         }
     }
 }

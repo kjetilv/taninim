@@ -1,11 +1,7 @@
 package mediaserver.files;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 
 public class Album implements Comparable<Album> {
 
@@ -19,14 +15,16 @@ public class Album implements Comparable<Album> {
 
     private final File file;
 
-    private final Path categoryPath;
+    private final CategoryPath categoryPath;
+
+    private final UUID uuid = UUID.randomUUID();
 
     private static final Comparator<Album> ALBUM_COMPARATOR =
         Comparator.comparing(Album::getCategoryPath)
             .thenComparing(Album::getArtist)
             .thenComparing(Album::getName);
 
-    public Album(String artist, String name, List<Track> tracks, File file, Path categoryPath) {
+    public Album(String artist, String name, List<Track> tracks, File file, CategoryPath categoryPath) {
         this.artist = artist.replaceAll("_", ":");
         this.name = name.replaceAll("_", ":");
         this.parts = parts(tracks);
@@ -61,8 +59,12 @@ public class Album implements Comparable<Album> {
         return file;
     }
 
-    public Path getCategoryPath() {
+    public CategoryPath getCategoryPath() {
         return categoryPath;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public String print() {

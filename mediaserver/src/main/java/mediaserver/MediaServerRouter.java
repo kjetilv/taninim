@@ -40,8 +40,8 @@ class MediaServerRouter extends SimpleChannelInboundHandler<HttpRequest> {
             log.info("Streamed file {}", file);
         }
         if (path.startsWith("/directory/")) {
-            Path listed = directoryLister.list(req, ctx);
-            log.info("Listed directory {}", listed);
+            Object response = directoryLister.list(req, ctx);
+            log.info("Listed directory {}", response);
         }
     }
 

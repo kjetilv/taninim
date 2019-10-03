@@ -2,10 +2,7 @@ package mediaserver.files;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,39 +11,54 @@ public class Media {
     private final List<Album> library;
 
     public Media(Path root) {
-        this.library = albums(root, root).collect(Collectors.toList());
+        this.library = albums(root).collect(Collectors.toList());
     }
 
-    public static Album album(Path root, Path path, File file, String artist, String name, List<Track> tracks) {
-        return new Album(artist, name, tracks, file, root.relativize(path.getParent().getParent()));
+    public static Album album(Path path, File file, String artist, String name, List<Track> tracks) {
+        return new Album(artist, name, tracks, file, new CategoryPath(path.getParent().getParent()));
     }
 
     public static Track track(String artist, String album, String name, File file) {
         return new Track(artist, album, name, file);
     }
 
+    public Collection<CategoryPath> categories() {
+        return library.stream().map(Album::getCategoryPath).collect(Collectors.toSet());
+    }
+
+    public Collection<String> albumArtists() {
+        return library.stream().map(Album::getArtist).collect(Collectors.toSet());
+    }
+
+    public Collection<String> artists() {
+        return library.stream()
+            .map(Album::getTracks)
+            .flatMap(Collection::stream)
+            .map(Track::getArtist)
+            .collect(Collectors.toSet());
+    }
+
     public Collection<Album> albums() {
         return library.stream().sorted().collect(Collectors.toList());
     }
 
-    private static Stream<Album> albums(Path root, Path path) {
+    private static Stream<Album> albums(Path path) {
         return files(path)
             .filter(File::isDirectory)
             .flatMap(dir ->
                 Stream.concat(
-                    album(root, subPath(path, dir), dir).stream(),
+                    album(subPath(path, dir), dir).stream(),
                     subDirs(dir).flatMap(subDir ->
-                        albums(root, subPath(path, dir).resolve(subDir.getName())))));
+                        albums(subPath(path, dir).resolve(subDir.getName())))));
     }
 
     private static Path subPath(Path path, File dir) {
         return path.resolve(dir.getName());
     }
 
-    private static Optional<Album> album(Path root, Path path, File dir) {
+    private static Optional<Album> album(Path path, File dir) {
         return trackFiles(dir).map(tracks ->
             album(
-                root,
                 path,
                 dir,
                 artistName(dir),

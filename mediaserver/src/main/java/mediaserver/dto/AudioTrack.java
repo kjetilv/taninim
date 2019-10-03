@@ -1,8 +1,10 @@
 package mediaserver.dto;
 
-public class AudioFile {
+public class AudioTrack {
 
     private String name;
+
+    private String uuid;
 
     public String getName() {
         return name;
@@ -10,5 +12,13 @@ public class AudioFile {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }

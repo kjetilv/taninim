@@ -1,6 +1,7 @@
 package mediaserver.files;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,8 @@ public class Track {
     private final Integer part;
 
     private final File file;
+
+    private final UUID uuid = UUID.randomUUID();
 
     private static final Pattern PART_TRACK_NAME = Pattern.compile("^(\\d+)-(\\d{2,})\\s+.*$");
 
@@ -53,6 +56,10 @@ public class Track {
 
     public File getFile() {
         return file;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     private Integer part(String name) {

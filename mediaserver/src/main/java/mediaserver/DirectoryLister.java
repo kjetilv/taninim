@@ -1,18 +1,18 @@
 package mediaserver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import mediaserver.dto.AudioFile;
-import mediaserver.dto.Directory;
+import mediaserver.dto.AudioAlbum;
+import mediaserver.dto.AudioTrack;
 import mediaserver.files.Media;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.function.Function;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
@@ -24,36 +24,65 @@ final class DirectoryLister {
 
     private final Path root;
 
-    private final Function<Directory, byte[]> ser;
+    private final Media media;
 
-    DirectoryLister(Path root, Function<Directory, byte[]> ser) {
+    private final ObjectMapper objectMapper;
+
+    DirectoryLister(Path root, Media media, ObjectMapper objectMapper) {
         this.root = root;
-        Media media = new Media(root);
-        this.ser = ser;
+        this.media = media;
+        this.objectMapper = objectMapper;
     }
 
-    Path list(HttpRequest req, ChannelHandlerContext ctx) {
+    Object list(HttpRequest req, ChannelHandlerContext ctx) {
         String base = req.uri().trim();
-        String uri = base.substring( "/directory".length(), base.length());
-        Path returnedPath = "/".equals(uri) ? root : sub(uri);
-        File startPath = returnedPath.toFile();
-        Directory from = from(
-            new Directory(),
-            (")/".equals(uri) ? root : sub(uri)).toFile());
-        byte[] bytes = ser.apply(from);
-        ctx.writeAndFlush(
-            new DefaultFullHttpResponse(
-                HTTP_1_1,
-                OK,
-                Unpooled.wrappedBuffer(bytes),
-                headers(req, bytes.length),
-                EmptyHttpHeaders.INSTANCE
-            )
-        ).addListener(
-            (ChannelFutureListener) future ->
-                log.info("Responded with directory @ {}", startPath)
-        ).addListener(ChannelFutureListener.CLOSE);
-        return returnedPath;
+        String uri = base.substring("/directory".length());
+        if (uri.startsWith("/artists")) {
+            respond(ctx, response(req, media.artists()));
+            return media.artists();
+        } else if (uri.startsWith("/categories")) {
+            respond(ctx, response(req, media.categories()));
+            return media.categories();
+        } else if (uri.startsWith("/albumArtists")) {
+            respond(ctx, response(req, media.albumArtists()));
+            return media.albumArtists();
+        } else {
+            Path returnedPath = "/".equals(uri) ? root : sub(uri);
+            File startPath = returnedPath.toFile();
+            HttpResponse response = getHttpResponse(req, uri);
+            respond(ctx, response);
+            return returnedPath;
+        }
+    }
+
+    private void respond(ChannelHandlerContext ctx, HttpResponse response) {
+        ctx.writeAndFlush(response)
+            .addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private HttpResponse getHttpResponse(HttpRequest req, String uri) {
+        return response(req,
+            from(
+                new AudioAlbum(),
+                (")/".equals(uri) ? root : sub(uri)).toFile()));
+    }
+
+    private HttpResponse response(HttpRequest req, Object obj) {
+        byte[] bytes = bytes(obj);
+        return new DefaultFullHttpResponse(
+            HTTP_1_1,
+            OK,
+            Unpooled.wrappedBuffer(bytes),
+            headers(req, bytes.length),
+            EmptyHttpHeaders.INSTANCE);
+    }
+
+    private byte[] bytes(Object obj) {
+        try {
+            return objectMapper.writeValueAsBytes(obj);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to write " + obj, e);
+        }
     }
 
     private HttpHeaders headers(HttpRequest req, int length) {
@@ -72,10 +101,10 @@ final class DirectoryLister {
         return root.resolve(subpath);
     }
 
-    private Directory from(Directory dir, File path) {
-        AudioFile audioFile = new AudioFile();
+    private AudioAlbum from(AudioAlbum dir, File path) {
+        AudioTrack audioFile = new AudioTrack();
         audioFile.setName(path.getName());
-        dir.setFiles(new AudioFile[]{audioFile});
+        dir.setFiles(new AudioTrack[]{audioFile});
         return dir;
     }
 }
