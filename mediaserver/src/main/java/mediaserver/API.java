@@ -7,64 +7,74 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import mediaserver.dto.AudioAlbum;
 import mediaserver.dto.AudioTrack;
+import mediaserver.files.Album;
 import mediaserver.files.Media;
+import mediaserver.files.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.nio.file.Path;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import static io.netty.handler.codec.http.HttpResponseStatus.ACCEPTED;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-final class DirectoryLister {
+final class API extends Nettish {
 
-    private static final Logger log = LoggerFactory.getLogger(DirectoryLister.class);
-
-    private final Path root;
+    private static final Logger log = LoggerFactory.getLogger(API.class);
 
     private final Media media;
 
     private final ObjectMapper objectMapper;
 
-    DirectoryLister(Path root, Media media, ObjectMapper objectMapper) {
-        this.root = root;
+    API(Media media, ObjectMapper objectMapper) {
         this.media = media;
         this.objectMapper = objectMapper;
     }
 
-    Object list(HttpRequest req, ChannelHandlerContext ctx) {
-        String base = req.uri().trim();
-        String uri = base.substring("/directory".length());
-        if (uri.startsWith("/artists")) {
+    void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+        if (path.startsWith("/albums")) {
+            Collection<AudioAlbum> albums = audioAlbums(media.albums());
+            respond(ctx, response(req, albums));
+        } else if (path.startsWith("/artists")) {
             respond(ctx, response(req, media.artists()));
-            return media.artists();
-        } else if (uri.startsWith("/categories")) {
+        } else if (path.startsWith("/categories")) {
             respond(ctx, response(req, media.categories()));
-            return media.categories();
-        } else if (uri.startsWith("/albumArtists")) {
+        } else if (path.startsWith("/albumArtists")) {
             respond(ctx, response(req, media.albumArtists()));
-            return media.albumArtists();
         } else {
-            Path returnedPath = "/".equals(uri) ? root : sub(uri);
-            File startPath = returnedPath.toFile();
-            HttpResponse response = getHttpResponse(req, uri);
-            respond(ctx, response);
-            return returnedPath;
+            respond(ctx, new DefaultFullHttpResponse(HTTP_1_1, ACCEPTED));
         }
     }
 
-    private void respond(ChannelHandlerContext ctx, HttpResponse response) {
-        ctx.writeAndFlush(response)
-            .addListener(ChannelFutureListener.CLOSE);
+    private Collection<AudioAlbum> audioAlbums(Collection<Album> albums) {
+        return albums.stream()
+            .map(this::audioAlbum)
+            .collect(Collectors.toList());
     }
 
-    private HttpResponse getHttpResponse(HttpRequest req, String uri) {
-        return response(req,
-            from(
-                new AudioAlbum(),
-                (")/".equals(uri) ? root : sub(uri)).toFile()));
+    private AudioAlbum audioAlbum(Album a) {
+        AudioAlbum aa = new AudioAlbum();
+        aa.setArtist(a.getArtist());
+        aa.setName(a.getName());
+        aa.setUuid(a.getUuid().toString());
+        aa.setTracks(audioTracks(a));
+        return aa;
+    }
+
+    private Collection<AudioTrack> audioTracks(Album a) {
+        return a.getTracks().stream()
+            .map(this::audioTrack)
+            .collect(Collectors.toList());
+    }
+
+    private AudioTrack audioTrack(Track t) {
+        AudioTrack at = new AudioTrack();
+        at.setName(t.getName());
+        at.setUuid(t.getUuid().toString());
+        return at;
     }
 
     private HttpResponse response(HttpRequest req, Object obj) {
@@ -95,16 +105,4 @@ final class DirectoryLister {
         return headers;
     }
 
-    private Path sub(String uri) {
-        String[] parts = uri.split("/");
-        Path subpath = Path.of(".", parts);
-        return root.resolve(subpath);
-    }
-
-    private AudioAlbum from(AudioAlbum dir, File path) {
-        AudioTrack audioFile = new AudioTrack();
-        audioFile.setName(path.getName());
-        dir.setFiles(new AudioTrack[]{audioFile});
-        return dir;
-    }
 }

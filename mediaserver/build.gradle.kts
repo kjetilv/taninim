@@ -5,6 +5,11 @@ plugins {
     `maven-publish`
 }
 
+configure<JavaPluginConvention> {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 dependencies {
     implementation("io.netty", "netty-all", "4.1.41.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")

@@ -51,10 +51,6 @@ fun main() {
 
 fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
 
-//        Paths.get("Masada", "Electric Masada") to { path ->
-//            artist(path) == "electric masada"
-//        },
-
         Paths.get("Masada", "Book of Angels") to { path ->
             album(path).contains("book of angels vol. ")
         },
@@ -65,8 +61,7 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
 
         Paths.get("Masada", "Masada Book 1") to { path ->
             artist(path) == "masada" && album(path).contains("book 1 vol. ") ||
-                    artist(path) == "electric masada" ||
-                    album(path).contains("sanhedrin")
+                    artist(path) == "electric masada"
         },
 
         Paths.get("Masada", "Masada Book 1", "10. Anniversary") to { path ->
@@ -77,8 +72,12 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         Paths.get("Masada", "Masada Book 1", "Live") to { path ->
             artist(path) == "masada" && album(path).contains("book 1 vol. ") ||
                     artist(path).contains("masada") && album(path).contains(" live ") ||
-                    artist(path).contains("masada") && album(path).contains("50th birthday") ||
-                    album(path).contains("circle maker")
+                    artist(path).contains("masada") && album(path).contains("50th birthday")
+        },
+
+        Paths.get("Masada", "Masada Book 1", "Various") to { path ->
+            album(path).contains("circle maker") ||
+                    album(path).contains("sanhedrin")
         },
 
         Paths.get("Hardcore miniatures", "Painkiller") to { path ->
@@ -89,7 +88,7 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
             artist(path) == "naked city"
         },
 
-        Paths.get("Masada", "Various") to { path ->
+        Paths.get("Masada", "Filmworks") to { path ->
             artist(path) == "masada" || artist(path) == "masada string trio"
         },
 

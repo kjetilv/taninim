@@ -22,6 +22,10 @@ public class Media {
         return new Track(artist, album, name, file);
     }
 
+    public Optional<Track> song(UUID uuid) {
+        return songStream().filter(song -> song.getUuid().equals(uuid)).findFirst();
+    }
+
     public Collection<CategoryPath> categories() {
         return library.stream().map(Album::getCategoryPath).collect(Collectors.toSet());
     }
@@ -39,7 +43,19 @@ public class Media {
     }
 
     public Collection<Album> albums() {
-        return library.stream().sorted().collect(Collectors.toList());
+        return albumStream().collect(Collectors.toList());
+    }
+
+    public Collection<Track> songs() {
+        return songStream().collect(Collectors.toList());
+    }
+
+    private Stream<Album> albumStream() {
+        return library.stream().sorted();
+    }
+
+    private Stream<Track> songStream() {
+        return albumStream().flatMap(album -> album.getTracks().stream());
     }
 
     private static Stream<Album> albums(Path path) {
@@ -100,5 +116,10 @@ public class Media {
 
     private static Stream<File> files(Path path) {
         return subDirs(path.toFile());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + library.size() + " albums]";
     }
 }

@@ -1,5 +1,7 @@
 package mediaserver.dto;
 
+import java.util.Collection;
+
 public class AudioAlbum {
 
     private String artist;
@@ -8,10 +10,14 @@ public class AudioAlbum {
 
     private String uuid;
 
-    private AudioTrack[] files;
+    private Collection<AudioTrack> tracks;
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getArtist() {
@@ -22,10 +28,6 @@ public class AudioAlbum {
         this.artist = artist;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getUuid() {
         return uuid;
     }
@@ -34,11 +36,11 @@ public class AudioAlbum {
         this.uuid = uuid;
     }
 
-    public AudioTrack[] getFiles() {
-        return files;
+    public Collection<AudioTrack> getTracks() {
+        return tracks;
     }
 
-    public void setFiles(AudioTrack[] files) {
-        this.files = files;
+    public void setTracks(Collection<AudioTrack> tracks) {
+        this.tracks = tracks;
     }
 }

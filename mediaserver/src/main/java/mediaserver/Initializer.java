@@ -6,11 +6,11 @@ import io.netty.channel.socket.SocketChannel;
 
 import java.util.function.Supplier;
 
-class MediaServerInitializer extends ChannelInitializer<SocketChannel> {
+class Initializer extends ChannelInitializer<SocketChannel> {
 
-    private final Supplier<MediaServerRouter> mediaServerRouter;
+    private final Supplier<Router> mediaServerRouter;
 
-    MediaServerInitializer(Supplier<MediaServerRouter> mediaServerRouter) {
+    Initializer(Supplier<Router> mediaServerRouter) {
         this.mediaServerRouter = mediaServerRouter;
     }
 
