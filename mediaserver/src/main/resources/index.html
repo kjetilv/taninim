@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="no">
+<HEAD>
+    <META charset="UTF-8">
+    <TITLE>taninim</TITLE>
+</HEAD>
+
+<body>
+
+<H1><A HREF="/">taninim</A></H1>
+
+{if(!media.categoryPath.root)}
+<H2>{media.categoryPath.pathString}</H2>
+{endif}
+
+{if(media.subCategories)}
+
+<H3>{length(media.topCategories)} / {length(media.categories)} categories</H3>
+
+<UL>
+    {media.topCategories:{cat|
+    <LI>
+        <SPAN><A HREF="{cat.pathString}">{cat.pathString}<A></SPAN>
+    </LI>
+    }}
+</UL>
+{endif}
+
+<H3>
+    {length(media.artists)} artists
+</H3>
+
+<UL>
+    {media.artists:{artist|
+    <LI>
+        <SPAN><A HREF="?artist={artist}">{artist}</A></SPAN>
+    </LI>
+    }}
+</UL>
+
+<H3>
+    {length(media.albums)} albums
+</H3>
+
+<UL>
+    {media.albums:{album|
+    <LI>
+        <SPAN><A HREF="?artist={album.artist}&album={album.uuid}">{album.artist}: {album.name}</A></SPAN>
+    </LI>
+    }}
+</UL>
+
+</body>
+
+</html>

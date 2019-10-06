@@ -2,6 +2,7 @@ package mediaserver.files;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Album implements Comparable<Album> {
 
@@ -28,7 +29,7 @@ public class Album implements Comparable<Album> {
         this.artist = artist.replaceAll("_", ":");
         this.name = name.replaceAll("_", ":");
         this.parts = parts(tracks);
-        this.tracks = tracks;
+        this.tracks = tracks.stream().sorted().collect(Collectors.toList());
         this.file = file;
         this.categoryPath = categoryPath;
     }
@@ -71,6 +72,10 @@ public class Album implements Comparable<Album> {
         return categoryPath + "/ " + getArtist() + ": " + getName() + " [" + tracks.size() + "]";
     }
 
+    public boolean isIn(CategoryPath category) {
+        return categoryPath.startsWith(category);
+    }
+
     private static Integer parts(List<Track> tracks) {
         OptionalInt maxPart = tracks.stream()
             .map(Track::getPart)
@@ -83,12 +88,9 @@ public class Album implements Comparable<Album> {
     @Override
     public String toString() {
         return getClass().getSimpleName() +
-            "[artist=" + artist +
-            " name=" + name +
-            " parts=" + parts +
-            " tracks=" + tracks +
-            " file=" + file +
-            " categoryPath=" + categoryPath +
-            "]";
+            "[" + categoryPath.getPathString() +
+            ": " + artist + "/" + name +
+            " [" + tracks.size() +
+            "]]";
     }
 }

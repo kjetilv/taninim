@@ -14,5 +14,7 @@ dependencies {
     implementation("io.netty", "netty-all", "4.1.41.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9")
+    implementation("org.antlr:ST4:4.1")
+
     testImplementation("junit:junit:4.12")
 }

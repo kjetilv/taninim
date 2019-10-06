@@ -9,7 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.ResourceLeakDetector;
+import mediaserver.files.DefaultMedia;
 import mediaserver.files.Media;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +56,11 @@ public class Main {
 
     private static Supplier<Router> routerProvider(ObjectMapper objectMapper, Path root) {
         log.info("Scanning from {}", root);
-        Media media = new Media(root);
+        Media media = new DefaultMedia(root);
         log.info("Scanned: {}", media);
-        return () ->
-            new Router(new API(media, objectMapper), new Streamer(media));
+        return () -> new Router(
+            new API(media, objectMapper),
+            new Streamer(media),
+            new GUI(media));
     }
 }

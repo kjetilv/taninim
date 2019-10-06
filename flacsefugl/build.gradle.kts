@@ -8,6 +8,11 @@ plugins {
     `maven-publish`
 }
 
+configure<JavaPluginConvention> {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
@@ -15,6 +20,7 @@ dependencies {
 }
 
 val compileKotlin: KotlinCompile by tasks
+
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }

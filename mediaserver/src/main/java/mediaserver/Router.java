@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -15,41 +17,24 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(Router.class);
 
-    private final API api;
+    private final Collection<Nettish> nettishes;
 
-    private final Streamer streamer;
-
-    private static final String AUDIO = "/audio/";
-
-    private static final String API = "/api/";
-
-    Router(API api, Streamer streamer) {
-        this.api = api;
-        this.streamer = streamer;
+    Router(Nettish... nettishes) {
+        this.nettishes = Arrays.asList(nettishes);
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, HttpRequest req) {
         if (req.decoderResult().isSuccess()) {
             String uri = req.uri();
-            if (!uri.isEmpty()) {
+            if (uri.isEmpty()) {
+                Nettish.respond(ctx, FORBIDDEN);
+            } else {
                 String path = URLDecoder.decode(uri, StandardCharsets.UTF_8);
                 handlePath(req, path, ctx);
-            } else {
-                Nettish.respond(ctx, FORBIDDEN);
             }
         } else {
             Nettish.respond(ctx, BAD_REQUEST);
-        }
-    }
-
-    private void handlePath(HttpRequest req, String path, ChannelHandlerContext ctx) {
-        if (path.startsWith(AUDIO)) {
-            streamer.stream(req, path.substring("/audio".length()), ctx);
-        } else if (path.startsWith(API)) {
-            api.handle(req, path.substring("/api".length()), ctx);
-        } else {
-            Nettish.respond(ctx, NOT_FOUND);
         }
     }
 
@@ -64,4 +49,15 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
         }
     }
 
+    private void handlePath(HttpRequest req, String path, ChannelHandlerContext ctx) {
+        nettishes.stream()
+            .filter(nettish ->
+                path.startsWith(nettish.getPrefix()))
+            .findFirst()
+            .ifPresentOrElse(
+                nettish ->
+                    nettish.handle(
+                        req, path.substring(nettish.getPrefix().length()), ctx),
+                Nettish.reset(ctx));
+    }
 }

@@ -30,10 +30,12 @@ final class Streamer extends Nettish {
     private final Media media;
 
     public Streamer(Media media) {
+        super("/audio");
         this.media = media;
     }
 
-    void stream(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    @Override
+    public void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
         getFile(path).filter(File::isFile).filter(File::canRead).ifPresentOrElse(
             file ->
                 streamFile(req, file, ctx),
@@ -78,7 +80,7 @@ final class Streamer extends Nettish {
 
     private Optional<File> getFile(String path) {
         UUID uuid = UUID.fromString(path.substring(1));
-        return media.song(uuid).map(Track::getFile);
+        return media.getSong(uuid).map(Track::getFile);
     }
 
     private static ChannelFuture write(

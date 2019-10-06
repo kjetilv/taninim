@@ -1,9 +1,12 @@
 (ns taninim.core
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    [reagent.core :as reagent :refer [atom]]
    [reagent.session :as session]
    [reitit.frontend :as reitit]
    [clerk.core :as clerk]
+   [cljs-http.client :as http]
+   [cljs.core.async :refer [<!]]
    [accountant.core :as accountant]))
 
 ;; -------------------------
@@ -29,17 +32,18 @@
 (defn home-page []
   (fn []
     [:span.main
-     [:h1 "Welcome to taninim"]
+     [:h1 "taninim"]
      [:ul
       [:li [:a {:href (path-for :items)} "Items of taninim"]]
       [:li [:a {:href "/broken/link"} "Broken link"]]]]))
 
-
+(def albums-rest
+  (rest/resource "http://localhost:8080/api/albums"))
 
 (defn items-page []
   (fn []
     [:span.main
-     [:h1 "The items of taninim"]
+     [:h1 "Items of taninim"]
      [:ul (map (fn [item-id]
                  [:li {:name (str "item-" item-id) :key (str "item-" item-id)}
                   [:a {:href (path-for :item {:item-id item-id})} "Item: " item-id]])

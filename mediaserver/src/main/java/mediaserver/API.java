@@ -2,7 +2,6 @@ package mediaserver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import mediaserver.dto.AudioAlbum;
@@ -30,20 +29,22 @@ final class API extends Nettish {
     private final ObjectMapper objectMapper;
 
     API(Media media, ObjectMapper objectMapper) {
+        super("/api");
         this.media = media;
         this.objectMapper = objectMapper;
     }
 
-    void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    @Override
+    public void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
         if (path.startsWith("/albums")) {
-            Collection<AudioAlbum> albums = audioAlbums(media.albums());
+            Collection<AudioAlbum> albums = audioAlbums(media.getAlbums());
             respond(ctx, response(req, albums));
         } else if (path.startsWith("/artists")) {
-            respond(ctx, response(req, media.artists()));
+            respond(ctx, response(req, media.getArtists()));
         } else if (path.startsWith("/categories")) {
-            respond(ctx, response(req, media.categories()));
+            respond(ctx, response(req, media.getCategories()));
         } else if (path.startsWith("/albumArtists")) {
-            respond(ctx, response(req, media.albumArtists()));
+            respond(ctx, response(req, media.getAlbumArtists()));
         } else {
             respond(ctx, new DefaultFullHttpResponse(HTTP_1_1, ACCEPTED));
         }
@@ -98,7 +99,8 @@ final class API extends Nettish {
     private HttpHeaders headers(HttpRequest req, int length) {
         HttpHeaders headers = new DefaultHttpHeaders()
             .set(CONTENT_TYPE, "application/json")
-            .set(CONTENT_LENGTH, length);
+            .set(CONTENT_LENGTH, length)
+            .set(ACCESS_CONTROL_ALLOW_HEADERS, "*");
         if (HttpUtil.isKeepAlive(req)) {
             headers.set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }

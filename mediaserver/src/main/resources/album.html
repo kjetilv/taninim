@@ -1,0 +1,36 @@
+<!doctype html>
+<HTML lang="no">
+<HEAD>
+    <META charset="utf-8">
+    <TITLE>taninim: {album.uuid}</TITLE>
+    <LINK rel="stylesheet" href="https://cdn.plyr.io/3.5.6/plyr.css" /></HEAD>
+<BODY>
+
+<H1><A HREF="/">taninim</A></H1>
+
+<H2>{album.artist}</H2>
+<H3>{album.name}</H3>
+
+<ul>
+    {album.tracks:{track |
+    <li>{track.trackNo}:
+        <A href="?artist={album.artist}&album={album.uuid}&track={track.uuid}">{track.name}
+        {if(track.part)} (disc {track.part}){endif}</A>
+    </li>
+    }}
+</ul>
+
+{if(playUuid))}
+<AUDIO id="player" controls>
+    <SOURCE src="/audio/{playUuid}" type="audio/flac"/>
+</AUDIO>
+{endif}
+
+<SCRIPT src="https://cdn.plyr.io/3.5.6/plyr.polyfilled.js"></SCRIPT>
+<SCRIPT>
+    const player = new plyr('#player');
+</SCRIPT>
+
+</BODY>
+
+</HTML>
