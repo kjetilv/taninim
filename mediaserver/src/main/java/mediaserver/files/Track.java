@@ -1,12 +1,22 @@
 package mediaserver.files;
 
+import org.gagravarr.flac.FlacFile;
+import org.gagravarr.flac.FlacInfo;
+import org.gagravarr.flac.FlacTags;
+
 import java.io.File;
+import java.time.Duration;
 import java.util.Comparator;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unused")
 public class Track implements Comparable<Track> {
+
+    private final String albumArtist;
 
     private final String artist;
 
@@ -26,23 +36,47 @@ public class Track implements Comparable<Track> {
 
     private static final Pattern TRACK_NAME = Pattern.compile("^(\\d{2,})\\s+(.*)$");
 
-    private static final Comparator<Track> PART_TRACK_COMPARATOR =
-        Comparator.comparing(Track::getPart).thenComparing(Track::getTrackNo);
-
     private static final Comparator<Track> TRACK_COMPARATOR =
         Comparator.comparing(Track::getTrackNo);
 
+    private static final Comparator<Track> PART_TRACK_COMPARATOR =
+        Comparator.comparing(Track::getPart).thenComparing(Track::getTrackNo);
+
+    private final Duration duration;
+
     public Track(String artist, String album, String name, File file) {
-        this.artist = artist;
-        this.name = trackName(name);
-        this.album = album;
         this.part = part(name);
-        this.trackNo = trackNo(name);
+        try (FlacFile ff = FlacFile.open(file)) {
+            FlacTags tags = ff.getTags();
+            boolean compilation =
+                Optional.ofNullable(tags.getComments("compilation"))
+                    .filter(list -> list.size() == 1)
+                    .filter(list -> list.contains("1"))
+                    .isPresent();
+            this.artist = tags.getArtist();
+            this.albumArtist = compilation ? null : Optional.ofNullable(tags.getComments("albumartist"))
+                .filter(c ->
+                    !c.isEmpty())
+                .map(c ->
+                    c.get(0))
+                .orElse(this.artist);
+            this.name = tags.getTitle();
+            this.album = tags.getAlbum();
+            this.trackNo = trackNo(file.getName());
+            FlacInfo info = ff.getInfo();
+            duration = Duration.ofSeconds(info.getNumberOfSamples() / info.getSampleRate());
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
         this.file = file;
     }
 
     public String getArtist() {
         return artist;
+    }
+
+    public String getOtherArtist() {
+        return Objects.equals(artist, albumArtist) ? null : artist;
     }
 
     public String getAlbum() {
@@ -65,16 +99,25 @@ public class Track implements Comparable<Track> {
         return file;
     }
 
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public String getPrettyDuration() {
+        return duration.getSeconds() / 60 + ":" + duration.getSeconds() % 60;
+    }
+
     public UUID getUuid() {
         return uuid;
     }
 
+    public boolean sameAlbum(Track track) {
+        return track.getArtist().equals(getArtist()) && track.getAlbum().equals(getAlbum());
+    }
+
     @Override
     public int compareTo(Track track) {
-        if (track.getAlbum().equals(getAlbum()) && track.getArtist().equals(getArtist())) {
-            return (part == null ? TRACK_COMPARATOR : PART_TRACK_COMPARATOR).compare(this, track);
-        }
-        return 0;
+        return TRACK_COMPARATOR.compare(this, track);
     }
 
     private Integer part(String name) {

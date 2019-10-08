@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -35,15 +34,15 @@ final class Streamer extends Nettish {
     }
 
     @Override
-    public void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
-        getFile(path).filter(File::isFile).filter(File::canRead).ifPresentOrElse(
-            file ->
-                streamFile(req, file, ctx),
-            () ->
-                respond(ctx, NOT_FOUND));
+    public boolean handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+        return getFile(path).filter(File::isFile)
+            .filter(File::canRead)
+            .map(file ->
+                streamFile(req, file, ctx))
+            .isPresent();
     }
 
-    private static void streamFile(HttpRequest req, File file, ChannelHandlerContext ctx) {
+    private static boolean streamFile(HttpRequest req, File file, ChannelHandlerContext ctx) {
         RandomAccessFile randomAccessFile = randomAccess(file);
         long fileLength = length(randomAccessFile);
 
@@ -68,6 +67,7 @@ final class Streamer extends Nettish {
         if (!HttpUtil.isKeepAlive(req)) {
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
+        return true;
     }
 
     private static RandomAccessFile randomAccess(File file) {

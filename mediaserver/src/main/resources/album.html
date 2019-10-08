@@ -3,7 +3,8 @@
 <HEAD>
     <META charset="utf-8">
     <TITLE>taninim: {album.uuid}</TITLE>
-    <LINK rel="stylesheet" href="https://cdn.plyr.io/3.5.6/plyr.css" /></HEAD>
+    <LINK rel="stylesheet" href="/resources/plyr.css"/>
+</HEAD>
 <BODY>
 
 <H1><A HREF="/">taninim</A></H1>
@@ -11,22 +12,33 @@
 <H2>{album.artist}</H2>
 <H3>{album.name}</H3>
 
-<ul>
-    {album.tracks:{track |
-    <li>{track.trackNo}:
-        <A href="?artist={album.artist}&album={album.uuid}&track={track.uuid}">{track.name}
-        {if(track.part)} (disc {track.part}){endif}</A>
-    </li>
-    }}
-</ul>
-
-{if(playUuid))}
-<AUDIO id="player" controls>
-    <SOURCE src="/audio/{playUuid}" type="audio/flac"/>
+{if(playTrack)}
+<P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist}</em></P>
+<AUDIO id="player" controls autoplay data-plyr-config='\{ "autoplay": true, "autopause": true }'>
+    <SOURCE src="/audio/{playTrack.uuid}" type="audio/flac"/>
 </AUDIO>
+{if(nextTrack)}
+<P>Coming up: <em>{nextTrack.name}</em></P>
+{endif}
 {endif}
 
-<SCRIPT src="https://cdn.plyr.io/3.5.6/plyr.polyfilled.js"></SCRIPT>
+<H3>Tracks</H3>
+
+{album.albumParts:{albumPart |
+<p>{if(albumPart.part)}Disc {albumPart.part}:{endif}
+<ol>
+{albumPart.tracks:{track |
+    <li>
+        <A href="?artist={albumPart.artist}&album={albumPart.uuid}&track={track.uuid}">{if(track.otherArtist)}{track.otherArtist}: {endif}
+        {track.name}</A>
+        {track.prettyDuration}
+    </li>
+}}
+</ol>
+</p>
+}}
+
+<SCRIPT src="/resources/plyr.js"></SCRIPT>
 <SCRIPT>
     const player = new plyr('#player');
 </SCRIPT>

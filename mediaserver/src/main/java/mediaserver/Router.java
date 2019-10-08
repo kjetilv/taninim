@@ -56,8 +56,7 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
             .findFirst()
             .ifPresentOrElse(
                 nettish ->
-                    nettish.handle(
-                        req, path.substring(nettish.getPrefix().length()), ctx),
+                    nettish.handle(req, path.substring(nettish.getPrefix().length()), ctx),
                 Nettish.reset(ctx));
     }
 }

@@ -10,7 +10,13 @@ configure<JavaPluginConvention> {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+repositories {
+    mavenCentral()
+    maven(url = "https://dl.bintray.com/ijabz/maven")
+}
+
 dependencies {
+    implementation("org.gagravarr", "vorbis-java-core", "0.8")
     implementation("io.netty", "netty-all", "4.1.41.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9")

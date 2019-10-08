@@ -2,8 +2,11 @@ package mediaserver.files;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+@SuppressWarnings("unused")
 public class Album implements Comparable<Album> {
 
     private final String artist;
@@ -12,13 +15,15 @@ public class Album implements Comparable<Album> {
 
     private final Integer parts;
 
+    private final Integer part;
+
     private final List<Track> tracks;
 
     private final File file;
 
     private final CategoryPath categoryPath;
 
-    private final UUID uuid = UUID.randomUUID();
+    private final UUID uuid;
 
     private static final Comparator<Album> ALBUM_COMPARATOR =
         Comparator.comparing(Album::getCategoryPath)
@@ -26,12 +31,57 @@ public class Album implements Comparable<Album> {
             .thenComparing(Album::getName);
 
     public Album(String artist, String name, List<Track> tracks, File file, CategoryPath categoryPath) {
-        this.artist = artist.replaceAll("_", ":");
-        this.name = name.replaceAll("_", ":");
-        this.parts = parts(tracks);
-        this.tracks = tracks.stream().sorted().collect(Collectors.toList());
+        this(
+            artist.replaceAll("_", ":"),
+            name.replaceAll("_", ":"),
+            parts(tracks),
+            null,
+            tracks,
+            file,
+            categoryPath,
+            UUID.randomUUID());
+    }
+
+    private Album(
+        String artist,
+        String name,
+        Integer parts,
+        Integer part,
+        List<Track> tracks,
+        File file,
+        CategoryPath categoryPath,
+        UUID uuid
+    ) {
+        this.artist = artist;
+        this.name = single(Track::getAlbum, tracks).orElse(name);
+        this.parts = parts;
+        this.part = part == null ? null : part + 1;
+        this.tracks =
+            Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
         this.file = file;
         this.categoryPath = categoryPath;
+        this.uuid = uuid;
+    }
+
+    public List<Album> getAlbumParts() {
+        if (parts == null) {
+            return Collections.singletonList(this);
+        }
+        return IntStream.range(0, parts).mapToObj(part ->
+            new Album(
+                artist,
+                name,
+                parts,
+                part,
+                tracks.stream()
+                    .filter(track ->
+                        track.getPart() == part + 1)
+                    .sorted()
+                    .collect(Collectors.toList()),
+                file,
+                categoryPath,
+                uuid
+            )).collect(Collectors.toList());
     }
 
     @SuppressWarnings("NullableProblems")
@@ -50,6 +100,10 @@ public class Album implements Comparable<Album> {
 
     public Integer getParts() {
         return parts;
+    }
+
+    public Integer getPart() {
+        return part;
     }
 
     public List<Track> getTracks() {
@@ -74,6 +128,18 @@ public class Album implements Comparable<Album> {
 
     public boolean isIn(CategoryPath category) {
         return categoryPath.startsWith(category);
+    }
+
+    public Optional<Track> nextTrack(Track track) {
+        return tracks.stream().filter(next ->
+            next.getTrackNo() == track.getTrackNo() + 1 ||
+                parts != null && next.getTrackNo() == 1 && next.getPart() == track.getPart() + 1
+        ).findFirst();
+    }
+
+    private static Optional<String> single(Function<Track, String> getAlbum, List<Track> tracks) {
+        Collection<String> names = tracks.stream().map(getAlbum).collect(Collectors.toSet());
+        return names.size() == 1 ? names.stream().findFirst() : Optional.empty();
     }
 
     private static Integer parts(List<Track> tracks) {

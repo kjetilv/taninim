@@ -28,9 +28,10 @@ public class GUI extends Nettish {
     }
 
     @Override
-    void handle(HttpRequest req, String uri, ChannelHandlerContext ctx) {
+    boolean handle(HttpRequest req, String uri, ChannelHandlerContext ctx) {
         ST html = template(uri, this.media);
         respondHtml(ctx, html.render());
+        return true;
     }
 
     private void respondHtml(ChannelHandlerContext ctx, String html) {
@@ -41,7 +42,7 @@ public class GUI extends Nettish {
         int queryParamPos = uri.indexOf("?");
         String uriPath = uriPath(uri, queryParamPos);
         Map<String, String> pars = params(uri, queryParamPos);
-        return albumId(pars).flatMap(media::getAlbum)
+        return uuid(pars, "album").flatMap(media::getAlbum)
             .map(album ->
                 albumTemplate(media, album, pars))
             .orElseGet(() ->
@@ -61,13 +62,18 @@ public class GUI extends Nettish {
         ST st = newTemplate("album.html");
         st.add("media", media);
         st.add("album", album);
-        st.add("playUuid", pars.get("track"));
+        uuid(pars, "track").flatMap(media::getSong).ifPresent(playTrack -> {
+            st.add("playTrack", playTrack);
+            album.nextTrack(playTrack).ifPresent(next -> {
+                st.add("nextTrack", next);
+            });
+        });
         return st;
     }
 
-    private static Optional<UUID> albumId(Map<String, String> pars) {
+    private static Optional<UUID> uuid(Map<String, String> pars, String name) {
         try {
-            return Optional.ofNullable(pars.get("album")).map(UUID::fromString);
+            return Optional.ofNullable(pars.get(name)).map(UUID::fromString);
         } catch (Exception e) {
             throw new IllegalStateException("Not av valid album", e);
         }
@@ -101,7 +107,10 @@ public class GUI extends Nettish {
     }
 
     private static ST newTemplate(String resource) {
-        return new ST(IO.read(resource), '{', '}');
+        return IO.read(resource).map(data ->
+            new ST(data, '{', '}')
+        ).orElseThrow(() ->
+            new IllegalArgumentException("Invalid template: " + resource));
     }
 
     private static CategoryPath getCategoryPath(String uriPath) {

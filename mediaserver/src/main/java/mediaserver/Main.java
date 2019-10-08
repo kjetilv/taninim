@@ -34,7 +34,7 @@ public class Main {
         ServerBootstrap bootstrap = new ServerBootstrap()
             .group(listenGroup, workGroup)
             .channel(NioServerSocketChannel.class)
-            .handler(new LoggingHandler(LogLevel.INFO))
+            .handler(new LoggingHandler(LogLevel.DEBUG))
             .childHandler(handler);
 
         try {
@@ -61,6 +61,7 @@ public class Main {
         return () -> new Router(
             new API(media, objectMapper),
             new Streamer(media),
+            new Resources(),
             new GUI(media));
     }
 }

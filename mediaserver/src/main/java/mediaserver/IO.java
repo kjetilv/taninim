@@ -15,7 +15,12 @@ final class IO {
     private IO() {
     }
 
-    static String read(String resource) {
+    static Optional<String> read(String resource) {
+        return readBytes(resource)
+            .map(bytes -> new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    static Optional<byte[]> readBytes(String resource) {
         return stream(resource)
             .map(stream -> {
                 byte[] buf = new byte[8192];
@@ -24,10 +29,28 @@ final class IO {
                 } catch (Exception e) {
                     throw new IllegalStateException("Failed to read " + resource, e);
                 }
-            })
-            .map(bytes -> new String(bytes, StandardCharsets.UTF_8))
-            .orElseThrow(() ->
-                new IllegalArgumentException("Invalid resource: " + resource));
+            });
+    }
+
+    static Map<String, String> queryParams(String pars) {
+        int index = 0;
+        Map<String, String> map = new HashMap<>();
+        while (true) {
+            int nextPair = pars.indexOf("&", index);
+            boolean last = nextPair <= 0;
+            if (last) {
+                nextPair = pars.length();
+            }
+            int eqIndex = pars.indexOf("=", index);
+            if (eqIndex < 0 || eqIndex > nextPair) {
+                throw new IllegalStateException("Expected value for " + pars.substring(index + 1, nextPair));
+            }
+            map.put(pars.substring(index, eqIndex), pars.substring(eqIndex + 1, nextPair));
+            if (last) {
+                return map;
+            }
+            index = nextPair + 1;
+        }
     }
 
     private static Optional<InputStream> stream(String resource) {
@@ -59,27 +82,6 @@ final class IO {
             }
         } catch (Exception e) {
             throw new IllegalStateException("Read failed after " + bytesRead + " bytes", e);
-        }
-    }
-
-    static Map<String, String> queryParams(String pars) {
-        int index = 0;
-        Map<String, String> map = new HashMap<>();
-        while (true) {
-            int nextPair = pars.indexOf("&", index);
-            boolean last = nextPair <= 0;
-            if (last) {
-                nextPair = pars.length();
-            }
-            int eqIndex = pars.indexOf("=", index);
-            if (eqIndex < 0 || eqIndex > nextPair) {
-                throw new IllegalStateException("Expected value for " + pars.substring(index + 1, nextPair));
-            }
-            map.put(pars.substring(index, eqIndex), pars.substring(eqIndex + 1, nextPair));
-            if (last) {
-                return map;
-            }
-            index = nextPair + 1;
         }
     }
 }

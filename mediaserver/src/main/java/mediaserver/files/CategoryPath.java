@@ -31,6 +31,9 @@ public class CategoryPath implements Comparable<CategoryPath> {
         if (category.isRoot()) {
             return true;
         }
+        if (this.path.equals(category.getPath())) {
+            return true;
+        }
         if (this.path.size() >= category.path.size()) {
             List<String> prefix = this.path.subList(0, category.path.size());
             return prefix.equals(category.path);
