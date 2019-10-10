@@ -1,6 +1,7 @@
 package mediaserver;
 
 
+import mediaserver.util.IO;
 import org.junit.Test;
 
 import java.util.Map;

@@ -1,15 +1,18 @@
 package mediaserver.files;
 
+import mediaserver.hash.AbstractHashable;
+
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class CategoryPath implements Comparable<CategoryPath> {
+public class CategoryPath extends AbstractHashable implements Comparable<CategoryPath> {
 
     public static final CategoryPath ROOT = new CategoryPath(Collections.emptyList());
 
@@ -17,10 +20,6 @@ public class CategoryPath implements Comparable<CategoryPath> {
 
     public CategoryPath(Path path) {
         this(path == null ? Collections.emptyList() : parts(path));
-    }
-
-    private CategoryPath(String path) {
-        this(Collections.singletonList(path));
     }
 
     private CategoryPath(List<String> path) {
@@ -41,8 +40,9 @@ public class CategoryPath implements Comparable<CategoryPath> {
         return false;
     }
 
-    private boolean isRoot() {
-        return path.isEmpty();
+    @Override
+    public void hashTo(Consumer<byte[]> h) {
+        hash(h, path.toArray(new String[path.size()]));
     }
 
     public String getPathString() {
@@ -50,11 +50,11 @@ public class CategoryPath implements Comparable<CategoryPath> {
     }
 
     public String getLastPathString() {
-        return isRoot() ? "/": path.get(path.size() - 1);
+        return isRoot() ? "/" : path.get(path.size() - 1);
     }
 
     public String getFirstPathString() {
-        return isRoot() ? "/": path.get(0);
+        return isRoot() ? "/" : path.get(0);
     }
 
     public List<String> getPath() {
@@ -85,25 +85,19 @@ public class CategoryPath implements Comparable<CategoryPath> {
         ).collect(Collectors.toUnmodifiableList()));
     }
 
+    @Override
+    public String toStringBody() {
+        return String.join("/", path);
+    }
+
+    private boolean isRoot() {
+        return path.isEmpty();
+    }
+
     private static List<String> parts(Path path) {
         return IntStream.range(0, path.getNameCount())
             .mapToObj(path::getName)
             .map(Objects::toString)
             .collect(Collectors.toList());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(path);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o || o instanceof CategoryPath && Objects.equals(path, ((CategoryPath) o).path);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + String.join("/", path) + "]";
     }
 }

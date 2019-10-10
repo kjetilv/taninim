@@ -24,12 +24,16 @@ fun main() {
                         album(path).contains("book of angels") ||
                         album(path).contains("book beri") ||
                         album(path).contains("circle maker") ||
+                        artist(path).contains("bar kokhba") ||
                         artist(path).startsWith("naked city") ||
                         artist(path).startsWith("painkiller") ||
-                        artist(path).equals("makigami koichi") ||
-                        artist(path).equals("derek bailey") ||
-                        artist(path).equals("evan parker") ||
+                        artist(path) == "makigami koichi" ||
+                        artist(path) == "derek bailey" ||
+                        artist(path) == "evan parker" ||
+                        artist(path) == "ruins" ||
+                        artist(path).contains("bret higgins") ||
                         artist(path).contains("ratkje") ||
+                        artist(path).contains("fred frith") ||
                         album(path).contains("great jewish music")
                 )
     }
@@ -60,8 +64,13 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         },
 
         Paths.get("Masada", "Masada Book 1") to { path ->
-            artist(path) == "masada" && album(path).contains("book 1 vol. ") ||
-                    artist(path) == "electric masada"
+            artist(path) == "masada" && album(path).contains("book 1 vol. ")
+        },
+
+        Paths.get("Masada", "Various") to { path ->
+            album(path).contains("circle maker") ||
+                    artist(path).contains("bar kokhba") ||
+                    artist(path) == "masada" && album(path).contains("50th birthday")
         },
 
         Paths.get("Masada", "Masada Book 1", "10. Anniversary") to { path ->
@@ -70,14 +79,15 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         },
 
         Paths.get("Masada", "Masada Book 1", "Live") to { path ->
-            artist(path) == "masada" && album(path).contains("book 1 vol. ") ||
-                    artist(path).contains("masada") && album(path).contains(" live ") ||
-                    artist(path).contains("masada") && album(path).contains("50th birthday")
+            artist(path).contains("masada") && album(path).contains(" live ")
         },
 
-        Paths.get("Masada", "Masada Book 1", "Various") to { path ->
-            album(path).contains("circle maker") ||
-                    album(path).contains("sanhedrin")
+        Paths.get("Masada") to { path ->
+            artist(path) == "electric masada"
+        },
+
+        Paths.get("Masada", "Masada Book 1") to { path ->
+            album(path).contains("sanhedrin")
         },
 
         Paths.get("Hardcore miniatures", "Painkiller") to { path ->
@@ -101,24 +111,26 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         },
 
         Paths.get("On Tzadik") to { path ->
-            artist(path).equals("makigami koichi") ||
-                    artist(path).equals("derek bailey") ||
+            artist(path) == "makigami koichi" ||
+                    artist(path) == "derek bailey" ||
                     album(path).contains("great jewish music") ||
-                    artist(path).equals("fred frith") ||
-                    artist(path).equals("evan parker") ||
-                    artist(path).contains("ratkje")
+                    artist(path) == "fred frith" ||
+                    artist(path) == "evan parker" ||
+                    artist(path).contains("bret higgins") ||
+                    artist(path).contains("ratkje") ||
+                    artist(path) == "ruins"
         },
 
-        Paths.get("Various") to { path ->
+        Paths.get("Various") to { _ ->
             true
         }
 ).map {
     SubdirDist(it.first, it.second)
 }
 
-private fun album(it: Path) = it.parent.fileName.toString().toLowerCase()
+private fun album(path: Path) = path.parent.fileName.toString().toLowerCase()
 
-private fun artist(it: Path) = it.parent.parent.fileName.toString().toLowerCase()
+private fun artist(path: Path) = path.parent.parent.fileName.toString().toLowerCase()
 
 private fun ffmpeg(source: Path, target: Path): Command =
         Command(Paths.get("."),
@@ -127,4 +139,3 @@ private fun ffmpeg(source: Path, target: Path): Command =
 
 private fun absOf(source: Path) = source.toFile().absolutePath
 
-private fun pathOf(source: Path) = source.toString()

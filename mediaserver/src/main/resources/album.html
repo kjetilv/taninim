@@ -26,7 +26,7 @@
 
 {album.albumParts:{albumPart |
 <p>{if(albumPart.part)}Disc {albumPart.part}:{endif}
-<ol>
+<OL>
 {albumPart.tracks:{track |
     <li>
         <A href="?artist={albumPart.artist}&album={albumPart.uuid}&track={track.uuid}">{if(track.otherArtist)}{track.otherArtist}: {endif}
@@ -34,8 +34,8 @@
         {track.prettyDuration}
     </li>
 }}
-</ol>
-</p>
+</OL>
+</P>
 }}
 
 <SCRIPT src="/resources/plyr.js"></SCRIPT>

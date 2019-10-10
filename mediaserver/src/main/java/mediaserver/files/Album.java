@@ -1,13 +1,16 @@
 package mediaserver.files;
 
+import mediaserver.hash.AbstractHashable;
+
 import java.io.File;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unused")
-public class Album implements Comparable<Album> {
+public class Album extends AbstractHashable implements Comparable<Album> {
 
     private final String artist;
 
@@ -23,8 +26,6 @@ public class Album implements Comparable<Album> {
 
     private final CategoryPath categoryPath;
 
-    private final UUID uuid;
-
     private static final Comparator<Album> ALBUM_COMPARATOR =
         Comparator.comparing(Album::getCategoryPath)
             .thenComparing(Album::getArtist)
@@ -38,8 +39,7 @@ public class Album implements Comparable<Album> {
             null,
             tracks,
             file,
-            categoryPath,
-            UUID.randomUUID());
+            categoryPath);
     }
 
     private Album(
@@ -49,8 +49,7 @@ public class Album implements Comparable<Album> {
         Integer part,
         List<Track> tracks,
         File file,
-        CategoryPath categoryPath,
-        UUID uuid
+        CategoryPath categoryPath
     ) {
         this.artist = artist;
         this.name = single(Track::getAlbum, tracks).orElse(name);
@@ -60,7 +59,6 @@ public class Album implements Comparable<Album> {
             Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
         this.file = file;
         this.categoryPath = categoryPath;
-        this.uuid = uuid;
     }
 
     public List<Album> getAlbumParts() {
@@ -79,8 +77,7 @@ public class Album implements Comparable<Album> {
                     .sorted()
                     .collect(Collectors.toList()),
                 file,
-                categoryPath,
-                uuid
+                categoryPath
             )).collect(Collectors.toList());
     }
 
@@ -118,10 +115,6 @@ public class Album implements Comparable<Album> {
         return categoryPath;
     }
 
-    public UUID getUuid() {
-        return uuid;
-    }
-
     public String print() {
         return categoryPath + "/ " + getArtist() + ": " + getName() + " [" + tracks.size() + "]";
     }
@@ -137,6 +130,21 @@ public class Album implements Comparable<Album> {
         ).findFirst();
     }
 
+    @Override
+    public void hashTo(Consumer<byte[]> h) {
+        hash(h, name, artist);
+        hash(h, parts, part);
+        hash(h, tracks);
+        hash(h, categoryPath);
+    }
+
+    @Override
+    public String toStringBody() {
+        return categoryPath.getPathString() +
+            ": " + artist + "/" + name +
+            " [" + tracks.size() + "]";
+    }
+
     private static Optional<String> single(Function<Track, String> getAlbum, List<Track> tracks) {
         Collection<String> names = tracks.stream().map(getAlbum).collect(Collectors.toSet());
         return names.size() == 1 ? names.stream().findFirst() : Optional.empty();
@@ -149,14 +157,5 @@ public class Album implements Comparable<Album> {
             .mapToInt(Integer::intValue)
             .max();
         return maxPart.isPresent() ? maxPart.getAsInt() : null;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[" + categoryPath.getPathString() +
-            ": " + artist + "/" + name +
-            " [" + tracks.size() +
-            "]]";
     }
 }

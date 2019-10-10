@@ -1,15 +1,21 @@
 package mediaserver;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -41,12 +47,26 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         try {
-            log.error("Caught error", cause);
+            Optional.of(cause)
+                .filter(SocketException.class::isInstance)
+                .map(Throwable::getMessage)
+                .map("Connection reset"::equals)
+                .ifPresentOrElse(ignored -> {
+                    log.info("Connection {}->{} reset",
+                        get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress));
+                }, () -> {
+                    log.error("Caught error {}->{}",
+                        get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress), cause);
+                });
         } finally {
             if (ctx.channel().isActive()) {
                 Nettish.respond(ctx, INTERNAL_SERVER_ERROR);
             }
         }
+    }
+
+    private String get(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {
+        return Optional.of(ctx).map(ChannelHandlerContext::channel).map(remoteAddress).map(Objects::toString).orElse("?");
     }
 
     private void handlePath(HttpRequest req, String path, ChannelHandlerContext ctx) {

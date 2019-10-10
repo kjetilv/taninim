@@ -1,0 +1,6 @@
+#EXTM3U
+#PLAYLIST: <playlist.name>
+
+<playlist.tracks:<track|
+#EXTINF:<track.g
+>>

@@ -6,5 +6,6 @@ allprojects {
         mavenCentral()
         jcenter()
         google()
+        maven(url = "https://dl.bintray.com/ijabz/maven")
     }
 }

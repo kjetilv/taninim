@@ -7,6 +7,11 @@ class Traverser(
         private val root: Path,
         private val depth: Int = -1) {
 
+    fun unpaths(selector: (Path) -> Boolean): List<Path> =
+            paths {
+                !selector.invoke(it)
+            }
+
     fun paths(selector: (Path) -> Boolean): List<Path> {
         val dir = root.toFile()
         if (!(dir.exists() && dir.isDirectory)) {

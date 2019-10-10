@@ -1,20 +1,23 @@
 package mediaserver.files;
 
+import mediaserver.hash.AbstractHashable;
 import org.gagravarr.flac.FlacFile;
 import org.gagravarr.flac.FlacInfo;
 import org.gagravarr.flac.FlacTags;
 
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
-public class Track implements Comparable<Track> {
+public class Track extends AbstractHashable implements Comparable<Track> {
 
     private final String albumArtist;
 
@@ -29,8 +32,6 @@ public class Track implements Comparable<Track> {
     private final Integer part;
 
     private final File file;
-
-    private final UUID uuid = UUID.randomUUID();
 
     private static final Pattern PART_TRACK_NAME = Pattern.compile("^(\\d+)-(\\d{2,})\\s+(.*)$");
 
@@ -64,7 +65,7 @@ public class Track implements Comparable<Track> {
             this.album = tags.getAlbum();
             this.trackNo = trackNo(file.getName());
             FlacInfo info = ff.getInfo();
-            duration = Duration.ofSeconds(info.getNumberOfSamples() / info.getSampleRate());
+            duration = Duration.ofMillis(info.getNumberOfSamples() * 1000 / info.getSampleRate());
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -72,7 +73,7 @@ public class Track implements Comparable<Track> {
     }
 
     public String getArtist() {
-        return artist;
+        return URLEncoder.encode(artist, StandardCharsets.UTF_8);
     }
 
     public String getOtherArtist() {
@@ -107,10 +108,6 @@ public class Track implements Comparable<Track> {
         return duration.getSeconds() / 60 + ":" + duration.getSeconds() % 60;
     }
 
-    public UUID getUuid() {
-        return uuid;
-    }
-
     public boolean sameAlbum(Track track) {
         return track.getArtist().equals(getArtist()) && track.getAlbum().equals(getAlbum());
     }
@@ -118,6 +115,18 @@ public class Track implements Comparable<Track> {
     @Override
     public int compareTo(Track track) {
         return TRACK_COMPARATOR.compare(this, track);
+    }
+
+    @Override
+    public void hashTo(Consumer<byte[]> h) {
+        hash(h, album, name, albumArtist);
+        hash(h, part, trackNo);
+        hash(h, duration.toMillis());
+    }
+
+    @Override
+    protected Object toStringBody() {
+        return artist + "/" + album + " " + trackNo + ": " + name;
     }
 
     private Integer part(String name) {
@@ -147,11 +156,5 @@ public class Track implements Comparable<Track> {
             return matcher.group(noPartIndex);
         }
         throw new IllegalArgumentException("Bad track name: " + name);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[" + artist + "/" + album + " " + trackNo + ": " + name + "]";
     }
 }

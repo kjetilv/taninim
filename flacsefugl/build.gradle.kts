@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.40"
+    kotlin("jvm") version "1.3.50"
     id("com.github.johnrengelman.shadow") version "5.1.0"
     maven
     java
@@ -14,18 +14,16 @@ configure<JavaPluginConvention> {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-
+    implementation(kotlin("stdlib"))
     testImplementation("junit:junit:4.12")
 }
 
 val compileKotlin: KotlinCompile by tasks
-
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "11"
 }
 
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "11"
 }

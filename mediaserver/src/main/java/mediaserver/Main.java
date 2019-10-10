@@ -1,7 +1,5 @@
 package mediaserver;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -14,7 +12,7 @@ import mediaserver.files.Media;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 
@@ -22,12 +20,11 @@ public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) {
-        ObjectMapper objectMapper = new ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    private static final int PORT = 8080;
 
+    public static void main(String[] args) {
         Initializer handler =
-            new Initializer(routerProvider(objectMapper, root()));
+            new Initializer(routerProvider(new File(args[0]).toPath()));
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
@@ -38,7 +35,8 @@ public class Main {
             .childHandler(handler);
 
         try {
-            Channel ch = bootstrap.bind(8080).sync().channel();
+            Channel ch = bootstrap.bind(PORT).sync().channel();
+            log.info("Bound to port {}", PORT);
             ch.closeFuture().sync();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -49,17 +47,11 @@ public class Main {
         }
     }
 
-    private static Path root() {
-        return Path.of(URI.create(
-                "file://" + System.getProperty("user.home") + "/FLAC/John%20Zorn"));
-    }
-
-    private static Supplier<Router> routerProvider(ObjectMapper objectMapper, Path root) {
+    private static Supplier<Router> routerProvider(Path root) {
         log.info("Scanning from {}", root);
         Media media = new DefaultMedia(root);
         log.info("Scanned: {}", media);
         return () -> new Router(
-            new API(media, objectMapper),
             new Streamer(media),
             new Resources(),
             new GUI(media));

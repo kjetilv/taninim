@@ -13,6 +13,8 @@ class Conversion(
             process: (Path, Path) -> Boolean
     ): Boolean {
         println("Validating inputs...")
+        val unpaths = traverser.unpaths(filter).map { it.parent.parent.fileName }.distinct().sorted()
+        println("${unpaths.size} artists ignored: ${unpaths}}")
         val paths = traverser.paths(filter)
         println("${paths.size} paths to convert")
         val missingDirs: Set<File> = paths.flatMap {
