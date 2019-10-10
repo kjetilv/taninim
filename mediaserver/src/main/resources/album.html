@@ -9,17 +9,14 @@
 
 <H1><A HREF="/">taninim</A></H1>
 
-<H2>{album.artist}</H2>
-<H3>{album.name}</H3>
+<H2><A HREF="/playlist/artist/{album.artist}">{album.artist}</A></H2>
+<H3><A HREF="/playlist/album/{album.uuid}">{album.name}</A></H3>
 
 {if(playTrack)}
 <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist}</em></P>
 <AUDIO id="player" controls autoplay data-plyr-config='\{ "autoplay": true, "autopause": true }'>
     <SOURCE src="/audio/{playTrack.uuid}" type="audio/flac"/>
 </AUDIO>
-{if(nextTrack)}
-<P>Coming up: <em>{nextTrack.name}</em></P>
-{endif}
 {endif}
 
 <H3>Tracks</H3>

@@ -4,23 +4,36 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public final class IO {
 
-    private IO() {
+    private final boolean dev;
+
+    private static final String GRADLE_OUT = "out/production";
+
+    public IO(boolean dev) {
+        this.dev = dev;
     }
 
-    public static Optional<String> read(String resource) {
+    public URL resolve(String path) {
+        try {
+            return URI.create((dev ? "http://localhost:8080" : "https://taninim.stuf.link") + path).toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Failed to resolve " + path, e);
+        }
+    }
+
+    public Optional<String> read(String resource) {
         return readBytes(resource)
             .map(bytes -> new String(bytes, StandardCharsets.UTF_8));
     }
 
-    public static Optional<byte[]> readBytes(String resource) {
+    public Optional<byte[]> readBytes(String resource) {
         return stream(resource)
             .map(stream -> {
                 byte[] buf = new byte[8192];
@@ -32,47 +45,35 @@ public final class IO {
             });
     }
 
-    public static Map<String, String> queryParams(String pars) {
-        int index = 0;
-        Map<String, String> map = new HashMap<>();
-        while (true) {
-            int nextPair = pars.indexOf("&", index);
-            boolean last = nextPair <= 0;
-            if (last) {
-                nextPair = pars.length();
-            }
-            int eqIndex = pars.indexOf("=", index);
-            if (eqIndex < 0 || eqIndex > nextPair) {
-                throw new IllegalStateException("Expected value for " + pars.substring(index + 1, nextPair));
-            }
-            map.put(pars.substring(index, eqIndex), pars.substring(eqIndex + 1, nextPair));
-            if (last) {
-                return map;
-            }
-            index = nextPair + 1;
-        }
-    }
-
-    private static Optional<InputStream> stream(String resource) {
+    private Optional<InputStream> stream(String resource) {
         Optional<URL> url = Optional.ofNullable(
             Thread.currentThread().getContextClassLoader().getResource(resource));
         if (url.isEmpty()) {
             throw new IllegalArgumentException("No such resource: " + resource);
         }
-        if (url.filter(u -> u.getFile().contains("out/production")).isPresent()) {
-            return url
-                .map(URL::getFile)
-                .map(name ->
-                    name.replaceAll("out/production", "src/main"))
-                .map(name -> {
-                    try {
-                        return new FileInputStream(name);
-                    } catch (FileNotFoundException e) {
-                        throw new IllegalStateException("Failed to open file: " + name, e);
-                    }
-                });
+        if (dev && url.filter(this::existsAsSource).isPresent()) {
+            return url.map(this::fromSourceEnvironment).orElseThrow(() ->
+                new IllegalArgumentException("No such resource: " + resource));
         }
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource));
+    }
+
+    private boolean existsAsSource(URL u) {
+        return u.getFile().contains(GRADLE_OUT);
+    }
+
+    private Optional<InputStream> fromSourceEnvironment(URL url) {
+        return Optional.of(url)
+            .map(URL::getFile)
+            .map(name ->
+                name.replaceAll(GRADLE_OUT, "src/main"))
+            .map(name -> {
+                try {
+                    return new FileInputStream(name);
+                } catch (FileNotFoundException e) {
+                    throw new IllegalStateException("Failed to open file: " + name, e);
+                }
+            });
     }
 
     private static byte[] readTo(InputStream stream, byte[] buf, ByteArrayOutputStream baos) {

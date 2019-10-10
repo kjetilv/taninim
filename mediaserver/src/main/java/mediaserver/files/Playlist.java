@@ -8,25 +8,32 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public class Playlist extends AbstractHashable {
 
     private final String name;
 
     private final List<Track> tracks;
 
+    public Playlist(Album album) {
+        this(album.getArtist() + ": " + album.getName(), album.getTracks());
+    }
+
+    public Playlist(Collection<Track> tracks) {
+        this(null, tracks);
+    }
+
     public Playlist(String name, Collection<Track> tracks) {
         this.name = name;
         this.tracks = List.copyOf(tracks);
     }
 
-    public Playlist addAlbums(Collection<Album> albums) {
-        return new Playlist(name,
-            albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList()));
+    public String getName() {
+        return name;
     }
 
-    public Playlist addTracks(Collection<Track> tracks) {
-        return new Playlist(name,
-            Stream.of(this.tracks, tracks).flatMap(Collection::stream).collect(Collectors.toList()));
+    public List<Track> getTracks() {
+        return tracks;
     }
 
     @Override
@@ -38,9 +45,5 @@ public class Playlist extends AbstractHashable {
     @Override
     protected Object toStringBody() {
         return super.toStringBody();
-    }
-
-    public String toM3U() {
-
     }
 }

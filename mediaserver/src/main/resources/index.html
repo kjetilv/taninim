@@ -33,7 +33,7 @@
 <UL>
     {media.artists:{artist|
     <LI>
-        <SPAN><A HREF="?artist={artist}">{artist}</A></SPAN>
+        <SPAN><A HREF="?artist={artist}">{artist}</A> (<A HREF="/playlist/artist/{artist}">m3u</A>)</SPAN>
     </LI>
     }}
 </UL>
@@ -45,7 +45,8 @@
 <UL>
     {media.albums:{album|
     <LI>
-        <SPAN><A HREF="?artist={album.artist}&album={album.uuid}">{album.artist}: {album.name}</A></SPAN>
+        <SPAN><A HREF="?artist={album.artist}&album={album.uuid}">{album.artist}: {album.name}</A>
+            (<A HREF="/playlist/album/{album.uuid}">m3u</A>)</SPAN>
     </LI>
     }}
 </UL>

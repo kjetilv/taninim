@@ -84,6 +84,17 @@ public class DefaultMedia implements Media {
     }
 
     @Override
+    public Collection<Track> getTracksBy(String artist) {
+        Objects.requireNonNull(artist, "artist");
+        return albumStream(true)
+            .map(Album::getTracks)
+            .flatMap(Collection::stream)
+            .filter(track ->
+                artist.equalsIgnoreCase(track.getArtist()) || artist.equalsIgnoreCase(track.getOtherArtist()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public Collection<Track> getSongs(boolean recurse) {
         return songStream(recurse).collect(Collectors.toList());
     }

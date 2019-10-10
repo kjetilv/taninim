@@ -123,13 +123,6 @@ public class Album extends AbstractHashable implements Comparable<Album> {
         return categoryPath.startsWith(category);
     }
 
-    public Optional<Track> nextTrack(Track track) {
-        return tracks.stream().filter(next ->
-            next.getTrackNo() == track.getTrackNo() + 1 ||
-                parts != null && next.getTrackNo() == 1 && next.getPart() == track.getPart() + 1
-        ).findFirst();
-    }
-
     @Override
     public void hashTo(Consumer<byte[]> h) {
         hash(h, name, artist);

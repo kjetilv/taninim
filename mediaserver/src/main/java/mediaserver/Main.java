@@ -9,6 +9,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import mediaserver.files.DefaultMedia;
 import mediaserver.files.Media;
+import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,10 @@ public class Main {
     private static final int PORT = 8080;
 
     public static void main(String[] args) {
-        Initializer handler =
-            new Initializer(routerProvider(new File(args[0]).toPath()));
+        Initializer handler = new Initializer(
+            routerProvider(
+                new File(args[0]).toPath(),
+                Boolean.getBoolean("dev")));
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
@@ -47,13 +50,15 @@ public class Main {
         }
     }
 
-    private static Supplier<Router> routerProvider(Path root) {
+    private static Supplier<Router> routerProvider(Path root, boolean dev) {
         log.info("Scanning from {}", root);
         Media media = new DefaultMedia(root);
+        IO io = new IO(dev);
         log.info("Scanned: {}", media);
         return () -> new Router(
-            new Streamer(media),
-            new Resources(),
-            new GUI(media));
+            new Streamer(io, media),
+            new Resources(io),
+            new Playlists(io, media),
+            new GUI(io, media));
     }
 }

@@ -7,6 +7,7 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
 import mediaserver.files.Media;
 import mediaserver.files.Track;
+import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,19 +28,20 @@ final class Streamer extends Nettish {
     private static final Logger log = LoggerFactory.getLogger(Streamer.class);
 
     private final Media media;
+    private static final String AUDIO_FLAC = "audio/flac";
 
-    public Streamer(Media media) {
-        super("/audio");
+    public Streamer(IO io, Media media) {
+        super(io, "/audio");
         this.media = media;
     }
 
     @Override
-    public boolean handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
-        return getFile(path).filter(File::isFile)
+    public void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+        getFile(path)
+            .filter(File::isFile)
             .filter(File::canRead)
             .map(file ->
-                streamFile(req, file, ctx))
-            .isPresent();
+                streamFile(req, file, ctx));
     }
 
     private static boolean streamFile(HttpRequest req, File file, ChannelHandlerContext ctx) {
@@ -47,14 +49,13 @@ final class Streamer extends Nettish {
         long fileLength = length(randomAccessFile);
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-        response.headers().set(CONTENT_TYPE, "audio/flac");
+        response.headers().set(CONTENT_TYPE, AUDIO_FLAC);
         if (HttpUtil.isKeepAlive(req)) {
             response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }
         response.headers().add(HttpHeaderNames.ACCEPT_RANGES, HttpHeaderValues.BYTES);
 
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
-        System.out.println(HttpHeaderNames.RANGE + " = " + rangeHeader);
 
         ChannelFuture sendFile = rangeHeader != null && rangeHeader.length() > 0
             ? writePartial(ctx, randomAccessFile, fileLength, response, rangeHeader)

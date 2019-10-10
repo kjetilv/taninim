@@ -42,6 +42,8 @@ public interface Media {
         return getSongs(false);
     }
 
+    Collection<Track> getTracksBy(String artist);
+
     Collection<Track> getSongs(boolean recurse);
 
     Optional<Album> getAlbum(UUID id);

@@ -1,6 +1,10 @@
 #EXTM3U
-#PLAYLIST: <playlist.name>
+#PLAYLIST: {playlist.name}
+{if(artist)}#EXTART: {artist}{endif}
+{if(album)}#EXTALB: {album.name}{endif}
 
-<playlist.tracks:<track|
-#EXTINF:<track.g
->>
+{playlist.tracks:{track|
+#EXTINF:{track.seconds};{track.name}
+{host}/audio/{track.uuid}
+
+}}

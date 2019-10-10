@@ -6,8 +6,6 @@ import org.gagravarr.flac.FlacInfo;
 import org.gagravarr.flac.FlacTags;
 
 import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.Objects;
@@ -73,7 +71,7 @@ public class Track extends AbstractHashable implements Comparable<Track> {
     }
 
     public String getArtist() {
-        return URLEncoder.encode(artist, StandardCharsets.UTF_8);
+        return artist;
     }
 
     public String getOtherArtist() {
@@ -102,6 +100,10 @@ public class Track extends AbstractHashable implements Comparable<Track> {
 
     public Duration getDuration() {
         return duration;
+    }
+
+    public long getSeconds() {
+        return duration.toSeconds();
     }
 
     public String getPrettyDuration() {
