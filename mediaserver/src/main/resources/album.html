@@ -9,8 +9,8 @@
 
 <H1><A HREF="/">taninim</A></H1>
 
-<H2><A HREF="/playlist/artist/{album.artist}">{album.artist}</A></H2>
-<H3><A HREF="/playlist/album/{album.uuid}">{album.name}</A></H3>
+<H2>{album.artist} <A HREF="/playlist/artist/{album.artist}">[▶]</A></H2>
+<H3>{album.name} <A HREF="/playlist/album/{album.uuid}">[▶]</A></H3>
 
 {if(playTrack)}
 <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist}</em></P>
@@ -26,9 +26,11 @@
 <OL>
 {albumPart.tracks:{track |
     <li>
-        <A href="?artist={albumPart.artist}&album={albumPart.uuid}&track={track.uuid}">{if(track.otherArtist)}{track.otherArtist}: {endif}
-        {track.name}</A>
+        {track.name}
         {track.prettyDuration}
+        <A href="?artist={albumPart.artist}&album={albumPart.uuid}&track={track.uuid}">{if(track.otherArtist)}{track.otherArtist}: {endif}
+            [▶]
+        </A>
     </li>
 }}
 </OL>

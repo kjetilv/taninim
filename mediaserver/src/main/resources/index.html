@@ -20,7 +20,7 @@
 <UL>
     {media.topCategories:{cat|
     <LI>
-        <SPAN><A HREF="/{cat.pathString}">{cat.pathString}<A></SPAN>
+        <SPAN><A HREF="/{cat.pathString}">📁 {cat.pathString}</A></SPAN>
     </LI>
     }}
 </UL>
@@ -33,7 +33,7 @@
 <UL>
     {media.artists:{artist|
     <LI>
-        <SPAN><A HREF="?artist={artist}">{artist}</A> <A HREF="/playlist/artist/{artist}">🌊</A></SPAN>
+        <SPAN>{artist} <A HREF="/playlist/artist/{artist}">▶</A></SPAN>
     </LI>
     }}
 </UL>
@@ -45,8 +45,8 @@
 <UL>
     {media.albums:{album|
     <LI>
-        <SPAN><A HREF="?artist={album.artist}&album={album.uuid}">{album.artist}: {album.name}</A>
-            <A HREF="/playlist/album/{album.uuid}">🌊</A></SPAN>
+        <SPAN><A HREF="?artist={album.artist}&album={album.uuid}">📁 {album.artist}: {album.name}</A>
+            <A ALT="Playlist" HREF="/playlist/album/{album.uuid}" >[▶]</A></SPAN>
     </LI>
     }}
 </UL>
