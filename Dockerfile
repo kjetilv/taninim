@@ -1,33 +1,23 @@
-FROM openjdk:13-alpine
+FROM openjdk:11
 
 EXPOSE 8080/tcp
 MAINTAINER Kjetil Valstadsve <taninim@vlitejk.cotse.net>
 
-RUN mkdir -p /usr/src/taninim
-WORKDIR ./usr/src/taninim
+RUN echo "JAVA_HOME="${JAVA_HOME}
+RUN java -version
 
-RUN apk add --no-cache git
+RUN mkdir -p /usr/src
+WORKDIR ./usr/src
 
 RUN git clone https://github.com/kjetilv/taninim.git
-WORKDIR taninim
+WORKDIR /usr/src/taninim
 RUN ./gradlew shadowJar
 
-RUN cp mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar /usr/src/lib/taninim.jar
+RUN mkdir -p /usr/src/lib
+RUN cp /usr/src/taninim/mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar /usr/src/lib/taninim.jar
 WORKDIR /usr/src/lib
 RUN rm -rf /usr/src/taninim
 
-RUN java -jar taninim.jar
 
-#
-#RUN javac Main.java
-#CMD ["java", "Main"]
-#
-#RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
-#
-#RUN apt-get -y update
-#
-#RUN mkdir taninim
-#RUN git
-#
-#ENV MEDIA=/mnt
-#
+RUN java -jar /usr/src/lib/taninim.jar
+

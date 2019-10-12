@@ -24,9 +24,17 @@ public class Main {
     private static final int PORT = 8080;
 
     public static void main(String[] args) {
+        if (args.length == 0) {
+            System.err.println("Usage: <media directory>");
+            System.exit(1);
+            return;
+        }
+        Path mediaPath = new File(args[0]).toPath();
+        log.info("Serving media from {}", mediaPath);
+
         Initializer handler = new Initializer(
             routerProvider(
-                new File(args[0]).toPath(),
+                mediaPath,
                 Boolean.getBoolean("dev")));
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
