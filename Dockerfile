@@ -18,6 +18,6 @@ RUN cp /usr/src/taninim/mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar 
 WORKDIR /usr/src/lib
 RUN rm -rf /usr/src/taninim
 
+VOLUME /mnt/media
 
-RUN java -jar /usr/src/lib/taninim.jar
-
+CMD java -jar /usr/src/lib/taninim.jar /mnt/media
