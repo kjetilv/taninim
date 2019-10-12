@@ -56,9 +56,9 @@ public class Main {
         IO io = new IO(dev);
         log.info("Scanned: {}", media);
         return () -> new Router(
-            new Streamer(io, media),
-            new Resources(io),
+            new GUI(io, media),
             new Playlists(io, media),
-            new GUI(io, media));
+            new Resources(io),
+            new Streamer(io, media));
     }
 }

@@ -2,8 +2,18 @@ FROM openjdk:13-alpine
 
 MAINTAINER Kjetil Valstadsve <taninim@vlitejk.cotse.net>
 
-COPY . /usr/src/myapp
-WORKDIR /usr/src/myapp
+RUN mkdir -p /usr/src/taninim
+WORKDIR ./usr/src/taninim
+
+RUN apk add --no-cache git
+
+RUN git clone https://github.com/kjetilv/taninim.git
+WORKDIR taninim
+RUN ./gradlew shadowJar
+
+EXPOSE 8080/tcp
+
+RUN java -jar mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar
 
 #
 #RUN javac Main.java
