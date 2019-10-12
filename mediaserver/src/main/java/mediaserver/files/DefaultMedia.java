@@ -10,7 +10,9 @@ public class DefaultMedia implements Media {
 
     private final CategoryPath categoryPath;
 
-    private final List<Album> library;
+    private final Collection<Album> library;
+
+    private final Collection<Artist> artists;
 
     public DefaultMedia(Path root) {
         this(new CategoryPath(null), getAlbums(root, root));
@@ -19,6 +21,16 @@ public class DefaultMedia implements Media {
     private DefaultMedia(CategoryPath categoryPath, Stream<Album> albums) {
         this.categoryPath = categoryPath;
         this.library = albums.collect(Collectors.toList());
+        this.artists = Stream.concat(
+            albumStream(true).map(Album::getArtist),
+            trackStream(true).flatMap(track ->
+                Stream.concat(
+                    Stream.of(track.getArtist()),
+                    track.getOtherArtist().stream()
+            )))
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -34,8 +46,10 @@ public class DefaultMedia implements Media {
     }
 
     @Override
-    public Optional<Track> getSong(UUID uuid) {
-        return songStream(true).filter(song -> song.getUuid().equals(uuid)).findFirst();
+    public Optional<Track> getTrack(UUID uuid) {
+        return trackStream(true)
+            .filter(track ->
+                track.getUuid().equals(uuid)).findFirst();
     }
 
     @Override
@@ -65,17 +79,13 @@ public class DefaultMedia implements Media {
     }
 
     @Override
-    public Collection<String> getAlbumArtists(boolean recurse) {
+    public Collection<Artist> getAlbumArtists(boolean recurse) {
         return stream(recurse).map(Album::getArtist).collect(Collectors.toSet());
     }
 
     @Override
-    public Collection<String> getArtists(boolean recurse) {
-        return stream(recurse)
-            .map(Album::getTracks)
-            .flatMap(Collection::stream)
-            .map(Track::getArtist)
-            .collect(Collectors.toSet());
+    public Collection<Artist> getArtists(boolean recurse) {
+        return artists;
     }
 
     @Override
@@ -84,24 +94,29 @@ public class DefaultMedia implements Media {
     }
 
     @Override
-    public Collection<Track> getTracksBy(String artist) {
+    public Collection<Track> getTracksBy(Artist artist) {
         Objects.requireNonNull(artist, "artist");
         return albumStream(true)
             .map(Album::getTracks)
             .flatMap(Collection::stream)
             .filter(track ->
-                artist.equalsIgnoreCase(track.getArtist()) || artist.equalsIgnoreCase(track.getOtherArtist()))
+                artist.equals(track.getArtist()) || track.getOtherArtist().filter(artist::equals).isPresent())
             .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<Track> getSongs(boolean recurse) {
-        return songStream(recurse).collect(Collectors.toList());
+    public Collection<Track> getTracks(boolean recurse) {
+        return trackStream(recurse).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Album> getAlbum(UUID uuid) {
         return stream(true).filter(album -> album.getUuid().equals(uuid)).findFirst();
+    }
+
+    @Override
+    public Optional<Artist> getArtist(UUID id) {
+        return artists.stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
     }
 
     private Stream<Album> stream(boolean recurse) {
@@ -117,7 +132,7 @@ public class DefaultMedia implements Media {
         return stream(recurse).sorted();
     }
 
-    private Stream<Track> songStream(boolean recurse) {
+    private Stream<Track> trackStream(boolean recurse) {
         return albumStream(recurse).flatMap(album -> album.getTracks().stream());
     }
 
@@ -126,7 +141,7 @@ public class DefaultMedia implements Media {
     }
 
     private static Track track(String artist, String album, String name, File file) {
-        return new Track(artist, album, name, file);
+        return new Track(new Artist(artist), name, file);
     }
 
     private static Stream<Album> getAlbums(Path root, Path path) {

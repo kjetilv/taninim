@@ -17,9 +17,9 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public class Track extends AbstractHashable implements Comparable<Track> {
 
-    private final String albumArtist;
+    private final Artist albumArtist;
 
-    private final String artist;
+    private final Artist artist;
 
     private final String name;
 
@@ -43,7 +43,7 @@ public class Track extends AbstractHashable implements Comparable<Track> {
 
     private final Duration duration;
 
-    public Track(String artist, String album, String name, File file) {
+    public Track(Artist artist, String name, File file) {
         this.part = part(name);
         try (FlacFile ff = FlacFile.open(file)) {
             FlacTags tags = ff.getTags();
@@ -52,12 +52,13 @@ public class Track extends AbstractHashable implements Comparable<Track> {
                     .filter(list -> list.size() == 1)
                     .filter(list -> list.contains("1"))
                     .isPresent();
-            this.artist = tags.getArtist();
+            this.artist = new Artist(tags.getArtist());
             this.albumArtist = compilation ? null : Optional.ofNullable(tags.getComments("albumartist"))
                 .filter(c ->
                     !c.isEmpty())
                 .map(c ->
                     c.get(0))
+                .map(Artist::new)
                 .orElse(this.artist);
             this.name = tags.getTitle();
             this.album = tags.getAlbum();
@@ -70,12 +71,12 @@ public class Track extends AbstractHashable implements Comparable<Track> {
         this.file = file;
     }
 
-    public String getArtist() {
+    public Artist getArtist() {
         return artist;
     }
 
-    public String getOtherArtist() {
-        return Objects.equals(artist, albumArtist) ? null : artist;
+    public Optional<Artist> getOtherArtist() {
+        return Objects.equals(artist, albumArtist) ? Optional.empty() : Optional.of(artist);
     }
 
     public String getAlbum() {
@@ -121,7 +122,8 @@ public class Track extends AbstractHashable implements Comparable<Track> {
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
-        hash(h, album, name, albumArtist);
+        hash(h, album, name);
+        hash(h, artist, albumArtist);
         hash(h, part, trackNo);
         hash(h, duration.toMillis());
     }

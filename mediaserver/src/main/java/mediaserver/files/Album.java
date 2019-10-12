@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 @SuppressWarnings("unused")
 public class Album extends AbstractHashable implements Comparable<Album> {
 
-    private final String artist;
+    private final Artist artist;
 
     private final String name;
 
@@ -33,7 +33,7 @@ public class Album extends AbstractHashable implements Comparable<Album> {
 
     public Album(String artist, String name, List<Track> tracks, File file, CategoryPath categoryPath) {
         this(
-            artist.replaceAll("_", ":"),
+            new Artist(artist.replaceAll("_", ":")),
             name.replaceAll("_", ":"),
             parts(tracks),
             null,
@@ -43,7 +43,7 @@ public class Album extends AbstractHashable implements Comparable<Album> {
     }
 
     private Album(
-        String artist,
+        Artist artist,
         String name,
         Integer parts,
         Integer part,
@@ -87,7 +87,7 @@ public class Album extends AbstractHashable implements Comparable<Album> {
         return ALBUM_COMPARATOR.compare(this, album);
     }
 
-    public String getArtist() {
+    public Artist getArtist() {
         return artist;
     }
 
@@ -125,7 +125,8 @@ public class Album extends AbstractHashable implements Comparable<Album> {
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
-        hash(h, name, artist);
+        hash(h, name);
+        hash(h, artist);
         hash(h, parts, part);
         hash(h, tracks);
         hash(h, categoryPath);

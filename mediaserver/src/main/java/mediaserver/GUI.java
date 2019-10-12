@@ -2,6 +2,7 @@ package mediaserver;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.files.Album;
 import mediaserver.files.CategoryPath;
 import mediaserver.files.Media;
@@ -27,9 +28,9 @@ public class GUI extends Nettish {
     }
 
     @Override
-    void handle(HttpRequest req, String uri, ChannelHandlerContext ctx) {
+    HttpResponse handle(HttpRequest req, String uri, ChannelHandlerContext ctx) {
         Template template = template(uri, this.media);
-        respond(
+        return respond(
             ctx,
             response(req, TEXT_HTML, template.bytes()));
     }
@@ -57,7 +58,7 @@ public class GUI extends Nettish {
         Template tmpl = template("album.html")
             .add("media", media)
             .add("album", album);
-        return uuid(pars, "track").flatMap(media::getSong)
+        return uuid(pars, "track").flatMap(media::getTrack)
             .map(playTrack ->
                 tmpl.add("playTrack", playTrack))
             .orElse(tmpl);

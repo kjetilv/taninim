@@ -2,14 +2,11 @@ package mediaserver;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
-import mediaserver.files.Album;
-import mediaserver.files.Media;
-import mediaserver.files.Playlist;
-import mediaserver.files.Track;
+import io.netty.handler.codec.http.HttpResponse;
+import mediaserver.files.*;
 import mediaserver.util.IO;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,42 +33,39 @@ public class Playlists extends Nettish {
     }
 
     @Override
-    void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
         if (path.startsWith(ALBUM)) {
-            albumPlaylist(albumUUID(path)).ifPresentOrElse(
+            return albumPlaylist(uuid(path, ALBUM_PREAMBLE)).map(
                 template ->
-                    respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())),
-                () ->
+                    respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())))
+                .orElseGet(() ->
                     respond(ctx, BAD_REQUEST));
-        } else if (path.startsWith(ARTIST)) {
-            artistPlaylist(artistName(path)).ifPresentOrElse(
-                template ->
-                    respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())),
-                () ->
-                    respond(ctx, BAD_REQUEST));
-        } else {
-            respond(ctx, BAD_REQUEST);
         }
+        if (path.startsWith(ARTIST)) {
+            return artistPlaylist(uuid(path, ARTIST_PREAMBLE)).map(
+                template ->
+                    respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())))
+                .orElseGet(() ->
+                    respond(ctx, BAD_REQUEST));
+        }
+        return respond(ctx, BAD_REQUEST);
     }
 
-    private UUID albumUUID(String path) {
-        return UUID.fromString(path.substring(ALBUM_PREAMBLE));
-    }
-
-    private String artistName(String path) {
-        return path.substring(ARTIST_PREAMBLE);
+    private UUID uuid(String path, int preamble) {
+        return UUID.fromString(path.substring(preamble));
     }
 
     private Optional<Template> albumPlaylist(UUID albumUUID) {
         return media.getAlbum(albumUUID).map(this::playlist);
     }
 
-    private Optional<Template> artistPlaylist(String artist) {
-        return Optional.ofNullable(media.getTracksBy(artist))
+    private Optional<Template> artistPlaylist(UUID artistUUID) {
+        return media.getArtist(artistUUID).map(media::getTracksBy)
             .filter(tracks ->
                 !tracks.isEmpty())
-            .map(tracks ->
-                this.playlist(artist, tracks));
+            .flatMap(tracks ->
+                media.getArtist(artistUUID).map(a ->
+                    this.playlist(a, tracks)));
     }
 
     private Template playlist(Album album) {
@@ -82,7 +76,7 @@ public class Playlists extends Nettish {
             .add("host", resolve(""));
     }
 
-    private Template playlist(String artist, Collection<Track> tracks) {
+    private Template playlist(Artist artist, Collection<Track> tracks) {
         return template("playlist.m3u")
             .add("artist", artist)
             .add("host", resolve(""))

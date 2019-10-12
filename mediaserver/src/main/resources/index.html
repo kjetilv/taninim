@@ -10,7 +10,7 @@
 <H1><A HREF="/">taninim</A></H1>
 
 {if(!media.categoryPath.root)}
-<H2>{media.categoryPath.pathString}</H2>
+<H2>Category: {media.categoryPath.pathString}</H2>
 {endif}
 
 {if(media.subCategories)}
@@ -20,7 +20,7 @@
 <UL>
     {media.topCategories:{cat|
     <LI>
-        <SPAN><A HREF="/{cat.pathString}">📁 {cat.pathString}</A></SPAN>
+        <A HREF="/{cat.pathString}">📁</A> {cat.pathString}
     </LI>
     }}
 </UL>
@@ -33,7 +33,7 @@
 <UL>
     {media.artists:{artist|
     <LI>
-        <SPAN>{artist} <A HREF="/playlist/artist/{artist}">▶</A></SPAN>
+        <A HREF="/?artist=${artist.name}">{artist.name}</A> <A HREF="/playlist/artist/{artist.uuid}">⏬</A>
     </LI>
     }}
 </UL>
@@ -45,8 +45,9 @@
 <UL>
     {media.albums:{album|
     <LI>
-        <SPAN><A HREF="?artist={album.artist}&album={album.uuid}">📁 {album.artist}: {album.name}</A>
-            <A ALT="Playlist" HREF="/playlist/album/{album.uuid}" >[▶]</A></SPAN>
+        <A HREF="?album={album.uuid}">📁</A>
+        {album.artist.name}: <em>{album.name}</em>
+        <A ALT="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>
     </LI>
     }}
 </UL>

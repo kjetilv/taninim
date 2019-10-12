@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
@@ -33,7 +34,7 @@ public abstract class Nettish {
         return prefix;
     }
 
-    abstract void handle(HttpRequest req, String path, ChannelHandlerContext ctx);
+    abstract HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx);
 
     Template template(String resource) {
         return new Template(io, resource);
@@ -47,25 +48,14 @@ public abstract class Nettish {
         return io.resolve(path);
     }
 
-    static boolean respond(ChannelHandlerContext ctx, HttpResponse response) {
+    static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
         ctx.writeAndFlush(response)
             .addListener(ChannelFutureListener.CLOSE);
-        return true;
+        return response;
     }
 
-    static void respond(ChannelHandlerContext ctx, HttpResponseStatus response) {
-        respond(ctx, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, response));
-    }
-
-    static Runnable reset(ChannelHandlerContext ctx) {
-        return () ->
-            respond(ctx, new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1,
-                HttpResponseStatus.FOUND,
-                Unpooled.buffer(0),
-                new DefaultHttpHeaders()
-                    .set(LOCATION, "/"),
-                EmptyHttpHeaders.INSTANCE));
+    static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus response) {
+        return respond(ctx, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, response));
     }
 
     protected static HttpResponse response(

@@ -8,7 +8,7 @@ public interface Media {
 
     Media subLibrary(CategoryPath categoryPath);
 
-    Optional<Track> getSong(UUID uuid);
+    Optional<Track> getTrack(UUID uuid);
 
     default boolean isSubCategories() {
         return !getTopCategories().isEmpty();
@@ -20,17 +20,17 @@ public interface Media {
 
     Collection<CategoryPath> getCategories();
 
-    default Collection<String> getAlbumArtists() {
+    default Collection<Artist> getAlbumArtists() {
         return getAlbumArtists(false);
     }
 
-    Collection<String> getAlbumArtists(boolean recurse);
+    Collection<Artist> getAlbumArtists(boolean recurse);
 
-    default Collection<String> getArtists() {
+    default Collection<Artist> getArtists() {
         return getArtists(false);
     }
 
-    Collection<String> getArtists(boolean recurse);
+    Collection<Artist> getArtists(boolean recurse);
 
     default Collection<Album> getAlbums() {
         return getAlbums(false);
@@ -38,13 +38,15 @@ public interface Media {
 
     Collection<Album> getAlbums(boolean recurse);
 
-    default Collection<Track> getSongs() {
-        return getSongs(false);
+    default Collection<Track> getTracks() {
+        return getTracks(false);
     }
 
-    Collection<Track> getTracksBy(String artist);
+    Collection<Track> getTracksBy(Artist artist);
 
-    Collection<Track> getSongs(boolean recurse);
+    Collection<Track> getTracks(boolean recurse);
 
     Optional<Album> getAlbum(UUID id);
+
+    Optional<Artist> getArtist(UUID id);
 }

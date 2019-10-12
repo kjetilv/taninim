@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -28,6 +29,7 @@ final class Streamer extends Nettish {
     private static final Logger log = LoggerFactory.getLogger(Streamer.class);
 
     private final Media media;
+
     private static final String AUDIO_FLAC = "audio/flac";
 
     public Streamer(IO io, Media media) {
@@ -36,15 +38,17 @@ final class Streamer extends Nettish {
     }
 
     @Override
-    public void handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
-        getFile(path)
+    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+        return getFile(path)
             .filter(File::isFile)
             .filter(File::canRead)
             .map(file ->
-                streamFile(req, file, ctx));
+                streamFile(req, file, ctx))
+            .orElseGet(() ->
+                respond(ctx, BAD_REQUEST));
     }
 
-    private static boolean streamFile(HttpRequest req, File file, ChannelHandlerContext ctx) {
+    private static HttpResponse streamFile(HttpRequest req, File file, ChannelHandlerContext ctx) {
         RandomAccessFile randomAccessFile = randomAccess(file);
         long fileLength = length(randomAccessFile);
 
@@ -68,7 +72,7 @@ final class Streamer extends Nettish {
         if (!HttpUtil.isKeepAlive(req)) {
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
-        return true;
+        return response;
     }
 
     private static RandomAccessFile randomAccess(File file) {
@@ -81,7 +85,7 @@ final class Streamer extends Nettish {
 
     private Optional<File> getFile(String path) {
         UUID uuid = UUID.fromString(path.substring(1));
-        return media.getSong(uuid).map(Track::getFile);
+        return media.getTrack(uuid).map(Track::getFile);
     }
 
     private static ChannelFuture write(

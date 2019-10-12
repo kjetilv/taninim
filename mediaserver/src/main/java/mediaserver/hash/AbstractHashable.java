@@ -196,7 +196,7 @@ public abstract class AbstractHashable implements Hashable {
 
     @Override
     public final boolean equals(Object obj) {
-        return obj == this || obj.getClass() == getClass()
+        return obj == this || obj != null && obj.getClass() == getClass()
             && ((Hashed) obj).getUuid().equals(getUuid());
     }
 

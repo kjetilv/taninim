@@ -9,11 +9,11 @@
 
 <H1><A HREF="/">taninim</A></H1>
 
-<H2>{album.artist} <A HREF="/playlist/artist/{album.artist}">[▶]</A></H2>
-<H3>{album.name} <A HREF="/playlist/album/{album.uuid}">[▶]</A></H3>
+<H2>Artist: {album.artist.name}</H2>
+<H3>Album: {album.name} <A HREF="/playlist/album/{album.uuid}">⏬</A></H3>
 
 {if(playTrack)}
-<P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist}</em></P>
+<P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist.name}</em></P>
 <AUDIO id="player" controls autoplay data-plyr-config='\{ "autoplay": true, "autopause": true }'>
     <SOURCE src="/audio/{playTrack.uuid}" type="audio/flac"/>
 </AUDIO>
@@ -28,8 +28,8 @@
     <li>
         {track.name}
         {track.prettyDuration}
-        <A href="?artist={albumPart.artist}&album={albumPart.uuid}&track={track.uuid}">{if(track.otherArtist)}{track.otherArtist}: {endif}
-            [▶]
+        <A href="?artist={albumPart.artist.uuid}&album={albumPart.uuid}&track={track.uuid}">{if(track.otherArtist)}{track.otherArtist.name}: {endif}
+            ▶
         </A>
     </li>
 }}
