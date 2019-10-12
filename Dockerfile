@@ -1,5 +1,6 @@
 FROM openjdk:13-alpine
 
+EXPOSE 8080/tcp
 MAINTAINER Kjetil Valstadsve <taninim@vlitejk.cotse.net>
 
 RUN mkdir -p /usr/src/taninim
@@ -11,9 +12,11 @@ RUN git clone https://github.com/kjetilv/taninim.git
 WORKDIR taninim
 RUN ./gradlew shadowJar
 
-EXPOSE 8080/tcp
+RUN cp mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar /usr/src/lib/taninim.jar
+WORKDIR /usr/src/lib
+RUN rm -rf /usr/src/taninim
 
-RUN java -jar mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar
+RUN java -jar taninim.jar
 
 #
 #RUN javac Main.java
