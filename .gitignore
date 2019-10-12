@@ -3,7 +3,7 @@
 build/
 .gradle/
 .idea/
-
+out
 taninim/env
 taninim/target
 taninim/figwheel_server.log
