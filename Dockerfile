@@ -9,6 +9,6 @@ COPY mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar /usr/lib/taninim.ja
 WORKDIR /usr/lib
 RUN rm -rf /usr/taninim
 
-VOLUME /mnt/media
+VOLUME /var/media
 
-CMD java -jar /usr/lib/taninim.jar /mnt/media
+CMD java -jar /usr/lib/taninim.jar /var/media
