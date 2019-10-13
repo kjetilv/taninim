@@ -2,20 +2,26 @@ package mediaserver;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import mediaserver.files.DefaultMedia;
 import mediaserver.files.Media;
+import mediaserver.gui.GUI;
+import mediaserver.gui.Playlists;
+import mediaserver.gui.Resources;
+import mediaserver.gui.Streamer;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.function.Supplier;
 
 public class Main {
 
@@ -32,13 +38,20 @@ public class Main {
         Path mediaPath = new File(args[0]).toPath();
         log.info("Serving media from {}", mediaPath);
 
-        Initializer handler = new Initializer(
-            routerProvider(
-                mediaPath,
-                Boolean.getBoolean("dev")));
-
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
+
+        ChannelInitializer<SocketChannel> handler = new ChannelInitializer<>() {
+            @Override
+            protected void initChannel(SocketChannel ch) {
+                ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast(new CustomHttpServerCodec());
+                pipeline.addLast(routerProvider(
+                    mediaPath,
+                    Boolean.getBoolean("dev")));
+            }
+        };
+
         ServerBootstrap bootstrap = new ServerBootstrap()
             .group(listenGroup, workGroup)
             .channel(NioServerSocketChannel.class)
@@ -47,7 +60,7 @@ public class Main {
 
         try {
             Channel ch = bootstrap.bind(PORT).sync().channel();
-            log.info("Bound to port {}", PORT);
+            log.debug("Bound to port {}", PORT);
             ch.closeFuture().sync();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -58,15 +71,16 @@ public class Main {
         }
     }
 
-    private static Supplier<Router> routerProvider(Path root, boolean dev) {
+    private static Router routerProvider(Path root, boolean dev) {
         log.info("Scanning from {}", root);
         Media media = new DefaultMedia(root);
         IO io = new IO(dev);
         log.info("Scanned: {}", media);
-        return () -> new Router(
-            new GUI(io, media),
+        return new Router(
             new Playlists(io, media),
+            new Streamer(io, media),
             new Resources(io),
-            new Streamer(io, media));
+            new GUI(io, media));
     }
+
 }

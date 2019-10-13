@@ -1,4 +1,4 @@
-package mediaserver;
+package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
@@ -15,12 +15,12 @@ public class Resources extends Nettish {
 
     private final Map<String, Optional<HttpResponse>> cache = new ConcurrentHashMap<>();
 
-    Resources(IO io) {
+    public Resources(IO io) {
         super(io, "/resources");
     }
 
     @Override
-    HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
         return cache.computeIfAbsent(path, read(req))
             .map(response ->
                 respond(ctx, response))

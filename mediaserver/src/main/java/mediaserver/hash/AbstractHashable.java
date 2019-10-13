@@ -71,6 +71,12 @@ public abstract class AbstractHashable implements Hashable {
         return hash.get();
     }
 
+    protected static void hash(Consumer<byte[]> hash, byte[]... justBytes) {
+        for (byte[] justByte : justBytes) {
+            hash.accept(justByte);
+        }
+    }
+
     protected static void hash(Consumer<byte[]> hash, String... strings) {
         hashStrings(hash, Arrays.asList(strings));
     }

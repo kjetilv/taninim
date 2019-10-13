@@ -1,4 +1,4 @@
-package mediaserver;
+package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -24,7 +24,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-final class Streamer extends Nettish {
+public final class Streamer extends Nettish {
 
     private static final Logger log = LoggerFactory.getLogger(Streamer.class);
 

@@ -1,4 +1,4 @@
-package mediaserver;
+package mediaserver.gui;
 
 import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;

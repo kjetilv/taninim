@@ -1,4 +1,4 @@
-package mediaserver;
+package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
@@ -27,13 +27,13 @@ public class Playlists extends Nettish {
     private static final String AUDIO_MPEGURL = "audio/mpegurl";
 
 
-    Playlists(IO io, Media media) {
+    public Playlists(IO io, Media media) {
         super(io, "/playlist");
         this.media = media;
     }
 
     @Override
-    HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
         if (path.startsWith(ALBUM)) {
             return albumPlaylist(uuid(path, ALBUM_PREAMBLE)).map(
                 template ->
@@ -70,16 +70,16 @@ public class Playlists extends Nettish {
 
     private Template playlist(Album album) {
         return template("playlist.m3u")
-            .add("playlist", new Playlist(album))
-            .add("artist", album.getArtist())
-            .add("album", album)
-            .add("host", resolve(""));
+            .add(QPar.PLAYLIST, new Playlist(album))
+            .add(QPar.ARTIST, album.getArtist())
+            .add(QPar.ALBUM, album)
+            .add(QPar.HOST, resolve(""));
     }
 
     private Template playlist(Artist artist, Collection<Track> tracks) {
         return template("playlist.m3u")
-            .add("artist", artist)
-            .add("host", resolve(""))
-            .add("playlist", new Playlist(tracks));
+            .add(QPar.ARTIST, artist)
+            .add(QPar.HOST, resolve(""))
+            .add(QPar.PLAYLIST, new Playlist(tracks));
     }
 }

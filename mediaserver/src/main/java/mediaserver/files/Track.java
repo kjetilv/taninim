@@ -31,6 +31,8 @@ public class Track extends AbstractHashable implements Comparable<Track> {
 
     private final File file;
 
+    private final FlacFile flacFile;
+
     private static final Pattern PART_TRACK_NAME = Pattern.compile("^(\\d+)-(\\d{2,})\\s+(.*)$");
 
     private static final Pattern TRACK_NAME = Pattern.compile("^(\\d{2,})\\s+(.*)$");
@@ -45,8 +47,9 @@ public class Track extends AbstractHashable implements Comparable<Track> {
 
     public Track(Artist artist, String name, File file) {
         this.part = part(name);
-        try (FlacFile ff = FlacFile.open(file)) {
-            FlacTags tags = ff.getTags();
+        try (FlacFile flacFile = FlacFile.open(file)) {
+            this.flacFile = Objects.requireNonNull(flacFile, "flacFile @ " + file.getAbsolutePath());
+            FlacTags tags = this.flacFile.getTags();
             boolean compilation =
                 Optional.ofNullable(tags.getComments("compilation"))
                     .filter(list -> list.size() == 1)
@@ -63,7 +66,7 @@ public class Track extends AbstractHashable implements Comparable<Track> {
             this.name = tags.getTitle();
             this.album = tags.getAlbum();
             this.trackNo = trackNo(file.getName());
-            FlacInfo info = ff.getInfo();
+            FlacInfo info = this.flacFile.getInfo();
             duration = Duration.ofMillis(info.getNumberOfSamples() * 1000 / info.getSampleRate());
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -122,10 +125,7 @@ public class Track extends AbstractHashable implements Comparable<Track> {
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
-        hash(h, album, name);
-        hash(h, artist, albumArtist);
-        hash(h, part, trackNo);
-        hash(h, duration.toMillis());
+        hash(h, flacFile.getInfo().getSignature());
     }
 
     @Override

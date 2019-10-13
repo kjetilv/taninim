@@ -1,4 +1,4 @@
-package mediaserver;
+package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
@@ -28,7 +28,7 @@ public class GUI extends Nettish {
     }
 
     @Override
-    HttpResponse handle(HttpRequest req, String uri, ChannelHandlerContext ctx) {
+    public HttpResponse handle(HttpRequest req, String uri, ChannelHandlerContext ctx) {
         Template template = template(uri, this.media);
         return respond(
             ctx,
@@ -38,37 +38,38 @@ public class GUI extends Nettish {
     private Template template(String uri, Media media) {
         int queryParamPos = uri.indexOf("?");
         String uriPath = uriPath(uri, queryParamPos);
-        Map<String, String> pars = params(uri, queryParamPos);
-        return uuid(pars, "album").flatMap(media::getAlbum)
+        Map<QPar, String> pars = params(uri, queryParamPos);
+        return uuid(pars, QPar.ALBUM).flatMap(media::getAlbum)
             .map(album ->
                 albumTemplate(media, album, pars))
             .orElseGet(() ->
                 indexTemplate(media, uriPath, pars));
     }
 
-    private Template indexTemplate(Media media, String uriPath, Map<String, String> pars) {
+    private Template indexTemplate(Media media, String uriPath, Map<QPar, String> pars) {
         CategoryPath categoryPath = getCategoryPath(uriPath);
         return template("index.html")
-            .add("media", media.subLibrary(categoryPath))
-            .add("artist", pars.get("artist"))
-            .add("album", pars.get("album"));
+            .add(QPar.MEDIA, media.subLibrary(categoryPath))
+            .add(QPar.ARTIST, pars.get(QPar.ARTIST))
+            .add(QPar.ALBUM, pars.get(QPar.ARTIST));
     }
 
-    private Template albumTemplate(Media media, Album album, Map<String, String> pars) {
+    private Template albumTemplate(Media media, Album album, Map<QPar, String> pars) {
         Template tmpl = template("album.html")
-            .add("media", media)
-            .add("album", album);
-        return uuid(pars, "track").flatMap(media::getTrack)
+            .add(QPar.MEDIA, media)
+            .add(QPar.ALBUM, album);
+        return uuid(pars, QPar.TRACK).flatMap(media::getTrack)
             .map(playTrack ->
-                tmpl.add("playTrack", playTrack))
+                tmpl.add(QPar.PLAY_TRACK, playTrack))
             .orElse(tmpl);
     }
 
-    private static Optional<UUID> uuid(Map<String, String> pars, String name) {
+    private static Optional<UUID> uuid(Map<QPar, String> pars, QPar param) {
+        Optional<String> value = Optional.ofNullable(pars.get(param));
         try {
-            return Optional.ofNullable(pars.get(name)).map(UUID::fromString);
+            return value.map(UUID::fromString);
         } catch (Exception e) {
-            throw new IllegalStateException("Not av valid album", e);
+            throw new IllegalStateException("Invalid album: " + value.get(), e);
         }
     }
 
@@ -76,7 +77,7 @@ public class GUI extends Nettish {
         return queryParamPos < 0 ? uri : uri.substring(0, uri.indexOf("?"));
     }
 
-    private static Map<String, String> params(String uri, int queryParamPos) {
+    private static Map<QPar, String> params(String uri, int queryParamPos) {
         return queryParamPos < 0
             ? Collections.emptyMap()
             : URLs.queryParams(uri.substring(queryParamPos + 1));

@@ -1,4 +1,4 @@
-package mediaserver;
+package mediaserver.gui;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
@@ -34,7 +33,21 @@ public abstract class Nettish {
         return prefix;
     }
 
-    abstract HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx);
+    public static HttpResponse redirect(ChannelHandlerContext ctx, String value) {
+        return respond(ctx, new DefaultFullHttpResponse(
+            HTTP_1_1,
+            HttpResponseStatus.FOUND,
+            Unpooled.buffer(0),
+            new DefaultHttpHeaders()
+                .set(LOCATION, value),
+            EmptyHttpHeaders.INSTANCE));
+    }
+
+    public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus response) {
+        return respond(ctx, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, response));
+    }
+
+    public abstract HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx);
 
     Template template(String resource) {
         return new Template(io, resource);
@@ -54,11 +67,7 @@ public abstract class Nettish {
         return response;
     }
 
-    static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus response) {
-        return respond(ctx, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, response));
-    }
-
-    protected static HttpResponse response(
+    static HttpResponse response(
         HttpRequest req,
         String contentType,
         byte[] bytes
@@ -66,7 +75,7 @@ public abstract class Nettish {
         return response(req, contentType, bytes, null);
     }
 
-    protected static HttpResponse response(
+    static HttpResponse response(
         HttpRequest req,
         String contentType,
         byte[] bytes,

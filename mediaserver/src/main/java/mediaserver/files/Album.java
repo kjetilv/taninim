@@ -125,11 +125,8 @@ public class Album extends AbstractHashable implements Comparable<Album> {
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
-        hash(h, name);
-        hash(h, artist);
         hash(h, parts, part);
         hash(h, tracks);
-        hash(h, categoryPath);
     }
 
     @Override

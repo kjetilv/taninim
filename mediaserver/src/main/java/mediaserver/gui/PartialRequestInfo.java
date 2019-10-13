@@ -1,4 +1,4 @@
-package mediaserver;
+package mediaserver.gui;
 
 class PartialRequestInfo {
 
