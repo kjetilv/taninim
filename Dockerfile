@@ -11,4 +11,5 @@ RUN rm -rf /usr/taninim
 
 VOLUME /var/media
 
-CMD java -jar /usr/lib/taninim.jar /var/media
+CMD ["java", "-jar", "/usr/lib/taninim.jar", "/var/media" ]
+ENTRYPOINT ["java", "-jar", "/usr/lib/taninim.jar", "/var/media" ]

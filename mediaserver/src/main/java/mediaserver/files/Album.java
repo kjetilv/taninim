@@ -2,7 +2,6 @@ package mediaserver.files;
 
 import mediaserver.hash.AbstractHashable;
 
-import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,8 +21,6 @@ public class Album extends AbstractHashable implements Comparable<Album> {
 
     private final List<Track> tracks;
 
-    private final File file;
-
     private final CategoryPath categoryPath;
 
     private static final Comparator<Album> ALBUM_COMPARATOR =
@@ -31,14 +28,13 @@ public class Album extends AbstractHashable implements Comparable<Album> {
             .thenComparing(Album::getArtist)
             .thenComparing(Album::getName);
 
-    public Album(String artist, String name, List<Track> tracks, File file, CategoryPath categoryPath) {
+    Album(CategoryPath categoryPath, Artist artist, String name, List<Track> tracks) {
         this(
-            new Artist(artist.replaceAll("_", ":")),
+            artist,
             name.replaceAll("_", ":"),
             parts(tracks),
             null,
             tracks,
-            file,
             categoryPath);
     }
 
@@ -48,7 +44,6 @@ public class Album extends AbstractHashable implements Comparable<Album> {
         Integer parts,
         Integer part,
         List<Track> tracks,
-        File file,
         CategoryPath categoryPath
     ) {
         this.artist = artist;
@@ -57,7 +52,6 @@ public class Album extends AbstractHashable implements Comparable<Album> {
         this.part = part == null ? null : part + 1;
         this.tracks =
             Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
-        this.file = file;
         this.categoryPath = categoryPath;
     }
 
@@ -76,7 +70,6 @@ public class Album extends AbstractHashable implements Comparable<Album> {
                         track.getPart() == part + 1)
                     .sorted()
                     .collect(Collectors.toList()),
-                file,
                 categoryPath
             )).collect(Collectors.toList());
     }
@@ -105,10 +98,6 @@ public class Album extends AbstractHashable implements Comparable<Album> {
 
     public List<Track> getTracks() {
         return tracks;
-    }
-
-    public File getFile() {
-        return file;
     }
 
     public CategoryPath getCategoryPath() {

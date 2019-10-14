@@ -18,6 +18,10 @@ public class CategoryPath extends AbstractHashable implements Comparable<Categor
 
     private final List<String> path;
 
+    public CategoryPath() {
+        this((Path)null);
+    }
+
     public CategoryPath(Path path) {
         this(path == null ? Collections.emptyList() : parts(path));
     }

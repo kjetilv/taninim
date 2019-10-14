@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DefaultMedia implements Media {
+public class LocalMedia implements Media {
 
     private final CategoryPath categoryPath;
 
@@ -14,12 +14,14 @@ public class DefaultMedia implements Media {
 
     private final Collection<Artist> artists;
 
-    public DefaultMedia(Path root) {
-        this(new CategoryPath(null), getAlbums(root, root));
+    public LocalMedia(Path root) {
+        this(null, getAlbums(root, root));
     }
 
-    private DefaultMedia(CategoryPath categoryPath, Stream<Album> albums) {
-        this.categoryPath = categoryPath;
+    private LocalMedia(CategoryPath categoryPath, Stream<Album> albums) {
+        this.categoryPath = categoryPath == null
+            ? new CategoryPath()
+            : categoryPath;
         this.library = albums.collect(Collectors.toList());
         this.artists = Stream.concat(
             albumStream(true).map(Album::getArtist),
@@ -27,7 +29,7 @@ public class DefaultMedia implements Media {
                 Stream.concat(
                     Stream.of(track.getArtist()),
                     track.getOtherArtist().stream()
-            )))
+                )))
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList());
@@ -39,7 +41,7 @@ public class DefaultMedia implements Media {
             return this;
         }
         CategoryPath sub = categoryPath.sub(category);
-        return new DefaultMedia(
+        return new LocalMedia(
             sub,
             stream(true).filter(album ->
                 album.isIn(sub)));
@@ -136,12 +138,9 @@ public class DefaultMedia implements Media {
         return albumStream(recurse).flatMap(album -> album.getTracks().stream());
     }
 
-    private static Album album(Path root, Path path, File file, String artist, String name, List<Track> tracks) {
-        return new Album(artist, name, tracks, file, new CategoryPath(root.relativize(path.getParent().getParent())));
-    }
-
-    private static Track track(String artist, String album, String name, File file) {
-        return new Track(new Artist(artist), name, file);
+    private static Album album(Path root, Path path, Artist artist, String name, List<Track> tracks) {
+        CategoryPath categoryPath = new CategoryPath(root.relativize(path.getParent().getParent()));
+        return new Album(categoryPath, artist, name, tracks);
     }
 
     private static Stream<Album> getAlbums(Path root, Path path) {
@@ -159,20 +158,13 @@ public class DefaultMedia implements Media {
             album(
                 root,
                 path,
-                dir,
-                artistName(dir),
+                artist(dir),
                 albumName(dir),
-                tracks(dir, tracks).collect(Collectors.toList())));
+                tracks(tracks)));
     }
 
-    private static Stream<Track> tracks(File dir, List<File> tracks) {
-        return tracks.stream()
-            .map(track ->
-                track(
-                    artistName(dir),
-                    albumName(dir),
-                    trackName(track),
-                    track));
+    private static List<Track> tracks(Collection<File> tracks) {
+        return tracks.stream().map(Track::new).collect(Collectors.toList());
     }
 
     private static Stream<File> subDirs(File dir) {
@@ -194,12 +186,8 @@ public class DefaultMedia implements Media {
         return dir.getName();
     }
 
-    private static String trackName(File track) {
-        return track.getName();
-    }
-
-    private static String artistName(File dir) {
-        return dir.getParentFile().getName();
+    private static Artist artist(File dir) {
+        return new Artist(dir.getParentFile().getName().replaceAll("_", ":"));
     }
 
     @Override

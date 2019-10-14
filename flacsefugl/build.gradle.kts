@@ -14,6 +14,7 @@ configure<JavaPluginConvention> {
 }
 
 dependencies {
+    implementation(project(":mediaserver"))
     implementation(kotlin("stdlib"))
     testImplementation("junit:junit:4.12")
 }

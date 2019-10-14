@@ -34,7 +34,7 @@ class Conversion(
             }
         }
         val conversions = paths.mapIndexed { i, path ->
-            println("Processing #$i/${paths.size}: ${path.toFile().name}")
+            println("Processing #$i/${paths.size}: ${path.toFile().absolutePath}")
             process(path, mover.target(path, newSuffix))
         }
         return conversions.all { it }

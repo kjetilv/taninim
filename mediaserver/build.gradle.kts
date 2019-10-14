@@ -17,6 +17,7 @@ dependencies {
     implementation("io.netty", "netty-all", "4.1.41.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.antlr:ST4:4.1")
+    implementation("io.minio:minio:6.0.11")
 
     testImplementation("junit:junit:4.12")
 }

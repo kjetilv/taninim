@@ -24,15 +24,14 @@
 {album.albumParts:{albumPart |
 <p>{if(albumPart.part)}Disc {albumPart.part}:{endif}
 <OL>
-{albumPart.tracks:{track |
+    {albumPart.tracks:{track |
     <li>
+        {if(track.otherArtist.present)}{track.otherArtist}: {endif}
         {track.name}
         {track.prettyDuration}
-        <A href="?artist={albumPart.artist.uuid}&album={albumPart.uuid}&track={track.uuid}">{if(track.otherArtist)}{track.otherArtist.name}: {endif}
-            ▶
-        </A>
+        <A href="?artist={albumPart.artist.uuid}&album={albumPart.uuid}&track={track.uuid}">▶</A>
     </li>
-}}
+    }}
 </OL>
 }}
 

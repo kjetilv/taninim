@@ -1,9 +1,14 @@
 package flacsefugl
 
+import mediaserver.files.Media
+import mediaserver.files.Track
 import java.net.URI
 import java.nio.file.Files
+import java.nio.file.Files.copy
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption.COPY_ATTRIBUTES
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 
 fun main() {
     val rootDir = Paths.get(URI.create(
@@ -50,6 +55,26 @@ fun main() {
         } else {
             ffmpeg(source, target).await()
         }
+    }
+
+    val root = Path.of(System.getProperty("user.home"), "FLAC")
+    val media = Media.at(root);
+
+    val objectsPath = root.resolve(Path.of("objects"))
+    val objectsDirectory = objectsPath.toFile()
+    if (objectsDirectory.mkdirs()) {
+        media.allTracks.forEach { track ->
+            val target = objectsPath.resolve(Path.of(track.uuid.toString()))
+            val targetFile = target.toFile()
+            if (targetFile.isFile && targetFile.length() > 0 && Track(targetFile).equals(track)) {
+                println("Already copied: $track -> $target")
+            } else {
+                println("Copying $track -> $target")
+                copy(track.file.toPath(), target, REPLACE_EXISTING, COPY_ATTRIBUTES)
+            }
+        }
+    } else {
+        throw IllegalStateException("Could not create block storage")
     }
 }
 
@@ -133,6 +158,7 @@ private fun ffmpeg(source: Path, target: Path): Command =
         Command(Paths.get("."),
                 "/opt/local/bin/ffmpeg", "-i", absOf(source), "-c:a", "flac", absOf(target)
         )
+
 
 private fun absOf(source: Path) = source.toFile().absolutePath
 

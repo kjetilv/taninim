@@ -28,8 +28,8 @@ public class GUI extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest req, String uri, ChannelHandlerContext ctx) {
-        Template template = template(uri, this.media);
+    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+        Template template = template(resource(path), this.media);
         return respond(
             ctx,
             response(req, TEXT_HTML, template.bytes()));

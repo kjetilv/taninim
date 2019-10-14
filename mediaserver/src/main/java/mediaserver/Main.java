@@ -10,12 +10,11 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import mediaserver.files.DefaultMedia;
 import mediaserver.files.Media;
 import mediaserver.gui.GUI;
 import mediaserver.gui.Playlists;
 import mediaserver.gui.Resources;
-import mediaserver.gui.Streamer;
+import mediaserver.gui.FileStreamer;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,14 +72,13 @@ public class Main {
 
     private static Router routerProvider(Path root, boolean dev) {
         log.info("Scanning from {}", root);
-        Media media = new DefaultMedia(root);
+        Media media = Media.at(root);
         IO io = new IO(dev);
         log.info("Scanned: {}", media);
         return new Router(
             new Playlists(io, media),
-            new Streamer(io, media),
+            new FileStreamer(io, media),
             new Resources(io),
             new GUI(io, media));
     }
-
 }

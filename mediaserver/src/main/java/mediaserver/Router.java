@@ -3,7 +3,8 @@ package mediaserver;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.gui.Nettish;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,18 +77,21 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
     }
 
     private String get(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {
-        return Optional.of(ctx).map(ChannelHandlerContext::channel).map(remoteAddress).map(Objects::toString).orElse("?");
+        return Optional.of(ctx)
+            .map(ChannelHandlerContext::channel)
+            .map(remoteAddress)
+            .map(Objects::toString)
+            .orElse("?");
     }
 
     private HttpResponse handlePath(HttpRequest req, String path, ChannelHandlerContext ctx) {
         return nettishes.stream()
             .filter(nettish ->
-                path.startsWith(nettish.getPrefix()))
+                nettish.shouldHandle(path))
             .findFirst()
-            .map(
-                nettish ->
-                    nettish.handle(req, path.substring(nettish.getPrefix().length()), ctx)
-            ).orElseGet(
+            .map(nettish ->
+                nettish.handle(req, path, ctx))
+            .orElseGet(
                 reset(ctx));
     }
 }

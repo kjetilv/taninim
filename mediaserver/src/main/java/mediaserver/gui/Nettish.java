@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.*;
 import mediaserver.util.IO;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -19,18 +20,23 @@ public abstract class Nettish {
 
     private final IO io;
 
-    private final String prefix;
+    private final List<String> prefix;
 
     protected static final Consumer<BiConsumer<CharSequence, CharSequence>> IMMUTABLE = headers ->
         headers.accept(CACHE_CONTROL, "immutable");
 
-    Nettish(IO io, String prefix) {
+    Nettish(IO io, String... prefix) {
         this.io = io;
-        this.prefix = prefix;
+        this.prefix = List.of(prefix);
     }
 
-    public String getPrefix() {
-        return prefix;
+    public boolean shouldHandle(String path) {
+        return matching(path).isPresent();
+    }
+
+    public String getPrefix(String path) {
+        return matching(path).orElseThrow(() ->
+            new IllegalArgumentException("Unsupported: " + path + " != " + prefix));
     }
 
     public static HttpResponse redirect(ChannelHandlerContext ctx, String value) {
@@ -48,6 +54,10 @@ public abstract class Nettish {
     }
 
     public abstract HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx);
+
+    String resource(String path) {
+        return path.substring(getPrefix(path).length());
+    }
 
     Template template(String resource) {
         return new Template(io, resource);
@@ -87,6 +97,10 @@ public abstract class Nettish {
             Unpooled.wrappedBuffer(bytes),
             headers(req, contentType, bytes.length, headers),
             EmptyHttpHeaders.INSTANCE);
+    }
+
+    private Optional<String> matching(String path) {
+        return prefix.stream().filter(path::startsWith).findFirst();
     }
 
     private static HttpHeaders headers(

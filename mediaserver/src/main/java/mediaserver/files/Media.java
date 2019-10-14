@@ -1,10 +1,15 @@
 package mediaserver.files;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface Media {
+
+    static Media at(Path root) {
+        return new LocalMedia(root);
+    }
 
     Media subLibrary(CategoryPath categoryPath);
 
@@ -40,6 +45,10 @@ public interface Media {
 
     default Collection<Track> getTracks() {
         return getTracks(false);
+    }
+
+    default Collection<Track> getAllTracks() {
+        return getTracks(true);
     }
 
     Collection<Track> getTracksBy(Artist artist);

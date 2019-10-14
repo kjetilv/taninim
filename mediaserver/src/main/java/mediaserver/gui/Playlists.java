@@ -34,15 +34,16 @@ public class Playlists extends Nettish {
 
     @Override
     public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
-        if (path.startsWith(ALBUM)) {
-            return albumPlaylist(uuid(path, ALBUM_PREAMBLE)).map(
+        String resource = resource(path);
+        if (resource.startsWith(ALBUM)) {
+            return albumPlaylist(uuid(resource, ALBUM_PREAMBLE)).map(
                 template ->
                     respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())))
                 .orElseGet(() ->
                     respond(ctx, BAD_REQUEST));
         }
-        if (path.startsWith(ARTIST)) {
-            return artistPlaylist(uuid(path, ARTIST_PREAMBLE)).map(
+        if (resource.startsWith(ARTIST)) {
+            return artistPlaylist(uuid(resource, ARTIST_PREAMBLE)).map(
                 template ->
                     respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())))
                 .orElseGet(() ->
