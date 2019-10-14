@@ -40,17 +40,20 @@ public abstract class Nettish {
     }
 
     public static HttpResponse redirect(ChannelHandlerContext ctx, String value) {
-        return respond(ctx, new DefaultFullHttpResponse(
-            HTTP_1_1,
-            HttpResponseStatus.FOUND,
-            Unpooled.buffer(0),
-            new DefaultHttpHeaders()
-                .set(LOCATION, value),
-            EmptyHttpHeaders.INSTANCE));
+        return respond(
+            ctx,
+            value,
+            new DefaultFullHttpResponse(
+                HTTP_1_1,
+                HttpResponseStatus.FOUND,
+                Unpooled.buffer(0),
+                new DefaultHttpHeaders()
+                    .set(LOCATION, value),
+                EmptyHttpHeaders.INSTANCE));
     }
 
-    public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus response) {
-        return respond(ctx, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, response));
+    public static HttpResponse respond(ChannelHandlerContext ctx, String path, HttpResponseStatus response) {
+        return respond(ctx, path, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, response));
     }
 
     public abstract HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx);
@@ -71,9 +74,13 @@ public abstract class Nettish {
         return io.resolve(path);
     }
 
-    static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
-        ctx.writeAndFlush(response)
-            .addListener(ChannelFutureListener.CLOSE);
+    static HttpResponse respond(ChannelHandlerContext ctx, String path, HttpResponse response) {
+        try {
+            ctx.writeAndFlush(response)
+                .addListener(ChannelFutureListener.CLOSE);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to respond to " + path + ": " + response, e);
+        }
         return response;
     }
 

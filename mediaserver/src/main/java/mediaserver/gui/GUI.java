@@ -32,6 +32,7 @@ public class GUI extends Nettish {
         Template template = template(resource(path), this.media);
         return respond(
             ctx,
+            path,
             response(req, TEXT_HTML, template.bytes()));
     }
 

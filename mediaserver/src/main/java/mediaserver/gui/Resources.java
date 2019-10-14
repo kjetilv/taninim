@@ -23,14 +23,23 @@ public class Resources extends Nettish {
 
     @Override
     public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
-        String resource = path.startsWith(FAVICON_ICO)
-            ? path.substring(0, FAVICON_ICO.length())
-            : resource(path);
-        return cache.computeIfAbsent(resource, read(req))
-            .map(response ->
-                respond(ctx, response))
-            .orElseGet(() ->
-                respond(ctx, HttpResponseStatus.BAD_REQUEST));
+        try {
+            String resource = path.startsWith(FAVICON_ICO)
+                ? path.substring(0, FAVICON_ICO.length())
+                : resource(path);
+            return cache.computeIfAbsent(resource, read(req))
+                .map(response -> {
+                    try {
+                        return respond(ctx, path, response);
+                    } catch (Exception e) {
+                        throw new IllegalStateException("Failed to respond to " + path, e);
+                    }
+                })
+                .orElseGet(() ->
+                    respond(ctx, path, HttpResponseStatus.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to respond to " + path, e);
+        }
     }
 
     private Function<String, Optional<HttpResponse>> read(HttpRequest req) {

@@ -26,7 +26,6 @@ public class Playlists extends Nettish {
 
     private static final String AUDIO_MPEGURL = "audio/mpegurl";
 
-
     public Playlists(IO io, Media media) {
         super(io, "/playlist");
         this.media = media;
@@ -38,18 +37,18 @@ public class Playlists extends Nettish {
         if (resource.startsWith(ALBUM)) {
             return albumPlaylist(uuid(resource, ALBUM_PREAMBLE)).map(
                 template ->
-                    respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())))
+                    respond(ctx, path, response(req, AUDIO_MPEGURL, template.bytes())))
                 .orElseGet(() ->
-                    respond(ctx, BAD_REQUEST));
+                    respond(ctx, path, BAD_REQUEST));
         }
         if (resource.startsWith(ARTIST)) {
             return artistPlaylist(uuid(resource, ARTIST_PREAMBLE)).map(
                 template ->
-                    respond(ctx, response(req, AUDIO_MPEGURL, template.bytes())))
+                    respond(ctx, path, response(req, AUDIO_MPEGURL, template.bytes())))
                 .orElseGet(() ->
-                    respond(ctx, BAD_REQUEST));
+                    respond(ctx, path, BAD_REQUEST));
         }
-        return respond(ctx, BAD_REQUEST);
+        return respond(ctx, path, BAD_REQUEST);
     }
 
     private UUID uuid(String path, int preamble) {

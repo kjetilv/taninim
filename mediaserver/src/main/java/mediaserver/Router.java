@@ -54,7 +54,7 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
                             get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress), cause));
         } finally {
             if (ctx.channel().isActive()) {
-                Nettish.respond(ctx, INTERNAL_SERVER_ERROR);
+                Nettish.respond(ctx, "", INTERNAL_SERVER_ERROR);
             }
         }
     }
@@ -63,12 +63,12 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
         if (req.decoderResult().isSuccess()) {
             String uri = req.uri();
             if (uri.isEmpty()) {
-                return Nettish.respond(ctx, FORBIDDEN);
+                return Nettish.respond(ctx, "", FORBIDDEN);
             }
             String path = URLDecoder.decode(uri, StandardCharsets.UTF_8);
             return handlePath(req, path, ctx);
         }
-        return Nettish.respond(ctx, BAD_REQUEST);
+        return Nettish.respond(ctx, "", BAD_REQUEST);
     }
 
     private static Supplier<HttpResponse> reset(ChannelHandlerContext ctx) {

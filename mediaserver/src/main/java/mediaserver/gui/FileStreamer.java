@@ -1,6 +1,9 @@
 package mediaserver.gui;
 
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
 import mediaserver.files.Media;
 import mediaserver.files.Track;
@@ -19,22 +22,20 @@ public final class FileStreamer extends AbstractStreamer {
 
     @Override
     protected HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx) {
+        HttpResponse response = response(req);
+        String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
+
         File file = track.getFile();
         RandomAccessFile randomAccessFile = randomAccess(file);
         long fileLength = length(randomAccessFile);
 
-        HttpResponse response = response(req);
-
-        String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
-
         ChannelFuture sendFile = rangeHeader != null && rangeHeader.length() > 0
             ? writePartial(ctx, randomAccessFile, fileLength, response, rangeHeader)
             : write(ctx, randomAccessFile, fileLength, response);
+        sendFile.addListener(new ProgressListener(file));
 
         ChannelFuture lastContentFuture =
             ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-
-        sendFile.addListener(new ProgressListener(file));
 
         if (!HttpUtil.isKeepAlive(req)) {
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
@@ -57,10 +58,7 @@ public final class FileStreamer extends AbstractStreamer {
         HttpResponse response
     ) {
         HttpUtil.setContentLength(response, len);
-        ctx.write(response);
-        return ctx.write(
-            new DefaultFileRegion(file.getChannel(), 0, len),
-            ctx.newProgressivePromise());
+        return writeData(ctx, file, response, 0, len);
     }
 
     private static ChannelFuture writePartial(
@@ -72,15 +70,20 @@ public final class FileStreamer extends AbstractStreamer {
     ) {
         PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
         updateHeaders(response, pri, length);
-
-        ctx.write(response);
-
-        FileRegion msg = fileRegion(file, pri);
-        return ctx.write(msg, ctx.newProgressivePromise());
+        return writeData(ctx, file, response, pri.getStartOffset(), pri.getChunkSize());
     }
 
-    private static FileRegion fileRegion(RandomAccessFile file, PartialRequestInfo pri) {
-        return new DefaultFileRegion(file.getChannel(), pri.getStartOffset(), pri.getChunkSize());
+    private static ChannelFuture writeData(
+        ChannelHandlerContext ctx,
+        RandomAccessFile file,
+        HttpResponse response,
+        long startOffset,
+        long chunkSize
+    ) {
+        ctx.write(response);
+        return ctx.write(
+            new DefaultFileRegion(file.getChannel(), startOffset, chunkSize),
+            ctx.newProgressivePromise());
     }
 
     private static long length(RandomAccessFile randomAccessFile) {

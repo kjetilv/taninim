@@ -11,16 +11,14 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import mediaserver.files.Media;
-import mediaserver.gui.GUI;
-import mediaserver.gui.Playlists;
-import mediaserver.gui.Resources;
-import mediaserver.gui.FileStreamer;
+import mediaserver.gui.*;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 
 public class Main {
 
@@ -40,14 +38,16 @@ public class Main {
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
+        Supplier<Router> routerProvider = routerProvider(
+            mediaPath,
+            Boolean.getBoolean("dev"));
+
         ChannelInitializer<SocketChannel> handler = new ChannelInitializer<>() {
             @Override
             protected void initChannel(SocketChannel ch) {
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast(new CustomHttpServerCodec());
-                pipeline.addLast(routerProvider(
-                    mediaPath,
-                    Boolean.getBoolean("dev")));
+                pipeline.addLast(routerProvider.get());
             }
         };
 
@@ -70,14 +70,14 @@ public class Main {
         }
     }
 
-    private static Router routerProvider(Path root, boolean dev) {
+    private static Supplier<Router> routerProvider(Path root, boolean dev) {
         log.info("Scanning from {}", root);
         Media media = Media.at(root);
-        IO io = new IO(dev);
         log.info("Scanned: {}", media);
-        return new Router(
-            new Playlists(io, media),
+        IO io = new IO(dev);
+        return () -> new Router(new Playlists(io, media),
             new FileStreamer(io, media),
+            new S3Streamer(io, media),
             new Resources(io),
             new GUI(io, media));
     }

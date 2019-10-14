@@ -36,7 +36,7 @@ public abstract class AbstractStreamer extends Nettish {
             .map(track ->
                 stream(req, track, ctx))
             .orElseGet(() ->
-                respond(ctx, BAD_REQUEST));
+                respond(ctx, path, BAD_REQUEST));
     }
 
     static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {
