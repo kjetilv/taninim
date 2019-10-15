@@ -132,6 +132,11 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
         hash(h, getAlbums(true));
     }
 
+    @Override
+    protected Object toStringBody() {
+        return library.size() + " albums";
+    }
+
     private Stream<Album> stream(boolean recurse) {
         return library.stream().filter(album ->
             recurse || album.getCategoryPath().equals(this.categoryPath));
@@ -179,7 +184,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     private static Stream<File> subDirs(File dir) {
-        return Optional.ofNullable(dir.listFiles(File::isDirectory))
+        return Optional.ofNullable(
+            dir.listFiles(file ->
+                file.isDirectory() && !file.getName().equals("objects")))
             .stream()
             .flatMap(Arrays::stream);
     }
@@ -199,10 +206,5 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
     private static Artist artist(File dir) {
         return new Artist(dir.getParentFile().getName().replaceAll("_", ":"));
-    }
-
-    @Override
-    protected Object toStringBody() {
-        return library.size() + " albums";
     }
 }

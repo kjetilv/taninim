@@ -12,12 +12,9 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class S3 {
+public final class S3 {
 
     public static final String BUCKET = "taninim-water";
-
-    private static final Supplier<Optional<MinioClient>> S3 =
-        MostlyOnce.get(mediaserver.util.S3::s3);
 
     private static final Logger log = LoggerFactory.getLogger(S3.class);
 
@@ -27,18 +24,32 @@ public class S3 {
 
     private static final String SELF_ASSIGNED = "http://169.254.170.2";
 
+    private static final String RELATIVE_URI = "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI";
+
+    private static final String AWS_KEY = "awsKey";
+
+    private static final String AWS_SECRET = "awsSecret";
+
+    private static final Supplier<Optional<MinioClient>> S3 = MostlyOnce.get(mediaserver.util.S3::s3);
+    private static final String AWS_SECRET_ENV = "AWS_SECRET";
+    private static final String AWS_KEY_ENV = "AWS_KEY";
+
+    private S3() {
+
+    }
+
     public static Optional<MinioClient> get() {
         return S3.get();
     }
 
     private static Optional<MinioClient> s3() {
-        String awsKey = System.getProperty("awsKey");
-        String awsSecret = System.getProperty("awsSecret");
+        String awsKey = getProperty(AWS_KEY, AWS_KEY_ENV);
+        String awsSecret = getProperty(AWS_SECRET, AWS_SECRET_ENV);
         if (awsKey != null && awsSecret != null) {
-            log.info("Connecting to S3 with system proprties");
+            log.info("Connecting to S3 with system properties/env vars");
             return Optional.of(newClient(awsKey, awsSecret));
         }
-        String cloudUri = System.getenv("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
+        String cloudUri = getProperty(RELATIVE_URI, RELATIVE_URI);
         if (cloudUri != null) {
             try {
                 URL url = URI.create(SELF_ASSIGNED + cloudUri).toURL();
@@ -61,6 +72,10 @@ public class S3 {
         }
         log.warn("No credentials found for S3");
         return Optional.empty();
+    }
+
+    private static String getProperty(String property, String envar) {
+        return System.getProperty(property, System.getenv(envar));
     }
 
     private static MinioClient newClient(String awsKey, String awsSecret) {

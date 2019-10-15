@@ -62,11 +62,11 @@ fun main() {
 
     val objectsPath = root.resolve(Path.of("objects"))
     val objectsDirectory = objectsPath.toFile()
-    if (objectsDirectory.mkdirs()) {
+    if (objectsDirectory.isDirectory || objectsDirectory.mkdirs()) {
         media.allTracks.forEach { track ->
-            val target = objectsPath.resolve(Path.of(track.uuid.toString()))
+            val target = objectsPath.resolve(Path.of("${track.uuid}.flac"))
             val targetFile = target.toFile()
-            if (targetFile.isFile && targetFile.length() > 0 && Track(targetFile).equals(track)) {
+            if (targetFile.isFile && targetFile.length() == track.file.length()) {
                 println("Already copied: $track -> $target")
             } else {
                 println("Copying $track -> $target")
