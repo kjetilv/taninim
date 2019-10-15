@@ -34,8 +34,7 @@
 
 package mediaserver.hash;
 
-import mediaserver.util.MostlyOnce;
-
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -43,32 +42,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-@SuppressWarnings("unused")
-public abstract class AbstractHashable implements Hashable {
+public abstract class AbstractHashable
+    implements Hashable, Serializable {
 
-    /**
-     * A supplier which computes {@link Hashable this hashable's} uuid with a {@link mediaserver.util.MostlyOnce}.
-     */
-    private final Supplier<UUID> hash = MostlyOnce.get(uuid(this));
+    private final AtomicReference<UUID> hash = new AtomicReference<>();
 
-    private final Supplier<String> toString =
-        MostlyOnce.get(() ->
-            getClass().getSimpleName() + '[' + toStringIdentifier() + toStringContents() + ']');
+    private final AtomicReference<String> toString = new AtomicReference<>();
 
     private static final String HASH = "MD5";
 
-    private static final byte[] NO_TRUTH = "none".getBytes();
-
-    private static final byte[] TRUTHYNESS = "true".getBytes();
-
-    private static final byte[] FALSYNESS = "false".getBytes();
+    private static final long serialVersionUID = -2993413752909173835L;
 
     @Override
     public final UUID getUuid() {
-        return hash.get();
+        return hash.updateAndGet(v ->
+            v == null
+                ? uuid()
+                : v);
     }
 
     protected static void hash(Consumer<byte[]> hash, byte[]... justBytes) {
@@ -81,52 +74,12 @@ public abstract class AbstractHashable implements Hashable {
         hashStrings(hash, Arrays.asList(strings));
     }
 
-    protected static void hash(Consumer<byte[]> h, Hashed... ids) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES * 2 * ids.length);
-        for (Hashed id : ids) {
-            UUID uuid = id.getUuid();
-            buffer.putLong(uuid.getMostSignificantBits());
-            buffer.putLong(uuid.getLeastSignificantBits());
-        }
-        h.accept(buffer.array());
-    }
-
-    protected static void hash(Consumer<byte[]> h, Hashable... hashables) {
-        hash(h, Arrays.asList(hashables));
-    }
-
-    protected static void hash(Consumer<byte[]> hash, Long... values) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES * values.length);
-        for (Long value : values) {
-            if (value != null) {
-                buffer.putLong(value);
-            }
-        }
-        hash.accept(buffer.array());
-    }
-
-    protected static void hashLongs(Consumer<byte[]> hash, long... values) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES * values.length);
-        for (long value : values) {
-            buffer.putLong(value);
-        }
-        hash.accept(buffer.array());
-    }
-
     protected static void hash(Consumer<byte[]> hash, Integer... values) {
         ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES * values.length);
         for (Integer value : values) {
             if (value != null) {
                 buffer.putInt(value);
             }
-        }
-        hash.accept(buffer.array());
-    }
-
-    protected static void hashInts(Consumer<byte[]> hash, int... values) {
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES * values.length);
-        for (int value : values) {
-            buffer.putInt(value);
         }
         hash.accept(buffer.array());
     }
@@ -139,12 +92,6 @@ public abstract class AbstractHashable implements Hashable {
         }
     }
 
-    protected static void hashBools(Consumer<byte[]> h, Boolean... truths) {
-        for (Boolean truth : truths) {
-            h.accept(truth == null ? NO_TRUTH : truth ? TRUTHYNESS : FALSYNESS);
-        }
-    }
-
     protected Object toStringBody() {
         return null;
     }
@@ -154,18 +101,10 @@ public abstract class AbstractHashable implements Hashable {
         return hash.substring(0, hash.indexOf("-"));
     }
 
-    /**
-     * Takes a {@link Hashable hashable} and returns a supplier which computs its UUID
-     *
-     * @param hashable Hashable
-     * @return UUID supplier
-     */
-    private static Supplier<UUID> uuid(Hashable hashable) {
-        return MostlyOnce.get(() -> {
-            MessageDigest md5 = md5();
-            hashable.hashTo(md5::update);
-            return UUID.nameUUIDFromBytes(md5.digest());
-        });
+    private UUID uuid() {
+        MessageDigest md5 = md5();
+        hashTo(md5::update);
+        return UUID.nameUUIDFromBytes(md5.digest());
     }
 
     private static MessageDigest md5() {
@@ -208,6 +147,9 @@ public abstract class AbstractHashable implements Hashable {
 
     @Override
     public final String toString() {
-        return toString.get();
+        return toString.updateAndGet(v ->
+            v == null
+                ? getClass().getSimpleName() + '[' + toStringIdentifier() + toStringContents() + ']'
+                : v);
     }
 }

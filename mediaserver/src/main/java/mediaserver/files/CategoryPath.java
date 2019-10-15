@@ -2,6 +2,7 @@ package mediaserver.files;
 
 import mediaserver.hash.AbstractHashable;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -12,11 +13,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class CategoryPath extends AbstractHashable implements Comparable<CategoryPath> {
+public class CategoryPath extends AbstractHashable
+    implements Comparable<CategoryPath>, Serializable {
 
     public static final CategoryPath ROOT = new CategoryPath(Collections.emptyList());
 
     private final List<String> path;
+
+    private static final long serialVersionUID = -9183177927504274533L;
 
     public CategoryPath() {
         this((Path)null);
@@ -46,7 +50,7 @@ public class CategoryPath extends AbstractHashable implements Comparable<Categor
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
-        hash(h, path.toArray(new String[path.size()]));
+        hash(h, path.toArray(new String[0]));
     }
 
     public String getPathString() {

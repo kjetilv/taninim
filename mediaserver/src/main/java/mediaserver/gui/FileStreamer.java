@@ -17,7 +17,7 @@ import java.io.RandomAccessFile;
 public final class FileStreamer extends AbstractStreamer {
 
     public FileStreamer(IO io, Media media) {
-        super(media, io, "/audio");
+        super(media, io);
     }
 
     @Override

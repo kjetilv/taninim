@@ -1,38 +1,26 @@
 package mediaserver.gui;
 
-import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.stream.ChunkedStream;
 import mediaserver.files.Media;
 import mediaserver.files.Track;
 import mediaserver.util.IO;
-import mediaserver.util.MostlyOnce;
+import mediaserver.util.S3;
 
 import java.io.InputStream;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public final class S3Streamer extends AbstractStreamer {
 
-    private static final String BUCKET = "taninim-water";
-
     private static final String FLAC = ".flac";
 
-    private static final String REGION = "eu-north-1";
-
-    private static final String AMAZONAWS_COM = "https://s3.amazonaws.com/";
-
-    private final Supplier<MinioClient> s3 = MostlyOnce.get(this::s3);
-
     public S3Streamer(IO io, Media media) {
-        super(media, io, "/cloudio");
+        super(media, io);
     }
 
     @Override
@@ -57,36 +45,30 @@ public final class S3Streamer extends AbstractStreamer {
     }
 
     private long length(UUID uuid) {
-        try {
-            ObjectStat objectStat = s3.get().statObject(BUCKET,
-                uuid + FLAC);
-            return objectStat.length();
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to stat " + uuid, e);
-        }
+        return S3.get().map(s3 -> {
+            try {
+                return s3.statObject(S3.BUCKET,
+                    uuid + FLAC);
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to stat " + uuid, e);
+            }
+        }).map(ObjectStat::length)
+            .orElseThrow(() ->
+                new IllegalStateException("No S3 connection"));
     }
 
     private InputStream stream(UUID uuid, Long offset, Long length) {
-        try {
-            String obj = uuid.toString() + FLAC;
-            return offset == null || length == null
-                ? s3.get().getObject(BUCKET, obj)
-                : s3.get().getObject(BUCKET, obj, offset, length);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to load " + uuid, e);
-        }
-    }
-
-    private MinioClient s3() {
-        try {
-            return new MinioClient(
-                AMAZONAWS_COM,
-                System.getProperty("awsKey"),
-                System.getProperty("awsSecret"),
-                REGION);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to connect to S3", e);
-        }
+        return S3.get().map(s3 -> {
+            try {
+                String obj = uuid.toString() + FLAC;
+                return offset == null || length == null
+                    ? s3.getObject(S3.BUCKET, obj)
+                    : s3.getObject(S3.BUCKET, obj, offset, length);
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to load " + uuid, e);
+            }
+        }).orElseThrow(() ->
+            new IllegalStateException("No S3 connection"));
     }
 
     private ChannelFuture writePartial(
@@ -97,13 +79,15 @@ public final class S3Streamer extends AbstractStreamer {
         String rangeHeader
     ) {
         PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
+        ByteBuf byteBuf = read(uuid, pri);
         updateHeaders(response, pri, length);
-        ByteBuf byteBuf = getByteBuf(uuid, pri);
         ctx.write(response);
-        return ctx.writeAndFlush(new DefaultHttpContent(byteBuf), ctx.newProgressivePromise());
+        return ctx.writeAndFlush(
+            new DefaultHttpContent(byteBuf), ctx.newProgressivePromise()
+        ).addListener(new ProgressListener(uuid));
     }
 
-    private ByteBuf getByteBuf(UUID uuid, PartialRequestInfo pri) {
+    private ByteBuf read(UUID uuid, PartialRequestInfo pri) {
         InputStream object = stream(uuid, pri.getStartOffset(), pri.getEndOffset());
         long partialLength = pri.getEndOffset() - pri.getStartOffset();
         ByteBuf buffer = Unpooled.buffer((int) partialLength);

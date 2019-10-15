@@ -2,14 +2,15 @@ package mediaserver.files;
 
 import mediaserver.hash.AbstractHashable;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@SuppressWarnings("unused")
-public class Album extends AbstractHashable implements Comparable<Album> {
+public class Album extends AbstractHashable
+    implements Comparable<Album>, Serializable {
 
     private final Artist artist;
 
@@ -27,6 +28,8 @@ public class Album extends AbstractHashable implements Comparable<Album> {
         Comparator.comparing(Album::getCategoryPath)
             .thenComparing(Album::getArtist)
             .thenComparing(Album::getName);
+
+    private static final long serialVersionUID = 6861992470450497236L;
 
     Album(CategoryPath categoryPath, Artist artist, String name, List<Track> tracks) {
         this(
@@ -114,7 +117,6 @@ public class Album extends AbstractHashable implements Comparable<Album> {
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
-        hash(h, parts, part);
         hash(h, tracks);
     }
 

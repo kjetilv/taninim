@@ -5,8 +5,6 @@ import mediaserver.hash.AbstractHashable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class Playlist extends AbstractHashable {

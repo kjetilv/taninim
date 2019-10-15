@@ -2,12 +2,16 @@ package mediaserver.files;
 
 import mediaserver.hash.AbstractHashable;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class Artist extends AbstractHashable implements Comparable<Artist> {
+public class Artist extends AbstractHashable
+    implements Comparable<Artist>, Serializable {
 
     private final String name;
+
+    private static final long serialVersionUID = 8396940978009264692L;
 
     public Artist(String name) {
         this.name = Objects.requireNonNull(name, "name");

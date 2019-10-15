@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.function.Supplier;
 
 public class Main {
@@ -26,21 +25,20 @@ public class Main {
 
     private static final int PORT = 8080;
 
+    private static final String DEV_FLAG = "dev";
+
     public static void main(String[] args) {
-        if (args.length == 0) {
-            System.err.println("Usage: <media directory>");
-            System.exit(1);
-            return;
-        }
-        Path mediaPath = new File(args[0]).toPath();
-        log.info("Serving media from {}", mediaPath);
+        boolean local = args.length > 0 && new File(args[0]).isDirectory();
+        boolean isDev = Boolean.getBoolean(DEV_FLAG);
+
+        log.info("Running in {} mode", local ? "local" : "cloud");
+
+        Media media = local ? Media.local(args[0]) : CloudMedia.download();
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
-        Supplier<Router> routerProvider = routerProvider(
-            mediaPath,
-            Boolean.getBoolean("dev"));
+        Supplier<Router> routerProvider = routerSupplier(media, local, isDev);
 
         ChannelInitializer<SocketChannel> handler = new ChannelInitializer<>() {
             @Override
@@ -59,7 +57,7 @@ public class Main {
 
         try {
             Channel ch = bootstrap.bind(PORT).sync().channel();
-            log.debug("Bound to port {}", PORT);
+            log.info("Bound to port {}", PORT);
             ch.closeFuture().sync();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -70,14 +68,14 @@ public class Main {
         }
     }
 
-    private static Supplier<Router> routerProvider(Path root, boolean dev) {
-        log.info("Scanning from {}", root);
-        Media media = Media.at(root);
-        log.info("Scanned: {}", media);
+    private static Supplier<Router> routerSupplier(
+        Media media,
+        boolean local,
+        boolean dev
+    ) {
         IO io = new IO(dev);
         return () -> new Router(new Playlists(io, media),
-            new FileStreamer(io, media),
-            new S3Streamer(io, media),
+            local ? new FileStreamer(io, media) : new S3Streamer(io, media),
             new Resources(io),
             new GUI(io, media));
     }

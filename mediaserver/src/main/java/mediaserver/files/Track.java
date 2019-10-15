@@ -6,6 +6,7 @@ import org.gagravarr.flac.FlacInfo;
 import org.gagravarr.flac.FlacTags;
 
 import java.io.File;
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.Objects;
@@ -15,7 +16,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
-public class Track extends AbstractHashable implements Comparable<Track> {
+public class Track extends AbstractHashable
+    implements Comparable<Track>, Serializable {
 
     private final Artist albumArtist;
 
@@ -29,7 +31,7 @@ public class Track extends AbstractHashable implements Comparable<Track> {
 
     private final Integer part;
 
-    private final File file;
+    private final String file;
 
     private static final Pattern PART_TRACK_NAME = Pattern.compile("^(\\d+)-(\\d{2,})\\s+(.*)$");
 
@@ -44,6 +46,8 @@ public class Track extends AbstractHashable implements Comparable<Track> {
     private final Duration duration;
 
     private final byte[] signature;
+
+    private static final long serialVersionUID = 3609605456752055320L;
 
     public Track(File file) {
         this.part = part(Objects.requireNonNull(file, "file").getName());
@@ -71,7 +75,7 @@ public class Track extends AbstractHashable implements Comparable<Track> {
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to import flac file: " + file, e);
         }
-        this.file = file;
+        this.file = file.getPath();
     }
 
     public Artist getArtist() {
@@ -99,7 +103,7 @@ public class Track extends AbstractHashable implements Comparable<Track> {
     }
 
     public File getFile() {
-        return file;
+        return new File(file);
     }
 
     public Duration getDuration() {

@@ -27,8 +27,8 @@ public abstract class AbstractStreamer extends Nettish {
 
     private static final int BYTES_PREAMBLE = (HttpHeaderValues.BYTES + "=").length();
 
-    AbstractStreamer(Media media, IO io, String... prefix) {
-        super(io, prefix);
+    AbstractStreamer(Media media, IO io) {
+        super(io, "/audio");
         this.media = media;
     }
 

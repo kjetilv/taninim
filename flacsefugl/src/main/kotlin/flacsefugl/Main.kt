@@ -58,7 +58,7 @@ fun main() {
     }
 
     val root = Path.of(System.getProperty("user.home"), "FLAC")
-    val media = Media.at(root);
+    val media = Media.local(root);
 
     val objectsPath = root.resolve(Path.of("objects"))
     val objectsDirectory = objectsPath.toFile()

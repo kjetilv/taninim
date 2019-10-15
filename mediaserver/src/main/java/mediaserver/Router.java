@@ -13,6 +13,8 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -34,9 +36,9 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, HttpRequest req) {
-        log.debug("Received {}: {}", System.identityHashCode(req), req);
+        Instant start = Instant.now();
         HttpResponse res = response(ctx, req);
-        log.debug("Responded to {}: {}", System.identityHashCode(req), res);
+        log.debug("Responded {} -> {} in {}", req.uri(), res.status(), Duration.between(start, Instant.now()));
     }
 
     @Override

@@ -1,5 +1,9 @@
 package mediaserver.files;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -7,9 +11,7 @@ import java.util.UUID;
 
 public interface Media {
 
-    static Media at(Path root) {
-        return new LocalMedia(root);
-    }
+    Logger log = LoggerFactory.getLogger(Media.class);
 
     Media subLibrary(CategoryPath categoryPath);
 
@@ -58,4 +60,16 @@ public interface Media {
     Optional<Album> getAlbum(UUID id);
 
     Optional<Artist> getArtist(UUID id);
+
+    static Media local(String file) {
+        Path mediaPath = new File(file).toPath();
+        return local(mediaPath);
+    }
+
+    static Media local(Path mediaPath) {
+        log.info("Scanning from {}", mediaPath);
+        Media media = new LocalMedia(mediaPath);
+        log.info("Scanned: {}", media);
+        return media;
+    }
 }

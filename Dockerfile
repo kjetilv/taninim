@@ -9,6 +9,8 @@ COPY mediaserver/build/libs/mediaserver-1.0-SNAPSHOT-all.jar /usr/lib/taninim.ja
 WORKDIR /usr/lib
 RUN rm -rf /usr/taninim
 
+# "/Users/kjetil/FLAC/John Zorn:/var/media:ro"
+
 VOLUME /var/media
 
 CMD ["java", "-jar", "/usr/lib/taninim.jar", "/var/media" ]

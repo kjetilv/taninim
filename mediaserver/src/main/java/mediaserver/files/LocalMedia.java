@@ -1,18 +1,24 @@
 package mediaserver.files;
 
+import mediaserver.hash.AbstractHashable;
+
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class LocalMedia implements Media {
+public class LocalMedia extends AbstractHashable implements Media, Serializable {
 
     private final CategoryPath categoryPath;
 
     private final Collection<Album> library;
 
     private final Collection<Artist> artists;
+
+    private static final long serialVersionUID = -7165763549356996140L;
 
     public LocalMedia(Path root) {
         this(null, getAlbums(root, root));
@@ -121,6 +127,11 @@ public class LocalMedia implements Media {
         return artists.stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
     }
 
+    @Override
+    public void hashTo(Consumer<byte[]> h) {
+        hash(h, getAlbums(true));
+    }
+
     private Stream<Album> stream(boolean recurse) {
         return library.stream().filter(album ->
             recurse || album.getCategoryPath().equals(this.categoryPath));
@@ -191,7 +202,7 @@ public class LocalMedia implements Media {
     }
 
     @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + library.size() + " albums]";
+    protected Object toStringBody() {
+        return library.size() + " albums";
     }
 }
