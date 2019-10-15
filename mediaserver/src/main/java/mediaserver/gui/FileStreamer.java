@@ -23,20 +23,21 @@ public final class FileStreamer extends AbstractStreamer {
     @Override
     protected HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx) {
         HttpResponse response = response(req);
-        String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
 
         File file = track.getFile();
         RandomAccessFile randomAccessFile = randomAccess(file);
         long fileLength = length(randomAccessFile);
 
-        ChannelFuture sendFile = rangeHeader != null && rangeHeader.length() > 0
-            ? writePartial(ctx, randomAccessFile, fileLength, response, rangeHeader)
-            : write(ctx, randomAccessFile, fileLength, response);
-        sendFile.addListener(new ProgressListener(file));
+        String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
+        if (rangeHeader != null && rangeHeader.length() > 0) {
+            writePartial(response, fileLength, ctx, randomAccessFile, rangeHeader.trim());
+        } else {
+            HttpUtil.setContentLength(response, fileLength);
+            ctx.write(response);
+        }
 
         ChannelFuture lastContentFuture =
             ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-
         if (!HttpUtil.isKeepAlive(req)) {
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
@@ -51,26 +52,15 @@ public final class FileStreamer extends AbstractStreamer {
         }
     }
 
-    private static ChannelFuture write(
-        ChannelHandlerContext ctx,
-        RandomAccessFile file,
-        long len,
-        HttpResponse response
-    ) {
-        HttpUtil.setContentLength(response, len);
-        return writeData(ctx, file, response, 0, len);
-    }
-
     private static ChannelFuture writePartial(
-        ChannelHandlerContext ctx,
+        HttpResponse response, long length, ChannelHandlerContext ctx,
         RandomAccessFile file,
-        long length,
-        HttpResponse response,
         String rangeHeader
     ) {
         PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
         updateHeaders(response, pri, length);
-        return writeData(ctx, file, response, pri.getStartOffset(), pri.getChunkSize());
+        return writeData(ctx, file, response, pri.getStartOffset(), pri.getChunkSize())
+            .addListener(new ProgressListener(file));
     }
 
     private static ChannelFuture writeData(

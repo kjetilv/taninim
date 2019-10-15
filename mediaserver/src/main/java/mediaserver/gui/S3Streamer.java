@@ -3,17 +3,21 @@ package mediaserver.gui;
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.stream.ChunkedStream;
 import mediaserver.files.Media;
 import mediaserver.files.Track;
 import mediaserver.util.IO;
+import mediaserver.util.MostlyOnce;
 
-import java.io.*;
+import java.io.InputStream;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public final class S3Streamer extends AbstractStreamer {
 
@@ -25,6 +29,8 @@ public final class S3Streamer extends AbstractStreamer {
 
     private static final String AMAZONAWS_COM = "https://s3.amazonaws.com/";
 
+    private final Supplier<MinioClient> s3 = MostlyOnce.get(this::s3);
+
     public S3Streamer(IO io, Media media) {
         super(media, io, "/cloudio");
     }
@@ -35,13 +41,11 @@ public final class S3Streamer extends AbstractStreamer {
         HttpResponse response = response(req);
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
 
-        MinioClient s3 = s3();
-
-        long fileLength = length(s3, uuid);
+        long fileLength = length(uuid);
 
         ChannelFuture sendFile = rangeHeader != null && rangeHeader.length() > 0
-            ? writePartial(ctx, s3, uuid, fileLength, response, rangeHeader)
-            : write(ctx, s3, uuid, fileLength, response);
+            ? writePartial(ctx, uuid, fileLength, response, rangeHeader)
+            : write(ctx, uuid, fileLength, response);
         ChannelFuture lastContentFuture =
             ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
 
@@ -51,9 +55,9 @@ public final class S3Streamer extends AbstractStreamer {
         return response;
     }
 
-    private long length(MinioClient s3, UUID uuid) {
+    private long length(UUID uuid) {
         try {
-            ObjectStat objectStat = s3.statObject(BUCKET,
+            ObjectStat objectStat = s3.get().statObject(BUCKET,
                 uuid + FLAC);
             return objectStat.length();
         } catch (Exception e) {
@@ -61,12 +65,12 @@ public final class S3Streamer extends AbstractStreamer {
         }
     }
 
-    private InputStream stream(MinioClient s3, UUID uuid, Long offset, Long length) {
+    private InputStream stream(UUID uuid, Long offset, Long length) {
         try {
             String obj = uuid.toString() + FLAC;
             return offset == null || length == null
-                ? s3.getObject(BUCKET, obj)
-                : s3.getObject(BUCKET, obj, offset, length);
+                ? s3.get().getObject(BUCKET, obj)
+                : s3.get().getObject(BUCKET, obj, offset, length);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load " + uuid, e);
         }
@@ -86,36 +90,43 @@ public final class S3Streamer extends AbstractStreamer {
 
     private ChannelFuture write(
         ChannelHandlerContext ctx,
-        MinioClient s3, UUID uuid,
+        UUID uuid,
         long length,
         HttpResponse response
     ) {
         HttpUtil.setContentLength(response, length);
-        ByteBuf byteBuf = getByteBuf(s3, uuid, length);
-        return ctx.writeAndFlush(byteBuf);
+        return writeData(ctx, response, null);// getByteBuf(uuid, length));
+    }
+
+    private ChannelFuture writeData(ChannelHandlerContext ctx, HttpResponse response, ByteBuf byteBuf) {
+        ChannelFuture headers = ctx.write(response);
+        if (byteBuf == null) {
+            return headers;
+        }
+        ByteBufInputStream contentStream = new ByteBufInputStream(byteBuf);
+        return ctx.writeAndFlush(
+            new HttpChunkedInput(new ChunkedStream(contentStream)), ctx.newProgressivePromise());
     }
 
     private ChannelFuture writePartial(
         ChannelHandlerContext ctx,
-        MinioClient s3, UUID uuid,
+        UUID uuid,
         long length,
         HttpResponse response,
         String rangeHeader
     ) {
         PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
         updateHeaders(response, pri, length);
-        ByteBuf buffer = getByteBuf(s3, uuid, pri);
-        ctx.write(response);
-        return ctx.writeAndFlush(buffer);
+        return writeData(ctx, response, getByteBuf(uuid, pri));
     }
 
-    private ByteBuf getByteBuf(MinioClient s3, UUID uuid, long length) {
-        InputStream object = stream(s3, uuid, null, null);
+    private ByteBuf getByteBuf(UUID uuid, long length) {
+        InputStream object = stream(uuid, null, null);
         ByteBuf buffer = Unpooled.buffer((int) length);
         try {
             int totalRead = 0;
             while (true) {
-                totalRead += buffer.writeBytes(object, (int)length);
+                totalRead += buffer.writeBytes(object, (int) length);
                 if (totalRead >= length) {
                     return buffer;
                 }
@@ -125,15 +136,20 @@ public final class S3Streamer extends AbstractStreamer {
         }
     }
 
-    private ByteBuf getByteBuf(MinioClient s3, UUID uuid, PartialRequestInfo pri) {
-        InputStream object = stream(s3, uuid, pri.getStartOffset(), pri.getEndOffset());
+    private ByteBuf getByteBuf(UUID uuid, PartialRequestInfo pri) {
+        InputStream object = stream(uuid, pri.getStartOffset(), pri.getEndOffset());
         long partialLength = pri.getEndOffset() - pri.getStartOffset();
-        ByteBuf buffer = Unpooled.buffer((int)partialLength);
+        ByteBuf buffer = Unpooled.buffer((int) partialLength);
         try {
-            buffer.writeBytes(object, (int)partialLength);
+            int totalRead = 0;
+            while (true) {
+                totalRead += buffer.writeBytes(object, (int) partialLength);
+                if (totalRead >= partialLength) {
+                    return buffer;
+                }
+            }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read from " + uuid, e);
         }
-        return buffer;
     }
 }

@@ -25,6 +25,8 @@ public abstract class AbstractStreamer extends Nettish {
 
     protected final Media media;
 
+    private static final int BYTES_PREAMBLE = (HttpHeaderValues.BYTES + "=").length();
+
     AbstractStreamer(Media media, IO io, String... prefix) {
         super(io, prefix);
         this.media = media;
@@ -61,12 +63,10 @@ public abstract class AbstractStreamer extends Nettish {
         return response;
     }
 
-    protected static PartialRequestInfo getPartialRequestInfo(String rangeHeader, long fileLength) {
+    protected static PartialRequestInfo getPartialRequestInfo(String rangeHeader, long length) {
         try {
-            long startOffset = Integer.parseInt(rangeHeader.trim()
-                .replace(HttpHeaderValues.BYTES + "=", "")
-                .replace("-", ""));
-            long endOffset = endOffset(fileLength, startOffset);
+            long startOffset = Integer.parseInt(rangeHeader.substring(BYTES_PREAMBLE, rangeHeader.indexOf("-")));
+            long endOffset = endOffset(length, startOffset);
             long chunkSize = endOffset - startOffset + 1;
             return new PartialRequestInfo(startOffset, endOffset, chunkSize);
         } catch (Exception e) {
