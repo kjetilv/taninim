@@ -34,8 +34,9 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, HttpRequest req) {
+        log.debug("Received {}: {}", System.identityHashCode(req), req);
         HttpResponse res = response(ctx, req);
-        log.debug("Responded to {}: {}", req.uri(), res.status());
+        log.debug("Responded to {}: {}", System.identityHashCode(req), res);
     }
 
     @Override

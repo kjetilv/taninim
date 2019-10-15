@@ -44,12 +44,7 @@ public abstract class AbstractStreamer extends Nettish {
     static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {
         response.headers().add(HttpHeaderNames.CONTENT_RANGE,
             HttpHeaderValues.BYTES + " " + pri.getStartOffset() + "-" + pri.getEndOffset() + "/" + length);
-
-        log.debug("{}: {}", HttpHeaderNames.CONTENT_RANGE, response.headers().get(HttpHeaderNames.CONTENT_RANGE));
-
         HttpUtil.setContentLength(response, pri.getChunkSize());
-        log.debug("{}: {}", HttpHeaderNames.CONTENT_LENGTH, pri.getChunkSize());
-
         response.setStatus(HttpResponseStatus.PARTIAL_CONTENT);
     }
 

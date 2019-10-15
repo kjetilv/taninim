@@ -42,13 +42,14 @@ public final class S3Streamer extends AbstractStreamer {
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
 
         long fileLength = length(uuid);
-
-        ChannelFuture sendFile = rangeHeader != null && rangeHeader.length() > 0
-            ? writePartial(ctx, uuid, fileLength, response, rangeHeader)
-            : write(ctx, uuid, fileLength, response);
+        if (rangeHeader != null && rangeHeader.length() > 0) {
+            writePartial(ctx, uuid, fileLength, response, rangeHeader);
+        } else {
+            HttpUtil.setContentLength(response, fileLength);
+            ctx.write(response);
+        }
         ChannelFuture lastContentFuture =
             ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-
         if (!HttpUtil.isKeepAlive(req)) {
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
@@ -88,26 +89,6 @@ public final class S3Streamer extends AbstractStreamer {
         }
     }
 
-    private ChannelFuture write(
-        ChannelHandlerContext ctx,
-        UUID uuid,
-        long length,
-        HttpResponse response
-    ) {
-        HttpUtil.setContentLength(response, length);
-        return writeData(ctx, response, null);// getByteBuf(uuid, length));
-    }
-
-    private ChannelFuture writeData(ChannelHandlerContext ctx, HttpResponse response, ByteBuf byteBuf) {
-        ChannelFuture headers = ctx.write(response);
-        if (byteBuf == null) {
-            return headers;
-        }
-        ByteBufInputStream contentStream = new ByteBufInputStream(byteBuf);
-        return ctx.writeAndFlush(
-            new HttpChunkedInput(new ChunkedStream(contentStream)), ctx.newProgressivePromise());
-    }
-
     private ChannelFuture writePartial(
         ChannelHandlerContext ctx,
         UUID uuid,
@@ -117,23 +98,9 @@ public final class S3Streamer extends AbstractStreamer {
     ) {
         PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
         updateHeaders(response, pri, length);
-        return writeData(ctx, response, getByteBuf(uuid, pri));
-    }
-
-    private ByteBuf getByteBuf(UUID uuid, long length) {
-        InputStream object = stream(uuid, null, null);
-        ByteBuf buffer = Unpooled.buffer((int) length);
-        try {
-            int totalRead = 0;
-            while (true) {
-                totalRead += buffer.writeBytes(object, (int) length);
-                if (totalRead >= length) {
-                    return buffer;
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to read from " + uuid, e);
-        }
+        ByteBuf byteBuf = getByteBuf(uuid, pri);
+        ctx.write(response);
+        return ctx.writeAndFlush(new DefaultHttpContent(byteBuf), ctx.newProgressivePromise());
     }
 
     private ByteBuf getByteBuf(UUID uuid, PartialRequestInfo pri) {

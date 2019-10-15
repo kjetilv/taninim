@@ -30,7 +30,7 @@ public final class FileStreamer extends AbstractStreamer {
 
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
         if (rangeHeader != null && rangeHeader.length() > 0) {
-            writePartial(response, fileLength, ctx, randomAccessFile, rangeHeader.trim());
+            writeRange(response, fileLength, ctx, randomAccessFile, rangeHeader.trim());
         } else {
             HttpUtil.setContentLength(response, fileLength);
             ctx.write(response);
@@ -52,28 +52,18 @@ public final class FileStreamer extends AbstractStreamer {
         }
     }
 
-    private static ChannelFuture writePartial(
+    private static void writeRange(
         HttpResponse response, long length, ChannelHandlerContext ctx,
         RandomAccessFile file,
         String rangeHeader
     ) {
         PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
         updateHeaders(response, pri, length);
-        return writeData(ctx, file, response, pri.getStartOffset(), pri.getChunkSize())
-            .addListener(new ProgressListener(file));
-    }
-
-    private static ChannelFuture writeData(
-        ChannelHandlerContext ctx,
-        RandomAccessFile file,
-        HttpResponse response,
-        long startOffset,
-        long chunkSize
-    ) {
         ctx.write(response);
-        return ctx.write(
-            new DefaultFileRegion(file.getChannel(), startOffset, chunkSize),
-            ctx.newProgressivePromise());
+        ctx.write(
+            new DefaultFileRegion(file.getChannel(), pri.getStartOffset(), pri.getChunkSize()),
+            ctx.newProgressivePromise()
+        ).addListener(new ProgressListener(file));
     }
 
     private static long length(RandomAccessFile randomAccessFile) {
