@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -28,8 +30,11 @@ public final class S3 {
     private static final String AWS_KEY = "awsKey";
 
     private static final String AWS_SECRET = "awsSecret";
+
     private static final String AWS_SECRET_ENV = "AWS_SECRET";
+
     private static final String AWS_KEY_ENV = "AWS_KEY";
+
     private static final Supplier<Optional<MinioClient>> S3 = MostlyOnce.get(mediaserver.util.S3::s3);
 
     private S3() {
@@ -54,14 +59,14 @@ public final class S3 {
             try {
                 HttpURLConnection urlConnection = (HttpURLConnection) uri.toURL().openConnection();
                 try (InputStream inputStream = urlConnection.getInputStream()) {
-                    Credentials credentials = new ObjectMapper()
-                        .readerFor(Credentials.class)
+                    Map<?, ?> credentials = new ObjectMapper().readerFor(LinkedHashMap.class)
                         .readValue(inputStream);
-                    log.info("Connecting to S3 with cloud credentials, expiry: {}",
-                        credentials.getExpiration());
+                    log.info("Connecting to S3 with cloud credentials, access key {}, expiry: {}",
+                        get(credentials, Credentials.AccessKeyId),
+                        get(credentials, Credentials.Expiration));
                     return Optional.of(newClient(
-                        credentials.getAccessKeyId(),
-                        credentials.getSecretAccessKey()));
+                        get(credentials, Credentials.AccessKeyId),
+                        get(credentials, Credentials.SecretAccessKey)));
                 } finally {
                     urlConnection.disconnect();
                 }
@@ -71,6 +76,12 @@ public final class S3 {
         }
         log.warn("No credentials found for S3");
         return Optional.empty();
+    }
+
+    private static String get(Map<?, ?> credentials, Credentials field) {
+        return Optional.ofNullable(credentials.get(field.name())).map(Object::toString)
+            .orElseThrow(() -> new IllegalStateException
+                ("Could not find " + field + ", keys: " + credentials.keySet()));
     }
 
     private static String getProperty(String property, String envVar, boolean mask) {
@@ -93,56 +104,12 @@ public final class S3 {
         }
     }
 
-    public static class Credentials {
+    public enum Credentials {
 
-        private String AccessKeyId;
-
-        private String SecretAccessKey;
-
-        private String Token;
-
-        private String RoleArn;
-
-        private String Expiration;
-
-        public String getAccessKeyId() {
-            return AccessKeyId;
-        }
-
-        public void setAccessKeyId(String accessKeyId) {
-            AccessKeyId = accessKeyId;
-        }
-
-        public String getSecretAccessKey() {
-            return SecretAccessKey;
-        }
-
-        public void setSecretAccessKey(String secretAccessKey) {
-            SecretAccessKey = secretAccessKey;
-        }
-
-        public String getToken() {
-            return Token;
-        }
-
-        public void setToken(String token) {
-            Token = token;
-        }
-
-        public String getRoleArn() {
-            return RoleArn;
-        }
-
-        public void setRoleArn(String roleArn) {
-            RoleArn = roleArn;
-        }
-
-        public String getExpiration() {
-            return Expiration;
-        }
-
-        public void setExpiration(String expiration) {
-            Expiration = expiration;
-        }
+        AccessKeyId,
+        SecretAccessKey,
+        Token,
+        RoleArn,
+        Expiration
     }
 }

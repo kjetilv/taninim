@@ -72,4 +72,8 @@ public interface Media {
         log.info("Scanned: {}", media);
         return media;
     }
+
+    static Media empty() {
+        return new LocalMedia(null);
+    }
 }

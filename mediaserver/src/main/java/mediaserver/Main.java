@@ -23,7 +23,9 @@ public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static final int PORT = 8080;
+    private static final int LOCALPORT = 8080;
+
+    private static final int CLOUD_PORT = 80;
 
     private static final String DEV_FLAG = "dev";
 
@@ -33,7 +35,13 @@ public class Main {
 
         log.info("Running in {} mode", local ? "local" : "cloud");
 
-        Media media = local ? Media.local(args[0]) : CloudMedia.download();
+        Media media;
+        try {
+            media = local ? Media.local(args[0]) : CloudMedia.download();
+        } catch (Exception e) {
+            media = Media.empty();
+            log.error("Error retrieving media, proceeding with empty... {}", media);
+        }
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
@@ -55,9 +63,11 @@ public class Main {
             .handler(new LoggingHandler(LogLevel.DEBUG))
             .childHandler(handler);
 
+        int port = local ? LOCALPORT : CLOUD_PORT;
+
         try {
-            Channel ch = bootstrap.bind(PORT).sync().channel();
-            log.info("Bound to port {}", PORT);
+            Channel ch = bootstrap.bind(port).sync().channel();
+            log.info("Bound to port {}", port);
             ch.closeFuture().sync();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

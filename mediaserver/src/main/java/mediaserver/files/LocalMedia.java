@@ -160,6 +160,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     private static Stream<Album> getAlbums(Path root, Path path) {
+        if (root == null) {
+            return Stream.empty();
+        }
         return Stream.concat(
             album(root, path).stream(),
             subDirs(path.toFile())

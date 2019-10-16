@@ -1,6 +1,6 @@
 FROM adoptopenjdk:11-jre-openj9
 
-EXPOSE 8080/tcp
+EXPOSE 80/tcp
 
 MAINTAINER Kjetil Valstadsve <taninim@vlitejk.cotse.net>
 
