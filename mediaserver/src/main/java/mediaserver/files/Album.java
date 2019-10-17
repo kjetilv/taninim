@@ -107,10 +107,6 @@ public class Album extends AbstractHashable
         return categoryPath;
     }
 
-    public String print() {
-        return categoryPath + "/ " + getArtist() + ": " + getName() + " [" + tracks.size() + "]";
-    }
-
     public boolean isIn(CategoryPath category) {
         return categoryPath.startsWith(category);
     }

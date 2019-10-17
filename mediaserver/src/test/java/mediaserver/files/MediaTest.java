@@ -9,6 +9,6 @@ public class MediaTest {
     @Test
     public void listall() {
         Media media = Media.local(Path.of(System.getProperty("user.home"), "FLAC"));
-        media.getAlbums().stream().map(Album::print).forEach(System.out::println);
+        media.getAlbums().stream().map(Album::toStringBody).forEach(System.out::println);
     }
 }

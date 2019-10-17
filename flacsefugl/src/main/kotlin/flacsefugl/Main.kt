@@ -1,7 +1,6 @@
 package flacsefugl
 
 import mediaserver.files.Media
-import mediaserver.files.Track
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Files.copy
@@ -60,9 +59,23 @@ fun main() {
     val root = Path.of(System.getProperty("user.home"), "FLAC")
     val media = Media.local(root);
 
+    val albumsMetaPath = root.resolve(Path.of("album-meta"))
+    val albumsMetaDir = albumsMetaPath.toFile()
+    if (albumsMetaDir.isDirectory || albumsMetaDir.mkdir()) {
+        media.allAlbums().forEach { album ->
+            val target = albumsMetaPath.resolve("album.${album.uuid}")
+            val targetFile = target.toFile()
+            if (targetFile.isDirectory || targetFile.mkdirs()) {
+                println("Created album context dir for ${album.artist.name}/${album.name}: ${targetFile.path}")
+            } else {
+                throw java.lang.IllegalStateException("Not a directory: $targetFile")
+            }
+        }
+    }
+
     val objectsPath = root.resolve(Path.of("objects"))
-    val objectsDirectory = objectsPath.toFile()
-    if (objectsDirectory.isDirectory || objectsDirectory.mkdirs()) {
+    val objectsDir = objectsPath.toFile()
+    if (objectsDir.isDirectory || objectsDir.mkdirs()) {
         media.allTracks.forEach { track ->
             val target = objectsPath.resolve(Path.of("${track.uuid}.flac"))
             val targetFile = target.toFile()

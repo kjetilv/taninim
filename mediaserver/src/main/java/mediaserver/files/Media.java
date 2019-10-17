@@ -15,9 +15,12 @@ public interface Media {
 
     Media subLibrary(CategoryPath categoryPath);
 
+    Media addAlbumContext(UUID albumId, AlbumContext albumContext);
+
     Optional<Track> getTrack(UUID uuid);
 
     default boolean isSubCategories() {
+
         return !getTopCategories().isEmpty();
     }
 
@@ -28,28 +31,38 @@ public interface Media {
     Collection<CategoryPath> getCategories();
 
     default Collection<Artist> getAlbumArtists() {
+
         return getAlbumArtists(false);
     }
 
     Collection<Artist> getAlbumArtists(boolean recurse);
 
     default Collection<Artist> getArtists() {
+
         return getArtists(false);
     }
 
     Collection<Artist> getArtists(boolean recurse);
 
+    default Collection<Album> allAlbums() {
+
+        return getAlbums(true);
+    }
+
     default Collection<Album> getAlbums() {
+
         return getAlbums(false);
     }
 
     Collection<Album> getAlbums(boolean recurse);
 
     default Collection<Track> getTracks() {
+
         return getTracks(false);
     }
 
     default Collection<Track> getAllTracks() {
+
         return getTracks(true);
     }
 
@@ -62,11 +75,13 @@ public interface Media {
     Optional<Artist> getArtist(UUID id);
 
     static Media local(String file) {
+
         Path mediaPath = new File(file).toPath();
         return local(mediaPath);
     }
 
     static Media local(Path mediaPath) {
+
         log.info("Scanning from {}", mediaPath);
         Media media = new LocalMedia(mediaPath);
         log.info("Scanned: {}", media);
@@ -74,6 +89,7 @@ public interface Media {
     }
 
     static Media empty() {
+
         return new LocalMedia(null);
     }
 }

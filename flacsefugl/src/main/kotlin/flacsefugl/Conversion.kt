@@ -6,16 +6,16 @@ import java.nio.file.Path
 class Conversion(
         val mover: Mover,
         val traverser: Traverser,
-        val filter: (Path) -> Boolean
+        val included: (Path) -> Boolean
 ) {
     fun convert(
             newSuffix: String? = null,
             process: (Path, Path) -> Boolean
     ): Boolean {
         println("Validating inputs...")
-        val unpaths = traverser.unpaths(filter).map { it.parent.parent.fileName }.distinct().sorted()
+        val unpaths = traverser.unpaths(included).map { it.parent.parent.fileName }.distinct().sorted()
         println("${unpaths.size} artists ignored: ${unpaths}}")
-        val paths = traverser.paths(filter)
+        val paths = traverser.paths(included)
         println("${paths.size} paths to convert")
         val missingDirs: Set<File> = paths.flatMap {
             verifyDirectories(it, newSuffix)
