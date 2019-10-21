@@ -1,5 +1,6 @@
 package mediaserver;
 
+import io.minio.MinioClient;
 import mediaserver.files.Media;
 import mediaserver.util.S3;
 import org.slf4j.Logger;
@@ -17,25 +18,33 @@ public class CloudMedia {
     private static final String MEDIA_SER = "media.ser";
 
     public static void main(String[] args) {
+
         Media media = Media.local(args[0]);
         File file = serialize(media);
         S3.get().ifPresent(s3 -> {
-            try {
-                s3.putObject(
-                    S3.BUCKET,
-                    MEDIA_SER,
-                    file.getAbsolutePath(),
-                    file.length(),
-                    null,
-                    null,
-                    null);
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed upload: " + media, e);
-            }
+            uploadMediaSer(media, file, s3);
         });
     }
 
+    public static void uploadMediaSer(Media media, File file, MinioClient s3) {
+
+        try {
+            s3.putObject(
+                S3.BUCKET,
+                MEDIA_SER,
+                file.getAbsolutePath(),
+                file.length(),
+                null,
+                null,
+                null);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed upload: " + media, e);
+
+        }
+    }
+
     static Media download() {
+
         InputStream inputStream = S3.get().map(s3 -> {
             try {
                 return s3.getObject(S3.BUCKET, MEDIA_SER);
@@ -51,6 +60,7 @@ public class CloudMedia {
     }
 
     static Media deserialize(InputStream inputStream) {
+
         try (
             BufferedInputStream bis = new BufferedInputStream(inputStream);
             ObjectInputStream ois = new ObjectInputStream(bis)
@@ -62,6 +72,7 @@ public class CloudMedia {
     }
 
     private static File serialize(Media media) {
+
         try {
             Path tmp = Files.createTempFile
                 ("media-" + UUID.randomUUID(), "ser");

@@ -16,6 +16,9 @@ configure<JavaPluginConvention> {
 dependencies {
     implementation(project(":mediaserver"))
     implementation(kotlin("stdlib"))
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.9")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.9")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9")
     testImplementation("junit:junit:4.12")
 }
 

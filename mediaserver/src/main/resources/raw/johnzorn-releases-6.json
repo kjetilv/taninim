@@ -1,0 +1,914 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 6,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=7",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=5",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "stats": {
+        "community": {
+          "in_collection": 165,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "artist": "Bill Frisell",
+      "main_release": 1139442,
+      "title": "Before We Were Born",
+      "role": "Producer",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/60464",
+      "type": "master",
+      "id": 60464
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 9,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "artist": "Carl Stalling",
+      "main_release": 10959256,
+      "title": "The Carl Stalling Project (Music From Warner Bros. Cartoons 1936-1958)",
+      "role": "Producer",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/masters/229376",
+      "type": "master",
+      "id": 229376
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 301,
+          "in_wantlist": 225
+        }
+      },
+      "thumb": "",
+      "artist": "Naked City",
+      "main_release": 265804,
+      "title": "Torture Garden",
+      "role": "Producer",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/masters/15702",
+      "type": "master",
+      "id": 15702
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 31,
+          "in_wantlist": 99
+        }
+      },
+      "thumb": "",
+      "title": "Quote Unquote",
+      "format": "CD, Single, Promo",
+      "label": "Warner Bros. Records",
+      "role": "Producer",
+      "year": 1991,
+      "resource_url": "https://api.discogs.com/releases/3112176",
+      "artist": "Mr. Bungle",
+      "type": "release",
+      "id": 3112176
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 575,
+          "in_wantlist": 110
+        }
+      },
+      "thumb": "",
+      "artist": "Mr. Bungle",
+      "main_release": 1365705,
+      "title": "Mr. Bungle",
+      "role": "Producer",
+      "year": 1991,
+      "resource_url": "https://api.discogs.com/masters/3879",
+      "type": "master",
+      "id": 3879
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 292,
+          "in_wantlist": 216
+        }
+      },
+      "thumb": "",
+      "title": "Leng Tch'e",
+      "format": "CD, Album",
+      "label": "Toy's Factory",
+      "role": "Producer",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/releases/377985",
+      "artist": "Naked City",
+      "type": "release",
+      "id": 377985
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 41,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "artist": "Guy Klucevsek",
+      "main_release": 936738,
+      "title": "Manhattan Cascade",
+      "role": "Producer",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/masters/436044",
+      "type": "master",
+      "id": 436044
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 649,
+          "in_wantlist": 257
+        }
+      },
+      "thumb": "",
+      "artist": "Naked City",
+      "main_release": 504853,
+      "title": "Grand Guignol",
+      "role": "Producer",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/masters/254452",
+      "type": "master",
+      "id": 254452
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 29,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "artist": "\u5dfb\u4e0a\u516c\u4e00*",
+      "main_release": 1801853,
+      "title": "\u6bba\u3057\u306e\u30d6\u30eb\u30fc\u30b9",
+      "role": "Producer",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/masters/499136",
+      "type": "master",
+      "id": 499136
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 633,
+          "in_wantlist": 200
+        }
+      },
+      "thumb": "",
+      "artist": "Naked City",
+      "main_release": 333102,
+      "title": "Heretic: Jeux Des Dames Cruelles",
+      "role": "Producer",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/masters/480937",
+      "type": "master",
+      "id": 480937
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 421,
+          "in_wantlist": 155
+        }
+      },
+      "thumb": "",
+      "title": "Wow 2",
+      "format": "CD, Album",
+      "label": "Avant, Avant",
+      "role": "Producer",
+      "year": 1993,
+      "resource_url": "https://api.discogs.com/releases/205208",
+      "artist": "Boredoms",
+      "type": "release",
+      "id": 205208
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 250,
+          "in_wantlist": 149
+        }
+      },
+      "thumb": "",
+      "artist": "\u4e0d\u5931\u8005* = Fushitsusha",
+      "main_release": 241120,
+      "title": "\u5bd3\u610f\u7684\u306a\u8aa4\u89e3 = Allegorical Misunderstanding",
+      "role": "Producer",
+      "year": 1993,
+      "resource_url": "https://api.discogs.com/masters/1350723",
+      "type": "master",
+      "id": 1350723
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 611,
+          "in_wantlist": 240
+        }
+      },
+      "thumb": "",
+      "artist": "Naked City",
+      "main_release": 337617,
+      "title": "Absinthe",
+      "role": "Producer",
+      "year": 1993,
+      "resource_url": "https://api.discogs.com/masters/480938",
+      "type": "master",
+      "id": 480938
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 613,
+          "in_wantlist": 196
+        }
+      },
+      "thumb": "",
+      "artist": "Naked City",
+      "main_release": 309314,
+      "title": "Radio",
+      "role": "Producer",
+      "year": 1993,
+      "resource_url": "https://api.discogs.com/masters/480939",
+      "type": "master",
+      "id": 480939
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 82,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "Who's Bridge",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Producer",
+      "year": 1994,
+      "resource_url": "https://api.discogs.com/releases/431449",
+      "artist": "Misha Mengelberg Trio",
+      "type": "release",
+      "id": 431449
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 439,
+          "in_wantlist": 75
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 462293,
+      "title": "Beit",
+      "role": "Producer",
+      "year": 1994,
+      "resource_url": "https://api.discogs.com/masters/968014",
+      "type": "master",
+      "id": 968014
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 494,
+          "in_wantlist": 83
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 385252,
+      "title": "Alef",
+      "role": "Producer",
+      "year": 1994,
+      "resource_url": "https://api.discogs.com/masters/1071009",
+      "type": "master",
+      "id": 1071009
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 293,
+          "in_wantlist": 62
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 492138,
+      "title": "Gimel",
+      "role": "Producer",
+      "year": 1994,
+      "resource_url": "https://api.discogs.com/masters/286121",
+      "type": "master",
+      "id": 286121
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 308,
+          "in_wantlist": 124
+        }
+      },
+      "thumb": "",
+      "title": "Tenshi No Gijinka",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/311356",
+      "artist": "Haino Keiji*",
+      "type": "release",
+      "id": 311356
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 29,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "title": "Harmolodic Jeopardy",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Producer",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/397809",
+      "artist": "Dim Sum Clip Job",
+      "type": "release",
+      "id": 397809
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 98,
+          "in_wantlist": 29
+        }
+      },
+      "thumb": "",
+      "title": "Signals For Tea",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Producer",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/493859",
+      "artist": "Steve Beresford",
+      "type": "release",
+      "id": 493859
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 257,
+          "in_wantlist": 94
+        }
+      },
+      "thumb": "",
+      "title": "Saisoro",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/668024",
+      "artist": "Derek* And The Ruins*",
+      "type": "release",
+      "id": 668024
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 135,
+          "in_wantlist": 126
+        }
+      },
+      "thumb": "",
+      "title": "Painted Desert",
+      "format": "CD",
+      "label": "Avant",
+      "role": "Producer",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/792214",
+      "artist": "Ikue Mori With Robert Quine, Marc Ribot",
+      "type": "release",
+      "id": 792214
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 0,
+          "in_wantlist": 4
+        }
+      },
+      "thumb": "",
+      "artist": "John Patton",
+      "main_release": 13727202,
+      "title": "Minor Swing",
+      "role": "Producer",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/masters/1520305",
+      "type": "master",
+      "id": 1520305
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 328,
+          "in_wantlist": 71
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 443553,
+      "title": "Hei",
+      "role": "Producer",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/masters/1071010",
+      "type": "master",
+      "id": 1071010
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 34,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "title": "What We Live",
+      "format": "CD, Album",
+      "label": "DIW",
+      "role": "Producer",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/1275374",
+      "artist": "Lisle Ellis, Lawrence Ochs*, Donald Robinson (2) : What We Live",
+      "type": "release",
+      "id": 1275374
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 21,
+          "in_wantlist": 9
+        }
+      },
+      "thumb": "",
+      "title": "This One's For Ja",
+      "format": "CD, Album, Car",
+      "label": "DIW",
+      "role": "Producer",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/3415178",
+      "artist": "John Patton Quintet",
+      "type": "release",
+      "id": 3415178
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 321,
+          "in_wantlist": 69
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 396894,
+      "title": "Vav",
+      "role": "Producer",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/968015",
+      "type": "master",
+      "id": 968015
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 281,
+          "in_wantlist": 70
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 462290,
+      "title": "Zayin",
+      "role": "Producer",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/287657",
+      "type": "master",
+      "id": 287657
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 281,
+          "in_wantlist": 67
+        }
+      },
+      "thumb": "",
+      "title": "Dalet",
+      "format": "CD, Album",
+      "label": "DIW",
+      "role": "Producer",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/492142",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 492142
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 285,
+          "in_wantlist": 74
+        }
+      },
+      "thumb": "",
+      "title": "Het",
+      "format": "CD, Album",
+      "label": "DIW",
+      "role": "Producer",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/492145",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 492145
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Vira Loucos",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Producer",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1895551",
+      "artist": "Cyro Baptista Plays The Music Of Villa Lobos*",
+      "type": "release",
+      "id": 1895551
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 63,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "artist": "Misha Mengelberg Trio",
+      "main_release": 391491,
+      "title": "No Idea",
+      "role": "Producer",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/981210",
+      "type": "master",
+      "id": 981210
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 403,
+          "in_wantlist": 93
+        }
+      },
+      "thumb": "",
+      "artist": "Naked City",
+      "main_release": 323948,
+      "title": "BlackBox",
+      "role": "Producer",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/303695",
+      "type": "master",
+      "id": 303695
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 33,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Self-Indulgent Music",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1124218",
+      "artist": "Danny Cohen / Mike Boner / Horse Cock Kids",
+      "type": "release",
+      "id": 1124218
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 266,
+          "in_wantlist": 69
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 492174,
+      "title": "Tet",
+      "role": "Producer",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/963634",
+      "type": "master",
+      "id": 963634
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 261,
+          "in_wantlist": 80
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 385259,
+      "title": "Yod",
+      "role": "Producer",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/968013",
+      "type": "master",
+      "id": 968013
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 197,
+          "in_wantlist": 76
+        }
+      },
+      "thumb": "",
+      "title": "Decided ... Already The Motionless Heart Of Tranquility, Tangling The Prayer Called \"I\"",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/releases/386527",
+      "artist": "Purple Trap",
+      "type": "release",
+      "id": 386527
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 171,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "title": "Yo! I Killed Your God",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/releases/757049",
+      "artist": "Marc Ribot",
+      "type": "release",
+      "id": 757049
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 207,
+          "in_wantlist": 40
+        }
+      },
+      "thumb": "",
+      "title": "Live In Taipei 1995",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/releases/1108671",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 1108671
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 262,
+          "in_wantlist": 38
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 534922,
+      "title": "Live In Jerusalem 1994",
+      "role": "Producer",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/masters/883649",
+      "type": "master",
+      "id": 883649
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 81,
+          "in_wantlist": 51
+        }
+      },
+      "thumb": "",
+      "artist": "Jerry Hunt",
+      "main_release": 441860,
+      "title": "Song Drapes",
+      "role": "Producer",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/masters/967818",
+      "type": "master",
+      "id": 967818
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 295,
+          "in_wantlist": 43
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 385265,
+      "title": "Live In Middelheim 1999",
+      "role": "Producer",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/masters/431901",
+      "type": "master",
+      "id": 431901
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 330,
+          "in_wantlist": 51
+        }
+      },
+      "thumb": "",
+      "title": "Live In Sevilla 2000",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 2000,
+      "resource_url": "https://api.discogs.com/releases/781093",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 781093
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 232,
+          "in_wantlist": 47
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 393670,
+      "title": "Live At Tonic 2001",
+      "role": "Producer",
+      "year": 2001,
+      "resource_url": "https://api.discogs.com/masters/883648",
+      "type": "master",
+      "id": 883648
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 407,
+          "in_wantlist": 146
+        }
+      },
+      "thumb": "",
+      "title": "Live Volume 1: Knitting Factory 1989",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/releases/501780",
+      "artist": "Naked City",
+      "type": "release",
+      "id": 501780
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 160,
+          "in_wantlist": 32
+        }
+      },
+      "thumb": "",
+      "title": "First Live 1993",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/releases/502277",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 502277
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 57,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "Children Of Israel",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/releases/537170",
+      "artist": "Daniel Zamir / Satlah",
+      "type": "release",
+      "id": 537170
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 12,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Twice Told Tales",
+      "format": "CD, Album",
+      "label": "DIW",
+      "role": "Producer",
+      "year": 2003,
+      "resource_url": "https://api.discogs.com/releases/1582134",
+      "artist": "Tony Malaby, Trevor Dunn, Ryan Sawyer, Louis Belogenis",
+      "type": "release",
+      "id": 1582134
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 150,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "title": "50\u00b3",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Producer",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/494021",
+      "artist": "Locus Solus",
+      "type": "release",
+      "id": 494021
+    }
+  ]
+}

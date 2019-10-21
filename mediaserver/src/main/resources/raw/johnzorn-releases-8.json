@@ -1,0 +1,906 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 8,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=9",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=7",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 54,
+          "in_wantlist": 44
+        }
+      },
+      "thumb": "",
+      "title": "EFTSOONS",
+      "format": "LP",
+      "label": "Nessa Records",
+      "role": "Appearance",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/releases/2479612",
+      "artist": "Hal Russell And Mars Williams",
+      "type": "release",
+      "id": 2479612
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 9,
+          "in_wantlist": 31
+        }
+      },
+      "thumb": "",
+      "title": "Dinosaur On-The-Way",
+      "format": "Cass, Album",
+      "label": "Not On Label (Eugene Chadbourne Self-Released)",
+      "role": "Appearance",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/releases/4136543",
+      "artist": "Eugene Chadbourne",
+      "type": "release",
+      "id": 4136543
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 2018,
+          "in_wantlist": 438
+        }
+      },
+      "thumb": "",
+      "artist": "Violent Femmes",
+      "main_release": 1346193,
+      "title": "Hallowed Ground",
+      "role": "Appearance",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/masters/38936",
+      "type": "master",
+      "id": 38936
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 198,
+          "in_wantlist": 76
+        }
+      },
+      "thumb": "",
+      "artist": "David Moss",
+      "main_release": 775813,
+      "title": "Full House",
+      "role": "Appearance",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/masters/60482",
+      "type": "master",
+      "id": 60482
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 422,
+          "in_wantlist": 38
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 2480250,
+      "title": "That's The Way I Feel Now - A Tribute To Thelonious Monk ",
+      "role": "Appearance",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/masters/206971",
+      "type": "master",
+      "id": 206971
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "title": "Bad Alchemy Nr 3",
+      "format": "Cass",
+      "label": "Bad Alchemy",
+      "role": "Appearance",
+      "year": 1985,
+      "trackinfo": "Cobra, Exercise Nr.1",
+      "resource_url": "https://api.discogs.com/releases/1189634",
+      "artist": "Various",
+      "type": "release",
+      "id": 1189634
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 7,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "title": "An Atlas Of Scores",
+      "format": "Cass, Comp, C45",
+      "label": "Musicworks",
+      "role": "Appearance",
+      "year": 1985,
+      "trackinfo": "A Further Selection Fr...",
+      "resource_url": "https://api.discogs.com/releases/1636716",
+      "artist": "Various",
+      "type": "release",
+      "id": 1636716
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 20,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Lost In The Stars (The Music Of Kurt Weill)",
+      "format": "LP, Album, EMW",
+      "label": "A&M Records",
+      "role": "Appearance",
+      "year": 1985,
+      "trackinfo": "Der Kleine Leutnant De...",
+      "resource_url": "https://api.discogs.com/releases/13465994",
+      "artist": "Various",
+      "type": "release",
+      "id": 13465994
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 133,
+          "in_wantlist": 67
+        }
+      },
+      "thumb": "",
+      "artist": "David Moss",
+      "main_release": 930695,
+      "title": "Dense Band",
+      "role": "Appearance",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/61523",
+      "type": "master",
+      "id": 61523
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 495,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 2532000,
+      "title": "Lost In The Stars (The Music Of Kurt Weill)",
+      "role": "Appearance",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/102057",
+      "type": "master",
+      "id": 102057
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 145,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "artist": "Joe Piscopo / Eddie Murphy",
+      "main_release": 311207,
+      "title": "Honeymooners Rap",
+      "role": "Appearance",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/185633",
+      "type": "master",
+      "id": 185633
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 87,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "artist": "Rochester / Veasley Band",
+      "main_release": 1430534,
+      "title": "One Minute Of Love",
+      "role": "Appearance",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/883277",
+      "type": "master",
+      "id": 883277
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 154,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "artist": "Golden Palominos*",
+      "main_release": 1947121,
+      "title": "Omaha",
+      "role": "Appearance",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/234841",
+      "type": "master",
+      "id": 234841
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 131,
+          "in_wantlist": 171
+        }
+      },
+      "thumb": "",
+      "artist": "Butch Morris",
+      "main_release": 944751,
+      "title": "Current Trends In Racism In Modern America",
+      "role": "Appearance",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/245879",
+      "type": "master",
+      "id": 245879
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 57
+        }
+      },
+      "thumb": "",
+      "title": "The Improvisors",
+      "format": "Cass, Album",
+      "label": "Tellus",
+      "role": "Appearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/releases/401154",
+      "artist": "Various",
+      "type": "release",
+      "id": 401154
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 53,
+          "in_wantlist": 39
+        }
+      },
+      "thumb": "",
+      "title": "Anything Goes",
+      "format": "LP, Album",
+      "label": "Creative Works Records",
+      "role": "Appearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/releases/1088200",
+      "artist": "Alfred 23 Harth*",
+      "type": "release",
+      "id": 1088200
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 10,
+          "in_wantlist": 38
+        }
+      },
+      "thumb": "",
+      "title": "Blue Window",
+      "format": "Cass, Album",
+      "label": "Zoar Records",
+      "role": "Appearance",
+      "year": 1986,
+      "trackinfo": "Road Runner",
+      "resource_url": "https://api.discogs.com/releases/1646323",
+      "artist": "Guy Klucevsek",
+      "type": "release",
+      "id": 1646323
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 38,
+          "in_wantlist": 37
+        }
+      },
+      "thumb": "",
+      "title": "Trespass",
+      "format": "LP",
+      "label": "Lumina Records Ltd.",
+      "role": "Appearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/releases/2395156",
+      "artist": "Ned Rothenberg",
+      "type": "release",
+      "id": 2395156
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 142,
+          "in_wantlist": 55
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 944770,
+      "title": "Godard \u00c7a Vous Chante?",
+      "role": "Appearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/masters/61517",
+      "type": "master",
+      "id": 61517
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 89,
+          "in_wantlist": 59
+        }
+      },
+      "thumb": "",
+      "artist": "David Garland",
+      "main_release": 1802553,
+      "title": "Control Songs",
+      "role": "Appearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/masters/189049",
+      "type": "master",
+      "id": 189049
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 105,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "artist": "Meltable Snaps It",
+      "main_release": 774955,
+      "title": "Points Blank",
+      "role": "Appearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/masters/80249",
+      "type": "master",
+      "id": 80249
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 139,
+          "in_wantlist": 115
+        }
+      },
+      "thumb": "",
+      "artist": "The Sonny Clark Memorial Quartet",
+      "main_release": 2470857,
+      "title": "Voodoo",
+      "role": "Appearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/masters/153521",
+      "type": "master",
+      "id": 153521
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 59,
+          "in_wantlist": 43
+        }
+      },
+      "thumb": "",
+      "title": "Plan Eden",
+      "format": "LP, Album",
+      "label": "Creative Works Records",
+      "role": "Appearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/releases/1262805",
+      "artist": "Alfred 23 Harth*",
+      "type": "release",
+      "id": 1262805
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 38,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 1055747,
+      "title": "Joyeux No\u00ebl",
+      "role": "Appearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/473189",
+      "type": "master",
+      "id": 473189
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 251,
+          "in_wantlist": 79
+        }
+      },
+      "thumb": "",
+      "artist": "Eugene Chadbourne",
+      "main_release": 453082,
+      "title": "LSDC&W - The History Of The Chadbournes In America",
+      "role": "Appearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/232605",
+      "type": "master",
+      "id": 232605
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 36,
+          "in_wantlist": 29
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 1831369,
+      "title": "The 20th Anniversary Of The Summer Of Love 1987-1967",
+      "role": "Appearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/95118",
+      "type": "master",
+      "id": 95118
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 66,
+          "in_wantlist": 115
+        }
+      },
+      "thumb": "",
+      "artist": "Br\u00f6tzmann Clarinet Project",
+      "main_release": 2012482,
+      "title": "Berlin Djungle",
+      "role": "Appearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/199246",
+      "type": "master",
+      "id": 199246
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 115,
+          "in_wantlist": 78
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 1171248,
+      "title": "Island Of Sanity: New Music From New York City",
+      "role": "Appearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/192435",
+      "type": "master",
+      "id": 192435
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 83,
+          "in_wantlist": 59
+        }
+      },
+      "thumb": "",
+      "artist": "Jim Staley",
+      "main_release": 1227841,
+      "title": "Mumbo Jumbo",
+      "role": "Appearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/85619",
+      "type": "master",
+      "id": 85619
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 60,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "title": "La Nuit Des Solos",
+      "format": "LP, Album",
+      "label": "Vand'Oeuvre",
+      "role": "Appearance",
+      "year": 1988,
+      "trackinfo": "Improvisation",
+      "resource_url": "https://api.discogs.com/releases/1255845",
+      "artist": "Various",
+      "type": "release",
+      "id": 1255845
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 10,
+          "in_wantlist": 9
+        }
+      },
+      "thumb": "",
+      "title": "Kimus #1",
+      "format": "CD, Album, Comp, Ltd, Num",
+      "label": "hat ART",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/releases/3089579",
+      "artist": "Various",
+      "type": "release",
+      "id": 3089579
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 9
+        }
+      },
+      "thumb": "",
+      "title": "Psychic Exchanges",
+      "format": "Cass, C60",
+      "label": "Steeple & Globe",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/releases/14181498",
+      "artist": "Various",
+      "type": "release",
+      "id": 14181498
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 116,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "artist": "Kronos Quartet",
+      "main_release": 460210,
+      "title": "Winter Was Hard",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/50737",
+      "type": "master",
+      "id": 50737
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 112,
+          "in_wantlist": 57
+        }
+      },
+      "thumb": "",
+      "artist": "Blind Idiot God",
+      "main_release": 404642,
+      "title": "Undertow",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/10336",
+      "type": "master",
+      "id": 10336
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 274,
+          "in_wantlist": 89
+        }
+      },
+      "thumb": "",
+      "artist": "Ambitious Lovers",
+      "main_release": 55937,
+      "title": "Greed",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/118001",
+      "type": "master",
+      "id": 118001
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 133,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "artist": "Ennio Morricone",
+      "main_release": 722871,
+      "title": "Film Music Volume II",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/755669",
+      "type": "master",
+      "id": 755669
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 231,
+          "in_wantlist": 71
+        }
+      },
+      "thumb": "",
+      "artist": "Jad Fair and Kramer (2)",
+      "main_release": 1700212,
+      "title": "Roll Out The Barrel",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/70492",
+      "type": "master",
+      "id": 70492
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 68,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "artist": "Seigen Ono",
+      "main_release": 1100085,
+      "title": "Comme Des Gar\u00e7ons Volume One",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/236015",
+      "type": "master",
+      "id": 236015
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 47,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "artist": "Friction (5)",
+      "main_release": 1083497,
+      "title": "Replicant Walk",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/61887",
+      "type": "master",
+      "id": 61887
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 157,
+          "in_wantlist": 74
+        }
+      },
+      "thumb": "",
+      "artist": "Fred Frith",
+      "main_release": 595704,
+      "title": "\"The Technology Of Tears\" And Other Music For Dance And Theatre",
+      "role": "Appearance",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/44714",
+      "type": "master",
+      "id": 44714
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 49,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "title": "100 Of The World's Most Beautiful Melodies",
+      "format": "CD",
+      "label": "Trace Elements Records",
+      "role": "Appearance",
+      "year": 1989,
+      "trackinfo": "Untitled, Untitled, Un...",
+      "resource_url": "https://api.discogs.com/releases/362649",
+      "artist": "Nicolas Collins",
+      "type": "release",
+      "id": 362649
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 93,
+          "in_wantlist": 80
+        }
+      },
+      "thumb": "",
+      "title": "Sawtooth",
+      "format": "12\", EP",
+      "label": "Enemy Records",
+      "role": "Appearance",
+      "year": 1989,
+      "trackinfo": "Purged Specimen, Purge...",
+      "resource_url": "https://api.discogs.com/releases/769798",
+      "artist": "Blind Idiot God",
+      "type": "release",
+      "id": 769798
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 0
+        }
+      },
+      "thumb": "",
+      "title": "Monica Tornera Domenica Sera",
+      "format": "CD, Mini, Single, Promo",
+      "label": "Virgin",
+      "role": "Appearance",
+      "year": 1989,
+      "trackinfo": "I Do Love You A Little",
+      "resource_url": "https://api.discogs.com/releases/9829240",
+      "artist": "Seigen Ono",
+      "type": "release",
+      "id": 9829240
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "artist": "Sato Michihiro*",
+      "main_release": 7459947,
+      "title": "Rodan",
+      "role": "Appearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/883729",
+      "type": "master",
+      "id": 883729
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 88,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "artist": "Bill Frisell",
+      "main_release": 1059602,
+      "title": "Before We Were Born",
+      "role": "Appearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/60464",
+      "type": "master",
+      "id": 60464
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 12,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "artist": "Jagatara",
+      "main_release": 9355059,
+      "title": "\u305d\u308c\u304b\u3089",
+      "role": "Appearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/940644",
+      "type": "master",
+      "id": 940644
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 26,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "artist": "Mark Bingham",
+      "main_release": 1907624,
+      "title": "I Passed For Human",
+      "role": "Appearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/200327",
+      "type": "master",
+      "id": 200327
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 226,
+          "in_wantlist": 126
+        }
+      },
+      "thumb": "",
+      "artist": "Half Japanese*",
+      "main_release": 1675548,
+      "title": "The Band That Would Be King",
+      "role": "Appearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/26028",
+      "type": "master",
+      "id": 26028
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 48,
+          "in_wantlist": 161
+        }
+      },
+      "thumb": "",
+      "artist": "Seigen Ono",
+      "main_release": 1072412,
+      "title": "Comme Des Gar\u00e7ons Volume Two",
+      "role": "Appearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/236778",
+      "type": "master",
+      "id": 236778
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 55,
+          "in_wantlist": 56
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 1356664,
+      "title": "Bandes Originales Du Journal De Spirou",
+      "role": "Appearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/31631",
+      "type": "master",
+      "id": 31631
+    }
+  ]
+}

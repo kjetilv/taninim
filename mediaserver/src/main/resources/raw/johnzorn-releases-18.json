@@ -1,0 +1,955 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 18,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=19",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=17",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 442,
+          "in_wantlist": 167
+        }
+      },
+      "thumb": "",
+      "title": "At The Mountains Of Madness",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/573284",
+      "artist": "Electric Masada",
+      "type": "release",
+      "id": 573284
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 157,
+          "in_wantlist": 39
+        }
+      },
+      "thumb": "",
+      "title": "The Stone : Issue One",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/587688",
+      "artist": "Various",
+      "type": "release",
+      "id": 587688
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 30,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Love Songs",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/712813",
+      "artist": "Peter Garland",
+      "type": "release",
+      "id": 712813
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 18,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Dream Tigers",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/719712",
+      "artist": "Matthew Welch",
+      "type": "release",
+      "id": 719712
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 463,
+          "in_wantlist": 278
+        }
+      },
+      "thumb": "",
+      "title": "Complete Studio Recordings",
+      "format": "5xCD, Album, RE, RM + Box, Comp",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/719713",
+      "artist": "Naked City",
+      "type": "release",
+      "id": 719713
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 66,
+          "in_wantlist": 37
+        }
+      },
+      "thumb": "",
+      "title": "Myrninerest",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/780900",
+      "artist": "Ikue Mori",
+      "type": "release",
+      "id": 780900
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 41,
+          "in_wantlist": 39
+        }
+      },
+      "thumb": "",
+      "title": "Raw",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/780906",
+      "artist": "Synapse (6)",
+      "type": "release",
+      "id": 780906
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 58,
+          "in_wantlist": 52
+        }
+      },
+      "thumb": "",
+      "title": "Fukyo",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/870245",
+      "artist": "Toshinori Kondo",
+      "type": "release",
+      "id": 870245
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 91,
+          "in_wantlist": 33
+        }
+      },
+      "thumb": "",
+      "title": "Plays The Music Of John Zorn - Sanatorium Under The Sign Of The Hourglass: A Tribute To Bruno Schultz",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/891128",
+      "artist": "The Cracow Klezmer Band*",
+      "type": "release",
+      "id": 891128
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Haz\u00f3nos",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/903232",
+      "artist": "Frank London",
+      "type": "release",
+      "id": 903232
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 36,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Edom",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/945572",
+      "artist": "Eyal Maoz",
+      "type": "release",
+      "id": 945572
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 48,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "title": "Minimal Brass",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1022066",
+      "artist": "Jacques Coursil",
+      "type": "release",
+      "id": 1022066
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 43,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "Aoi",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1055020",
+      "artist": "Ayuo*",
+      "type": "release",
+      "id": 1055020
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "title": "God Is Greatest",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1172713",
+      "artist": "Mr. Dorgon",
+      "type": "release",
+      "id": 1172713
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 29,
+          "in_wantlist": 24
+        }
+      },
+      "thumb": "",
+      "title": "Koedarake",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1196058",
+      "artist": "Makigami Koichi",
+      "type": "release",
+      "id": 1196058
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 47,
+          "in_wantlist": 29
+        }
+      },
+      "thumb": "",
+      "title": "Sarcast While",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1441368",
+      "artist": "Time Of Orchids",
+      "type": "release",
+      "id": 1441368
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 66,
+          "in_wantlist": 66
+        }
+      },
+      "thumb": "",
+      "title": "Nihm",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1441963",
+      "artist": "Okkyung Lee",
+      "type": "release",
+      "id": 1441963
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 76,
+          "in_wantlist": 42
+        }
+      },
+      "thumb": "",
+      "title": "Isotope",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1695098",
+      "artist": "Korekyojinn",
+      "type": "release",
+      "id": 1695098
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 53,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "title": "Gorgeous",
+      "format": "CD, Album, Enh",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1854491",
+      "artist": "Ni Hao!*",
+      "type": "release",
+      "id": 1854491
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 31,
+          "in_wantlist": 33
+        }
+      },
+      "thumb": "",
+      "title": "Rising Tones Cross (A Jazz Film By Ebba Jahn)",
+      "format": "DVD, NTSC, PAL",
+      "label": "FilmPals",
+      "role": "Appearance",
+      "year": 2005,
+      "trackinfo": "Sunday Afternoon At Li...",
+      "resource_url": "https://api.discogs.com/releases/2063646",
+      "artist": "Various",
+      "type": "release",
+      "id": 2063646
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 18,
+          "in_wantlist": 9
+        }
+      },
+      "thumb": "",
+      "title": "Live",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/2376251",
+      "artist": "Davka",
+      "type": "release",
+      "id": 2376251
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 16,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Easy Listening",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/2653155",
+      "artist": "Radar (27)",
+      "type": "release",
+      "id": 2653155
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 17,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "On Alligators",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/3563392",
+      "artist": "Charles Wuorinen",
+      "type": "release",
+      "id": 3563392
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 43,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "artist": "Cyro Baptista",
+      "main_release": 1087487,
+      "title": "Love The Donkey",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/masters/553548",
+      "type": "master",
+      "id": 553548
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 177,
+          "in_wantlist": 61
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 955933,
+      "title": "Sanhedrin (1994-1997 Unreleased Studio Recordings)",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/masters/1567371",
+      "type": "master",
+      "id": 1567371
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 268,
+          "in_wantlist": 74
+        }
+      },
+      "thumb": "",
+      "artist": "Buckethead",
+      "main_release": 643572,
+      "title": "Kaleidoscalp",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/masters/202066",
+      "type": "master",
+      "id": 202066
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 491,
+          "in_wantlist": 119
+        }
+      },
+      "thumb": "",
+      "artist": "Ennio Morricone",
+      "main_release": 711650,
+      "title": "Crime And Dissonance",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/masters/1176420",
+      "type": "master",
+      "id": 1176420
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "artist": "Andy Statman",
+      "main_release": 12667621,
+      "title": "Avodas Halevi",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/masters/1439083",
+      "type": "master",
+      "id": 1439083
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 111,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "artist": "Toby Driver",
+      "main_release": 649362,
+      "title": "In The L..L..Library Loft",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/masters/1436656",
+      "type": "master",
+      "id": 1436656
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 53
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 711351,
+      "title": "Subharmonic  In Dub",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/masters/13799",
+      "type": "master",
+      "id": 13799
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 150,
+          "in_wantlist": 68
+        }
+      },
+      "thumb": "",
+      "title": "Episome",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/683419",
+      "artist": "Otomo Yoshihide / Bill Laswell / Tatsuya Yoshida",
+      "type": "release",
+      "id": 683419
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 176,
+          "in_wantlist": 160
+        }
+      },
+      "thumb": "",
+      "title": "Azioni",
+      "format": "2xCD + DVD-V, PAL + Box",
+      "label": "Die Schachtel",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/782994",
+      "artist": "Gruppo Di Improvvisazione Nuova Consonanza",
+      "type": "release",
+      "id": 782994
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 40,
+          "in_wantlist": 22
+        }
+      },
+      "thumb": "",
+      "title": "Finery Of The Storm",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/807295",
+      "artist": "Muddy World",
+      "type": "release",
+      "id": 807295
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "Shmutsige Magnaten: Coleman Plays Gebirtig",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/840968",
+      "artist": "Anthony Coleman",
+      "type": "release",
+      "id": 840968
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 32,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "The Growl",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/955891",
+      "artist": "Talat",
+      "type": "release",
+      "id": 955891
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 33,
+          "in_wantlist": 24
+        }
+      },
+      "thumb": "",
+      "title": "Ictus Records' 30th Anniversary Collection",
+      "format": "12xCD, Comp, Ltd",
+      "label": "Ictus Records",
+      "role": "Appearance",
+      "year": 2006,
+      "trackinfo": "First Environment For ...",
+      "resource_url": "https://api.discogs.com/releases/1047452",
+      "artist": "Various",
+      "type": "release",
+      "id": 1047452
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 13,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "The NY Tapes",
+      "format": "CD, Album, RM",
+      "label": "Ictus Records",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/1069854",
+      "artist": "Various",
+      "type": "release",
+      "id": 1069854
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 82,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "Time Lapse",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/1151258",
+      "artist": "Evan Parker",
+      "type": "release",
+      "id": 1151258
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 69,
+          "in_wantlist": 21
+        }
+      },
+      "thumb": "",
+      "title": "The Art Of Memory II",
+      "format": "CD, Album",
+      "label": "ReR Megacorp, Fred Records",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/1397127",
+      "artist": "Fred Frith & John Zorn*",
+      "type": "release",
+      "id": 1397127
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 40,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "title": "Criss X Cross",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/1553538",
+      "artist": "Jon Gibson (2)",
+      "type": "release",
+      "id": 1553538
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 26,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Whispers, Hymns And A Murmur",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/1576929",
+      "artist": "Wayne Horvitz",
+      "type": "release",
+      "id": 1576929
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 36,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "title": "Folio And Four Systems",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/1914092",
+      "artist": "Earle Brown",
+      "type": "release",
+      "id": 1914092
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 98,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "title": "Trouble \u2013 The Jamie Saft Trio Plays Bob Dylan",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/2163330",
+      "artist": "Jamie Saft Trio",
+      "type": "release",
+      "id": 2163330
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 15,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "title": "AllSteel",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/2458507",
+      "artist": "John King (6)",
+      "type": "release",
+      "id": 2458507
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 11,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "title": "Jewish String Quartets",
+      "format": "CD, Album",
+      "label": "Naxos",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/2612782",
+      "artist": "Various",
+      "type": "release",
+      "id": 2612782
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 35,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Solo Works - The Lumina Recordings 1980-1985",
+      "format": "2xCD, Comp",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/2653092",
+      "artist": "Ned Rothenberg",
+      "type": "release",
+      "id": 2653092
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 44,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "Shalosh",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/2653186",
+      "artist": "Rashanim",
+      "type": "release",
+      "id": 2653186
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 17,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Pushy Blueness",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/2674839",
+      "artist": "Anthony Coleman",
+      "type": "release",
+      "id": 2674839
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 10,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "Introduction To Ictus Records' 30th Anniversary Collection",
+      "format": "CD, Comp",
+      "label": "Ictus Records",
+      "role": "Appearance",
+      "year": 2006,
+      "trackinfo": "NY Sextet Improvisation",
+      "resource_url": "https://api.discogs.com/releases/3166231",
+      "artist": "Various",
+      "type": "release",
+      "id": 3166231
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 31,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "title": "Surrealistic Swing (History Of The Micros Volume Two)",
+      "format": "2xCD, Comp",
+      "label": "Cuneiform Records",
+      "role": "Appearance",
+      "year": 2006,
+      "resource_url": "https://api.discogs.com/releases/5902164",
+      "artist": "Microscopic Septet",
+      "type": "release",
+      "id": 5902164
+    }
+  ]
+}

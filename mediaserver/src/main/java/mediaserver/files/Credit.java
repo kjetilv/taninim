@@ -1,30 +1,39 @@
 package mediaserver.files;
 
+import java.net.URI;
 import java.util.Objects;
 
 public class Credit {
 
-    private final Type type;
+    private final URI uri;
 
-    private final String otherType;
+    private final ExternalType externalType;
+
+    private final String musicalType;
 
     private final String name;
 
-    public Credit(Type type, String otherType, String name) {
+    public Credit(
+        String name,
+        URI uri,
+        String musicalType,
+        ExternalType externalType
+    ) {
 
-        this.type = type;
-        this.otherType = otherType;
         this.name = name;
+        this.uri = uri;
+        this.externalType = externalType;
+        this.musicalType = musicalType;
     }
 
-    public String getOtherType() {
+    public String getMusicalType() {
 
-        return otherType;
+        return musicalType;
     }
 
-    public Type getType() {
+    public ExternalType getExternalType() {
 
-        return type;
+        return externalType;
     }
 
     public String getName() {
@@ -32,30 +41,35 @@ public class Credit {
         return name;
     }
 
-    enum Type {
+    enum ExternalType {
 
         composer,
 
-        composed_by,
+        composed,
 
-        written_by,
+        written,
 
-        arranged_by,
+        arranged,
 
         producer,
 
+        produced,
+
         engineer,
 
-        executive_producer,
+        executive,
 
         design,
+
+        photography,
+
+        typography,
 
         painting;
 
         boolean matches(String type) {
 
-            return normalized(type.toLowerCase())
-                .startsWith(normalized(name()));
+            return normalized(type.toLowerCase()).startsWith(normalized(name()));
         }
 
         String normalized(String name) {
@@ -69,7 +83,7 @@ public class Credit {
     @Override
     public int hashCode() {
 
-        return Objects.hash(type, otherType);
+        return Objects.hash(name, uri, externalType, musicalType);
     }
 
     @Override
@@ -77,7 +91,9 @@ public class Credit {
 
         return this == o ||
             o instanceof Credit &&
-                type == ((Credit) o).type &&
-                Objects.equals(otherType, ((Credit) o).otherType);
+                Objects.equals(name, ((Credit) o).name) &&
+                Objects.equals(uri, ((Credit) o).uri) &&
+                externalType == ((Credit) o).externalType &&
+                Objects.equals(musicalType, ((Credit) o).musicalType);
     }
 }

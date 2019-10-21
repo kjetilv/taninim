@@ -1,0 +1,952 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 5,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=6",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=4",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 82,
+          "in_wantlist": 39
+        }
+      },
+      "thumb": "",
+      "title": "Gomory (Book Of Angels Volume 25)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/releases/7091997",
+      "artist": "John Zorn - Mycale",
+      "type": "release",
+      "id": 7091997
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 48,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Forro Zinho",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/releases/7262809",
+      "artist": "Forro In The Dark Plays Zorn*",
+      "type": "release",
+      "id": 7262809
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 109,
+          "in_wantlist": 55
+        }
+      },
+      "thumb": "",
+      "title": "Inferno",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/releases/7487248",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 7487248
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "title": "James Moore Plays The Book Of Heads (CD And DVD Of A Film By Stephen Taylor)",
+      "format": "CD, Album + DVD-V, NTSC",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/releases/7647360",
+      "artist": "John Zorn - James Moore (38)",
+      "type": "release",
+      "id": 7647360
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 116,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "title": "Cerberus: The Book of Angels Volume 26",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/releases/7746271",
+      "artist": "John Zorn - The Spike Orchestra",
+      "type": "release",
+      "id": 7746271
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 121,
+          "in_wantlist": 63
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 7394808,
+      "title": "The True Discoveries Of Witches And Demons",
+      "role": "Main",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/masters/1143328",
+      "type": "master",
+      "id": 1143328
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 117,
+          "in_wantlist": 47
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 7234082,
+      "title": "Pellucidar: A Dreamers Fantabula",
+      "role": "Main",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/masters/1550595",
+      "type": "master",
+      "id": 1550595
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 51,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "title": "The Hermetic Organ Vol. 4 - St. Bart's, NYC",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8030276",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 8030276
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 46,
+          "in_wantlist": 33
+        }
+      },
+      "thumb": "",
+      "title": "Madrigals (For Six Female Voices)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8093456",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 8093456
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 132,
+          "in_wantlist": 55
+        }
+      },
+      "thumb": "",
+      "title": "Flaga: Book Of Angels, Volume 27",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8198703",
+      "artist": "John Zorn - Flaga",
+      "type": "release",
+      "id": 8198703
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 101,
+          "in_wantlist": 52
+        }
+      },
+      "thumb": "",
+      "title": "The Painted Bird",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8290516",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 8290516
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 99,
+          "in_wantlist": 55
+        }
+      },
+      "thumb": "",
+      "title": "Andras (Book Of Angels Volume 28)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8450783",
+      "artist": "John Zorn - Nova Express Quintet",
+      "type": "release",
+      "id": 8450783
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 95,
+          "in_wantlist": 33
+        }
+      },
+      "thumb": "",
+      "title": "The Mockingbird",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8590912",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 8590912
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 83,
+          "in_wantlist": 43
+        }
+      },
+      "thumb": "",
+      "title": "Flauros: Book Of Angels Volume 29",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8906536",
+      "artist": "John Zorn - AutorYno",
+      "type": "release",
+      "id": 8906536
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 51,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "Sacred Visions",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8906706",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 8906706
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 54,
+          "in_wantlist": 34
+        }
+      },
+      "thumb": "",
+      "title": "Commedia Dell'arte",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/9028764",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 9028764
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 80,
+          "in_wantlist": 52
+        }
+      },
+      "thumb": "",
+      "title": "49 Acts Of Unspeakable Depravity In The Abominable Life And Times Of Gilles De Rais",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/9198678",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 9198678
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 45,
+          "in_wantlist": 44
+        }
+      },
+      "thumb": "",
+      "title": "The Classic Guide To Strategy: Vol. 4",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/9380136",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 9380136
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 66,
+          "in_wantlist": 43
+        }
+      },
+      "thumb": "",
+      "title": "Leonard: Book Of Angels Volume 30",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/9784689",
+      "artist": "John Zorn - Garth Knox And The Saltarello Trio",
+      "type": "release",
+      "id": 9784689
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 58,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "There Is No More Firmament",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10028745",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 10028745
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 76,
+          "in_wantlist": 40
+        }
+      },
+      "thumb": "",
+      "title": "Buer: Book Of Angels Volume 31",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10215523",
+      "artist": "John Zorn - Brian Marsella Trio",
+      "type": "release",
+      "id": 10215523
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 69,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "Midsummer Moons",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10495401",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 10495401
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 64,
+          "in_wantlist": 32
+        }
+      },
+      "thumb": "",
+      "title": "The Interpretation Of Dreams",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10904593",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 10904593
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 42,
+          "in_wantlist": 32
+        }
+      },
+      "thumb": "",
+      "title": "The Hermetic Organ Vol. 5 - Philharmonie De Paris",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/11160304",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 11160304
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 115,
+          "in_wantlist": 47
+        }
+      },
+      "thumb": "",
+      "title": "Paimon: Book Of Angels Volume 32",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/11217172",
+      "artist": "John Zorn \u2013 Mary Halvorson Quartet",
+      "type": "release",
+      "id": 11217172
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 61,
+          "in_wantlist": 54
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 9885680,
+      "title": "The Garden Of Earthly Delights",
+      "role": "Main",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/masters/1168621",
+      "type": "master",
+      "id": 1168621
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 52,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "The Urmuz Epigrams",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/11723393",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 11723393
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 71,
+          "in_wantlist": 42
+        }
+      },
+      "thumb": "",
+      "title": "Insurrection",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/11861144",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 11861144
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 55,
+          "in_wantlist": 43
+        }
+      },
+      "thumb": "",
+      "title": "In A Convex Mirror",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/12198472",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 12198472
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 67
+        }
+      },
+      "thumb": "",
+      "title": "Masada Book 3 - The Book Beri'ah",
+      "format": "LP, Comp, Ltd",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/12276593",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 12276593
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 109,
+          "in_wantlist": 60
+        }
+      },
+      "thumb": "",
+      "title": "Masada Book 3\u2014The Book Beri'ah",
+      "format": "11xCD, Ltd",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/12530518",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 12530518
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 56,
+          "in_wantlist": 51
+        }
+      },
+      "thumb": "",
+      "title": "Salem 1692",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/12904173",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 12904173
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "The Hermetic Organ Vol. 6 - For Edgar Allan Poe",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13399852",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 13399852
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 4,
+          "in_wantlist": 7
+        }
+      },
+      "thumb": "",
+      "title": "Cat O'Nine Tails | The Dead Man | Memento Mori | Kol Nidre",
+      "format": "CD, Album",
+      "label": "Atma Classique",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13588857",
+      "artist": "John Zorn -  Quatuor Molinari",
+      "type": "release",
+      "id": 13588857
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 11,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "title": "Chokhma",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13601823",
+      "artist": "John Zorn, Cleric",
+      "type": "release",
+      "id": 13601823
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 37,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "The Hierophant",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13684127",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 13684127
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "title": "Gevurah",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13790547",
+      "artist": "John Zorn, Abraxas (30)",
+      "type": "release",
+      "id": 13790547
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 6,
+          "in_wantlist": 4
+        }
+      },
+      "thumb": "",
+      "title": "Keter",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13870355",
+      "artist": "John Zorn, Sofia Rei, Jean-Christophe Maillard",
+      "type": "release",
+      "id": 13870355
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 4
+        }
+      },
+      "thumb": "",
+      "title": "Binah",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13870411",
+      "artist": "John Zorn, The Spike Orchestra",
+      "type": "release",
+      "id": 13870411
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 7
+        }
+      },
+      "thumb": "",
+      "title": "Chesed",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13870431",
+      "artist": "John Zorn, Julian Lage, Gyan Riley",
+      "type": "release",
+      "id": 13870431
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "Tiferet",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13870474",
+      "artist": "John Zorn, Klezmerson",
+      "type": "release",
+      "id": 13870474
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 18,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "title": "Tractatus Musico-Philosophicus",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/13940672",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 13940672
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 6,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "Encomia",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/14164163",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 14164163
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 7,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "The Hermetic Organ Vol. 7 - St. John The Divine",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/releases/14168207",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 14168207
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 13870508,
+      "title": "Nove Cantici Per Francesco D\u2019Assisi",
+      "role": "Main",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/masters/1576533",
+      "type": "master",
+      "id": 1576533
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "The Great Duo Live (Vol. I)",
+      "format": "CDr, Album",
+      "label": "House Of Chadula",
+      "role": "Main",
+      "resource_url": "https://api.discogs.com/releases/6975629",
+      "artist": "Eugene Chadbourne, John Zorn",
+      "type": "release",
+      "id": 6975629
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "Chad Zorn",
+      "format": "VHS",
+      "label": "Not On Label (Eugene Chadbourne Self-Released)",
+      "role": "Main",
+      "resource_url": "https://api.discogs.com/releases/10898596",
+      "artist": "Eugene Chadbourne, John Zorn",
+      "type": "release",
+      "id": 10898596
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 7,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Afufu NY",
+      "format": "Flexi, 8\", Red",
+      "label": "Hip Co.",
+      "role": "Producer",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/releases/1384145",
+      "artist": "Rin Kotogawa",
+      "type": "release",
+      "id": 1384145
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 87,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "artist": "Kronos Quartet",
+      "main_release": 813047,
+      "title": "Winter Was Hard",
+      "role": "Producer",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/50737",
+      "type": "master",
+      "id": 50737
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "artist": "Sato Michihiro*",
+      "main_release": 7459947,
+      "title": "Rodan",
+      "role": "Producer",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/883729",
+      "type": "master",
+      "id": 883729
+    }
+  ]
+}

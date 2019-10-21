@@ -1,0 +1,206 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 27,
+    "urls": {
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=26",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "stats": {
+        "community": {
+          "in_collection": 11,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 2695200,
+      "title": "New Traditions In East Asian Bar Bands",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/761116",
+      "type": "master",
+      "id": 761116
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 4,
+          "in_wantlist": 0
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 5045724,
+      "title": "Live In Middelheim 1999",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/431901",
+      "type": "master",
+      "id": 431901
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 8,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "artist": "Dekoboko Hajime & Yamatsuka Eye, John Zorn",
+      "main_release": 7625512,
+      "title": "Nani Nani",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/902107",
+      "type": "master",
+      "id": 902107
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 15,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "artist": "Weird Little Boy",
+      "main_release": 1175261,
+      "title": "Weird Little Boy",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/190260",
+      "type": "master",
+      "id": 190260
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 14144479,
+      "title": "Filmworks IV: S/M + More",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/1607479",
+      "type": "master",
+      "id": 1607479
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 10,
+          "in_wantlist": 9
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 2695106,
+      "title": "Filmworks One 1986-1990",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/19268",
+      "type": "master",
+      "id": 19268
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 11,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 8756522,
+      "title": "The String Quartets",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/1026949",
+      "type": "master",
+      "id": 1026949
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 13,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 2547093,
+      "title": "Filmworks XVI : Workingman's Death",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/624992",
+      "type": "master",
+      "id": 624992
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 0
+        }
+      },
+      "thumb": "",
+      "artist": "Kronos Quartet",
+      "main_release": 9485874,
+      "title": "Short Stories",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/64241",
+      "type": "master",
+      "id": 64241
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 9166671,
+      "title": "Gimel",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/286121",
+      "type": "master",
+      "id": 286121
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "artist": "The Sonny Clark Memorial Quartet",
+      "main_release": 7928352,
+      "title": "Voodoo",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/153521",
+      "type": "master",
+      "id": 153521
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 5,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 3574990,
+      "title": "Redbird",
+      "role": "UnofficialRelease",
+      "resource_url": "https://api.discogs.com/masters/703458",
+      "type": "master",
+      "id": 703458
+    }
+  ]
+}

@@ -1,0 +1,964 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 19,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=20",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=18",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 55,
+          "in_wantlist": 37
+        }
+      },
+      "thumb": "",
+      "title": "Iohargh Wended",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/905730",
+      "artist": "Mick Barr / Octis",
+      "type": "release",
+      "id": 905730
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 129,
+          "in_wantlist": 53
+        }
+      },
+      "thumb": "",
+      "title": "Lonely Heart",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/983145",
+      "artist": "Massacre (2)",
+      "type": "release",
+      "id": 983145
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 52,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "Thinking Out Loud",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/983825",
+      "artist": "Pamelia Kurstin",
+      "type": "release",
+      "id": 983825
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 175,
+          "in_wantlist": 86
+        }
+      },
+      "thumb": "",
+      "title": "Drunken Forest",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1041407",
+      "artist": "Death Ambient",
+      "type": "release",
+      "id": 1041407
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 18,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "title": "Time Petah-Tiqva",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1063411",
+      "artist": "Boris Malkovsky",
+      "type": "release",
+      "id": 1063411
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 51,
+          "in_wantlist": 27
+        }
+      },
+      "thumb": "",
+      "title": "Invisible Paths: First Scattering",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1115689",
+      "artist": "Steve Coleman",
+      "type": "release",
+      "id": 1115689
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 15,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "Impositions And Consequences",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1120459",
+      "artist": "Derek Keller",
+      "type": "release",
+      "id": 1120459
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 67,
+          "in_wantlist": 39
+        }
+      },
+      "thumb": "",
+      "title": "The Yelm Sessions",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1203355",
+      "artist": "Eyvind Kang",
+      "type": "release",
+      "id": 1203355
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 77,
+          "in_wantlist": 42
+        }
+      },
+      "thumb": "",
+      "title": "The Sugar Factory",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1269016",
+      "artist": "Fred Frith / Evelyn Glennie",
+      "type": "release",
+      "id": 1269016
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 38,
+          "in_wantlist": 24
+        }
+      },
+      "thumb": "",
+      "title": "Signs And Epigrams",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1303918",
+      "artist": "Sylvie Courvoisier",
+      "type": "release",
+      "id": 1303918
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 141,
+          "in_wantlist": 61
+        }
+      },
+      "thumb": "",
+      "title": "Standards",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1339930",
+      "artist": "Derek Bailey",
+      "type": "release",
+      "id": 1339930
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 45,
+          "in_wantlist": 22
+        }
+      },
+      "thumb": "",
+      "title": "Remembrance",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1359206",
+      "artist": "The Cracow Klezmer Band*",
+      "type": "release",
+      "id": 1359206
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 39,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "Tenno",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1382500",
+      "artist": "Teiji Ito",
+      "type": "release",
+      "id": 1382500
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 13,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "title": "Meta-Conspiracy",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1414171",
+      "artist": "MC Maguire",
+      "type": "release",
+      "id": 1414171
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 50,
+          "in_wantlist": 76
+        }
+      },
+      "thumb": "",
+      "title": "Music For Maya",
+      "format": "2xCD",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1450927",
+      "artist": "Teiji Ito",
+      "type": "release",
+      "id": 1450927
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 45,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "Spring Steel",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1548646",
+      "artist": "Richard Crandell",
+      "type": "release",
+      "id": 1548646
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 89,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "The Advocate",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1636281",
+      "artist": "Tony Oxley, Derek Bailey",
+      "type": "release",
+      "id": 1636281
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 18,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "A Handful Of World",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1702352",
+      "artist": "Lisa Bielawa",
+      "type": "release",
+      "id": 1702352
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 38,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "Force Of Light",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1786393",
+      "artist": "Dan Kaufman (3)",
+      "type": "release",
+      "id": 1786393
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 32,
+          "in_wantlist": 29
+        }
+      },
+      "thumb": "",
+      "title": "To Know And Not To Know",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1802243",
+      "artist": "Noah Creshevsky",
+      "type": "release",
+      "id": 1802243
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 61,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Convivencia",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/1926458",
+      "artist": "La Mar Enfortuna",
+      "type": "release",
+      "id": 1926458
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 33,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "Inner Diaspora",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/2101699",
+      "artist": "Ned Rothenberg's Sync*",
+      "type": "release",
+      "id": 2101699
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 31,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "title": "For The Moment",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "trackinfo": "For The Moment",
+      "resource_url": "https://api.discogs.com/releases/2111189",
+      "artist": "Paul Brody's Sadawi",
+      "type": "release",
+      "id": 2111189
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 22,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "Song Of Remembrance",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/2649575",
+      "artist": "Guy Klucevsek",
+      "type": "release",
+      "id": 2649575
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Live In Taipei 1996 (1)",
+      "format": "2xCDr, Pap",
+      "label": "OMX",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/13894989",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 13894989
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Live In Taipei 1996 (2)",
+      "format": "2xCDr, Pap",
+      "label": "OMX",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/13895021",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 13895021
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Live In Taipei 1996 (3)",
+      "format": "2xCDr, Pap",
+      "label": "OMX",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/13895058",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 13895058
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Live In Taipei 1996 (4)",
+      "format": "2xCDr, Pap",
+      "label": "OMX",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/releases/13895107",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 13895107
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 24
+        }
+      },
+      "thumb": "",
+      "artist": "Henry Kaiser / Charles K. Noyes / Sang-Won Park*",
+      "main_release": 2209369,
+      "title": "Invite The Spirit 1983",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/masters/107162",
+      "type": "master",
+      "id": 107162
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 150,
+          "in_wantlist": 63
+        }
+      },
+      "thumb": "",
+      "artist": "Method Of Defiance",
+      "main_release": 1111583,
+      "title": "Inamorata",
+      "role": "Appearance",
+      "year": 2007,
+      "resource_url": "https://api.discogs.com/masters/23110",
+      "type": "master",
+      "id": 23110
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 130,
+          "in_wantlist": 62
+        }
+      },
+      "thumb": "",
+      "title": "Spirit Transform Me",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1320055",
+      "artist": "Oren Ambarchi / Z'ev",
+      "type": "release",
+      "id": 1320055
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 91,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Exercises In Futility",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1333710",
+      "artist": "Marc Ribot",
+      "type": "release",
+      "id": 1333710
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 122,
+          "in_wantlist": 74
+        }
+      },
+      "thumb": "",
+      "title": "Uhrfasudhasdd",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1342147",
+      "artist": "Haino Keiji* And Yoshida Tatsuya*",
+      "type": "release",
+      "id": 1342147
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 91,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "title": "River Mouth Echoes",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1413640",
+      "artist": "Maja S. K. Ratkje",
+      "type": "release",
+      "id": 1413640
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 102,
+          "in_wantlist": 157
+        }
+      },
+      "thumb": "",
+      "title": "Sound Characters 2  (Making Sonic Spaces)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1472025",
+      "artist": "Maryanne Amacher",
+      "type": "release",
+      "id": 1472025
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 185,
+          "in_wantlist": 82
+        }
+      },
+      "thumb": "",
+      "title": "Beyond Quantum",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1496218",
+      "artist": "Anthony Braxton, Milford Graves, William Parker",
+      "type": "release",
+      "id": 1496218
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 57,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "title": "Orra",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1523130",
+      "artist": "Phantom Orchard",
+      "type": "release",
+      "id": 1523130
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 41,
+          "in_wantlist": 34
+        }
+      },
+      "thumb": "",
+      "title": "Tant Que Les Heures Passent",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1537150",
+      "artist": "Berangere Maximin*",
+      "type": "release",
+      "id": 1537150
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 40,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "Boundary Layer",
+      "format": "3xCD, Comp",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1548384",
+      "artist": "The Hub",
+      "type": "release",
+      "id": 1548384
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 56,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Banquet Of The Spirits",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "trackinfo": "Macunaima (A Hero With...",
+      "resource_url": "https://api.discogs.com/releases/1551711",
+      "artist": "Cyro Baptista",
+      "type": "release",
+      "id": 1551711
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 64,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Diaspora Suite",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1709454",
+      "artist": "Steven Bernstein",
+      "type": "release",
+      "id": 1709454
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 70,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Four Films",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1710747",
+      "artist": "Trevor Dunn",
+      "type": "release",
+      "id": 1710747
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 70,
+          "in_wantlist": 27
+        }
+      },
+      "thumb": "",
+      "title": "To Sail, To Sail",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1783833",
+      "artist": "Fred Frith",
+      "type": "release",
+      "id": 1783833
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 19,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "String Quartets: 2002 - 2007",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/1807862",
+      "artist": "Elliott Sharp",
+      "type": "release",
+      "id": 1807862
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 47,
+          "in_wantlist": 24
+        }
+      },
+      "thumb": "",
+      "title": "Back To Life",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/2001711",
+      "artist": "Fred Frith",
+      "type": "release",
+      "id": 2001711
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 19,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Watermill",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/2002279",
+      "artist": "Teiji Ito",
+      "type": "release",
+      "id": 2002279
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "title": "ESP Organism",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/2199297",
+      "artist": "Brown Wing Overdrive",
+      "type": "release",
+      "id": 2199297
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 27
+        }
+      },
+      "thumb": "",
+      "title": "Afrikan Machinery",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/2199540",
+      "artist": "Lukas Ligeti",
+      "type": "release",
+      "id": 2199540
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 21,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Yuan",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/2449873",
+      "artist": "Wu Fei",
+      "type": "release",
+      "id": 2449873
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 46,
+          "in_wantlist": 53
+        }
+      },
+      "thumb": "",
+      "title": "The Unlistenable Years",
+      "format": "CD, Comp",
+      "label": "ugEXPLODE",
+      "role": "Appearance",
+      "year": 2008,
+      "resource_url": "https://api.discogs.com/releases/2556525",
+      "artist": "Toy Killers",
+      "type": "release",
+      "id": 2556525
+    }
+  ]
+}

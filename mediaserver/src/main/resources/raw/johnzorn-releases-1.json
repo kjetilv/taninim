@@ -1,0 +1,914 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 1,
+    "urls": {
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=2"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 78,
+          "in_wantlist": 349
+        }
+      },
+      "thumb": "",
+      "title": "School",
+      "format": "2xLP, Album",
+      "label": "Parachute",
+      "role": "Main",
+      "year": 1978,
+      "resource_url": "https://api.discogs.com/releases/1028398",
+      "artist": "Eugene Chadbourne / John Zorn",
+      "type": "release",
+      "id": 1028398
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 59,
+          "in_wantlist": 301
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn, Andrea Centazzo, Eugene Chadbourne, Tom Cora, Toshinori Kondo, Polly Bradfield",
+      "main_release": 1536355,
+      "title": "Environment For Sextet",
+      "role": "Main",
+      "year": 1979,
+      "resource_url": "https://api.discogs.com/masters/19259",
+      "type": "master",
+      "id": 19259
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 75,
+          "in_wantlist": 266
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 1313097,
+      "title": "Pool",
+      "role": "Main",
+      "year": 1980,
+      "resource_url": "https://api.discogs.com/masters/15575",
+      "type": "master",
+      "id": 15575
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 85,
+          "in_wantlist": 263
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 644736,
+      "title": "Archery",
+      "role": "Main",
+      "year": 1981,
+      "resource_url": "https://api.discogs.com/masters/19245",
+      "type": "master",
+      "id": 19245
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 157,
+          "in_wantlist": 149
+        }
+      },
+      "thumb": "",
+      "artist": "Derek Bailey / George Lewis / John Zorn",
+      "main_release": 650758,
+      "title": "Yankees",
+      "role": "Main",
+      "year": 1982,
+      "resource_url": "https://api.discogs.com/masters/15589",
+      "type": "master",
+      "id": 15589
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 63,
+          "in_wantlist": 225
+        }
+      },
+      "thumb": "",
+      "title": "The Classic Guide To Strategy - Volume One",
+      "format": "LP, Album",
+      "label": "Lumina Records Ltd.",
+      "role": "Main",
+      "year": 1983,
+      "resource_url": "https://api.discogs.com/releases/405848",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 405848
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 140,
+          "in_wantlist": 233
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 758720,
+      "title": "Locus Solus",
+      "role": "Main",
+      "year": 1983,
+      "resource_url": "https://api.discogs.com/masters/15539",
+      "type": "master",
+      "id": 15539
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 65,
+          "in_wantlist": 117
+        }
+      },
+      "thumb": "",
+      "title": "OTB",
+      "format": "LP, Album",
+      "label": "Lumina Records Ltd.",
+      "role": "Main",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/releases/1258006",
+      "artist": "Jim Staley With John Zorn",
+      "type": "release",
+      "id": 1258006
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 5,
+          "in_wantlist": 40
+        }
+      },
+      "thumb": "",
+      "title": "The Beast From 20,000 Fathoms",
+      "format": "Cass, C14",
+      "label": "Parachute",
+      "role": "Main",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/releases/10407666",
+      "artist": "John Zorn, Eugene Chadbourne",
+      "type": "release",
+      "id": 10407666
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 90,
+          "in_wantlist": 176
+        }
+      },
+      "thumb": "",
+      "artist": "Michihiro Sato* & John Zorn",
+      "main_release": 650756,
+      "title": "Ganryu Island",
+      "role": "Main",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/15498",
+      "type": "master",
+      "id": 15498
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 59,
+          "in_wantlist": 177
+        }
+      },
+      "thumb": "",
+      "title": "The Classic Guide To Strategy - Volume Two",
+      "format": "LP, Album, Dir",
+      "label": "Lumina Records Ltd.",
+      "role": "Main",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/releases/1396791",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 1396791
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 34,
+          "in_wantlist": 190
+        }
+      },
+      "thumb": "",
+      "title": "Experimental Performance With John Zorn",
+      "format": "LP",
+      "label": "Mobys Record, Mobys Record, Mobys Record",
+      "role": "Main",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/releases/1801080",
+      "artist": "Jojo Takayanagi* With John Zorn",
+      "type": "release",
+      "id": 1801080
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 581,
+          "in_wantlist": 375
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn, Ennio Morricone",
+      "main_release": 539078,
+      "title": "The Big Gundown",
+      "role": "Main",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/masters/15614",
+      "type": "master",
+      "id": 15614
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 145,
+          "in_wantlist": 407
+        }
+      },
+      "thumb": "",
+      "artist": "Steve Beresford / David Toop / John Zorn / Tonie Marshall",
+      "main_release": 1249624,
+      "title": "Deadly Weapons",
+      "role": "Main",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/masters/19249",
+      "type": "master",
+      "id": 19249
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 193,
+          "in_wantlist": 254
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 1251065,
+      "title": "Cobra",
+      "role": "Main",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/55553",
+      "type": "master",
+      "id": 55553
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 193,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 410929,
+      "title": "Spillane",
+      "role": "Main",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/19283",
+      "type": "master",
+      "id": 19283
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 149,
+          "in_wantlist": 52
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 385286,
+      "title": "Spy Vs. Spy: The Music Of Ornette Coleman",
+      "role": "Main",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/15595",
+      "type": "master",
+      "id": 15595
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 185,
+          "in_wantlist": 77
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn / George Lewis / Bill Frisell",
+      "main_release": 594553,
+      "title": "News For Lulu",
+      "role": "Main",
+      "year": 1988,
+      "resource_url": "https://api.discogs.com/masters/19276",
+      "type": "master",
+      "id": 19276
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "title": "Trip Coaster",
+      "format": "CD, Mini, Single",
+      "label": "CBS/Sony",
+      "role": "Main",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/releases/9171420",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 9171420
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 18,
+          "in_wantlist": 54
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 1330500,
+      "title": "Cynical Hysterie Hour",
+      "role": "Main",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/409707",
+      "type": "master",
+      "id": 409707
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 85,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "title": "Attention Span",
+      "format": "CD, Album",
+      "label": "RecRec Music",
+      "role": "Main",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/releases/671623",
+      "artist": "Ostertag* with Zorn* with Frith*",
+      "type": "release",
+      "id": 671623
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 58,
+          "in_wantlist": 85
+        }
+      },
+      "thumb": "",
+      "title": "The John Zorn Radio Hour",
+      "format": "CD, Comp, Promo",
+      "label": "Nonesuch",
+      "role": "Main",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/releases/1309097",
+      "artist": "Various, John Zorn, Naked City",
+      "type": "release",
+      "id": 1309097
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 85
+        }
+      },
+      "thumb": "",
+      "artist": "The Intergalactic Maiden Ballet Featuring John Zorn",
+      "main_release": 1557751,
+      "title": "Square Dance",
+      "role": "Main",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/masters/291390",
+      "type": "master",
+      "id": 291390
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 340,
+          "in_wantlist": 762
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 650753,
+      "title": "Naked City",
+      "role": "Main",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/masters/15553",
+      "type": "master",
+      "id": 15553
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 84,
+          "in_wantlist": 238
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn / Napalm Death",
+      "main_release": 597287,
+      "title": "Earache",
+      "role": "Main",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/masters/547053",
+      "type": "master",
+      "id": 547053
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 60,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 650132,
+      "title": "Filmworks 1986-1990",
+      "role": "Main",
+      "year": 1990,
+      "resource_url": "https://api.discogs.com/masters/19268",
+      "type": "master",
+      "id": 19268
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "Cobra (Live)",
+      "format": "CD, Album",
+      "label": "hat ART",
+      "role": "Main",
+      "year": 1991,
+      "resource_url": "https://api.discogs.com/releases/843293",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 843293
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 122,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 646183,
+      "title": "Elegy",
+      "role": "Main",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/masters/15480",
+      "type": "master",
+      "id": 15480
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 234,
+          "in_wantlist": 67
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn / George Lewis / Bill Frisell",
+      "main_release": 526781,
+      "title": "More News For Lulu",
+      "role": "Main",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/masters/250753",
+      "type": "master",
+      "id": 250753
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 12,
+          "in_wantlist": 75
+        }
+      },
+      "thumb": "",
+      "artist": "Bill Laswell, Sonny Sharrock, John Zorn, Fred Frith, Derek Bailey, Charles K. Noyes",
+      "main_release": 7686937,
+      "title": "Improvised Music New York 1981",
+      "role": "Main",
+      "year": 1992,
+      "resource_url": "https://api.discogs.com/masters/921888",
+      "type": "master",
+      "id": 921888
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 83,
+          "in_wantlist": 43
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 940480,
+      "title": "Kristallnacht",
+      "role": "Main",
+      "year": 1993,
+      "resource_url": "https://api.discogs.com/masters/15528",
+      "type": "master",
+      "id": 15528
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 63,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "title": "Masada (One) - Alef",
+      "format": "CD, Album",
+      "label": "Disk Union, Iidabashi Studio",
+      "role": "Main",
+      "year": 1994,
+      "resource_url": "https://api.discogs.com/releases/10796024",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 10796024
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 225,
+          "in_wantlist": 78
+        }
+      },
+      "thumb": "",
+      "title": "Harras",
+      "format": "CD, Album",
+      "label": "Avant, Avant",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/494028",
+      "artist": "Derek Bailey / John Zorn / William Parker",
+      "type": "release",
+      "id": 494028
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 240,
+          "in_wantlist": 44
+        }
+      },
+      "thumb": "",
+      "title": "John Zorn's Cobra: Live At The Knitting Factory",
+      "format": "CD, Album",
+      "label": "Knitting Factory Works",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/846004",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 846004
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 199,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "First Recordings 1973",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/920414",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 920414
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Cobra Tokyo Operations '94",
+      "format": "CD, Smplr",
+      "label": "Avant",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/releases/14049236",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 14049236
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 213,
+          "in_wantlist": 54
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn Featuring Marc Ribot",
+      "main_release": 920084,
+      "title": "The Book Of Heads",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/masters/969769",
+      "type": "master",
+      "id": 969769
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 79,
+          "in_wantlist": 29
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 555900,
+      "title": "Filmworks III: 1990-1995",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/masters/39101",
+      "type": "master",
+      "id": 39101
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 47,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 1134573,
+      "title": "Filmworks II: Music For An Untitled Film By Walter Hill",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/masters/38842",
+      "type": "master",
+      "id": 38842
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 243,
+          "in_wantlist": 52
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 548350,
+      "title": "Redbird",
+      "role": "Main",
+      "year": 1995,
+      "resource_url": "https://api.discogs.com/masters/703458",
+      "type": "master",
+      "id": 703458
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 242,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks VI 1996",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/398582",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 398582
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 249,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "The Classic Guide To Strategy - Volumes One & Two",
+      "format": "CD, Album, Comp",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/555887",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 555887
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 620,
+          "in_wantlist": 109
+        }
+      },
+      "thumb": "",
+      "title": "Bar Kokhba",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/559576",
+      "artist": "John Zorn / Masada Chamber Ensembles",
+      "type": "release",
+      "id": 559576
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 233,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks V: Tears Of Ecstasy",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/603316",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 603316
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 84,
+          "in_wantlist": 44
+        }
+      },
+      "thumb": "",
+      "title": "In Memory Of Nikki Arane",
+      "format": "CD, Album",
+      "label": "Incus",
+      "role": "Main",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/970683",
+      "artist": "Eugene Chadbourne / John Zorn",
+      "type": "release",
+      "id": 970683
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 189,
+          "in_wantlist": 84
+        }
+      },
+      "thumb": "",
+      "title": "The Parachute Years 1977 - 1980 (Lacrosse Hockey Pool Archery)",
+      "format": "7xCD, Album, RE + Box, Comp",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/354549",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 354549
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 77,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "title": "Hockey",
+      "format": "CD, Album, RE, Jew",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1029690",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 1029690
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 93,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "title": "Lacrosse",
+      "format": "2xCD, Album, RE",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1094703",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 1094703
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 0,
+          "in_wantlist": 7
+        }
+      },
+      "thumb": "",
+      "title": "The Ship's Cat & Other Songs",
+      "format": "CD, Album",
+      "label": "Not On Label",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/13211177",
+      "artist": "The Sleepy Trio, John Zorn",
+      "type": "release",
+      "id": 13211177
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks III: 1990-1995",
+      "format": "CD",
+      "label": "G. & P. Essential Music",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/14026832",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 14026832
+    }
+  ]
+}

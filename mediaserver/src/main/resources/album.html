@@ -15,7 +15,7 @@
 {if(playTrack)}
 <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist.name}</em></P>
 <AUDIO id="player" controls autoplay data-plyr-config='\{ "autoplay": true, "autopause": true }'>
-    <SOURCE src="/cloudio/{playTrack.uuid}" type="audio/flac"/>
+    <SOURCE src="/audio/{playTrack.uuid}" type="audio/flac"/>
 </AUDIO>
 {endif}
 

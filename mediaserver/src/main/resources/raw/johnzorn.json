@@ -1,0 +1,237 @@
+{
+  "profile": "American saxophonist and composer, born 2 September 1953 in New York City, USA. He owns the [l=Tzadik] record label and has worked with a large number of experimental musicians, particularly in improvised music, modern classical music and jazz, though he has produced music in most styles. As a child, he played piano, guitar and flute. He went to college in St. Louis where he discovered free jazz, before dropping out and moving to Manhattan. There he gave concerts in his small apartment, playing a variety of reeds, duck calls, tapes, etc; almost anything. In the mid 1980s he signed to the [l146599] label. Since then, he has released a very large number of records, usually putting out several each year. Zorn's recorded output includes records by two bands of his own, Masada (a klezmer band playing music that is often described as Jewish jazz) and Naked City (an often aggressive mix of jazz, rock and grindcore). He has also worked with musicians like [a=Bill Frisell], [a=Derek Bailey], [a=Fred Frith], [a=Keiji Haino], and [a=Bill Laswell]. He has written music for television and film, which has been collected in the ongoing [l227476] series of records on his [l3650] label. Some of these are jazz-based, others are classical. He has also written several \"game pieces\", in which performers are allowed to improvise while following certain structural rules. These works are in the main named after sports, and include Pool, Archery and Lacrosse, as well as Cobra.\r\nPublisher: [l384255]",
+  "releases_url": "https://api.discogs.com/artists/99731/releases",
+  "name": "John Zorn",
+  "namevariations": [
+    "J. Zorn",
+    "J.Zorn",
+    "John Z",
+    "John Z.",
+    "John Zone",
+    "Jon Zorn",
+    "JZ",
+    "Zone",
+    "Zorn",
+    "\u0414\u0436\u043e\u043d \u0417\u043e\u0440\u043d"
+  ],
+  "uri": "https://www.discogs.com/artist/99731-John-Zorn",
+  "urls": [
+    "http://www.myspace.com/johnzorn",
+    "http://en.wikipedia.org/wiki/John_Zorn",
+    "http://www.famouscomposers.net/john-zorn",
+    "https://www.bookogs.com/credit/50518-john-zorn",
+    "https://www.filmo.gs/credit/247552-john-zorn"
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 237,
+      "width": 356,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 399,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 442,
+      "width": 360,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 200,
+      "width": 320,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 449,
+      "width": 300,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 326,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 914,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "resource_url": "https://api.discogs.com/artists/99731",
+  "groups": [
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/41563",
+      "id": 41563,
+      "name": "The Golden Palominos"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/69896",
+      "id": 69896,
+      "name": "PainKiller (2)"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/205814",
+      "id": 205814,
+      "name": "Naked City"
+    },
+    {
+      "active": false,
+      "resource_url": "https://api.discogs.com/artists/261414",
+      "id": 261414,
+      "name": "Toy Killers"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/264514",
+      "id": 264514,
+      "name": "Masada (3)"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/272954",
+      "id": 272954,
+      "name": "Electric Masada"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/285017",
+      "id": 285017,
+      "name": "Weird Little Boy"
+    },
+    {
+      "active": false,
+      "resource_url": "https://api.discogs.com/artists/326370",
+      "id": 326370,
+      "name": "Company (2)"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/342303",
+      "id": 342303,
+      "name": "Locus Solus"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/347392",
+      "id": 347392,
+      "name": "Hemophiliac"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/366106",
+      "id": 366106,
+      "name": "The Chadbournes"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/834400",
+      "id": 834400,
+      "name": "The Sonny Clark Memorial Quartet"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/868719",
+      "id": 868719,
+      "name": "Br\u00f6tzmann Clarinet Project"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/929625",
+      "id": 929625,
+      "name": "Mystic Fugu Orchestra"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/1010102",
+      "id": 1010102,
+      "name": "Slan"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/1047293",
+      "id": 1047293,
+      "name": "Emergency (3)"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/1256550",
+      "id": 1256550,
+      "name": "Fred Frith / John Zorn"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/1451619",
+      "id": 1451619,
+      "name": "Buck Jam Tonic"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/1563049",
+      "id": 1563049,
+      "name": "Masada Quintet"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/1896235",
+      "id": 1896235,
+      "name": "John Zorn Ensemble"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/2772020",
+      "id": 2772020,
+      "name": "John Zorn Quartet"
+    },
+    {
+      "active": true,
+      "resource_url": "https://api.discogs.com/artists/4788763",
+      "id": 4788763,
+      "name": "The Frank Lowe Orchestra"
+    }
+  ],
+  "id": 99731,
+  "data_quality": "Needs Vote",
+  "aliases": [
+    {
+      "resource_url": "https://api.discogs.com/artists/735183",
+      "id": 735183,
+      "name": "Dekoboko Hajime"
+    },
+    {
+      "resource_url": "https://api.discogs.com/artists/929626",
+      "id": 929626,
+      "name": "Rav Tzizit"
+    },
+    {
+      "resource_url": "https://api.discogs.com/artists/4291997",
+      "id": 4291997,
+      "name": "The Composer (3)"
+    }
+  ]
+}

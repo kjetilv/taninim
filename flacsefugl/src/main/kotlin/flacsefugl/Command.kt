@@ -1,6 +1,5 @@
 package flacsefugl
 
-import java.lang.IllegalStateException
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 

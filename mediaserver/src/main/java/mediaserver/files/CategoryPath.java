@@ -23,18 +23,22 @@ public class CategoryPath extends AbstractHashable
     private static final long serialVersionUID = -9183177927504274533L;
 
     public CategoryPath() {
-        this((Path)null);
+
+        this((Path) null);
     }
 
     public CategoryPath(Path path) {
+
         this(path == null ? Collections.emptyList() : parts(path));
     }
 
     private CategoryPath(List<String> path) {
+
         this.path = path == null || path.isEmpty() ? Collections.emptyList() : path;
     }
 
     public boolean startsWith(CategoryPath category) {
+
         if (category.isRoot()) {
             return true;
         }
@@ -50,35 +54,43 @@ public class CategoryPath extends AbstractHashable
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
+
         hash(h, path.toArray(new String[0]));
     }
 
     public String getPathString() {
+
         return isRoot() ? "/" : String.join("/", path);
     }
 
     public String getLastPathString() {
+
         return isRoot() ? "/" : path.get(path.size() - 1);
     }
 
     public String getFirstPathString() {
+
         return isRoot() ? "/" : path.get(0);
     }
 
     public List<String> getPath() {
+
         return path;
     }
 
     @Override
     public int compareTo(CategoryPath categoryPath) {
+
         return String.join("/", path).compareTo(String.join("/", categoryPath.getPath()));
     }
 
     public CategoryPath toTop() {
+
         return new CategoryPath(path.subList(0, 1));
     }
 
     public Optional<CategoryPath> toTop(CategoryPath prefix) {
+
         return Optional.of(this)
             .filter(me ->
                 prefix.isRoot() || me.startsWith(prefix))
@@ -87,6 +99,7 @@ public class CategoryPath extends AbstractHashable
     }
 
     public CategoryPath sub(CategoryPath category) {
+
         return new CategoryPath(Stream.concat(
             this.path.stream(),
             category.path.stream()
@@ -95,14 +108,17 @@ public class CategoryPath extends AbstractHashable
 
     @Override
     public String toStringBody() {
+
         return String.join("/", path);
     }
 
     private boolean isRoot() {
+
         return path.isEmpty();
     }
 
     private static List<String> parts(Path path) {
+
         return IntStream.range(0, path.getNameCount())
             .mapToObj(path::getName)
             .map(Objects::toString)

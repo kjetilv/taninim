@@ -1,5 +1,9 @@
 package flacsefugl
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import mediaserver.externals.AlbumMetadata
+import mediaserver.externals.DiscogReleasesLoader
+import mediaserver.files.Album
 import mediaserver.files.Media
 import java.net.URI
 import java.nio.file.Files
@@ -15,7 +19,8 @@ fun main() {
 //    val targetDir = Paths.get(".")
     val targetDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/FLAC/John%20Zorn"))
-
+    val objectMapper =
+            ObjectMapper()
     val conversion = Conversion(
             Mover(rootDir, targetDir, dists()),
             Traverser(rootDir)
@@ -59,35 +64,63 @@ fun main() {
     val root = Path.of(System.getProperty("user.home"), "FLAC")
     val media = Media.local(root);
 
+//    val discogReleasesLoader = DiscogReleasesLoader("johnzorn-releases-x.json", 1, 27)
+
     val albumsMetaPath = root.resolve(Path.of("album-meta"))
     val albumsMetaDir = albumsMetaPath.toFile()
     if (albumsMetaDir.isDirectory || albumsMetaDir.mkdir()) {
         media.allAlbums().forEach { album ->
             val target = albumsMetaPath.resolve("album.${album.uuid}")
-            val targetFile = target.toFile()
-            if (targetFile.isDirectory || targetFile.mkdirs()) {
-                println("Created album context dir for ${album.artist.name}/${album.name}: ${targetFile.path}")
-            } else {
-                throw java.lang.IllegalStateException("Not a directory: $targetFile")
+            setupMetaDirectory(target, album)
+            val urlsFile = target.resolve(Path.of("urls.txt"))
+//            val metadataFile = target.resolve(Path.of("metadata.json"))
+////            if (!(urlsFile.toFile().exists() && urlsFile.toFile().isFile)) {
+//                val resources = discogReleasesLoader.resources(album.name)
+//                val metadata = AlbumMetadata().apply {
+//                    setArtist(album.artist.name)
+//                    setTitle(album.name)
+//                }
+//                resources.firstOrNull()?.resource_url?.let { URI.create(it) }?.let {
+//                    metadata.setDiscogRelease(it)
+//                    metadata.setDiscogReleaseId(it.toURL().path.substring("/releases/".length))
+//                }
+//                Files.write(
+//                        urlsFile,
+//                        resources.map {
+//                            "${it.artist}: ${it.title} -> ${it.resource_url}"
+//                        })
+//                objectMapper.writeValue(metadataFile.toFile(), metadata);
+//            }
+        }
+
+        val objectsPath = root.resolve(Path.of("objects"))
+        val objectsDir = objectsPath.toFile()
+        if (objectsDir.isDirectory || objectsDir.mkdirs()) {
+            media.allTracks.forEach { track ->
+                val target = objectsPath.resolve(Path.of("${track.uuid}.flac"))
+                val targetFile = target.toFile()
+                if (targetFile.isFile && targetFile.length() == track.file.length()) {
+                    println("Already copied: $track -> $target")
+                } else {
+                    println("Copying $track -> $target")
+                    copy(track.file.toPath(), target, REPLACE_EXISTING, COPY_ATTRIBUTES)
+                }
             }
+        } else {
+            throw IllegalStateException("Could not create block storage")
         }
     }
+}
 
-    val objectsPath = root.resolve(Path.of("objects"))
-    val objectsDir = objectsPath.toFile()
-    if (objectsDir.isDirectory || objectsDir.mkdirs()) {
-        media.allTracks.forEach { track ->
-            val target = objectsPath.resolve(Path.of("${track.uuid}.flac"))
-            val targetFile = target.toFile()
-            if (targetFile.isFile && targetFile.length() == track.file.length()) {
-                println("Already copied: $track -> $target")
-            } else {
-                println("Copying $track -> $target")
-                copy(track.file.toPath(), target, REPLACE_EXISTING, COPY_ATTRIBUTES)
-            }
-        }
-    } else {
-        throw IllegalStateException("Could not create block storage")
+ fun setupMetaDirectory(target: Path, album: Album) {
+    val targetFile = target.toFile()
+    when {
+        targetFile.isDirectory ->
+            println("Found album context dir for ${album.artist.name}/${album.name}: ${targetFile.path}")
+        targetFile.mkdirs() ->
+            println("Created album context dir for ${album.artist.name}/${album.name}: ${targetFile.path}")
+        else ->
+            throw java.lang.IllegalStateException("Not a directory: $targetFile")
     }
 }
 

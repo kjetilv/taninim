@@ -1,0 +1,953 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 17,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=18",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=16",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 150,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "title": "50\u00b3",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/494021",
+      "artist": "Locus Solus",
+      "type": "release",
+      "id": 494021
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 250,
+          "in_wantlist": 98
+        }
+      },
+      "thumb": "",
+      "title": "50\u2076",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/500562",
+      "artist": "Hemophiliac",
+      "type": "release",
+      "id": 500562
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 65,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "Lake Biwa",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/506219",
+      "artist": "Wadada Leo Smith",
+      "type": "release",
+      "id": 506219
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 35,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "Irving Stone Memorial Concert",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "trackinfo": "From The Beginning",
+      "resource_url": "https://api.discogs.com/releases/528289",
+      "artist": "Various",
+      "type": "release",
+      "id": 528289
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 37,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Timelines",
+      "format": "CD, Album, Enh",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/573320",
+      "artist": "Lesli Dalaba",
+      "type": "release",
+      "id": 573320
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 143,
+          "in_wantlist": 89
+        }
+      },
+      "thumb": "",
+      "title": "Kabell Years 1971-1979",
+      "format": "4xCD, Comp, RM",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/583787",
+      "artist": "Wadada Leo Smith",
+      "type": "release",
+      "id": 583787
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 95,
+          "in_wantlist": 52
+        }
+      },
+      "thumb": "",
+      "title": "Erans",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/585492",
+      "artist": "Yoshida Tatsuya* / Satoko Fujii",
+      "type": "release",
+      "id": 585492
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 23,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "Epilogue For A Dark Day",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/591741",
+      "artist": "Christopher Adler",
+      "type": "release",
+      "id": 591741
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 42,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "title": "Mbira Magic",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/669503",
+      "artist": "Richard Crandell",
+      "type": "release",
+      "id": 669503
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 78,
+          "in_wantlist": 44
+        }
+      },
+      "thumb": "",
+      "title": "Eucademix",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/691682",
+      "artist": "Yuka Honda",
+      "type": "release",
+      "id": 691682
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 117,
+          "in_wantlist": 58
+        }
+      },
+      "thumb": "",
+      "title": "Patterns In A Chromatic Field",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/697692",
+      "artist": "Morton Feldman",
+      "type": "release",
+      "id": 697692
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 43,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "title": "Shalagaster",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/741013",
+      "artist": "Jenny Scheinman",
+      "type": "release",
+      "id": 741013
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 130,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "title": "Spike",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/744982",
+      "artist": "Agata (2)",
+      "type": "release",
+      "id": 744982
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 30,
+          "in_wantlist": 6
+        }
+      },
+      "thumb": "",
+      "title": "Songs",
+      "format": "CD, Album",
+      "label": "Auris Media",
+      "role": "Appearance",
+      "year": 2004,
+      "trackinfo": "Meholalot",
+      "resource_url": "https://api.discogs.com/releases/745161",
+      "artist": "Kruzenshtern I Parohod*",
+      "type": "release",
+      "id": 745161
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 20,
+          "in_wantlist": 9
+        }
+      },
+      "thumb": "",
+      "title": "Later Prophets",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/761570",
+      "artist": "Greg Wall",
+      "type": "release",
+      "id": 761570
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 63,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Diaspora Hollywood",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/821893",
+      "artist": "Steven Bernstein",
+      "type": "release",
+      "id": 821893
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 40,
+          "in_wantlist": 31
+        }
+      },
+      "thumb": "",
+      "title": "Baptism",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/857823",
+      "artist": "Yamamoto Seiichi*",
+      "type": "release",
+      "id": 857823
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 51,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "Mood Swings",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/860440",
+      "artist": "Koby Israelite",
+      "type": "release",
+      "id": 860440
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 55,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "title": "Lost Signals And Drifting Satellites",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/894266",
+      "artist": "Annie Gosfield",
+      "type": "release",
+      "id": 894266
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 34,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "Music From The Winery",
+      "format": "CD, Comp",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/907232",
+      "artist": "Various",
+      "type": "release",
+      "id": 907232
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 53
+        }
+      },
+      "thumb": "",
+      "title": "Lost Marbles",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1099788",
+      "artist": "Alvin Curran",
+      "type": "release",
+      "id": 1099788
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 16,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "Scorched Lips",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1196212",
+      "artist": "Zohara",
+      "type": "release",
+      "id": 1196212
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Phalba",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1431704",
+      "artist": "Jerry Hunt",
+      "type": "release",
+      "id": 1431704
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 44,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "title": "Mutant Theatre",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1576055",
+      "artist": "Anthony Pateras",
+      "type": "release",
+      "id": 1576055
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 40,
+          "in_wantlist": 31
+        }
+      },
+      "thumb": "",
+      "title": "Cyborg Acoustics",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1706159",
+      "artist": "Raz Mesinai",
+      "type": "release",
+      "id": 1706159
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Thick",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1853135",
+      "artist": "Red Pocket",
+      "type": "release",
+      "id": 1853135
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 95,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Live At Tonic 1999",
+      "format": "DVD, NTSC",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1982750",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 1982750
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 15,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Prismatic Hearing",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/2143129",
+      "artist": "David Simons",
+      "type": "release",
+      "id": 2143129
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "title": "Queen's Dominion",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/2230992",
+      "artist": "Basya Schechter",
+      "type": "release",
+      "id": 2230992
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 35,
+          "in_wantlist": 27
+        }
+      },
+      "thumb": "",
+      "title": "Ecstacy To Frenzy",
+      "format": "CD, Comp",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/2376366",
+      "artist": "Rodd Keith",
+      "type": "release",
+      "id": 2376366
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 22,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "title": "Between Science And Garbage",
+      "format": "DVD, NTSC",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/2511509",
+      "artist": "Pierre H\u00e9bert (3) / Bob Ostertag",
+      "type": "release",
+      "id": 2511509
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 4
+        }
+      },
+      "thumb": "",
+      "title": "Anche Se Solo Un Miraggio, Ci Vuole Coraggio",
+      "format": "CD, Album",
+      "label": "stella*nera",
+      "role": "Appearance",
+      "year": 2004,
+      "trackinfo": "Lo Scialle (A Chi Non ...",
+      "resource_url": "https://api.discogs.com/releases/2604580",
+      "artist": "Roberto Bartoli",
+      "type": "release",
+      "id": 2604580
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 20,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "title": "Beyond Babylon",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/3373473",
+      "artist": "Paul Brody's Sadawi",
+      "type": "release",
+      "id": 3373473
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 30,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "Midrash Mish Mosh",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/4101887",
+      "artist": "Aaron Alexander",
+      "type": "release",
+      "id": 4101887
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 33,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "artist": "Mike Pathos",
+      "main_release": 594541,
+      "title": "People",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/676868",
+      "type": "master",
+      "id": 676868
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 41,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 2687984,
+      "title": "Great Jewish Music: Jacob Do Bandolim",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/1004045",
+      "type": "master",
+      "id": 1004045
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 198,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "artist": "Masada String Trio",
+      "main_release": 463248,
+      "title": "50\u00b9",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/924327",
+      "type": "master",
+      "id": 924327
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "artist": "Scott Johnson",
+      "main_release": 2728755,
+      "title": "John Somebody",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/313090",
+      "type": "master",
+      "id": 313090
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 203,
+          "in_wantlist": 47
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 538190,
+      "title": "50\u2077",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/1494312",
+      "type": "master",
+      "id": 1494312
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 156,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "artist": "Fred Frith / John Zorn",
+      "main_release": 500561,
+      "title": "50\u2075",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/902089",
+      "type": "master",
+      "id": 902089
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 381,
+          "in_wantlist": 84
+        }
+      },
+      "thumb": "",
+      "artist": "Electric Masada",
+      "main_release": 397730,
+      "title": "50\u2074",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/883646",
+      "type": "master",
+      "id": 883646
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 52,
+          "in_wantlist": 52
+        }
+      },
+      "thumb": "",
+      "artist": "Bill Laswell Vs Submerged",
+      "main_release": 292632,
+      "title": "Brutal Calling",
+      "role": "Appearance",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/18905",
+      "type": "master",
+      "id": 18905
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 43,
+          "in_wantlist": 29
+        }
+      },
+      "thumb": "",
+      "title": "Jumping Rabbit",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/413833",
+      "artist": "Mori Chieko",
+      "type": "release",
+      "id": 413833
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 270,
+          "in_wantlist": 100
+        }
+      },
+      "thumb": "",
+      "title": "Sphere",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/439262",
+      "artist": "Merzbow",
+      "type": "release",
+      "id": 439262
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 194,
+          "in_wantlist": 71
+        }
+      },
+      "thumb": "",
+      "title": "Kore Ga Mayaku Da",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/507365",
+      "artist": "Afrirampo",
+      "type": "release",
+      "id": 507365
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 125,
+          "in_wantlist": 58
+        }
+      },
+      "thumb": "",
+      "title": "Carpal Tunnel",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/510209",
+      "artist": "Derek Bailey",
+      "type": "release",
+      "id": 510209
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 30,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Rogue Wave",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/528412",
+      "artist": "Chris Brown (2)",
+      "type": "release",
+      "id": 528412
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 51,
+          "in_wantlist": 21
+        }
+      },
+      "thumb": "",
+      "title": "Senne Sing Song",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/528527",
+      "artist": "Misha Mengelberg",
+      "type": "release",
+      "id": 528527
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 284,
+          "in_wantlist": 133
+        }
+      },
+      "thumb": "",
+      "title": "50\u00b9\u00b2",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/532620",
+      "artist": "PainKiller (2)",
+      "type": "release",
+      "id": 532620
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 222,
+          "in_wantlist": 60
+        }
+      },
+      "thumb": "",
+      "title": "50\u00b9\u00b9",
+      "format": "3xCD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/546337",
+      "artist": "Bar Kokhba Sextet",
+      "type": "release",
+      "id": 546337
+    }
+  ]
+}

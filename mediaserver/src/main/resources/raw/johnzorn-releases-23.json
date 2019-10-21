@@ -1,0 +1,951 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 23,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=24",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=22",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 0
+        }
+      },
+      "thumb": "",
+      "title": "Whistle Stop Tour",
+      "format": "CD, EP",
+      "label": "Not On Label (Project Jam Sandwich Self-Released)",
+      "role": "Appearance",
+      "year": 2015,
+      "trackinfo": "Briel",
+      "resource_url": "https://api.discogs.com/releases/9989053",
+      "artist": "Project Jam Sandwich",
+      "type": "release",
+      "id": 9989053
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 5,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "artist": "Praxis",
+      "main_release": 9314673,
+      "title": "Sound Virus",
+      "role": "Appearance",
+      "year": 2015,
+      "resource_url": "https://api.discogs.com/masters/1086233",
+      "type": "master",
+      "id": 1086233
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 21,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "Bluefly",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8290568",
+      "artist": "Cyro Baptista",
+      "type": "release",
+      "id": 8290568
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 0
+        }
+      },
+      "thumb": "",
+      "title": "Sacred & Other Works (Plays John Zorn)",
+      "format": "22xFile, MP3, Album, 320",
+      "label": "No\u00ebl Akchot\u00e9 Downloads",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8327938",
+      "artist": "No\u00ebl Akchot\u00e9",
+      "type": "release",
+      "id": 8327938
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 12,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "Our Cells Know",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/8719375",
+      "artist": "Robert Dick",
+      "type": "release",
+      "id": 8719375
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 21
+        }
+      },
+      "thumb": "",
+      "title": "We Aliens",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/9061190",
+      "artist": "Unnatural Ways",
+      "type": "release",
+      "id": 9061190
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 23,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Duets 71977",
+      "format": "CD, Album",
+      "label": "Ictus Records, Ictus Records",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/9419108",
+      "artist": "Evan Parker, Andrea Centazzo",
+      "type": "release",
+      "id": 9419108
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 15,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Undertaker Please Drive Slow",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/releases/9442490",
+      "artist": "Shane Parish",
+      "type": "release",
+      "id": 9442490
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "title": "Remembering Masada",
+      "format": "CD, Album",
+      "label": "HGBS",
+      "role": "Appearance",
+      "year": 2016,
+      "trackinfo": "Lilin, Kochot, Chajah,...",
+      "resource_url": "https://api.discogs.com/releases/9684379",
+      "artist": "Annette Maye's Vinograd Express & Gianluigi Trovesi",
+      "type": "release",
+      "id": 9684379
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 0,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "artist": "Children Egoism",
+      "main_release": 8405721,
+      "title": "Discography 2006-2009: 10 Years Anniversary Release",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/masters/988834",
+      "type": "master",
+      "id": 988834
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 17,
+          "in_wantlist": 44
+        }
+      },
+      "thumb": "",
+      "artist": "Ornette Coleman",
+      "main_release": 10457813,
+      "title": "Celebrate Ornette",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/masters/1344265",
+      "type": "master",
+      "id": 1344265
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 7,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "artist": "David Krakauer, Krakauer's Ancestral Groove",
+      "main_release": 9918537,
+      "title": "Checkpoint",
+      "role": "Appearance",
+      "year": 2016,
+      "resource_url": "https://api.discogs.com/masters/763295",
+      "type": "master",
+      "id": 763295
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 34,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "Highsmith",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10404419",
+      "artist": "Craig Taborn - Ikue Mori",
+      "type": "release",
+      "id": 10404419
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "Reclamation",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10410074",
+      "artist": "Burning Ghosts",
+      "type": "release",
+      "id": 10410074
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 41,
+          "in_wantlist": 31
+        }
+      },
+      "thumb": "",
+      "title": "Obelisk",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10644457",
+      "artist": "Ikue Mori",
+      "type": "release",
+      "id": 10644457
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "title": "Shardik",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/10870994",
+      "artist": "Shardik (2)",
+      "type": "release",
+      "id": 10870994
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 23,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "Vanity Of Vanities - A Tribute To Connie Converse",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/11215187",
+      "artist": "Connie Converse",
+      "type": "release",
+      "id": 11215187
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 36,
+          "in_wantlist": 22
+        }
+      },
+      "thumb": "",
+      "title": "Retrocausal",
+      "format": "CD, Album",
+      "label": "Web Of Mimicry",
+      "role": "Appearance",
+      "year": 2017,
+      "trackinfo": "Grey Lodge",
+      "resource_url": "https://api.discogs.com/releases/11270953",
+      "artist": "Cleric",
+      "type": "release",
+      "id": 11270953
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "The Brill Building, Book Two, Featuring Bill Frisell",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/releases/11447644",
+      "artist": "Kramer (2)",
+      "type": "release",
+      "id": 11447644
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "title": "Duo Cantando",
+      "format": "CD, Album",
+      "label": "Denon",
+      "role": "Appearance",
+      "year": 2017,
+      "trackinfo": "The Nymphs",
+      "resource_url": "https://api.discogs.com/releases/11606327",
+      "artist": "Mika Stoltzman & Richard Stoltzman",
+      "type": "release",
+      "id": 11606327
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "Clinamen",
+      "format": "CD, Album",
+      "label": "Emme Record Label",
+      "role": "Appearance",
+      "year": 2017,
+      "trackinfo": "tse' an",
+      "resource_url": "https://api.discogs.com/releases/11970753",
+      "artist": "Ps3 - Pietro Santangelo Trio",
+      "type": "release",
+      "id": 11970753
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 104,
+          "in_wantlist": 103
+        }
+      },
+      "thumb": "",
+      "artist": "Gruppo di Improvvisazione Nuova Consonanza",
+      "main_release": 10548592,
+      "title": "Azioni / Reazioni 1967-1969",
+      "role": "Appearance",
+      "year": 2017,
+      "resource_url": "https://api.discogs.com/masters/1207430",
+      "type": "master",
+      "id": 1207430
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 8,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "title": "Mind Out Of Matter",
+      "format": "CD",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/11770208",
+      "artist": "Scott Johnson",
+      "type": "release",
+      "id": 11770208
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 44,
+          "in_wantlist": 37
+        }
+      },
+      "thumb": "",
+      "title": "Cheol-Kkot-Sae (Steel.Flower.Bird)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/12025182",
+      "artist": "Okkyung Lee",
+      "type": "release",
+      "id": 12025182
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 5,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "title": "In a Moment",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/releases/12451786",
+      "artist": "Karl Berger",
+      "type": "release",
+      "id": 12451786
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 7,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Final Answer",
+      "format": "CD, Album",
+      "label": "Orange Mountain Music",
+      "role": "Appearance",
+      "year": 2018,
+      "trackinfo": "Columbina",
+      "resource_url": "https://api.discogs.com/releases/13392890",
+      "artist": "San Francisco Girls Chorus",
+      "type": "release",
+      "id": 13392890
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 670,
+          "in_wantlist": 93
+        }
+      },
+      "thumb": "",
+      "artist": "Violent Femmes",
+      "main_release": 12833932,
+      "title": "Permanent Record: The Very Best Of Violent Femmes",
+      "role": "Appearance",
+      "year": 2018,
+      "resource_url": "https://api.discogs.com/masters/189626",
+      "type": "master",
+      "id": 189626
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "Futile",
+      "format": "CD, Album",
+      "label": "FMR Records (2)",
+      "role": "Appearance",
+      "year": 2019,
+      "trackinfo": "Ezakdi, Mastema",
+      "resource_url": "https://api.discogs.com/releases/13370174",
+      "artist": "Triyeoh",
+      "type": "release",
+      "id": 13370174
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 5,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "artist": "Bill Laswell",
+      "main_release": 13633971,
+      "title": "Myth - Dreams Of The World",
+      "role": "Appearance",
+      "year": 2019,
+      "resource_url": "https://api.discogs.com/masters/1551120",
+      "type": "master",
+      "id": 1551120
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 0
+        }
+      },
+      "thumb": "",
+      "title": "Dreidel",
+      "format": "CD, Album",
+      "label": "Microsolco",
+      "role": "Appearance",
+      "trackinfo": "Mahshav",
+      "resource_url": "https://api.discogs.com/releases/6772707",
+      "artist": "Meshuge Klezmer Band",
+      "type": "release",
+      "id": 6772707
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 9,
+          "in_wantlist": 7
+        }
+      },
+      "thumb": "",
+      "title": "Ghost Legends",
+      "format": "CDr, Album",
+      "label": "House Of Chadula",
+      "role": "Appearance",
+      "resource_url": "https://api.discogs.com/releases/10827563",
+      "artist": "Eugene Chadbourne, Charles Tyler",
+      "type": "release",
+      "id": 10827563
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 6,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "There'll Be No Tears Tonight 2000",
+      "format": "CDr, Album",
+      "label": "House Of Chadula",
+      "role": "Appearance",
+      "trackinfo": "Honey Don't, Dang Me, ...",
+      "resource_url": "https://api.discogs.com/releases/10865360",
+      "artist": "Eugene Chadbourne",
+      "type": "release",
+      "id": 10865360
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Dinosaur On The Way",
+      "format": "CDr, Album",
+      "label": "House Of Chadula",
+      "role": "Appearance",
+      "resource_url": "https://api.discogs.com/releases/10915687",
+      "artist": "Eugene Chadbourne",
+      "type": "release",
+      "id": 10915687
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 8
+        }
+      },
+      "thumb": "",
+      "title": "Bye Bye DDR",
+      "format": "Cass, Album",
+      "label": "Not On Label (Eugene Chadbourne Self-Released)",
+      "role": "Appearance",
+      "resource_url": "https://api.discogs.com/releases/11807265",
+      "artist": "Eugene Chadbourne",
+      "type": "release",
+      "id": 11807265
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 198,
+          "in_wantlist": 76
+        }
+      },
+      "thumb": "",
+      "artist": "David Moss",
+      "main_release": 775813,
+      "title": "Full House",
+      "role": "TrackAppearance",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/masters/60482",
+      "type": "master",
+      "id": 60482
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 309,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 878262,
+      "title": "That's The Way I Feel Now - A Tribute To Thelonious Monk",
+      "role": "TrackAppearance",
+      "year": 1984,
+      "resource_url": "https://api.discogs.com/masters/206971",
+      "type": "master",
+      "id": 206971
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "title": "Bad Alchemy Nr 3",
+      "format": "Cass",
+      "label": "Bad Alchemy",
+      "role": "TrackAppearance",
+      "year": 1985,
+      "trackinfo": "Cobra, Exercise Nr.1, ...",
+      "resource_url": "https://api.discogs.com/releases/1189634",
+      "artist": "Various",
+      "type": "release",
+      "id": 1189634
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 7,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "title": "An Atlas Of Scores",
+      "format": "Cass, Comp, C45",
+      "label": "Musicworks",
+      "role": "TrackAppearance",
+      "year": 1985,
+      "trackinfo": "Solo, A Further Select...",
+      "resource_url": "https://api.discogs.com/releases/1636716",
+      "artist": "Various",
+      "type": "release",
+      "id": 1636716
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 20,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Lost In The Stars (The Music Of Kurt Weill)",
+      "format": "LP, Album, EMW",
+      "label": "A&M Records",
+      "role": "TrackAppearance",
+      "year": 1985,
+      "trackinfo": "Der Kleine Leutnant De...",
+      "resource_url": "https://api.discogs.com/releases/13465994",
+      "artist": "Various",
+      "type": "release",
+      "id": 13465994
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 495,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 2532000,
+      "title": "Lost In The Stars (The Music Of Kurt Weill)",
+      "role": "TrackAppearance",
+      "year": 1985,
+      "resource_url": "https://api.discogs.com/masters/102057",
+      "type": "master",
+      "id": 102057
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 57
+        }
+      },
+      "thumb": "",
+      "title": "The Improvisors",
+      "format": "Cass, Album",
+      "label": "Tellus",
+      "role": "TrackAppearance",
+      "year": 1986,
+      "trackinfo": "Untitled",
+      "resource_url": "https://api.discogs.com/releases/401154",
+      "artist": "Various",
+      "type": "release",
+      "id": 401154
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 97
+        }
+      },
+      "thumb": "",
+      "title": "Decade: The First Ten Years Of The Music Gallery",
+      "format": "Cass, Comp, C90",
+      "label": "Music Gallery Editions",
+      "role": "TrackAppearance",
+      "year": 1986,
+      "trackinfo": "Mar 30/78, Untitled - ...",
+      "resource_url": "https://api.discogs.com/releases/1982773",
+      "artist": "Various",
+      "type": "release",
+      "id": 1982773
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "Radio COCA",
+      "format": "Cass, Album, Comp",
+      "label": "Center On Contemporary Art",
+      "role": "TrackAppearance",
+      "year": 1986,
+      "trackinfo": "Untitled Audio Work",
+      "resource_url": "https://api.discogs.com/releases/10999034",
+      "artist": "Various",
+      "type": "release",
+      "id": 10999034
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 142,
+          "in_wantlist": 55
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 944770,
+      "title": "Godard \u00c7a Vous Chante?",
+      "role": "TrackAppearance",
+      "year": 1986,
+      "resource_url": "https://api.discogs.com/masters/61517",
+      "type": "master",
+      "id": 61517
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "title": "Late In The 20th Century (An Elektra/Nonesuch New Music Sampler)",
+      "format": "CD, Comp, Smplr",
+      "label": "Elektra Nonesuch, Elektra Nonesuch",
+      "role": "TrackAppearance",
+      "year": 1987,
+      "trackinfo": "Spillane (Excerpt)",
+      "resource_url": "https://api.discogs.com/releases/5129874",
+      "artist": "Various",
+      "type": "release",
+      "id": 5129874
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 38,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 1055747,
+      "title": "Joyeux No\u00ebl",
+      "role": "TrackAppearance",
+      "year": 1987,
+      "resource_url": "https://api.discogs.com/masters/473189",
+      "type": "master",
+      "id": 473189
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 60,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "title": "La Nuit Des Solos",
+      "format": "LP, Album",
+      "label": "Vand'Oeuvre",
+      "role": "TrackAppearance",
+      "year": 1988,
+      "trackinfo": "Improvisation",
+      "resource_url": "https://api.discogs.com/releases/1255845",
+      "artist": "Various",
+      "type": "release",
+      "id": 1255845
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 10,
+          "in_wantlist": 9
+        }
+      },
+      "thumb": "",
+      "title": "Kimus #1",
+      "format": "CD, Album, Comp, Ltd, Num",
+      "label": "hat ART",
+      "role": "TrackAppearance",
+      "year": 1988,
+      "trackinfo": "Melanie, Funk In Deep ...",
+      "resource_url": "https://api.discogs.com/releases/3089579",
+      "artist": "Various",
+      "type": "release",
+      "id": 3089579
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 55,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 989466,
+      "title": "Drive To Heaven, Welcome To Chaos",
+      "role": "TrackAppearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/1483417",
+      "type": "master",
+      "id": 1483417
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 16,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 6302667,
+      "title": "Late In The 20th Century II: New Recordings From Elektra/Nonesuch \u2022 Elektra/Musician \u2022 Nonesuch Explorer",
+      "role": "TrackAppearance",
+      "year": 1989,
+      "resource_url": "https://api.discogs.com/masters/1124036",
+      "type": "master",
+      "id": 1124036
+    }
+  ]
+}

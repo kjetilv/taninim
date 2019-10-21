@@ -1,0 +1,956 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 13,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=14",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=12",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 207,
+          "in_wantlist": 89
+        }
+      },
+      "thumb": "",
+      "title": "Psycho-Acoustic",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/129355",
+      "artist": "Tetsu Inoue",
+      "type": "release",
+      "id": 129355
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 184,
+          "in_wantlist": 75
+        }
+      },
+      "thumb": "",
+      "title": "Cellule 75",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/196651",
+      "artist": "Luc Ferrari",
+      "type": "release",
+      "id": 196651
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 37,
+          "in_wantlist": 32
+        }
+      },
+      "thumb": "",
+      "title": "Collection",
+      "format": "CD, Comp",
+      "label": "Douglas Music",
+      "role": "Appearance",
+      "year": 1998,
+      "trackinfo": "Stronghold",
+      "resource_url": "https://api.discogs.com/releases/255296",
+      "artist": "Praxis",
+      "type": "release",
+      "id": 255296
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 249,
+          "in_wantlist": 56
+        }
+      },
+      "thumb": "",
+      "title": "Funny Valentine",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/385428",
+      "artist": "Massacre (2)",
+      "type": "release",
+      "id": 385428
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 245,
+          "in_wantlist": 85
+        }
+      },
+      "thumb": "",
+      "title": "Great Jewish Music: Marc Bolan",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/386274",
+      "artist": "Various",
+      "type": "release",
+      "id": 386274
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 21,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Twelve Minor",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/397825",
+      "artist": "Ben Goldberg",
+      "type": "release",
+      "id": 397825
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 12,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "ReJew-Venation",
+      "format": "CD, Album",
+      "label": "BV Haast Records",
+      "role": "Appearance",
+      "year": 1998,
+      "trackinfo": "Nevala",
+      "resource_url": "https://api.discogs.com/releases/469029",
+      "artist": "Klezmokum",
+      "type": "release",
+      "id": 469029
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 56,
+          "in_wantlist": 21
+        }
+      },
+      "thumb": "",
+      "title": "Vision Volume One: Vision Festival 1997 Compiled",
+      "format": "2xCD, Comp, Ltd",
+      "label": "AUM Fidelity",
+      "role": "Appearance",
+      "year": 1998,
+      "trackinfo": "Untitled",
+      "resource_url": "https://api.discogs.com/releases/536639",
+      "artist": "Various",
+      "type": "release",
+      "id": 536639
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 196,
+          "in_wantlist": 81
+        }
+      },
+      "thumb": "",
+      "title": "Symphonica",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/547320",
+      "artist": "Ruins",
+      "type": "release",
+      "id": 547320
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 58,
+          "in_wantlist": 29
+        }
+      },
+      "thumb": "",
+      "title": "Sands",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/548231",
+      "artist": "Steve Lacy",
+      "type": "release",
+      "id": 548231
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 61,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "Let Me Explain Something To You About Art",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/569518",
+      "artist": "Kramer (2)",
+      "type": "release",
+      "id": 569518
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 56
+        }
+      },
+      "thumb": "",
+      "title": "Viper",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/664831",
+      "artist": "Derek Bailey & Min Xiao-Fen",
+      "type": "release",
+      "id": 664831
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 61,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "title": "Theme Park",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/673203",
+      "artist": "Alvin Curran",
+      "type": "release",
+      "id": 673203
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 86,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "B/Side",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/682422",
+      "artist": "Ikue Mori",
+      "type": "release",
+      "id": 682422
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 113,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "title": "Pacifica",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/689125",
+      "artist": "Fred Frith",
+      "type": "release",
+      "id": 689125
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 76,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "Hades Park",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/765491",
+      "artist": "Dragon Blue",
+      "type": "release",
+      "id": 765491
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 7,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Comme Des Gar\u00e7ons + Remix With Arto Lindsay",
+      "format": "2xCD",
+      "label": "Epic/Sony",
+      "role": "Appearance",
+      "year": 1998,
+      "trackinfo": "Something To Hold On T...",
+      "resource_url": "https://api.discogs.com/releases/774712",
+      "artist": "Seigen Ono / Arto Lindsay",
+      "type": "release",
+      "id": 774712
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 52,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "Smash, Clap!",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/807569",
+      "artist": "Naftule's Dream",
+      "type": "release",
+      "id": 807569
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 107,
+          "in_wantlist": 54
+        }
+      },
+      "thumb": "",
+      "title": "Grand Unification",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/848209",
+      "artist": "Milford Graves",
+      "type": "release",
+      "id": 848209
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "title": "Classical Works",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/859522",
+      "artist": "David Shea Featuring The Ictus Ensemble*",
+      "type": "release",
+      "id": 859522
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 17,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Perfume",
+      "format": "CD",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/957192",
+      "artist": "David Weinstein",
+      "type": "release",
+      "id": 957192
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 22,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "With Six Composers",
+      "format": "CD",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/957308",
+      "artist": "Min Xiao-Fen",
+      "type": "release",
+      "id": 957308
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "title": "Mystery",
+      "format": "CD, Album, RE",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1023329",
+      "artist": "Death Praxis",
+      "type": "release",
+      "id": 1023329
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 113,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "title": "An Unclear Trial: More Than This",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1023578",
+      "artist": "Haino Keiji* With Greg Cohen & Joey Baron",
+      "type": "release",
+      "id": 1023578
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 56,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "title": "Busy Being Born",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1044939",
+      "artist": "Gary Lucas",
+      "type": "release",
+      "id": 1044939
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 26,
+          "in_wantlist": 27
+        }
+      },
+      "thumb": "",
+      "title": "O Solo Drumbo",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1181625",
+      "artist": "John French",
+      "type": "release",
+      "id": 1181625
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 37,
+          "in_wantlist": 61
+        }
+      },
+      "thumb": "",
+      "title": "Paniots Nine",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1192439",
+      "artist": "Joe Maneri",
+      "type": "release",
+      "id": 1192439
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 54,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "Dying Ground",
+      "format": "CD",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1193467",
+      "artist": "Dying Ground",
+      "type": "release",
+      "id": 1193467
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 40,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "title": "The Abysmal Richness Of The Infinite Proximity Of The Same",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1378742",
+      "artist": "Selfhaters",
+      "type": "release",
+      "id": 1378742
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 60,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "title": "Electric Eel",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1426518",
+      "artist": "Makigami Koichi",
+      "type": "release",
+      "id": 1426518
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "title": "Tunnel - Funnel",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1454325",
+      "artist": "Daniel Goode",
+      "type": "release",
+      "id": 1454325
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 67,
+          "in_wantlist": 21
+        }
+      },
+      "thumb": "",
+      "title": "How I Spent My Vacation",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1502727",
+      "artist": "Evan Lurie",
+      "type": "release",
+      "id": 1502727
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Music For Films",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1571310",
+      "artist": "Phillip Johnston",
+      "type": "release",
+      "id": 1571310
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "The Hearing",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1905036",
+      "artist": "Bruce Ackley Trio",
+      "type": "release",
+      "id": 1905036
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 16,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "Refractions (Marie McAuliffe's ArKsextet Plays The Music Of Burt Bacharach)",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1905174",
+      "artist": "Marie McAuliffe's ArKsextet",
+      "type": "release",
+      "id": 1905174
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 10
+        }
+      },
+      "thumb": "",
+      "title": "Being And Time",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2198467",
+      "artist": "Norman Yamada",
+      "type": "release",
+      "id": 2198467
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 22,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "The Child God",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2201496",
+      "artist": "Bun-Ching Lam",
+      "type": "release",
+      "id": 2201496
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 55,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "title": "Burnt Ivory And Loose Wires",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2247384",
+      "artist": "Annie Gosfield",
+      "type": "release",
+      "id": 2247384
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 55,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "title": "Klezmer, NY",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2303190",
+      "artist": "David Krakauer's Klezmer Madness!",
+      "type": "release",
+      "id": 2303190
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "Morenica",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2303473",
+      "artist": "Sephardic Tinge",
+      "type": "release",
+      "id": 2303473
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 31,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "Nigunim",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2310673",
+      "artist": "London* / Sklamberg* / Caine*",
+      "type": "release",
+      "id": 2310673
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "What Comes Before",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2469457",
+      "artist": "Ben Goldberg / John Schott / Michael Sarin",
+      "type": "release",
+      "id": 2469457
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 19,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Trust",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/2476934",
+      "artist": "Gisburg",
+      "type": "release",
+      "id": 2476934
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 266,
+          "in_wantlist": 69
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 492174,
+      "title": "Tet",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/963634",
+      "type": "master",
+      "id": 963634
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 3,
+          "in_wantlist": 5
+        }
+      },
+      "thumb": "",
+      "artist": "Eyvind Kang",
+      "main_release": 13361549,
+      "title": "Theater Of Mineral NADEs",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/1518360",
+      "type": "master",
+      "id": 1518360
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 259,
+          "in_wantlist": 108
+        }
+      },
+      "thumb": "",
+      "artist": "Weird Little Boy",
+      "main_release": 413393,
+      "title": "Weird Little Boy",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/190260",
+      "type": "master",
+      "id": 190260
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 261,
+          "in_wantlist": 80
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 385259,
+      "title": "Yod",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/968013",
+      "type": "master",
+      "id": 968013
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 152,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "artist": "Pain Killer*",
+      "main_release": 292466,
+      "title": "Guts Of A Virgin & Buried Secrets",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/271219",
+      "type": "master",
+      "id": 271219
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 5,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "artist": "Teiji Ito",
+      "main_release": 13026356,
+      "title": "King Ubu",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/1480061",
+      "type": "master",
+      "id": 1480061
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 642,
+          "in_wantlist": 328
+        }
+      },
+      "thumb": "",
+      "artist": "Merzbow",
+      "main_release": 53116,
+      "title": "1930",
+      "role": "Appearance",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/523739",
+      "type": "master",
+      "id": 523739
+    }
+  ]
+}

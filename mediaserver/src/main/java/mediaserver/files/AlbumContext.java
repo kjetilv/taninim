@@ -1,6 +1,10 @@
 package mediaserver.files;
 
-import java.util.*;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,10 +52,11 @@ public class AlbumContext {
         return comments;
     }
 
-    public AlbumContext credit(String type, String name) {
+    public AlbumContext credit(String name, URI uri, String type) {
+
         return new AlbumContext(
             album,
-            credits.credit(type, name),
+            credits.credit(name, uri, type),
             comments);
     }
 

@@ -58,6 +58,7 @@ public class Album extends AbstractHashable
         this.categoryPath = categoryPath;
     }
 
+    @SuppressWarnings("unused") // StringTemplate
     public List<Album> getAlbumParts() {
         if (parts == null) {
             return Collections.singletonList(this);

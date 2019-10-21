@@ -40,7 +40,7 @@ public class Main {
             media = local ? Media.local(args[0]) : CloudMedia.download();
         } catch (Exception e) {
             media = Media.empty();
-            log.error("Error retrieving media, proceeding with empty... {}", media);
+            log.error("Error retrieving media, proceeding with empty... {}", media, e);
         }
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);

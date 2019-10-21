@@ -1,0 +1,920 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 2,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=3",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "stats": {
+        "community": {
+          "in_collection": 130,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn & Bobby Previte",
+      "main_release": 371097,
+      "title": "Euclid's Nightmare",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/672029",
+      "type": "master",
+      "id": 672029
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 245,
+          "in_wantlist": 66
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 602836,
+      "title": "New Traditions In East Asian Bar Bands",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/761116",
+      "type": "master",
+      "id": 761116
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 237,
+          "in_wantlist": 47
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 333098,
+      "title": "Filmworks IV: S/M + More",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/1607479",
+      "type": "master",
+      "id": 1607479
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 216,
+          "in_wantlist": 51
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 557044,
+      "title": "Duras:Duchamp",
+      "role": "Main",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/703455",
+      "type": "master",
+      "id": 703455
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 175,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "title": "Aporias (Requia For Piano And Orchestra)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/920407",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 920407
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 228,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks VIII: 1997",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/1094689",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 1094689
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 2
+        }
+      },
+      "thumb": "",
+      "title": "Aporias",
+      "format": "CD",
+      "label": "G. & P. Essential Music",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/releases/14026814",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 14026814
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 260,
+          "in_wantlist": 44
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 918763,
+      "title": "Music Romance Vol. 1: Music For Children",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/387191",
+      "type": "master",
+      "id": 387191
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 173,
+          "in_wantlist": 39
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 1203605,
+      "title": "Angelus Novus",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/169187",
+      "type": "master",
+      "id": 169187
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 158,
+          "in_wantlist": 36
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn, Wayne Horvitz, Elliott Sharp, Bobby Previte",
+      "main_release": 740937,
+      "title": "Downtown Lullaby",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/1390841",
+      "type": "master",
+      "id": 1390841
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 477,
+          "in_wantlist": 103
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 573716,
+      "title": "The Circle Maker",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/853766",
+      "type": "master",
+      "id": 853766
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 106,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "artist": "Eugene Chadbourne, John Zorn",
+      "main_release": 1836556,
+      "title": "1977 1981",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/1256816",
+      "type": "master",
+      "id": 1256816
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 44,
+          "in_wantlist": 20
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 9577294,
+      "title": "The Bribe - Variations And Extensions On Spillane",
+      "role": "Main",
+      "year": 1998,
+      "resource_url": "https://api.discogs.com/masters/1111447",
+      "type": "master",
+      "id": 1111447
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 462,
+          "in_wantlist": 96
+        }
+      },
+      "thumb": "",
+      "title": "Music Romance Volume Two: Taboo And Exile",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/releases/362992",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 362992
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 72,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "title": "Enfants Terribles",
+      "format": "CD, Ltd",
+      "label": "hat[now]ART",
+      "role": "Main",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/releases/856676",
+      "artist": "Tom Johnson \u00b7 Sven Ake Johansson* \u00b7 Nicolaus Richter de Vroe \u00b7 Steffen Schleiermacher \u00b7 John Zorn",
+      "type": "release",
+      "id": 856676
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 238,
+          "in_wantlist": 32
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 645483,
+      "title": "Godard / Spillane",
+      "role": "Main",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/masters/1098864",
+      "type": "master",
+      "id": 1098864
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 209,
+          "in_wantlist": 57
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 920432,
+      "title": "The String Quartets",
+      "role": "Main",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/masters/1026949",
+      "type": "master",
+      "id": 1026949
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 41,
+          "in_wantlist": 48
+        }
+      },
+      "thumb": "",
+      "artist": "Polly Bradfield, Andrea Centazzo, Eugene Chadbourne, Tom Corra*, Toshinori Kondo, LaDonna Smith, Davey Williams, Jack Wright, John Zorn",
+      "main_release": 2204294,
+      "title": "USA Concerts East",
+      "role": "Main",
+      "year": 1999,
+      "resource_url": "https://api.discogs.com/masters/352558",
+      "type": "master",
+      "id": 352558
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 213,
+          "in_wantlist": 42
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks IX : Trembling Before G-d",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2000,
+      "resource_url": "https://api.discogs.com/releases/410942",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 410942
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 201,
+          "in_wantlist": 42
+        }
+      },
+      "thumb": "",
+      "title": "Cartoon / S&M",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2000,
+      "resource_url": "https://api.discogs.com/releases/592263",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 592263
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 85
+        }
+      },
+      "thumb": "",
+      "title": "Ars Longa Dens Brevis",
+      "format": "CD",
+      "label": "Allelopathy",
+      "role": "Main",
+      "year": 2000,
+      "resource_url": "https://api.discogs.com/releases/713126",
+      "artist": "Fred Frith / John Zorn / Onnyk / Toyozumi Yoshisaburo*",
+      "type": "release",
+      "id": 713126
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 238,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 362984,
+      "title": "Xu Feng",
+      "role": "Main",
+      "year": 2000,
+      "resource_url": "https://api.discogs.com/masters/1185762",
+      "type": "master",
+      "id": 1185762
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 252,
+          "in_wantlist": 57
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks X: In The Mirror Of Maya Deren",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2001,
+      "resource_url": "https://api.discogs.com/releases/483597",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 483597
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 199,
+          "in_wantlist": 50
+        }
+      },
+      "thumb": "",
+      "title": "Madness, Love And Mysticism",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2001,
+      "resource_url": "https://api.discogs.com/releases/770018",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 770018
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 173,
+          "in_wantlist": 41
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 128841,
+      "title": "Songs From The Hermetic Theater",
+      "role": "Main",
+      "year": 2001,
+      "resource_url": "https://api.discogs.com/masters/518849",
+      "type": "master",
+      "id": 518849
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 479,
+          "in_wantlist": 78
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 407469,
+      "title": "Music Romance Volume III: The Gift",
+      "role": "Main",
+      "year": 2001,
+      "resource_url": "https://api.discogs.com/masters/626166",
+      "type": "master",
+      "id": 626166
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 308,
+          "in_wantlist": 280
+        }
+      },
+      "thumb": "",
+      "title": "Hemophiliac",
+      "format": "2xCD, Album, Ltd",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/releases/170750",
+      "artist": "Mike Patton, Ikue Mori, John Zorn",
+      "type": "release",
+      "id": 170750
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 449,
+          "in_wantlist": 82
+        }
+      },
+      "thumb": "",
+      "title": "IAO",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/releases/411943",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 411943
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 200,
+          "in_wantlist": 73
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks XII : 2002 Volume Two - Three Documentaries",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/releases/481636",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 481636
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 200,
+          "in_wantlist": 49
+        }
+      },
+      "thumb": "",
+      "title": "Cobra",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/releases/1100744",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 1100744
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 176,
+          "in_wantlist": 43
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 504917,
+      "title": "Secret Lives (Filmworks XI) (2002 Volume One)",
+      "role": "Main",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/masters/1592883",
+      "type": "master",
+      "id": 1592883
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 253,
+          "in_wantlist": 66
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 504882,
+      "title": "Filmworks XIII : 2002 Volume Three - Invitation To A Suicide",
+      "role": "Main",
+      "year": 2002,
+      "resource_url": "https://api.discogs.com/masters/823326",
+      "type": "master",
+      "id": 823326
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 211,
+          "in_wantlist": 53
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks XIV : Hiding And Seeking",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2003,
+      "resource_url": "https://api.discogs.com/releases/504871",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 504871
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 245,
+          "in_wantlist": 57
+        }
+      },
+      "thumb": "",
+      "title": "The Unknown Masada",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2003,
+      "resource_url": "https://api.discogs.com/releases/529218",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 529218
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 215,
+          "in_wantlist": 60
+        }
+      },
+      "thumb": "",
+      "title": "Voices In The Wilderness",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2003,
+      "resource_url": "https://api.discogs.com/releases/623369",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 623369
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 299,
+          "in_wantlist": 73
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 563508,
+      "title": "Masada Guitars",
+      "role": "Main",
+      "year": 2003,
+      "resource_url": "https://api.discogs.com/masters/287660",
+      "type": "master",
+      "id": 287660
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 141,
+          "in_wantlist": 31
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 1130648,
+      "title": "Chimeras",
+      "role": "Main",
+      "year": 2003,
+      "resource_url": "https://api.discogs.com/masters/276255",
+      "type": "master",
+      "id": 276255
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 155,
+          "in_wantlist": 86
+        }
+      },
+      "thumb": "",
+      "title": "Naninani II",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/884017",
+      "artist": "Yamataka Eye* & John Zorn",
+      "type": "release",
+      "id": 884017
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 160,
+          "in_wantlist": 45
+        }
+      },
+      "thumb": "",
+      "title": "Magick",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1102775",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 1102775
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 120,
+          "in_wantlist": 38
+        }
+      },
+      "thumb": "",
+      "title": "Masada Recital",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/releases/1420417",
+      "artist": "John Zorn - Mark Feldman / Sylvie Courvoisier",
+      "type": "release",
+      "id": 1420417
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 171,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "artist": "Wadada Leo Smith, Susie Ibarra, John Zorn",
+      "main_release": 500608,
+      "title": "50\u2078",
+      "role": "Main",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/1038984",
+      "type": "master",
+      "id": 1038984
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 178,
+          "in_wantlist": 75
+        }
+      },
+      "thumb": "",
+      "artist": "Milford Graves / John Zorn",
+      "main_release": 500544,
+      "title": "50\u00b2",
+      "role": "Main",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/902085",
+      "type": "master",
+      "id": 902085
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 127,
+          "in_wantlist": 42
+        }
+      },
+      "thumb": "",
+      "artist": "John Zorn",
+      "main_release": 500611,
+      "title": "50\u2079 The Classic Guide To Strategy Volume Three",
+      "role": "Main",
+      "year": 2004,
+      "resource_url": "https://api.discogs.com/masters/981419",
+      "type": "master",
+      "id": 981419
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 125,
+          "in_wantlist": 39
+        }
+      },
+      "thumb": "",
+      "title": "Rituals",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/413836",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 413836
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 238,
+          "in_wantlist": 78
+        }
+      },
+      "thumb": "",
+      "title": "Azazel (Book Of Angels Volume 2)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/825017",
+      "artist": "John Zorn - Masada String Trio",
+      "type": "release",
+      "id": 825017
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 252,
+          "in_wantlist": 70
+        }
+      },
+      "thumb": "",
+      "title": "Astaroth (Book Of Angels Volume 1)",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/890426",
+      "artist": "John Zorn - Jamie Saft Trio",
+      "type": "release",
+      "id": 890426
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 115,
+          "in_wantlist": 31
+        }
+      },
+      "thumb": "",
+      "title": "Mysterium",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1427486",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 1427486
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 141,
+          "in_wantlist": 35
+        }
+      },
+      "thumb": "",
+      "title": "Masada Rock",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/1553996",
+      "artist": "John Zorn / Rashanim",
+      "type": "release",
+      "id": 1553996
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 65,
+          "in_wantlist": 27
+        }
+      },
+      "thumb": "",
+      "title": "Filmworks Anthology - 20 Years Of Soundtrack Music",
+      "format": "CD, Comp",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/2477031",
+      "artist": "John Zorn",
+      "type": "release",
+      "id": 2477031
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 35,
+          "in_wantlist": 30
+        }
+      },
+      "thumb": "",
+      "title": "Celestial Subway Lines/Salvaging Noise",
+      "format": "DVD, NTSC",
+      "label": "Tzadik",
+      "role": "Main",
+      "year": 2005,
+      "resource_url": "https://api.discogs.com/releases/2715283",
+      "artist": "Ken Jacobs / John Zorn",
+      "type": "release",
+      "id": 2715283
+    }
+  ]
+}

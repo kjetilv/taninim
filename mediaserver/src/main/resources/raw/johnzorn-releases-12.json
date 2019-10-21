@@ -1,0 +1,930 @@
+{
+  "pagination": {
+    "per_page": 50,
+    "items": 1312,
+    "page": 12,
+    "urls": {
+      "next": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=13",
+      "prev": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=11",
+      "last": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=27",
+      "first": "https://api.discogs.com/artists/99731/releases?sort=year&per_page=50&page=1"
+    },
+    "pages": 27
+  },
+  "releases": [
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 14,
+          "in_wantlist": 7
+        }
+      },
+      "thumb": "",
+      "title": "Northern Dancer",
+      "format": "CD, Album",
+      "label": "Einstein Records",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/2324978",
+      "artist": "Jim Staley",
+      "type": "release",
+      "id": 2324978
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 52,
+          "in_wantlist": 22
+        }
+      },
+      "thumb": "",
+      "title": "Past",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/2394419",
+      "artist": "Li Chin Sung",
+      "type": "release",
+      "id": 2394419
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 9,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "\u0160marnami\u0161a! (Folk Songs And Dances From North-East Italy)",
+      "format": "CD",
+      "label": "Avant, Avant",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/releases/4887402",
+      "artist": "Resia Valley Music",
+      "type": "release",
+      "id": 4887402
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 95,
+          "in_wantlist": 27
+        }
+      },
+      "thumb": "",
+      "artist": "Kato Hideki",
+      "main_release": 310370,
+      "title": "Hope & Despair",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/723087",
+      "type": "master",
+      "id": 723087
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 4,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "artist": "Greg Cohen",
+      "main_release": 8292552,
+      "title": "Way Low",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/977054",
+      "type": "master",
+      "id": 977054
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 11,
+          "in_wantlist": 7
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 2998165,
+      "title": "Zattere Alla Deriva",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/353958",
+      "type": "master",
+      "id": 353958
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 24
+        }
+      },
+      "thumb": "",
+      "artist": "Sola* & Wu Man",
+      "main_release": 1476093,
+      "title": "China Collage",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/529099",
+      "type": "master",
+      "id": 529099
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 321,
+          "in_wantlist": 69
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 396894,
+      "title": "Vav",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/968015",
+      "type": "master",
+      "id": 968015
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 47,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "artist": "New Klezmer Trio",
+      "main_release": 1099564,
+      "title": "Masks And Faces",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/375535",
+      "type": "master",
+      "id": 375535
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 667,
+          "in_wantlist": 120
+        }
+      },
+      "thumb": "",
+      "artist": "Mike Patton",
+      "main_release": 176446,
+      "title": "Adult Themes For Voice",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/392633",
+      "type": "master",
+      "id": 392633
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 281,
+          "in_wantlist": 70
+        }
+      },
+      "thumb": "",
+      "artist": "Masada (3)",
+      "main_release": 462290,
+      "title": "Zayin",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/287657",
+      "type": "master",
+      "id": 287657
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 28,
+          "in_wantlist": 6
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 865985,
+      "title": "Festival Of Light",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/968664",
+      "type": "master",
+      "id": 968664
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 101,
+          "in_wantlist": 65
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 485543,
+      "title": "State Of The Union",
+      "role": "Appearance",
+      "year": 1996,
+      "resource_url": "https://api.discogs.com/masters/192447",
+      "type": "master",
+      "id": 192447
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 145,
+          "in_wantlist": 14
+        }
+      },
+      "thumb": "",
+      "title": "Bubblehouse",
+      "format": "CD, Single",
+      "label": "Gramavision",
+      "role": "Appearance",
+      "year": 1997,
+      "trackinfo": "Dracula Remix",
+      "resource_url": "https://api.discogs.com/releases/159957",
+      "artist": "Medeski Martin And Wood*",
+      "type": "release",
+      "id": 159957
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 57,
+          "in_wantlist": 23
+        }
+      },
+      "thumb": "",
+      "title": "Delight At The End Of The Tunnel",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/170740",
+      "artist": "David Slusser",
+      "type": "release",
+      "id": 170740
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 232,
+          "in_wantlist": 63
+        }
+      },
+      "thumb": "",
+      "title": "Great Jewish Music: Burt Bacharach",
+      "format": "2xCD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/380081",
+      "artist": "Various",
+      "type": "release",
+      "id": 380081
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 130,
+          "in_wantlist": 114
+        }
+      },
+      "thumb": "",
+      "title": "Solo For Wounded CD",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/408846",
+      "artist": "Yasunao Tone",
+      "type": "release",
+      "id": 408846
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 128,
+          "in_wantlist": 37
+        }
+      },
+      "thumb": "",
+      "title": "I Need 5 Minutes Alone",
+      "format": "CD, Album",
+      "label": "Avant, Avant",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/419268",
+      "artist": "Pieces",
+      "type": "release",
+      "id": 419268
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 281,
+          "in_wantlist": 67
+        }
+      },
+      "thumb": "",
+      "title": "Dalet",
+      "format": "CD, Album",
+      "label": "DIW",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/492142",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 492142
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 285,
+          "in_wantlist": 74
+        }
+      },
+      "thumb": "",
+      "title": "Het",
+      "format": "CD, Album",
+      "label": "DIW",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/492145",
+      "artist": "Masada (3)",
+      "type": "release",
+      "id": 492145
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 90,
+          "in_wantlist": 26
+        }
+      },
+      "thumb": "",
+      "title": "Cross Fire",
+      "format": "CD, Album",
+      "label": "DIW",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/492216",
+      "artist": "Music Revelation Ensemble",
+      "type": "release",
+      "id": 492216
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 36,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "Search For The Golden Dreydl",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/807459",
+      "artist": "Naftule's Dream",
+      "type": "release",
+      "id": 807459
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 45,
+          "in_wantlist": 89
+        }
+      },
+      "thumb": "",
+      "title": "Drums Of Death",
+      "format": "CD, Comp",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/868011",
+      "artist": "Ashanti Tribe Of Ghana* / Ewe Tribe Of Ghana*",
+      "type": "release",
+      "id": 868011
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 116,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Sanctuary",
+      "format": "2xCD",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1037925",
+      "artist": "Dave Douglas",
+      "type": "release",
+      "id": 1037925
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 51,
+          "in_wantlist": 25
+        }
+      },
+      "thumb": "",
+      "title": "Arnhem Land",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1086835",
+      "artist": "Andy Haas",
+      "type": "release",
+      "id": 1086835
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 58,
+          "in_wantlist": 18
+        }
+      },
+      "thumb": "",
+      "title": "Voices Of Anxious Objects",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1106629",
+      "artist": "Ken Butler",
+      "type": "release",
+      "id": 1106629
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 43,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "title": "Wadachi",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1114504",
+      "artist": "Compostela",
+      "type": "release",
+      "id": 1114504
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 50,
+          "in_wantlist": 53
+        }
+      },
+      "thumb": "",
+      "title": "Patterns Of Plants",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1165185",
+      "artist": "Mamoru Fujieda",
+      "type": "release",
+      "id": 1165185
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "ESP",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1189944",
+      "artist": "EasSide Percussion",
+      "type": "release",
+      "id": 1189944
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 24,
+          "in_wantlist": 22
+        }
+      },
+      "thumb": "",
+      "title": "...Like Water",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1387752",
+      "artist": "Bun-Ching Lam",
+      "type": "release",
+      "id": 1387752
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 29,
+          "in_wantlist": 11
+        }
+      },
+      "thumb": "",
+      "title": "In These Great Times",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1568569",
+      "artist": "John Schott",
+      "type": "release",
+      "id": 1568569
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 45,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "title": "Banquet",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1579209",
+      "artist": "Mark Dresser",
+      "type": "release",
+      "id": 1579209
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 25,
+          "in_wantlist": 13
+        }
+      },
+      "thumb": "",
+      "title": "I Could've Been A Drum",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1751520",
+      "artist": "Roy Nathanson & Anthony Coleman",
+      "type": "release",
+      "id": 1751520
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 73,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Vira Loucos",
+      "format": "CD, Album",
+      "label": "Avant",
+      "role": "Appearance",
+      "year": 1997,
+      "trackinfo": "Dansa, Sapo Cururu",
+      "resource_url": "https://api.discogs.com/releases/1895551",
+      "artist": "Cyro Baptista Plays The Music Of Villa Lobos*",
+      "type": "release",
+      "id": 1895551
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 32,
+          "in_wantlist": 19
+        }
+      },
+      "thumb": "",
+      "title": "Revenge Of The Stuttering Child",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1972141",
+      "artist": "Someck* & Sharp*",
+      "type": "release",
+      "id": 1972141
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 48,
+          "in_wantlist": 16
+        }
+      },
+      "thumb": "",
+      "title": "Figure Ground",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/1972605",
+      "artist": "Elliott Sharp",
+      "type": "release",
+      "id": 1972605
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 27,
+          "in_wantlist": 17
+        }
+      },
+      "thumb": "",
+      "title": "The Temperature In Hell Is Over Three Thousand Degrees",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/2418882",
+      "artist": "Virgil Moorefield",
+      "type": "release",
+      "id": 2418882
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 30,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "title": "The Debt",
+      "format": "CD, Album",
+      "label": "Tzadik",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/releases/2761068",
+      "artist": "Frank London",
+      "type": "release",
+      "id": 2761068
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 9,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "Black Saint Soul Note Critics' Pick Sampler (Vol. 3)",
+      "format": "CD, Smplr",
+      "label": "Black Saint, Soul Note",
+      "role": "Appearance",
+      "year": 1997,
+      "trackinfo": "Voodoo",
+      "resource_url": "https://api.discogs.com/releases/10604331",
+      "artist": "Various",
+      "type": "release",
+      "id": 10604331
+    },
+    {
+      "status": "Accepted",
+      "stats": {
+        "community": {
+          "in_collection": 2,
+          "in_wantlist": 3
+        }
+      },
+      "thumb": "",
+      "title": "Sax Legends",
+      "format": "2xCD, Album, Comp",
+      "label": "King Records",
+      "role": "Appearance",
+      "year": 1997,
+      "trackinfo": "Promptus",
+      "resource_url": "https://api.discogs.com/releases/13009903",
+      "artist": "Various",
+      "type": "release",
+      "id": 13009903
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 87,
+          "in_wantlist": 46
+        }
+      },
+      "thumb": "",
+      "artist": "John Wall",
+      "main_release": 609296,
+      "title": "Fractuur",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/280730",
+      "type": "master",
+      "id": 280730
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 426,
+          "in_wantlist": 177
+        }
+      },
+      "thumb": "",
+      "artist": "PainKiller (2)",
+      "main_release": 351250,
+      "title": "Collected Works",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/1298085",
+      "type": "master",
+      "id": 1298085
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 367,
+          "in_wantlist": 78
+        }
+      },
+      "thumb": "",
+      "artist": "Various",
+      "main_release": 331962,
+      "title": "Great Jewish Music: Serge Gainsbourg",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/1005763",
+      "type": "master",
+      "id": 1005763
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 159,
+          "in_wantlist": 31
+        }
+      },
+      "thumb": "",
+      "artist": "Marc Ribot",
+      "main_release": 417925,
+      "title": "Shoe String Symphonettes",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/526042",
+      "type": "master",
+      "id": 526042
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 74,
+          "in_wantlist": 12
+        }
+      },
+      "thumb": "",
+      "artist": "Wayne Horvitz & Zony Mash",
+      "main_release": 1796628,
+      "title": "Cold Spell",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/1172262",
+      "type": "master",
+      "id": 1172262
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 128,
+          "in_wantlist": 28
+        }
+      },
+      "thumb": "",
+      "artist": "Fred Frith",
+      "main_release": 683778,
+      "title": "Eye To Ear",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/1253758",
+      "type": "master",
+      "id": 1253758
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 403,
+          "in_wantlist": 93
+        }
+      },
+      "thumb": "",
+      "artist": "Naked City",
+      "main_release": 323948,
+      "title": "BlackBox",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/303695",
+      "type": "master",
+      "id": 303695
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 1,
+          "in_wantlist": 1
+        }
+      },
+      "thumb": "",
+      "artist": "Claudia Heuermann",
+      "main_release": 2808621,
+      "title": "Sabbath In Paradise",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/533783",
+      "type": "master",
+      "id": 533783
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 31,
+          "in_wantlist": 15
+        }
+      },
+      "thumb": "",
+      "artist": "Nana Vasconcelos*",
+      "main_release": 3204574,
+      "title": "Fragments - Modern Tradition",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/1220428",
+      "type": "master",
+      "id": 1220428
+    },
+    {
+      "stats": {
+        "community": {
+          "in_collection": 549,
+          "in_wantlist": 106
+        }
+      },
+      "thumb": "",
+      "artist": "Mike Patton",
+      "main_release": 189443,
+      "title": "Pranzo Oltranzista",
+      "role": "Appearance",
+      "year": 1997,
+      "resource_url": "https://api.discogs.com/masters/703457",
+      "type": "master",
+      "id": 703457
+    }
+  ]
+}

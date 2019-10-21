@@ -1,0 +1,376 @@
+{
+  "styles": [
+    "Jazz-Rock",
+    "Contemporary Jazz",
+    "Experimental"
+  ],
+  "genres": [
+    "Jazz",
+    "Rock",
+    "Funk / Soul",
+    "Non-Music",
+    "Folk, World, & Country",
+    "Stage & Screen"
+  ],
+  "videos": [
+    {
+      "duration": 131,
+      "description": "John Zorn - 1. Gill's Theme - Sliding On The Ice (The Bribe, '98)",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=rcqTkUXx0Es",
+      "title": "John Zorn - 1. Gill's Theme - Sliding On The Ice (The Bribe, '98)"
+    },
+    {
+      "duration": 111,
+      "description": "John Zorn - inhaling the image",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=bD99tvJCpdY",
+      "title": "John Zorn - inhaling the image"
+    },
+    {
+      "duration": 66,
+      "description": "John Zorn - The Willies",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=75F_3nAEhhI",
+      "title": "John Zorn - The Willies"
+    },
+    {
+      "duration": 211,
+      "description": "John Zorn - city chase",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=asOhtn-qs64",
+      "title": "John Zorn - city chase"
+    },
+    {
+      "duration": 151,
+      "description": "John Zorn - meters",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=Zo-iiBxEwPo",
+      "title": "John Zorn - meters"
+    },
+    {
+      "duration": 206,
+      "description": "John Zorn - trick or treat",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=yA63sgXDkAE",
+      "title": "John Zorn - trick or treat"
+    },
+    {
+      "duration": 85,
+      "description": "John Zorn - 18 Chippewa (The Bribe, 98')",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=ONNa36cPkeo",
+      "title": "John Zorn - 18 Chippewa (The Bribe, 98')"
+    },
+    {
+      "duration": 51,
+      "description": "John Zorn - 19 The Hour Of Thirteen (The Bribe, 98')",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=v8afv_3ciz8",
+      "title": "John Zorn - 19 The Hour Of Thirteen (The Bribe, 98')"
+    },
+    {
+      "duration": 327,
+      "description": "John Zorn - Strip Central",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=bW9i3S2T6XY",
+      "title": "John Zorn - Strip Central"
+    },
+    {
+      "duration": 229,
+      "description": "John Zorn The Hour Of Thirteen - Radio Mouth - Gill`s Theme",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=gYyekGu6pQQ",
+      "title": "John Zorn The Hour Of Thirteen - Radio Mouth - Gill`s Theme"
+    },
+    {
+      "duration": 239,
+      "description": "John Zorn - Midnight Streets",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=3w4lbgKqeOo",
+      "title": "John Zorn - Midnight Streets"
+    }
+  ],
+  "num_for_sale": 15,
+  "title": "The Bribe - Variations And Extensions On Spillane",
+  "most_recent_release": 9577294,
+  "main_release": 9577294,
+  "main_release_url": "https://api.discogs.com/releases/9577294",
+  "uri": "https://www.discogs.com/John-Zorn-The-Bribe-Variations-And-Extensions-On-Spillane/master/1111447",
+  "artists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    }
+  ],
+  "versions_url": "https://api.discogs.com/masters/1111447/versions",
+  "data_quality": "Correct",
+  "most_recent_release_url": "https://api.discogs.com/releases/9577294",
+  "year": 1998,
+  "images": [
+    {
+      "uri": "",
+      "height": 592,
+      "width": 600,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 467,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 603,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 606,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 612,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 608,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 614,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 609,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 596,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "resource_url": "https://api.discogs.com/masters/1111447",
+  "lowest_price": 6.0,
+  "id": 1111447,
+  "tracklist": [
+    {
+      "duration": "",
+      "position": "",
+      "type_": "heading",
+      "title": "Part 1 Sliding On The Ice"
+    },
+    {
+      "duration": "2:07",
+      "position": "1",
+      "type_": "track",
+      "title": "Gill's Theme"
+    },
+    {
+      "duration": "0:41",
+      "position": "2",
+      "type_": "track",
+      "title": "Hydrant Of The Vogue"
+    },
+    {
+      "duration": "1:01",
+      "position": "3",
+      "type_": "track",
+      "title": "The Big Freeze"
+    },
+    {
+      "duration": "2:24",
+      "position": "4",
+      "type_": "track",
+      "title": "Meters"
+    },
+    {
+      "duration": "4:06",
+      "position": "5",
+      "type_": "track",
+      "title": "The Bridge / Cocktails"
+    },
+    {
+      "duration": "1:01",
+      "position": "6",
+      "type_": "track",
+      "title": "The Willies"
+    },
+    {
+      "duration": "1:16",
+      "position": "7",
+      "type_": "track",
+      "title": "The Taxman Cometh"
+    },
+    {
+      "duration": "1:09",
+      "position": "8",
+      "type_": "track",
+      "title": "Night Walk"
+    },
+    {
+      "duration": "2:43",
+      "position": "9",
+      "type_": "track",
+      "title": "Skit Rhesus"
+    },
+    {
+      "duration": "0:59",
+      "position": "10",
+      "type_": "track",
+      "title": "The Boxer"
+    },
+    {
+      "duration": "3:22",
+      "position": "11",
+      "type_": "track",
+      "title": "Trick Or Treat"
+    },
+    {
+      "duration": "3:30",
+      "position": "12",
+      "type_": "track",
+      "title": "The Latin Trip / Gill's Theme"
+    },
+    {
+      "duration": "",
+      "position": "",
+      "type_": "heading",
+      "title": "Part 2 The Arrest"
+    },
+    {
+      "duration": "3:20",
+      "position": "13",
+      "type_": "track",
+      "title": "A Taste Of Voodoo"
+    },
+    {
+      "duration": "1:49",
+      "position": "14",
+      "type_": "track",
+      "title": "Inhaling The Image"
+    },
+    {
+      "duration": "3:27",
+      "position": "15",
+      "type_": "track",
+      "title": "City Chase"
+    },
+    {
+      "duration": "11:38",
+      "position": "16",
+      "type_": "track",
+      "title": "Dreams Of The Red Chamber"
+    },
+    {
+      "duration": "1:30",
+      "position": "17",
+      "type_": "track",
+      "title": "Rash Acts"
+    },
+    {
+      "duration": "1:24",
+      "position": "18",
+      "type_": "track",
+      "title": "Chippewa"
+    },
+    {
+      "duration": "0:47",
+      "position": "19",
+      "type_": "track",
+      "title": "The Hour Of Thirteen"
+    },
+    {
+      "duration": "2:57",
+      "position": "20",
+      "type_": "track",
+      "title": "Radio Mouth / Gill's Theme"
+    },
+    {
+      "duration": "",
+      "position": "",
+      "type_": "heading",
+      "title": "Part 3 The Art Bar"
+    },
+    {
+      "duration": "3:58",
+      "position": "21",
+      "type_": "track",
+      "title": "Midnight Streets"
+    },
+    {
+      "duration": "3:12",
+      "position": "22",
+      "type_": "track",
+      "title": "Victoria Lake"
+    },
+    {
+      "duration": "5:26",
+      "position": "23",
+      "type_": "track",
+      "title": "Strip Central"
+    },
+    {
+      "duration": "9:18",
+      "position": "24",
+      "type_": "track",
+      "title": "Pink Limousine"
+    },
+    {
+      "duration": "3:19",
+      "position": "25",
+      "type_": "track",
+      "title": "Skyline"
+    },
+    {
+      "duration": "2:04",
+      "position": "26",
+      "type_": "track",
+      "title": "Ordinary Lies / Gill's Theme"
+    }
+  ]
+}

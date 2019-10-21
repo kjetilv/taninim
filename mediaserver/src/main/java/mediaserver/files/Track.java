@@ -49,6 +49,10 @@ public class Track extends AbstractHashable
 
     private static final long serialVersionUID = 3609605456752055320L;
 
+    private final long numberOfSamples;
+
+    private final long fileSize;
+
     public Track(File file) {
         this.part = part(Objects.requireNonNull(file, "file").getName());
         try (FlacFile flacFile = FlacFile.open(file)) {
@@ -71,7 +75,9 @@ public class Track extends AbstractHashable
             this.trackNo = trackNo(file.getName());
             FlacInfo info = flacFile.getInfo();
             this.signature = info.getSignature();
-            this.duration = Duration.ofMillis(info.getNumberOfSamples() * 1000 / info.getSampleRate());
+            this.numberOfSamples = info.getNumberOfSamples();
+            this.fileSize = file.length();
+            this.duration = Duration.ofMillis(numberOfSamples * 1000 / info.getSampleRate());
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to import flac file: " + file, e);
         }
@@ -122,6 +128,7 @@ public class Track extends AbstractHashable
         return track.getArtist().equals(getArtist()) && track.getAlbum().equals(getAlbum());
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(Track track) {
         return TRACK_COMPARATOR.compare(this, track);
@@ -130,6 +137,7 @@ public class Track extends AbstractHashable
     @Override
     public void hashTo(Consumer<byte[]> h) {
         hash(h, signature);
+        hash(h, (int) numberOfSamples, (int) fileSize);
     }
 
     @Override
