@@ -30,13 +30,9 @@
     {length(media.artists)} artists
 </H3>
 
-<UL>
-    {media.artists:{artist|
-    <LI>
-        <A HREF="/?artist=${artist.name}">{artist.name}</A> <A HREF="/playlist/artist/{artist.uuid}">⏬</A>
-    </LI>
-    }}
-</UL>
+{media.artists:{artist|
+  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
+}}
 
 <H3>
     {length(media.albums)} albums

@@ -92,6 +92,10 @@ public class Track extends AbstractHashable
         return Objects.equals(artist, albumArtist) ? Optional.empty() : Optional.of(artist);
     }
 
+    public Artist getOtherArtistPresent() {
+        return getOtherArtist().orElse(null);
+    }
+
     public String getAlbum() {
         return album;
     }

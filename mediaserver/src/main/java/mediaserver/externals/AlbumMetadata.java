@@ -4,13 +4,13 @@ import java.net.URI;
 
 public class AlbumMetadata {
 
-    public String discogReleaseId;
+    private String discogReleaseId;
 
-    public URI discogRelease;
+    private URI discogRelease;
 
-    public String artist;
+    private String artist;
 
-    public String title;
+    private String title;
 
     public String getDiscogReleaseId() {
 

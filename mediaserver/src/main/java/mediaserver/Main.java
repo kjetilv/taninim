@@ -30,27 +30,21 @@ public class Main {
     private static final String DEV_FLAG = "dev";
 
     public static void main(String[] args) {
-        boolean local = args.length > 0 && new File(args[0]).isDirectory();
+
         boolean isDev = Boolean.getBoolean(DEV_FLAG);
+        log.info("Running in {} mode", local(args) ? "local" : "cloud");
 
-        log.info("Running in {} mode", local ? "local" : "cloud");
-
-        Media media;
-        try {
-            media = local ? Media.local(args[0]) : CloudMedia.download();
-        } catch (Exception e) {
-            media = Media.empty();
-            log.error("Error retrieving media, proceeding with empty... {}", media, e);
-        }
+        Media media = retrieveMedia(args);
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
-        Supplier<Router> routerProvider = routerSupplier(media, local, isDev);
+        Supplier<Router> routerProvider = routerSupplier(media, local(args), isDev);
 
         ChannelInitializer<SocketChannel> handler = new ChannelInitializer<>() {
             @Override
             protected void initChannel(SocketChannel ch) {
+
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast(new CustomHttpServerCodec());
                 pipeline.addLast(routerProvider.get());
@@ -63,7 +57,7 @@ public class Main {
             .handler(new LoggingHandler(LogLevel.DEBUG))
             .childHandler(handler);
 
-        int port = local ? LOCALPORT : CLOUD_PORT;
+        int port = local(args) ? LOCALPORT : CLOUD_PORT;
 
         try {
             Channel ch = bootstrap.bind(port).sync().channel();
@@ -78,13 +72,35 @@ public class Main {
         }
     }
 
+    public static Media retrieveMedia(String[] args) {
+
+        try {
+            return local(args)
+                ? Media.local(args[0], args[1], args[2])
+                : CloudMedia.download();
+        } catch (Exception e) {
+            log.error("Error retrieving media, proceeding with empty... ", e);
+            return Media.empty();
+        }
+    }
+
+    public static boolean local(String[] args) {
+
+        return args.length > 2 &&
+            new File(args[0]).isDirectory() &&
+            new File(args[1]).isFile() &&
+            new File(args[2]).isDirectory();
+    }
+
     private static Supplier<Router> routerSupplier(
         Media media,
         boolean local,
         boolean dev
     ) {
+
         IO io = new IO(dev);
-        return () -> new Router(new Playlists(io, media),
+        return () -> new Router(
+            new Playlists(io, media),
             local ? new FileStreamer(io, media) : new S3Streamer(io, media),
             new Resources(io),
             new GUI(io, media));

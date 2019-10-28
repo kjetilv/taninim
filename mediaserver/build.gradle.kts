@@ -13,6 +13,9 @@ configure<JavaPluginConvention> {
 }
 
 dependencies {
+    implementation(platform("software.amazon.awssdk:bom:2.5.29"))
+    implementation("software.amazon.awssdk:s3")
+
     implementation("org.gagravarr", "vorbis-java-core", "0.8")
     implementation("io.netty", "netty-all", "4.1.41.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")

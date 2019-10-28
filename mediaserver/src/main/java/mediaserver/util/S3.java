@@ -59,7 +59,7 @@ public final class S3 {
             try {
                 HttpURLConnection urlConnection = (HttpURLConnection) uri.toURL().openConnection();
                 try (InputStream inputStream = urlConnection.getInputStream()) {
-                    Map<?, ?> credentials = new ObjectMapper().readerFor(LinkedHashMap.class)
+                    Map<?, ?> credentials = IO.OM.readerFor(LinkedHashMap.class)
                         .readValue(inputStream);
                     log.info("Connecting to S3 with cloud credentials, access key {}, expiry: {}",
                         get(credentials, Credentials.AccessKeyId),

@@ -1,10 +1,7 @@
 package mediaserver.files;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,8 +21,8 @@ public class AlbumContext {
     private AlbumContext(Album album, Credits credits, Collection<String> comments) {
 
         this.album = album;
-        this.credits = credits;
-        this.comments = comments;
+        this.credits = credits == null ? new Credits() : credits;
+        this.comments = comments == null ? Collections.emptyList() : List.copyOf(comments);
     }
 
     public AlbumContext comments(String... comments) {

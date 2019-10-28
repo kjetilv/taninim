@@ -1,26 +1,35 @@
 package mediaserver.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public final class IO {
+
+    public static final ObjectMapper OM = new ObjectMapper()
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     private final boolean dev;
 
     private static final String GRADLE_OUT = "out/production";
 
     public IO(boolean dev) {
+
         this.dev = dev;
     }
 
     public URL resolve(String path) {
+
         try {
             return URI.create((dev ? "http://localhost:8080" : "https://taninim.stuf.link") + path).toURL();
         } catch (MalformedURLException e) {
@@ -28,13 +37,55 @@ public final class IO {
         }
     }
 
+    public static <T> void writeStream(Path path, T output, BiConsumer<T, OutputStream> receptor) {
+
+        if (!(path.getParent().toFile().isDirectory() || path.getParent().toFile().mkdirs())) {
+            throw new IllegalStateException("Could not verify dir: " + path);
+        }
+        try (
+            FileOutputStream fos = new FileOutputStream(path.toFile())
+        ) {
+            receptor.accept(output, fos);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to write to " + path, e);
+        }
+    }
+
+    public static <T> T readStream(Path path, Function<InputStream, T> receptor) {
+
+        try (InputStream fos = new BufferedInputStream(new FileInputStream(path.toFile()))) {
+            return receptor.apply(fos);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not read from " + path, e);
+        }
+    }
+
+    public static <T> T tryReadStream(URI uri, Function<InputStream, T> receptor) {
+
+        HttpURLConnection urlConnection;
+        try {
+            urlConnection = (HttpURLConnection) uri.toURL().openConnection();
+        } catch (Exception e) {
+            throw new IllegalStateException("Made no sense of " + uri, e);
+        }
+        try (InputStream fos = new BufferedInputStream(urlConnection.getInputStream())) {
+            return receptor.apply(fos);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not read from " + uri, e);
+        } finally {
+            urlConnection.disconnect();
+        }
+    }
+
     public Optional<String> read(String resource) {
+
         return readBytes(resource)
             .map(bytes -> new String(bytes, StandardCharsets.UTF_8));
     }
 
     public Optional<byte[]> readBytes(String resource) {
-        return stream(resource)
+
+        return readStream(resource)
             .map(stream -> {
                 byte[] buf = new byte[8192];
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -45,7 +96,8 @@ public final class IO {
             });
     }
 
-    private Optional<InputStream> stream(String resource) {
+    private Optional<InputStream> readStream(String resource) {
+
         Optional<URL> url = Optional.ofNullable(
             Thread.currentThread().getContextClassLoader().getResource(resource));
         if (url.isEmpty()) {
@@ -53,16 +105,19 @@ public final class IO {
         }
         if (dev && url.filter(this::existsAsSource).isPresent()) {
             return url.map(this::fromSourceEnvironment).orElseThrow(() ->
-                new IllegalArgumentException("No such resource: " + resource));
+                new IllegalArgumentException(
+                    "No such resource: " + resource));
         }
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource));
     }
 
     private boolean existsAsSource(URL u) {
+
         return u.getFile().contains(GRADLE_OUT);
     }
 
     private Optional<InputStream> fromSourceEnvironment(URL url) {
+
         return Optional.of(url)
             .map(URL::getFile)
             .map(name ->
@@ -77,6 +132,7 @@ public final class IO {
     }
 
     private static byte[] readTo(InputStream stream, byte[] buf, ByteArrayOutputStream baos) {
+
         int bytesRead = 0;
         try {
             while (true) {

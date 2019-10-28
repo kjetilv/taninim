@@ -1,24 +1,24 @@
 package mediaserver.files;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import mediaserver.externals.DiscogRelease;
+import mediaserver.externals.XmlMapParser;
+import mediaserver.externals.iTunesLibrary;
+import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
 public interface Media {
 
     Logger log = LoggerFactory.getLogger(Media.class);
 
-    Media subLibrary(CategoryPath categoryPath);
+    Media subLibrary(CategoryPath categoryPath, Artist artist);
 
     Media addAlbumContext(UUID albumId, AlbumContext albumContext);
 
@@ -79,31 +79,49 @@ public interface Media {
 
     Optional<Artist> getArtist(UUID id);
 
-    static Media local(String file) {
+    Optional<Artist> getArtist(String name);
 
-        Path mediaPath = new File(file).toPath();
-        return local(mediaPath);
+    Optional<Album> getAlbum(String artistName, String albumName);
+
+    static Media local(String file, String library, String resources) {
+
+        return local(
+            new File(file).toPath(),
+            new File(library).toPath(),
+            new File(resources).toPath());
     }
 
-    static Media local(Path mediaPath) {
+    static Media local(Path mediaPath, Path libraryPath, Path resourcesPath) {
 
         log.info("Scanning from {}", mediaPath);
-        Media media = new LocalMedia(mediaPath);
-        media.allAlbums().stream().reduce(
-            media,
-            (med, alb) -> {
-                String name = "meta/album." + alb.getUuid() + "/data.json";
-                try (InputStream res = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                    name)) {
-                    if (res == null) {
-                        return med;
-                    }
-                    DiscogRelease data = new ObjectMapper()
-                        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                        .readerFor(DiscogRelease.class)
-                        .readValue(res);
-                    AlbumContext context = data.getExtraartists().stream().reduce(
-                        new AlbumContext(alb),
+        Media baseMedia = new LocalMedia(mediaPath);
+        log.info("Scanned: {}", baseMedia);
+
+        log.info("Reading from {}", libraryPath);
+
+        iTunesLibrary iTunesLibrary = iTunesLibrary(libraryPath);
+        Collection<DiscogConnection> metaConnections = metaConnections(baseMedia, iTunesLibrary);
+        DiscogsData discogsData = new DiscogsData(resourcesPath, metaConnections);
+        Media media = baseMedia.allAlbums().stream().reduce(baseMedia, addContextFrom(discogsData), noCombine());
+        log.info("Returning {}", media);
+        return media;
+    }
+
+    static <T> BinaryOperator<T> noCombine() {
+
+        return (t1, t2) -> {
+            throw new IllegalStateException("NO combine");
+        };
+    }
+
+    static BiFunction<Media, Album, Media> addContextFrom(DiscogsData discogsData) {
+
+        return (media, album) ->
+            discogsData.getDiscogRelease(album.getArtist(), album).map(release -> {
+                AlbumContext context = Optional.ofNullable(release.getExtraartists()).stream()
+                    .flatMap(Collection::stream)
+                    .reduce(
+                        new AlbumContext(album),
                         (albumContext1, discogArtist) ->
                             albumContext1.credit(
                                 discogArtist.getName(),
@@ -112,17 +130,40 @@ public interface Media {
                         (albumContext1, albumContext2) -> {
                             throw new IllegalStateException("No combine");
                         });
-                    return media.addAlbumContext(alb.getUuid(), context);
-                } catch (IOException e) {
-                    throw new IllegalStateException("Failed to read context for " + alb, e);
-                }
-            },
-            (media1, media2) -> {
-                throw new IllegalStateException("NO combine");
-            }
-        );
-        log.info("Scanned: {}", media);
-        return media;
+                return media.addAlbumContext(album.getUuid(), context);
+            }).orElse(media);
+    }
+
+    static Collection<DiscogConnection> metaConnections(Media media, iTunesLibrary iTunesLibrary) {
+
+        return iTunesLibrary.getTracks().values().stream()
+            .filter(track ->
+                Optional.ofNullable(track.getComments()).filter(
+                    comments -> comments.contains("discog")).isPresent())
+            .map(track ->
+                media.getArtist(track.getArtist()).flatMap(
+                    artist ->
+                        media.getAlbum(artist.getName(), track.getAlbum())
+                            .map(album ->
+                                new DiscogConnection(
+                                    artist,
+                                    album,
+                                    URI.create(track.getComments())))))
+            .filter(Optional::isPresent).map(Optional::get)
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+    static iTunesLibrary iTunesLibrary(Path libraryPath) {
+
+        try {
+            Map<String, ?> plist = IO.readStream(libraryPath, new XmlMapParser()::convert);
+            return IO.OM.readerFor(iTunesLibrary.class)
+                .readValue(IO.OM.writerFor(LinkedHashMap.class)
+                    .writeValueAsBytes(plist));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to read iTunes library @ " + libraryPath, e);
+        }
     }
 
     static Media empty() {

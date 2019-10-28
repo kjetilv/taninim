@@ -1,7 +1,6 @@
 package mediaserver.externals;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import mediaserver.util.IO;
 
 import java.io.IOException;
 import java.util.*;
@@ -13,9 +12,6 @@ import static java.util.Arrays.stream;
 
 public class DiscogReleasesLoader {
 
-    private static final ObjectMapper OM = new ObjectMapper()
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
     private final List<DiscogRelease> releases;
 
     public DiscogReleasesLoader(String ref, int start, int end) {
@@ -23,7 +19,7 @@ public class DiscogReleasesLoader {
         List<DiscogRelease> releases = new ArrayList<>();
         for (int i = start; i <= end; i++) {
             try {
-                DiscogReleases x = OM.readerFor(DiscogReleases.class).readValue(
+                DiscogReleases x = IO.OM.readerFor(DiscogReleases.class).readValue(
                     Thread.currentThread().getContextClassLoader()
                         .getResource(ref.replace("x", String.valueOf(i))));
                 releases.addAll(x.getReleases());

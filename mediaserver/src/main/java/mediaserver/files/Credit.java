@@ -9,26 +9,26 @@ public class Credit {
 
     private final ExternalType externalType;
 
-    private final String musicalType;
+    private final String sourceType;
 
     private final String name;
 
     public Credit(
         String name,
         URI uri,
-        String musicalType,
+        String sourceType,
         ExternalType externalType
     ) {
 
         this.name = name;
         this.uri = uri;
         this.externalType = externalType;
-        this.musicalType = musicalType;
+        this.sourceType = sourceType;
     }
 
-    public String getMusicalType() {
+    public String getSourceType() {
 
-        return musicalType;
+        return sourceType;
     }
 
     public ExternalType getExternalType() {
@@ -83,7 +83,7 @@ public class Credit {
     @Override
     public int hashCode() {
 
-        return Objects.hash(name, uri, externalType, musicalType);
+        return Objects.hash(name, uri, externalType, sourceType);
     }
 
     @Override
@@ -94,6 +94,6 @@ public class Credit {
                 Objects.equals(name, ((Credit) o).name) &&
                 Objects.equals(uri, ((Credit) o).uri) &&
                 externalType == ((Credit) o).externalType &&
-                Objects.equals(musicalType, ((Credit) o).musicalType);
+                Objects.equals(sourceType, ((Credit) o).sourceType);
     }
 }
