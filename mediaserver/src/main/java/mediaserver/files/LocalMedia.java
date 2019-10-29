@@ -39,10 +39,10 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
         this.artists = Stream.concat(
             albumStream(true).map(Album::getArtist),
             trackStream(true).flatMap(track ->
-                                          Stream.concat(
-                                              Stream.of(track.getArtist()),
-                                              track.getOtherArtist().stream()
-                                                       )))
+                Stream.concat(
+                    Stream.of(track.getArtist()),
+                    track.getOtherArtist().stream()
+                )))
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList());
@@ -61,9 +61,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             sub,
             stream(true)
                 .filter(album ->
-                            album.isIn(sub))
+                    album.isIn(sub))
                 .filter(album ->
-                            artist == null || album.isBy(artist) || album.hasTracksBy(artist)),
+                    artist == null || album.isBy(artist) || album.hasTracksBy(artist)),
             albumContexts);
     }
 
@@ -77,7 +77,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             copy.put(album, expandedContext);
             return new LocalMedia(categoryPath, albums.stream(), copy);
         }).orElseThrow(() ->
-                           new IllegalArgumentException("Unknown album: " + albumId));
+            new IllegalArgumentException("Unknown album: " + albumId));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
         return trackStream(true)
             .filter(track ->
-                        track.getUuid().equals(uuid)).findFirst();
+                track.getUuid().equals(uuid)).findFirst();
     }
 
     @Override
@@ -99,9 +99,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
         return categoryStream()
             .filter(cat ->
-                        !cat.equals(this.categoryPath))
+                !cat.equals(this.categoryPath))
             .map(cat ->
-                     cat.toTop(this.categoryPath))
+                cat.toTop(this.categoryPath))
             .flatMap(Optional::stream)
             .distinct()
             .sorted()
@@ -143,7 +143,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             .map(Album::getTracks)
             .flatMap(Collection::stream)
             .filter(track ->
-                        artist.equals(track.getArtist()) || track.getOtherArtist().filter(artist::equals).isPresent())
+                artist.equals(track.getArtist()) || track.getOtherArtist().filter(artist::equals).isPresent())
             .collect(Collectors.toList());
     }
 
@@ -178,8 +178,8 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
         return getAlbums(true).stream()
             .filter(album ->
-                        album.getArtist().getName().equalsIgnoreCase(artistName) &&
-                            album.getName().equalsIgnoreCase(albumName))
+                album.getArtist().getName().equalsIgnoreCase(artistName) &&
+                    album.getName().equalsIgnoreCase(albumName))
             .findFirst();
     }
 
@@ -235,21 +235,21 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             album(root, path).stream(),
             subDirs(path.toFile())
                 .flatMap(subDir ->
-                             getAlbums(
-                                 root,
-                                 path.resolve(subDir.getName()))));
+                    getAlbums(
+                        root,
+                        path.resolve(subDir.getName()))));
     }
 
     private static Optional<Album> album(Path root, Path path) {
 
         File dir = path.toFile();
         return trackFiles(dir).map(tracks ->
-                                       album(
-                                           root,
-                                           path,
-                                           artist(dir),
-                                           albumName(dir),
-                                           tracks(tracks)));
+            album(
+                root,
+                path,
+                artist(dir),
+                albumName(dir),
+                tracks(tracks)));
     }
 
     private static List<Track> tracks(Collection<File> tracks) {
@@ -261,7 +261,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
         return Optional.ofNullable(
             dir.listFiles(file ->
-                              file.isDirectory() && !file.getName().equals("objects")))
+                file.isDirectory() && !file.getName().equals("objects")))
             .stream()
             .flatMap(Arrays::stream);
     }
@@ -270,9 +270,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
         return Optional.ofNullable(
             dir.listFiles(file ->
-                              file.isFile() && file.getName().endsWith(".flac")))
+                file.isFile() && file.getName().endsWith(".flac")))
             .filter(files ->
-                        files.length > 0)
+                files.length > 0)
             .map(Arrays::asList);
     }
 

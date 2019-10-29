@@ -4,14 +4,14 @@ import java.util.List;
 
 public class DiscogReleases {
 
-    private List<DiscogRelease> releases;
+    private List<DiscogReleaseDigest> releases;
 
-    public List<DiscogRelease> getReleases() {
+    public List<DiscogReleaseDigest> getReleases() {
 
         return releases;
     }
 
-    public void setReleases(List<DiscogRelease> releases) {
+    public void setReleases(List<DiscogReleaseDigest> releases) {
 
         this.releases = releases;
     }

@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.util.List;
 
-public class DiscogRelease {
+public class DiscogReleaseDigest {
 
     private String artist;
 
@@ -10,7 +10,7 @@ public class DiscogRelease {
 
     private String resource_url;
 
-    private List<DiscogArtist> extraartists;
+    private List<DiscogArtistDigest> extraartists;
 
     @Override
     public String toString() {
@@ -52,12 +52,12 @@ public class DiscogRelease {
         this.resource_url = resource_url;
     }
 
-    public List<DiscogArtist> getExtraartists() {
+    public List<DiscogArtistDigest> getExtraartists() {
 
         return extraartists;
     }
 
-    public void setExtraartists(List<DiscogArtist> extraartists) {
+    public void setExtraartists(List<DiscogArtistDigest> extraartists) {
 
         this.extraartists = extraartists;
     }

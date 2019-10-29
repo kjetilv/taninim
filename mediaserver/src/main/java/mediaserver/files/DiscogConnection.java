@@ -67,4 +67,10 @@ public class DiscogConnection {
             Objects.equals(album, ((DiscogConnection) o).album) &&
             Objects.equals(uri, ((DiscogConnection) o).uri);
     }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + artist + ": " + album + "]";
+    }
 }

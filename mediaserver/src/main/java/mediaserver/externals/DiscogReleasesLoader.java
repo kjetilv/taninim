@@ -12,11 +12,11 @@ import static java.util.Arrays.stream;
 
 public class DiscogReleasesLoader {
 
-    private final List<DiscogRelease> releases;
+    private final List<DiscogReleaseDigest> releases;
 
     public DiscogReleasesLoader(String ref, int start, int end) {
 
-        List<DiscogRelease> releases = new ArrayList<>();
+        List<DiscogReleaseDigest> releases = new ArrayList<>();
         for (int i = start; i <= end; i++) {
             try {
                 DiscogReleases x = IO.OM.readerFor(DiscogReleases.class).readValue(
@@ -30,7 +30,7 @@ public class DiscogReleasesLoader {
         this.releases = releases;
     }
 
-    public List<DiscogRelease> resources(String... query) {
+    public List<DiscogReleaseDigest> resources(String... query) {
 
         Collection<String> queryStream = split(query);
         return releases.stream()
@@ -43,7 +43,7 @@ public class DiscogReleasesLoader {
             .collect(Collectors.toList());
     }
 
-    private int overlap(Collection<String> queryStream, DiscogRelease rel) {
+    private int overlap(Collection<String> queryStream, DiscogReleaseDigest rel) {
 
         return overlap(queryStream, split(rel.getTitle()));
     }

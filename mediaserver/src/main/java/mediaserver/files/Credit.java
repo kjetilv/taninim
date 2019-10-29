@@ -55,6 +55,10 @@ public class Credit {
 
         produced,
 
+        mixed,
+
+        recorded,
+
         engineer,
 
         executive,

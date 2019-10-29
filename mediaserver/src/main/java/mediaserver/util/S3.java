@@ -1,6 +1,5 @@
 package mediaserver.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.minio.MinioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -59,7 +57,7 @@ public final class S3 {
             try {
                 HttpURLConnection urlConnection = (HttpURLConnection) uri.toURL().openConnection();
                 try (InputStream inputStream = urlConnection.getInputStream()) {
-                    Map<?, ?> credentials = IO.OM.readerFor(LinkedHashMap.class)
+                    Map<?, ?> credentials = IO.OM.readerFor(Map.class)
                         .readValue(inputStream);
                     log.info("Connecting to S3 with cloud credentials, access key {}, expiry: {}",
                         get(credentials, Credentials.AccessKeyId),

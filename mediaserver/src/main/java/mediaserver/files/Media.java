@@ -9,7 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
@@ -101,7 +104,7 @@ public interface Media {
 
         iTunesLibrary iTunesLibrary = iTunesLibrary(libraryPath);
         Collection<DiscogConnection> metaConnections = metaConnections(baseMedia, iTunesLibrary);
-        DiscogsData discogsData = new DiscogsData(resourcesPath, metaConnections);
+        DiscogsDataResolver discogsData = new DiscogsDataResolver(resourcesPath, metaConnections);
         Media media = baseMedia.allAlbums().stream().reduce(baseMedia, addContextFrom(discogsData), noCombine());
         log.info("Returning {}", media);
         return media;
@@ -114,7 +117,7 @@ public interface Media {
         };
     }
 
-    static BiFunction<Media, Album, Media> addContextFrom(DiscogsData discogsData) {
+    static BiFunction<Media, Album, Media> addContextFrom(DiscogsDataResolver discogsData) {
 
         return (media, album) ->
             discogsData.getDiscogRelease(album.getArtist(), album).map(release -> {
@@ -159,7 +162,7 @@ public interface Media {
         try {
             Map<String, ?> plist = IO.readStream(libraryPath, new XmlMapParser()::convert);
             return IO.OM.readerFor(iTunesLibrary.class)
-                .readValue(IO.OM.writerFor(LinkedHashMap.class)
+                .readValue(IO.OM.writerFor(Map.class)
                     .writeValueAsBytes(plist));
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to read iTunes library @ " + libraryPath, e);

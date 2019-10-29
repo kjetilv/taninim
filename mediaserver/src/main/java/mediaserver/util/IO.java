@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -49,6 +50,16 @@ public final class IO {
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to write to " + path, e);
         }
+    }
+
+    public static Map<String, ?> readData(Path path) {
+
+        return readStream(path, readMapFrom(path));
+    }
+
+    public static Map<String, ?> readData(URI uri) {
+
+        return tryReadStream(uri, readMapFrom(uri));
     }
 
     public static <T> T readStream(Path path, Function<InputStream, T> receptor) {
@@ -94,6 +105,17 @@ public final class IO {
                     throw new IllegalStateException("Failed to read " + resource, e);
                 }
             });
+    }
+
+    private static Function<InputStream, Map<String, ?>> readMapFrom(Object source) {
+
+        return is -> {
+            try {
+                return IO.OM.readerFor(Map.class).readValue(is);
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to read: " + source, e);
+            }
+        };
     }
 
     private Optional<InputStream> readStream(String resource) {
