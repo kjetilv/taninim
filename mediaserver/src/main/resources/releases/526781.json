@@ -1,0 +1,85 @@
+{
+  "artist": null,
+  "title": "More News For Lulu",
+  "resource_url": "https://api.discogs.com/releases/526781",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Alto Saxophone",
+      "uri": null
+    },
+    {
+      "id": 153617,
+      "name": "Tony Lee",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 805317,
+      "name": "Tomoyo T.L.",
+      "role": "Illustration [Illustrations], Design",
+      "uri": null
+    },
+    {
+      "id": 1657864,
+      "name": "Howard Mandel",
+      "role": "Liner Notes",
+      "uri": null
+    },
+    {
+      "id": 1825609,
+      "name": "Jürg Laederach",
+      "role": "Liner Notes",
+      "uri": null
+    },
+    {
+      "id": 1639042,
+      "name": "Philippe Carles",
+      "role": "Liner Notes",
+      "uri": null
+    },
+    {
+      "id": 2241807,
+      "name": "Manfred Rinderspacher",
+      "role": "Photography By [Members]",
+      "uri": null
+    },
+    {
+      "id": 920427,
+      "name": "Pia & Werner X. Uehlinger",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 410207,
+      "name": "Peter Pfister",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 1862226,
+      "name": "Radio France",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 141326,
+      "name": "George Lewis",
+      "role": "Trombone",
+      "uri": null
+    },
+    {
+      "id": 1865944,
+      "name": "Lisa Wells (2)",
+      "role": "Typography [Type-setting]",
+      "uri": null
+    }
+  ]
+}

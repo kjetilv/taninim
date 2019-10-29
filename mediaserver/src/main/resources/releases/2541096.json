@@ -1,0 +1,199 @@
+{
+  "artist": null,
+  "title": "Cobra",
+  "resource_url": "https://api.discogs.com/releases/2541096",
+  "extraartists": [
+    {
+      "id": 198936,
+      "name": "Guy Klucevsek",
+      "role": "Accordion",
+      "uri": null
+    },
+    {
+      "id": 272701,
+      "name": "David Weinstein",
+      "role": "Celesta [Celeste]",
+      "uri": null
+    },
+    {
+      "id": 1840765,
+      "name": "fuhrer vienna",
+      "role": "Design [Graphic Concept]",
+      "uri": null
+    },
+    {
+      "id": 256182,
+      "name": "Bobby Previte",
+      "role": "Electronic Drums",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 63308,
+      "name": "Elliott Sharp",
+      "role": "Guitar [Doubleneck], Bass [Doubleneck]",
+      "uri": null
+    },
+    {
+      "id": 63308,
+      "name": "Elliott Sharp",
+      "role": "Guitar [Soprano]",
+      "uri": null
+    },
+    {
+      "id": 10293,
+      "name": "Arto Lindsay",
+      "role": "Guitar, Voice",
+      "uri": null
+    },
+    {
+      "id": 314275,
+      "name": "Carol Emanuel",
+      "role": "Harp",
+      "uri": null
+    },
+    {
+      "id": 210518,
+      "name": "Zeena Parkins",
+      "role": "Harp",
+      "uri": null
+    },
+    {
+      "id": 210516,
+      "name": "Anthony Coleman",
+      "role": "Harpsichord, Celesta [Celeste]",
+      "uri": null
+    },
+    {
+      "id": 742600,
+      "name": "Art Lange",
+      "role": "Liner Notes",
+      "uri": null
+    },
+    {
+      "id": 410207,
+      "name": "Peter Pfister",
+      "role": "Mixed By [Remix], Mastered By [December 2000]",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Organ [Hammond], Celesta [Celeste]",
+      "uri": null
+    },
+    {
+      "id": 210516,
+      "name": "Anthony Coleman",
+      "role": "Organ [Pipe]",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Other [Prompter], Composed By",
+      "uri": null
+    },
+    {
+      "id": 256182,
+      "name": "Bobby Previte",
+      "role": "Percussion",
+      "uri": null
+    },
+    {
+      "id": 742600,
+      "name": "Art Lange",
+      "role": "Photography By [Cover]",
+      "uri": null
+    },
+    {
+      "id": 210516,
+      "name": "Anthony Coleman",
+      "role": "Piano, Organ [Yamaha]",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Piano, Synthesizer [DX7]",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 319252,
+      "name": "Werner X. Uehlinger",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 592572,
+      "name": "Aaron Heller",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 604278,
+      "name": "David Laskin",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 480296,
+      "name": "Don Hünerberg",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 835273,
+      "name": "Karl Francis",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 272701,
+      "name": "David Weinstein",
+      "role": "Sampler [Mirage Sampling]",
+      "uri": null
+    },
+    {
+      "id": 48397,
+      "name": "Bob James",
+      "role": "Tape [Tapes]",
+      "uri": null
+    },
+    {
+      "id": 275461,
+      "name": "Jim Staley",
+      "role": "Trombone",
+      "uri": null
+    },
+    {
+      "id": 214376,
+      "name": "J.A. Deane",
+      "role": "Trombone, Synthesizer, Electronics",
+      "uri": null
+    },
+    {
+      "id": 65707,
+      "name": "Christian Marclay",
+      "role": "Turntables",
+      "uri": null
+    },
+    {
+      "id": 63308,
+      "name": "Elliott Sharp",
+      "role": "Voice",
+      "uri": null
+    }
+  ]
+}

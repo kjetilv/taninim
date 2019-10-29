@@ -1,0 +1,438 @@
+{
+  "status": "Accepted",
+  "videos": [
+    {
+      "duration": 4037,
+      "embed": true,
+      "title": "Ruins - Hyderomastgroningem (Full Album)",
+      "description": "Ruins - Hyderomastgroningem (Full Album)",
+      "uri": "https://www.youtube.com/watch?v=KoNtq1Nr7JQ"
+    }
+  ],
+  "series": [
+    {
+      "name": "New Japan",
+      "entity_type": "2",
+      "catno": "TZ 7202",
+      "resource_url": "https://api.discogs.com/labels/222212",
+      "id": 222212,
+      "entity_type_name": "Series"
+    }
+  ],
+  "labels": [
+    {
+      "name": "Tzadik",
+      "entity_type": "1",
+      "catno": "TZ 7202",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 1995,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 59,
+      "average": 4.14
+    },
+    "want": 121,
+    "contributors": [
+      {
+        "username": "drij",
+        "resource_url": "https://api.discogs.com/users/drij"
+      },
+      {
+        "username": "muntz",
+        "resource_url": "https://api.discogs.com/users/muntz"
+      },
+      {
+        "username": "rexjwb",
+        "resource_url": "https://api.discogs.com/users/rexjwb"
+      },
+      {
+        "username": "al1",
+        "resource_url": "https://api.discogs.com/users/al1"
+      },
+      {
+        "username": "Oedipus_Recs",
+        "resource_url": "https://api.discogs.com/users/Oedipus_Recs"
+      },
+      {
+        "username": "Numanoid",
+        "resource_url": "https://api.discogs.com/users/Numanoid"
+      },
+      {
+        "username": "Abdelfauda",
+        "resource_url": "https://api.discogs.com/users/Abdelfauda"
+      },
+      {
+        "username": "marcozambon",
+        "resource_url": "https://api.discogs.com/users/marcozambon"
+      },
+      {
+        "username": "EBIS",
+        "resource_url": "https://api.discogs.com/users/EBIS"
+      }
+    ],
+    "have": 295,
+    "submitter": {
+      "username": "drij",
+      "resource_url": "https://api.discogs.com/users/drij"
+    },
+    "data_quality": "Needs Vote"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "Ruins",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/60844",
+      "id": 60844
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 575,
+      "width": 583,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 679847,
+  "artists_sort": "Ruins",
+  "genres": [
+    "Rock"
+  ],
+  "thumb": "",
+  "num_for_sale": 4,
+  "title": "Hyderomastgroningem",
+  "date_changed": "2018-12-11T03:50:53-08:00",
+  "master_id": 1346890,
+  "lowest_price": 6.5,
+  "styles": [
+    "Experimental"
+  ],
+  "released_formatted": "1995",
+  "formats": [
+    {
+      "qty": "1",
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD"
+    }
+  ],
+  "estimated_weight": 85,
+  "master_url": "https://api.discogs.com/masters/1346890",
+  "released": "1995",
+  "date_added": "2006-05-15T01:13:17-07:00",
+  "extraartists": [
+    {
+      "join": "",
+      "name": "Ryuichi Masuda",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass, Vocals",
+      "resource_url": "https://api.discogs.com/artists/495336",
+      "id": 495336
+    },
+    {
+      "join": "",
+      "name": "Ikue Mori",
+      "anv": "",
+      "tracks": "",
+      "role": "Design",
+      "resource_url": "https://api.discogs.com/artists/124429",
+      "id": 124429
+    },
+    {
+      "join": "",
+      "name": "Tomoyo T.L.",
+      "anv": "",
+      "tracks": "",
+      "role": "Design [Consultant]",
+      "resource_url": "https://api.discogs.com/artists/805317",
+      "id": 805317
+    },
+    {
+      "join": "",
+      "name": "Tatsuya Yoshida",
+      "anv": "",
+      "tracks": "",
+      "role": "Drums, Percussion [Percussions], Vocals",
+      "resource_url": "https://api.discogs.com/artists/223249",
+      "id": 223249
+    },
+    {
+      "join": "",
+      "name": "Martin Bisi",
+      "anv": "",
+      "tracks": "",
+      "role": "Engineer",
+      "resource_url": "https://api.discogs.com/artists/141327",
+      "id": 141327
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "David Newgarden",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer [Associate]",
+      "resource_url": "https://api.discogs.com/artists/433958",
+      "id": 433958
+    },
+    {
+      "join": "",
+      "name": "Kazunori Sugiyama",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer [Associate]",
+      "resource_url": "https://api.discogs.com/artists/272583",
+      "id": 272583
+    },
+    {
+      "join": "",
+      "name": "Allan Tucker",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/388202",
+      "id": 388202
+    },
+    {
+      "join": "",
+      "name": "Hiromi Yamamoto",
+      "anv": "Yamamoto Hiromi",
+      "tracks": "",
+      "role": "Photography By [Cover Photo]",
+      "resource_url": "https://api.discogs.com/artists/1466719",
+      "id": 1466719
+    },
+    {
+      "join": "",
+      "name": "Harumi Aida",
+      "anv": "Aida Harumi",
+      "tracks": "",
+      "role": "Photography By [Ruins Portrait]",
+      "resource_url": "https://api.discogs.com/artists/2277231",
+      "id": 2277231
+    },
+    {
+      "join": "",
+      "name": "Ruins",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/60844",
+      "id": 60844
+    }
+  ],
+  "tracklist": [
+    {
+      "duration": "1:27",
+      "position": "1",
+      "type_": "track",
+      "title": "Hyderomastgroningem"
+    },
+    {
+      "duration": "9:41",
+      "position": "2",
+      "type_": "track",
+      "title": "Brixon Varromiks"
+    },
+    {
+      "duration": "0:36",
+      "position": "3",
+      "type_": "track",
+      "title": "0'33\""
+    },
+    {
+      "duration": "2:02",
+      "position": "4",
+      "type_": "track",
+      "title": "Economic Mond Possa"
+    },
+    {
+      "duration": "2:23",
+      "position": "5",
+      "type_": "track",
+      "title": "Pig Brag Crack"
+    },
+    {
+      "duration": "5:19",
+      "position": "6",
+      "type_": "track",
+      "title": "Prrifth"
+    },
+    {
+      "duration": "2:41",
+      "position": "7",
+      "type_": "track",
+      "title": "Pontemcorary Music #1"
+    },
+    {
+      "duration": "0:37",
+      "position": "8",
+      "type_": "track",
+      "title": "Zurna Taksim"
+    },
+    {
+      "duration": "0:39",
+      "position": "9",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Ryuichi Masuda",
+          "anv": "",
+          "tracks": "",
+          "role": "Electronics [Radio]",
+          "resource_url": "https://api.discogs.com/artists/495336",
+          "id": 495336
+        }
+      ],
+      "title": "Comme A La Radio"
+    },
+    {
+      "duration": "3:20",
+      "position": "10",
+      "type_": "track",
+      "title": "Gravestone"
+    },
+    {
+      "duration": "5:27",
+      "position": "11",
+      "type_": "track",
+      "title": "Memories Of Zworrisdeh"
+    },
+    {
+      "duration": "2:19",
+      "position": "12",
+      "type_": "track",
+      "title": "Skyscraper"
+    },
+    {
+      "duration": "2:48",
+      "position": "13",
+      "type_": "track",
+      "title": "Dolnnen Vlast"
+    },
+    {
+      "duration": "4:21",
+      "position": "14",
+      "type_": "track",
+      "title": "Stone Eater"
+    },
+    {
+      "duration": "1:45",
+      "position": "15",
+      "type_": "track",
+      "title": "Pontemcorary Music #2"
+    },
+    {
+      "duration": "7:35",
+      "position": "16",
+      "type_": "track",
+      "title": "Del Fanci Kant"
+    },
+    {
+      "duration": "0:33",
+      "position": "17",
+      "type_": "track",
+      "title": "Bonze From Hell"
+    },
+    {
+      "duration": "2:51",
+      "position": "18",
+      "type_": "track",
+      "title": "Speed Ball"
+    },
+    {
+      "duration": "4:04",
+      "position": "19",
+      "type_": "track",
+      "title": "Ordinary People In Idaho"
+    },
+    {
+      "duration": "6:49",
+      "position": "20",
+      "type_": "track",
+      "title": "Bliezzaning Moltz"
+    }
+  ],
+  "notes": "Recorded and mixed at B.C. Studio, Dec. 1993\r\nMastered at Foothill Digital\r\n\r\nDedicated to J. Cage",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "description": "on obi",
+      "value": "7 02397-7202-2 5"
+    },
+    {
+      "type": "Matrix / Runout",
+      "description": "Mirrored",
+      "value": "0239-77202-2 MASTERED BY NIMBUS"
+    },
+    {
+      "type": "Mastering SID Code",
+      "description": "Mirrored",
+      "value": "IFPI L125"
+    },
+    {
+      "type": "Mould SID Code",
+      "value": "IFPI 2401"
+    }
+  ],
+  "companies": [
+    {
+      "name": "BC Studio",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/281948",
+      "id": 281948,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "BC Studio",
+      "entity_type": "27",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/281948",
+      "id": 281948,
+      "entity_type_name": "Mixed At"
+    },
+    {
+      "name": "Foothill Digital",
+      "entity_type": "29",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/269205",
+      "id": 269205,
+      "entity_type_name": "Mastered At"
+    },
+    {
+      "name": "Nimbus",
+      "entity_type": "31",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/93218",
+      "id": 93218,
+      "entity_type_name": "Glass Mastered At"
+    }
+  ],
+  "uri": "https://www.discogs.com/Ruins-Hyderomastgroningem/release/679847",
+  "country": "US",
+  "resource_url": "https://api.discogs.com/releases/679847",
+  "data_quality": "Needs Vote"
+}

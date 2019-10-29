@@ -1,0 +1,49 @@
+{
+  "artist": null,
+  "title": "Koedarake",
+  "resource_url": "https://api.discogs.com/releases/1196058",
+  "extraartists": [
+    {
+      "id": 1973998,
+      "name": "Chippy (3)",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Executive-Producer [Associate Producer]",
+      "uri": null
+    },
+    {
+      "id": 4326197,
+      "name": "Isono Yoko",
+      "role": "Illustration",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 2116674,
+      "name": "Makigami Ayako",
+      "role": "Photography By",
+      "uri": null
+    },
+    {
+      "id": 257455,
+      "name": "Makigami Koichi",
+      "role": "Producer, Music By, Recorded By, Voice",
+      "uri": null
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "artist": null,
+  "title": "Guitar, Drums 'n' Bass",
+  "resource_url": "https://api.discogs.com/releases/226315",
+  "extraartists": [
+    {
+      "id": 35161,
+      "name": "Ninj",
+      "role": "Co-producer",
+      "uri": null
+    },
+    {
+      "id": 41904,
+      "name": "Derek Bailey",
+      "role": "Composed By [All Compositions By]",
+      "uri": null
+    },
+    {
+      "id": 851962,
+      "name": "Yasunori Arai",
+      "role": "Design [Cover Design By]",
+      "uri": null
+    },
+    {
+      "id": 35161,
+      "name": "Ninj",
+      "role": "Drum Programming [Drum Programmer]",
+      "uri": null
+    },
+    {
+      "id": 2392894,
+      "name": "Disk Union",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Executive-Producer [Associate Producer]",
+      "uri": null
+    },
+    {
+      "id": 41904,
+      "name": "Derek Bailey",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 388202,
+      "name": "Allan Tucker",
+      "role": "Mastered By",
+      "uri": null
+    }
+  ]
+}

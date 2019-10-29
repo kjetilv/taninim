@@ -1,0 +1,121 @@
+{
+  "artist": null,
+  "title": "Kristallnacht",
+  "resource_url": "https://api.discogs.com/releases/13129758",
+  "extraartists": [
+    {
+      "id": 214410,
+      "name": "Mark Dresser",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 371724,
+      "name": "David Krakauer",
+      "role": "Bass Clarinet",
+      "uri": null
+    },
+    {
+      "id": 371724,
+      "name": "David Krakauer",
+      "role": "Clarinet",
+      "uri": null
+    },
+    {
+      "id": 805317,
+      "name": "Tomoyo T.L.",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Edited By",
+      "uri": null
+    },
+    {
+      "id": 228362,
+      "name": "Alec Head",
+      "role": "Engineer",
+      "uri": null
+    },
+    {
+      "id": 916605,
+      "name": "Suzanne Dyer",
+      "role": "Engineer [Assistant]",
+      "uri": null
+    },
+    {
+      "id": 132535,
+      "name": "Marc Ribot",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 210516,
+      "name": "Anthony Coleman",
+      "role": "Keyboards",
+      "uri": null
+    },
+    {
+      "id": 4179127,
+      "name": "Edmond Jabès",
+      "role": "Liner Notes",
+      "uri": null
+    },
+    {
+      "id": 336488,
+      "name": "Lynne Tillman",
+      "role": "Liner Notes",
+      "uri": null
+    },
+    {
+      "id": 472611,
+      "name": "Richard Foreman",
+      "role": "Liner Notes",
+      "uri": null
+    },
+    {
+      "id": 271098,
+      "name": "Bob Ludwig",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 234424,
+      "name": "William Winant",
+      "role": "Percussion",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Producer, Composed By",
+      "uri": null
+    },
+    {
+      "id": 260084,
+      "name": "Frank London",
+      "role": "Trumpet",
+      "uri": null
+    },
+    {
+      "id": 4179128,
+      "name": "Jacob Weiss (2)",
+      "role": "Typography [Hebrew Typesetting By]",
+      "uri": null
+    },
+    {
+      "id": 1865947,
+      "name": "Strong Silent Type",
+      "role": "Typography [Phototypesetting By]",
+      "uri": null
+    },
+    {
+      "id": 260081,
+      "name": "Mark Feldman",
+      "role": "Violin",
+      "uri": null
+    }
+  ]
+}

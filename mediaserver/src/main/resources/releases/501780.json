@@ -1,0 +1,79 @@
+{
+  "artist": null,
+  "title": "Live Volume 1: Knitting Factory 1989",
+  "resource_url": "https://api.discogs.com/releases/501780",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Alto Saxophone, Producer",
+      "uri": null
+    },
+    {
+      "id": 1730020,
+      "name": "Suehiro Maruo",
+      "role": "Artwork [Back Cover]",
+      "uri": null
+    },
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 1835385,
+      "name": "Heung-Heung Chin",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 260851,
+      "name": "Joey Baron",
+      "role": "Drums",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Keyboards",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 765445,
+      "name": "Ken Schles",
+      "role": "Photography By [Band Photos]",
+      "uri": null
+    },
+    {
+      "id": 2017999,
+      "name": "Weegee",
+      "role": "Photography By [Crime Shots]",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Producer [Associate Producer]",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Written-By",
+      "uri": null
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "artist": null,
+  "title": "Late Works",
+  "resource_url": "https://api.discogs.com/releases/2264083",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Alto Saxophone",
+      "uri": null
+    },
+    {
+      "id": 2280480,
+      "name": "Bea Kwan Lim",
+      "role": "Artwork",
+      "uri": null
+    },
+    {
+      "id": 1973998,
+      "name": "Chippy (3)",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 1835385,
+      "name": "Heung-Heung Chin",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Electric Guitar",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Executive-Producer [Associate Producer]",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 1256550,
+      "name": "Fred Frith / John Zorn",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 840398,
+      "name": "Marc Urselli",
+      "role": "Recorded By, Mixed By",
+      "uri": null
+    }
+  ]
+}

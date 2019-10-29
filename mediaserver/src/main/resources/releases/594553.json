@@ -1,0 +1,97 @@
+{
+  "artist": null,
+  "title": "News For Lulu",
+  "resource_url": "https://api.discogs.com/releases/594553",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Alto Saxophone, Liner Notes [March 1988]",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Arranged By",
+      "uri": null
+    },
+    {
+      "id": 141326,
+      "name": "George Lewis",
+      "role": "Arranged By",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Arranged By",
+      "uri": null
+    },
+    {
+      "id": 3186797,
+      "name": "Georg Wilhelm Pabst",
+      "role": "Cover",
+      "uri": null
+    },
+    {
+      "id": 1830035,
+      "name": "Walter Bosshardt",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 1711860,
+      "name": "Peter Watrous",
+      "role": "Liner Notes [October 1987]",
+      "uri": null
+    },
+    {
+      "id": 547170,
+      "name": "Chuck Stewart",
+      "role": "Photography By [Clark]",
+      "uri": null
+    },
+    {
+      "id": 292019,
+      "name": "Francis Wolff",
+      "role": "Photography By [Dorham, Mobley, Redd]",
+      "uri": null
+    },
+    {
+      "id": 2241807,
+      "name": "Manfred Rinderspacher",
+      "role": "Photography By [Photos Of Zorn/Lewis/Frisell By]",
+      "uri": null
+    },
+    {
+      "id": 920427,
+      "name": "Pia & Werner X. Uehlinger",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 559690,
+      "name": "Etienne Bron",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 410207,
+      "name": "Peter Pfister",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 141326,
+      "name": "George Lewis",
+      "role": "Trombone",
+      "uri": null
+    }
+  ]
+}

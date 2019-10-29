@@ -1,0 +1,549 @@
+{
+  "styles": [
+    "Noise",
+    "Avantgarde"
+  ],
+  "videos": [
+    {
+      "duration": 356,
+      "description": "John Zorn's Kristallnacht Track 1",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=rn1pERMiK3s",
+      "title": "John Zorn's Kristallnacht Track 1"
+    },
+    {
+      "duration": 707,
+      "description": "John Zorn's Kristallnacht Track 2",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=-rne-xtCILE",
+      "title": "John Zorn's Kristallnacht Track 2"
+    },
+    {
+      "duration": 208,
+      "description": "John Zorn's Kristallnacht Track 3",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=ONXaVwlac6Q",
+      "title": "John Zorn's Kristallnacht Track 3"
+    },
+    {
+      "duration": 183,
+      "description": "John Zorn's Kristallnacht Track 4",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=fcLLVGhJLoc",
+      "title": "John Zorn's Kristallnacht Track 4"
+    },
+    {
+      "duration": 530,
+      "description": "John Zorn's Kristallnacht Track 5",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=-Sc3wetS3hU",
+      "title": "John Zorn's Kristallnacht Track 5"
+    },
+    {
+      "duration": 123,
+      "description": "John Zorn's Kristallnacht Track 6",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=0iv2C895LGM",
+      "title": "John Zorn's Kristallnacht Track 6"
+    },
+    {
+      "duration": 480,
+      "description": "John Zorn's Kristallnacht Track 7",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=aFGNII_4kFw",
+      "title": "John Zorn's Kristallnacht Track 7"
+    },
+    {
+      "duration": 356,
+      "description": "John Zorn - Kristallnacht - Shtetl (Ghetto Life)",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=JDUhp-ZIwJQ",
+      "title": "John Zorn - Kristallnacht - Shtetl (Ghetto Life)"
+    },
+    {
+      "duration": 719,
+      "description": "John Zorn, Never Again, Jamais Plus, Kristallnacht",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=VuuS8IofMWA",
+      "title": "John Zorn, Never Again, Jamais Plus, Kristallnacht"
+    },
+    {
+      "duration": 208,
+      "description": "John Zorn - Kristallnacht - Gahelet (Embers)",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=NwaR8DQ6sag",
+      "title": "John Zorn - Kristallnacht - Gahelet (Embers)"
+    },
+    {
+      "duration": 182,
+      "description": "John Zorn - Kristallnacht - Tikkun (Rectification)",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=BKEdeQnGLho",
+      "title": "John Zorn - Kristallnacht - Tikkun (Rectification)"
+    },
+    {
+      "duration": 530,
+      "description": "John Zorn - Kristallnacht - Tzfia (Looking Ahead)",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=jGqTLUk7UKk",
+      "title": "John Zorn - Kristallnacht - Tzfia (Looking Ahead)"
+    },
+    {
+      "duration": 123,
+      "description": "John Zorn - Kristallnacht - Barzel (Iron Fist)",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=t-b12pSvSbg",
+      "title": "John Zorn - Kristallnacht - Barzel (Iron Fist)"
+    }
+  ],
+  "series": [],
+  "labels": [
+    {
+      "name": "EVVA",
+      "entity_type": "1",
+      "catno": "evva 33005",
+      "resource_url": "https://api.discogs.com/labels/51638",
+      "id": 51638,
+      "entity_type_name": "Label"
+    },
+    {
+      "name": "Tzadik",
+      "entity_type": "1",
+      "catno": "TZ 7301",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 0,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 0,
+      "average": 0.0
+    },
+    "have": 2,
+    "contributors": [
+      {
+        "username": "spsavchuk",
+        "resource_url": "https://api.discogs.com/users/spsavchuk"
+      },
+      {
+        "username": "Colonycollapse23",
+        "resource_url": "https://api.discogs.com/users/Colonycollapse23"
+      }
+    ],
+    "want": 2,
+    "submitter": {
+      "username": "spsavchuk",
+      "resource_url": "https://api.discogs.com/users/spsavchuk"
+    },
+    "data_quality": "Needs Vote"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 607,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 309,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 305,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 612,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 592,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 581,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 470,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 13129758,
+  "artists_sort": "John Zorn",
+  "genres": [
+    "Electronic",
+    "Rock"
+  ],
+  "thumb": "",
+  "num_for_sale": 3,
+  "title": "Kristallnacht",
+  "date_changed": "2019-01-29T18:06:02-08:00",
+  "master_id": 15528,
+  "lowest_price": 8.78,
+  "status": "Accepted",
+  "estimated_weight": 85,
+  "master_url": "https://api.discogs.com/masters/15528",
+  "date_added": "2019-01-27T02:33:03-08:00",
+  "tracklist": [
+    {
+      "duration": "5:51",
+      "position": "1",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "David Krakauer",
+          "anv": "",
+          "tracks": "",
+          "role": "Clarinet, Bass Clarinet",
+          "resource_url": "https://api.discogs.com/artists/371724",
+          "id": 371724
+        },
+        {
+          "join": "",
+          "name": "Frank London",
+          "anv": "",
+          "tracks": "",
+          "role": "Trumpet",
+          "resource_url": "https://api.discogs.com/artists/260084",
+          "id": 260084
+        }
+      ],
+      "title": "Shtetl = Ghetto Life"
+    },
+    {
+      "duration": "11:41",
+      "position": "2",
+      "type_": "track",
+      "title": "Never Again"
+    },
+    {
+      "duration": "3:25",
+      "position": "3",
+      "type_": "track",
+      "title": "Gahelet = Embers"
+    },
+    {
+      "duration": "3:02",
+      "position": "4",
+      "type_": "track",
+      "title": "Tikkun = Rectification"
+    },
+    {
+      "duration": "8:46",
+      "position": "5",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "David Krakauer",
+          "anv": "",
+          "tracks": "",
+          "role": "Clarinet, Bass Clarinet",
+          "resource_url": "https://api.discogs.com/artists/371724",
+          "id": 371724
+        },
+        {
+          "join": "",
+          "name": "Frank London",
+          "anv": "",
+          "tracks": "",
+          "role": "Trumpet",
+          "resource_url": "https://api.discogs.com/artists/260084",
+          "id": 260084
+        }
+      ],
+      "title": "Tzfia = Looking Ahead"
+    },
+    {
+      "duration": "2:01",
+      "position": "6",
+      "type_": "track",
+      "title": "Barzel = Iron Fist"
+    },
+    {
+      "duration": "7:58",
+      "position": "7",
+      "type_": "track",
+      "title": "Gariin = Nucleus-The New Settlement"
+    }
+  ],
+  "extraartists": [
+    {
+      "join": "",
+      "name": "Mark Dresser",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass",
+      "resource_url": "https://api.discogs.com/artists/214410",
+      "id": 214410
+    },
+    {
+      "join": "",
+      "name": "David Krakauer",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass Clarinet",
+      "resource_url": "https://api.discogs.com/artists/371724",
+      "id": 371724
+    },
+    {
+      "join": "",
+      "name": "David Krakauer",
+      "anv": "",
+      "tracks": "",
+      "role": "Clarinet",
+      "resource_url": "https://api.discogs.com/artists/371724",
+      "id": 371724
+    },
+    {
+      "join": "",
+      "name": "Tomoyo T.L.",
+      "anv": "",
+      "tracks": "",
+      "role": "Design",
+      "resource_url": "https://api.discogs.com/artists/805317",
+      "id": 805317
+    },
+    {
+      "join": "",
+      "name": "Scott Hull (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Edited By",
+      "resource_url": "https://api.discogs.com/artists/360567",
+      "id": 360567
+    },
+    {
+      "join": "",
+      "name": "Alec Head",
+      "anv": "",
+      "tracks": "",
+      "role": "Engineer",
+      "resource_url": "https://api.discogs.com/artists/228362",
+      "id": 228362
+    },
+    {
+      "join": "",
+      "name": "Suzanne Dyer",
+      "anv": "Suzy Dyer",
+      "tracks": "",
+      "role": "Engineer [Assistant]",
+      "resource_url": "https://api.discogs.com/artists/916605",
+      "id": 916605
+    },
+    {
+      "join": "",
+      "name": "Marc Ribot",
+      "anv": "",
+      "tracks": "",
+      "role": "Guitar",
+      "resource_url": "https://api.discogs.com/artists/132535",
+      "id": 132535
+    },
+    {
+      "join": "",
+      "name": "Anthony Coleman",
+      "anv": "",
+      "tracks": "",
+      "role": "Keyboards",
+      "resource_url": "https://api.discogs.com/artists/210516",
+      "id": 210516
+    },
+    {
+      "join": "",
+      "name": "Edmond Jabès",
+      "anv": "",
+      "tracks": "",
+      "role": "Liner Notes",
+      "resource_url": "https://api.discogs.com/artists/4179127",
+      "id": 4179127
+    },
+    {
+      "join": "",
+      "name": "Lynne Tillman",
+      "anv": "",
+      "tracks": "",
+      "role": "Liner Notes",
+      "resource_url": "https://api.discogs.com/artists/336488",
+      "id": 336488
+    },
+    {
+      "join": "",
+      "name": "Richard Foreman",
+      "anv": "",
+      "tracks": "",
+      "role": "Liner Notes",
+      "resource_url": "https://api.discogs.com/artists/472611",
+      "id": 472611
+    },
+    {
+      "join": "",
+      "name": "Bob Ludwig",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/271098",
+      "id": 271098
+    },
+    {
+      "join": "",
+      "name": "William Winant",
+      "anv": "",
+      "tracks": "",
+      "role": "Percussion",
+      "resource_url": "https://api.discogs.com/artists/234424",
+      "id": 234424
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer, Composed By",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Frank London",
+      "anv": "",
+      "tracks": "",
+      "role": "Trumpet",
+      "resource_url": "https://api.discogs.com/artists/260084",
+      "id": 260084
+    },
+    {
+      "join": "",
+      "name": "Jacob Weiss (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Typography [Hebrew Typesetting By]",
+      "resource_url": "https://api.discogs.com/artists/4179128",
+      "id": 4179128
+    },
+    {
+      "join": "",
+      "name": "Strong Silent Type",
+      "anv": "",
+      "tracks": "",
+      "role": "Typography [Phototypesetting By]",
+      "resource_url": "https://api.discogs.com/artists/1865947",
+      "id": 1865947
+    },
+    {
+      "join": "",
+      "name": "Mark Feldman",
+      "anv": "",
+      "tracks": "",
+      "role": "Violin",
+      "resource_url": "https://api.discogs.com/artists/260081",
+      "id": 260081
+    }
+  ],
+  "country": "UK",
+  "notes": "Recorded and mixed November 9 & 10 1992\r\n\r\n℗&© 1993 eva records\r\nPrinted in Japan\r\n\r\nReleased by Evva for Europe and Japan\r\nReleased by Tzadik for the United States\r\n\r\nCaution: \"Never Again\" contains high frequency extremes at the limits of human hearing & beyond, which may cause nausea, headache & ringing in the ears. Prolonged or repeated listening is not advisable as it may result in temporary or permament ear damage. - The composer\r\n",
+  "identifiers": [
+    {
+      "type": "Matrix / Runout",
+      "value": "TZ7301 :MASTERED:  :BY NIMBUS:"
+    },
+    {
+      "type": "Mastering SID Code",
+      "value": "IFPI L125"
+    },
+    {
+      "type": "Mould SID Code",
+      "value": "none"
+    }
+  ],
+  "companies": [
+    {
+      "name": "RPM Studios",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264220",
+      "id": 264220,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "RPM Studios",
+      "entity_type": "27",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264220",
+      "id": 264220,
+      "entity_type_name": "Mixed At"
+    },
+    {
+      "name": "Nimbus",
+      "entity_type": "31",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/93218",
+      "id": 93218,
+      "entity_type_name": "Glass Mastered At"
+    }
+  ],
+  "uri": "https://www.discogs.com/John-Zorn-Kristallnacht/release/13129758",
+  "formats": [
+    {
+      "descriptions": [
+        "Album",
+        "Reissue"
+      ],
+      "name": "CD",
+      "qty": "1"
+    }
+  ],
+  "resource_url": "https://api.discogs.com/releases/13129758",
+  "data_quality": "Needs Vote"
+}

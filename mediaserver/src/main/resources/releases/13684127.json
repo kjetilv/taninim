@@ -1,0 +1,31 @@
+{
+  "artist": null,
+  "title": "The Hierophant",
+  "resource_url": "https://api.discogs.com/releases/13684127",
+  "extraartists": [
+    {
+      "id": 273038,
+      "name": "Trevor Dunn",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Composed By",
+      "uri": null
+    },
+    {
+      "id": 252337,
+      "name": "Kenny Wollesen",
+      "role": "Drums",
+      "uri": null
+    },
+    {
+      "id": 1291709,
+      "name": "Brian Marsella",
+      "role": "Piano",
+      "uri": null
+    }
+  ]
+}

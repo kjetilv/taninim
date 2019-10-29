@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class IO {
 
@@ -79,10 +80,25 @@ public final class IO {
         } catch (Exception e) {
             throw new IllegalStateException("Made no sense of " + uri, e);
         }
-        try (InputStream fos = new BufferedInputStream(urlConnection.getInputStream())) {
-            return receptor.apply(fos);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not read from " + uri, e);
+        try {
+            int responseCode;
+            try {
+                responseCode = urlConnection.getResponseCode();
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not assert response code from " + uri, e);
+            }
+            if (responseCode == 200) {
+                try (InputStream fos = new BufferedInputStream(urlConnection.getInputStream())) {
+                    return receptor.apply(fos);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Could not read from " + uri, e);
+                }
+            }
+            try (InputStream fos = new BufferedInputStream(urlConnection.getErrorStream())) {
+                throw new IllegalStateException("Failed to open " + uri + " " + error(fos));
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not read error resposne from " + uri, e);
+            }
         } finally {
             urlConnection.disconnect();
         }
@@ -105,6 +121,11 @@ public final class IO {
                     throw new IllegalStateException("Failed to read " + resource, e);
                 }
             });
+    }
+
+    private static String error(InputStream fos) {
+
+        return new BufferedReader(new InputStreamReader(fos)).lines().collect(Collectors.joining("\n"));
     }
 
     private static Function<InputStream, Map<String, ?>> readMapFrom(Object source) {

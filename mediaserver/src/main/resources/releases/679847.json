@@ -1,0 +1,79 @@
+{
+  "artist": null,
+  "title": "Hyderomastgroningem",
+  "resource_url": "https://api.discogs.com/releases/679847",
+  "extraartists": [
+    {
+      "id": 495336,
+      "name": "Ryuichi Masuda",
+      "role": "Bass, Vocals",
+      "uri": null
+    },
+    {
+      "id": 124429,
+      "name": "Ikue Mori",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 805317,
+      "name": "Tomoyo T.L.",
+      "role": "Design [Consultant]",
+      "uri": null
+    },
+    {
+      "id": 223249,
+      "name": "Tatsuya Yoshida",
+      "role": "Drums, Percussion [Percussions], Vocals",
+      "uri": null
+    },
+    {
+      "id": 141327,
+      "name": "Martin Bisi",
+      "role": "Engineer",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 433958,
+      "name": "David Newgarden",
+      "role": "Executive-Producer [Associate]",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Executive-Producer [Associate]",
+      "uri": null
+    },
+    {
+      "id": 388202,
+      "name": "Allan Tucker",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 1466719,
+      "name": "Hiromi Yamamoto",
+      "role": "Photography By [Cover Photo]",
+      "uri": null
+    },
+    {
+      "id": 2277231,
+      "name": "Harumi Aida",
+      "role": "Photography By [Ruins Portrait]",
+      "uri": null
+    },
+    {
+      "id": 60844,
+      "name": "Ruins",
+      "role": "Producer",
+      "uri": null
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "artist": null,
+  "title": "Ballads",
+  "resource_url": "https://api.discogs.com/releases/510204",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 41904,
+      "name": "Derek Bailey",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 41904,
+      "name": "Derek Bailey",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 265176,
+      "name": "Toby Hrycek-Robinson",
+      "role": "Recorded By",
+      "uri": null
+    }
+  ]
+}

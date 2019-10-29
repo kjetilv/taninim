@@ -1,0 +1,610 @@
+{
+  "styles": [
+    "Abstract",
+    "Noise",
+    "Experimental"
+  ],
+  "series": [
+    {
+      "name": "Composer Series",
+      "entity_type": "2",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/222329",
+      "id": 222329,
+      "entity_type_name": "Series"
+    }
+  ],
+  "labels": [
+    {
+      "name": "Tzadik",
+      "entity_type": "1",
+      "catno": "TZ 8051",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 2008,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 14,
+      "average": 4.36
+    },
+    "have": 91,
+    "contributors": [
+      {
+        "username": "daumkraft",
+        "resource_url": "https://api.discogs.com/users/daumkraft"
+      },
+      {
+        "username": "al1",
+        "resource_url": "https://api.discogs.com/users/al1"
+      },
+      {
+        "username": "TrollH",
+        "resource_url": "https://api.discogs.com/users/TrollH"
+      },
+      {
+        "username": "EBIS",
+        "resource_url": "https://api.discogs.com/users/EBIS"
+      },
+      {
+        "username": "jona830",
+        "resource_url": "https://api.discogs.com/users/jona830"
+      },
+      {
+        "username": "cyclotronic",
+        "resource_url": "https://api.discogs.com/users/cyclotronic"
+      },
+      {
+        "username": "venetian-guy",
+        "resource_url": "https://api.discogs.com/users/venetian-guy"
+      }
+    ],
+    "want": 48,
+    "submitter": {
+      "username": "daumkraft",
+      "resource_url": "https://api.discogs.com/users/daumkraft"
+    },
+    "data_quality": "Needs Vote"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "Maja S. K. Ratkje",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/65603",
+      "id": 65603
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 590,
+      "width": 600,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 578,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 595,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 588,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 588,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 459,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 465,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 605,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 353,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 1413640,
+  "artists_sort": "Maja S. K. Ratkje",
+  "genres": [
+    "Electronic"
+  ],
+  "thumb": "",
+  "num_for_sale": 8,
+  "title": "River Mouth Echoes",
+  "date_changed": "2019-01-06T08:41:33-08:00",
+  "lowest_price": 8.88,
+  "status": "Accepted",
+  "released_formatted": "Apr 2008",
+  "estimated_weight": 85,
+  "released": "2008-04-00",
+  "date_added": "2008-08-01T15:09:03-07:00",
+  "tracklist": [
+    {
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Rolf Erik Nystrøm",
+          "anv": "Rolf-Erik Nystrøm",
+          "tracks": "",
+          "role": "Alto Saxophone",
+          "resource_url": "https://api.discogs.com/artists/300040",
+          "id": 300040
+        },
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "Maja Solveig Kjelstrup Ratkje",
+          "tracks": "",
+          "role": "Electronics [Processing], Mixed By",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        },
+        {
+          "join": "",
+          "name": "Audun Strype",
+          "anv": "",
+          "tracks": "",
+          "role": "Recorded By",
+          "resource_url": "https://api.discogs.com/artists/300685",
+          "id": 300685
+        },
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "Maja Solveig Kjelstrup Ratkje",
+          "tracks": "",
+          "role": "Recorded By",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        }
+      ],
+      "title": "Øx",
+      "type_": "track",
+      "artists": [
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "",
+          "tracks": "",
+          "role": "",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        }
+      ],
+      "duration": "9:52",
+      "position": "1"
+    },
+    {
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Rolf Erik Nystrøm",
+          "anv": "Rolf-Erik Nystrøm",
+          "tracks": "",
+          "role": "Alto Saxophone",
+          "resource_url": "https://api.discogs.com/artists/300040",
+          "id": 300040
+        },
+        {
+          "join": "",
+          "name": "Håkon Thelin",
+          "anv": "",
+          "tracks": "",
+          "role": "Double Bass",
+          "resource_url": "https://api.discogs.com/artists/465070",
+          "id": 465070
+        },
+        {
+          "join": "",
+          "name": "Frode Haltli",
+          "anv": "",
+          "tracks": "",
+          "role": "Producer, Accordion",
+          "resource_url": "https://api.discogs.com/artists/629711",
+          "id": 629711
+        },
+        {
+          "join": "",
+          "name": "Audun Strype",
+          "anv": "",
+          "tracks": "",
+          "role": "Recorded By, Mixed By",
+          "resource_url": "https://api.discogs.com/artists/300685",
+          "id": 300685
+        }
+      ],
+      "title": "Essential Extensions",
+      "type_": "track",
+      "artists": [
+        {
+          "join": "",
+          "name": "Poing",
+          "anv": "",
+          "tracks": "",
+          "role": "",
+          "resource_url": "https://api.discogs.com/artists/1004234",
+          "id": 1004234
+        }
+      ],
+      "duration": "9:47",
+      "position": "2"
+    },
+    {
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "Maja Solveig Kjelstrup Ratkje",
+          "tracks": "",
+          "role": "Voice, Synthesizer, Recorded By, Mixed By",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        }
+      ],
+      "title": "Wintergarden",
+      "type_": "track",
+      "artists": [
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "",
+          "tracks": "",
+          "role": "",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        }
+      ],
+      "duration": "6:06",
+      "position": "3"
+    },
+    {
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Audun Strype",
+          "anv": "",
+          "tracks": "",
+          "role": "Recorded By, Mixed By",
+          "resource_url": "https://api.discogs.com/artists/300685",
+          "id": 300685
+        },
+        {
+          "join": "",
+          "name": "Asako Morikawa",
+          "anv": "",
+          "tracks": "",
+          "role": "Viola da Gamba [Violas De Gambas]",
+          "resource_url": "https://api.discogs.com/artists/1517481",
+          "id": 1517481
+        },
+        {
+          "join": "",
+          "name": "Richard Boothby",
+          "anv": "",
+          "tracks": "",
+          "role": "Viola da Gamba [Violas De Gambas]",
+          "resource_url": "https://api.discogs.com/artists/875352",
+          "id": 875352
+        },
+        {
+          "join": "",
+          "name": "Richard Campbell",
+          "anv": "",
+          "tracks": "",
+          "role": "Viola da Gamba [Violas De Gambas]",
+          "resource_url": "https://api.discogs.com/artists/394237",
+          "id": 394237
+        },
+        {
+          "join": "",
+          "name": "Richard Tunnicliffe",
+          "anv": "",
+          "tracks": "",
+          "role": "Viola da Gamba [Violas De Gambas]",
+          "resource_url": "https://api.discogs.com/artists/843442",
+          "id": 843442
+        }
+      ],
+      "title": "River Mouth Echoes",
+      "type_": "track",
+      "artists": [
+        {
+          "join": "",
+          "name": "Fretwork",
+          "anv": "",
+          "tracks": "",
+          "role": "",
+          "resource_url": "https://api.discogs.com/artists/267135",
+          "id": 267135
+        }
+      ],
+      "duration": "19:59",
+      "position": "4"
+    },
+    {
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Christian Eggen",
+          "anv": "",
+          "tracks": "",
+          "role": "Conductor",
+          "resource_url": "https://api.discogs.com/artists/724096",
+          "id": 724096
+        },
+        {
+          "join": "",
+          "name": "Oslo Sinfonietta",
+          "anv": "",
+          "tracks": "",
+          "role": "Orchestra",
+          "resource_url": "https://api.discogs.com/artists/845052",
+          "id": 845052
+        },
+        {
+          "join": "",
+          "name": "Arild Erikstad",
+          "anv": "",
+          "tracks": "",
+          "role": "Producer",
+          "resource_url": "https://api.discogs.com/artists/927779",
+          "id": 927779
+        },
+        {
+          "join": "",
+          "name": "Audun Strype",
+          "anv": "",
+          "tracks": "",
+          "role": "Recorded By, Mixed By",
+          "resource_url": "https://api.discogs.com/artists/300685",
+          "id": 300685
+        }
+      ],
+      "title": "Waves IIB",
+      "type_": "track",
+      "artists": [
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "",
+          "tracks": "",
+          "role": "",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        }
+      ],
+      "duration": "10:55",
+      "position": "5"
+    },
+    {
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "Maja Solveig Kjelstrup Ratkje",
+          "tracks": "",
+          "role": "Electronics [Processing]",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        },
+        {
+          "join": "",
+          "name": "Torben Snekkestad",
+          "anv": "",
+          "tracks": "",
+          "role": "Tenor Saxophone",
+          "resource_url": "https://api.discogs.com/artists/417106",
+          "id": 417106
+        }
+      ],
+      "title": "Sinus Seduction (Moods Two)",
+      "type_": "track",
+      "artists": [
+        {
+          "join": "",
+          "name": "Maja S. K. Ratkje",
+          "anv": "",
+          "tracks": "",
+          "role": "",
+          "resource_url": "https://api.discogs.com/artists/65603",
+          "id": 65603
+        }
+      ],
+      "duration": "10:04",
+      "position": "6"
+    }
+  ],
+  "extraartists": [
+    {
+      "join": "",
+      "name": "Heung-Heung Chin",
+      "anv": "",
+      "tracks": "",
+      "role": "Design",
+      "resource_url": "https://api.discogs.com/artists/1835385",
+      "id": 1835385
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Kazunori Sugiyama",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer [Associate]",
+      "resource_url": "https://api.discogs.com/artists/272583",
+      "id": 272583
+    },
+    {
+      "join": "",
+      "name": "Scott Hull (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/360567",
+      "id": 360567
+    },
+    {
+      "join": "",
+      "name": "Maja S. K. Ratkje",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer, Composed By",
+      "resource_url": "https://api.discogs.com/artists/65603",
+      "id": 65603
+    }
+  ],
+  "country": "US",
+  "notes": "Track 1 recorded in 2005 at The Rock and SPUNK studio, Oslo, Norway, mixed in 2005 at SPUNK studio, Oslo, Norway.\r\nTrack 2 recorded and mixed in 2007 at Strype Audio, Oslo, Norway.\r\nTrack 3 recorded and mixed in 2005 at SPUNK studio, Oslo, Norway. Original music for Daria Martin's film \"Wintergarden\".\r\nTrack 4 recorded in 2007 in Lommedalen kirke, Oslo, Norway, mixed in 2007 at Strype Audio, Oslo, Norway.\r\nTrack 5 recorded in 2000 at Sofienberg kirke, Oslo, Norway, mixed in 2000 at Strype Audio, Oslo, Norway. Previously released on the Norwegian label Albedo.\r\nTrack 6 recorded and mixed in 1997 at the Norwegian Academy of Music, Oslo, Norway.\r\n\r\nReleased with the support from the Norwegian Society of Composers and Fond for lyd og bilde.\r\n\r\nSpecial thanks to my friends who contributed to this release, to my family, and to Tzadik!\r\n\r\nComes with an obi strip.\r\n",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "value": "7 02397-8051-2 0"
+    }
+  ],
+  "companies": [
+    {
+      "name": "The Rock Studio",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/294841",
+      "id": 294841,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Spunk Studio",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/593156",
+      "id": 593156,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Strype Audio",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264076",
+      "id": 264076,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Sofienberg Kirke",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/263911",
+      "id": 263911,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Lommedalen Kirke",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264240",
+      "id": 264240,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Norges Musikkhøgskole",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/370505",
+      "id": 370505,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Spunk Studio",
+      "entity_type": "27",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/593156",
+      "id": 593156,
+      "entity_type_name": "Mixed At"
+    },
+    {
+      "name": "Strype Audio",
+      "entity_type": "27",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264076",
+      "id": 264076,
+      "entity_type_name": "Mixed At"
+    }
+  ],
+  "uri": "https://www.discogs.com/Maja-S-K-Ratkje-River-Mouth-Echoes/release/1413640",
+  "formats": [
+    {
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD",
+      "qty": "1"
+    }
+  ],
+  "resource_url": "https://api.discogs.com/releases/1413640",
+  "data_quality": "Needs Vote"
+}

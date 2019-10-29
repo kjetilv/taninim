@@ -1,0 +1,37 @@
+{
+  "artist": null,
+  "title": "Live In Quebec '88",
+  "resource_url": "https://api.discogs.com/releases/10594379",
+  "extraartists": [
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 260851,
+      "name": "Joey Baron",
+      "role": "Drums",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Keyboards [Keyboard]",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Saxophone",
+      "uri": null
+    }
+  ]
+}
