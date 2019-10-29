@@ -11,8 +11,12 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.IntFunction;
+import java.util.stream.IntStream;
 
 public class DiscogsDataResolver {
 
@@ -36,30 +40,35 @@ public class DiscogsDataResolver {
         return connections.stream()
             .filter(meta ->
                 meta.getAlbum().equals(album) && meta.getArtist().equals(artist))
-            .map(connection -> {
-                Path localDigestPath =
+            .map(connection ->
+                digest(
+                    connection,
                     resourcesDirectory.resolve(
-                        Paths.get(connection.getType(), connection.getId() + ".json"));
-                Path localRawPath =
+                        Paths.get(connection.getType(), connection.getId() + ".json")),
                     resourcesDirectory.resolve(
-                        Paths.get(connection.getType(), connection.getId() + "-raw.json"));
-                return digest(connection, localDigestPath, localRawPath);
-            })
+                        Paths.get(connection.getType(), connection.getId() + "-raw.json"))))
             .flatMap(Optional::stream)
             .findFirst();
     }
 
-    public Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path localDigestPath, Path localRawPath) {
+    public Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
 
-        try {
-            if (localDigestPath.toFile().isFile() && localRawPath.toFile().isFile()) {
-                return readLocalFile(localDigestPath);
+        return withRetry(3, retry -> {
+            try {
+                if (local.toFile().isFile() && raw.toFile().isFile()) {
+                    return readLocalFile(local);
+                }
+                return fetchAndWriteLocalFile(connection.getUri(), local, raw);
+            } catch (Exception e) {
+                log.warn("Failed to retrieve data for {}, proceeding", connection, e);
             }
-            return fetchAndWriteLocalFile(connection.getUri(), localDigestPath, localRawPath);
-        } catch (Exception e) {
-            log.warn("Failed to retrieve data for {}, proceeding", connection, e);
-        }
-        return Optional.empty();
+            return Optional.empty();
+        });
+    }
+
+    public <T> Optional<T> withRetry(int retries, IntFunction<Optional<T>> fun) {
+
+        return IntStream.range(0, retries).mapToObj(fun).flatMap(Optional::stream).findFirst();
     }
 
     public Optional<DiscogReleaseDigest> fetchAndWriteLocalFile(
