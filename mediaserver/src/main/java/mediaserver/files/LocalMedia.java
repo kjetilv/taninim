@@ -68,14 +68,18 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
-    public Media addAlbumContext(UUID albumId, AlbumContext albumContext) {
+    public Media withAlbumContext(UUID albumId, AlbumContext albumContext) {
 
         return getAlbum(albumId).map(album -> {
             Map<Album, AlbumContext> copy = new HashMap<>(albumContexts);
             AlbumContext expandedContext = copy.computeIfAbsent(album, AlbumContext::new)
                 .append(albumContext);
-            copy.put(album, expandedContext);
-            return new LocalMedia(categoryPath, albums.stream(), copy);
+            Album expanded = album.withContext(albumContext);
+            copy.put(expanded, expandedContext);
+            return new LocalMedia(
+                categoryPath,
+                albums.stream().map(a -> a.equals(album) ? expanded : a),
+                copy);
         }).orElseThrow(() ->
             new IllegalArgumentException("Unknown album: " + albumId));
     }
@@ -160,6 +164,14 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
+    public Collection<Album> getAlbumsFeaturing(Artist artist) {
+
+        return albumStream(true).filter(album ->
+            album.getArtists().contains(artist)
+        ).collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<Artist> getArtist(UUID id) {
 
         return artists.stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
@@ -174,12 +186,11 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
-    public Optional<Album> getAlbum(String artistName, String albumName) {
+    public Optional<Album> getAlbum(String albumName) {
 
         return getAlbums(true).stream()
             .filter(album ->
-                album.getArtist().getName().equalsIgnoreCase(artistName) &&
-                    album.getName().equalsIgnoreCase(albumName))
+                album.getName().equalsIgnoreCase(albumName))
             .findFirst();
     }
 

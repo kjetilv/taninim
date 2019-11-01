@@ -1,37 +1,57 @@
 package mediaserver.files;
 
 import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.time.Year;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class AlbumContext {
 
     private final Album album;
 
+    private final Year year;
+
+    private final URI discogPage;
+
+    private final String notes;
+
+    private final Collection<String> series;
+
     private final Credits credits;
 
-    private final Collection<String> comments;
+    private final Collection<TrackContext> trackContexts;
 
     public AlbumContext(Album album) {
 
-        this(Objects.requireNonNull(album, "album"), null, null);
+        this(album, null, null, null, null);
     }
 
-    private AlbumContext(Album album, Credits credits, Collection<String> comments) {
+    public AlbumContext(Album album, Year year, URI discogPage, String notes, Collection<String> series) {
+
+        this(Objects.requireNonNull(album, "album"), year, discogPage, notes,  series, null, null);
+    }
+
+    private AlbumContext(
+        Album album,
+        Year year,
+        URI discogPage,
+        String notes,
+        Collection<String> series,
+        Credits credits,
+        Collection<TrackContext> trackContexts
+    ) {
 
         this.album = album;
+        this.year = year;
+        this.discogPage = discogPage;
+        this.notes = notes == null || notes.isBlank() ? null : notes.trim();
+        this.series = series == null || series.isEmpty() ? Collections.emptyList() : List.copyOf(series);
         this.credits = credits == null ? new Credits() : credits;
-        this.comments = comments == null ? Collections.emptyList() : List.copyOf(comments);
-    }
-
-    public AlbumContext comments(String... comments) {
-
-        Collection<String> allComments = Stream.concat(
-            this.comments.stream(),
-            Arrays.stream(comments))
-            .distinct().collect(Collectors.toList());
-        return new AlbumContext(album, credits, allComments);
+        this.trackContexts = trackContexts == null || trackContexts.isEmpty()
+            ? Collections.emptyList()
+            : List.copyOf(trackContexts);
     }
 
     public Credits getCredits() {
@@ -39,22 +59,52 @@ public class AlbumContext {
         return credits;
     }
 
+    public Year getYear() {
+
+        return year;
+    }
+
+    public String getNotes() {
+
+        return notes == null ? "None" : notes;
+    }
+
     public Album getAlbum() {
 
         return album;
     }
 
-    public Collection<String> getComments() {
+    public Collection<String> getSeries() {
 
-        return comments;
+        return series;
+    }
+
+    public Collection<TrackContext> getTrackContexts() {
+
+        return trackContexts;
+    }
+
+    public boolean isAdditionalTrackContext() {
+
+        return !trackContexts.stream().allMatch(trackContext ->
+            trackContext.getCredits().getCredits().isEmpty());
+    }
+
+    public URI getDiscogPage() {
+
+        return discogPage;
     }
 
     public AlbumContext credit(String name, URI uri, String type) {
 
         return new AlbumContext(
             album,
+            year,
+            discogPage,
+            notes,
+            series,
             credits.credit(name, uri, type),
-            comments);
+            trackContexts);
     }
 
     public AlbumContext append(AlbumContext albumContext) {
@@ -65,11 +115,25 @@ public class AlbumContext {
                 this + " could not add album context for other album: " + albumContext);
         }
 
-        List<String> allComments = Stream.concat(
-            comments.stream(),
-            albumContext.comments.stream()
-        ).distinct().collect(Collectors.toList());
+        return new AlbumContext(
+            album,
+            albumContext.year == null ? year : albumContext.year,
+            discogPage,
+            albumContext.notes == null ? notes : albumContext.notes,
+            albumContext.series.isEmpty() ? series : albumContext.series,
+            credits.append(albumContext.getCredits()),
+            albumContext.getTrackContexts());
+    }
 
-        return new AlbumContext(album, credits.append(albumContext.getCredits()), allComments);
+    public AlbumContext withTrackContexts(List<TrackContext> trackContexts) {
+
+        return new AlbumContext(
+            album,
+            year,
+            discogPage,
+            notes,
+            series,
+            credits,
+            trackContexts);
     }
 }

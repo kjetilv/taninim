@@ -2,6 +2,7 @@ package mediaserver.files;
 
 import java.net.URI;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,25 +26,43 @@ public class Credits {
         String typeDescription
     ) {
 
-        Optional<Credit.ExternalType> recognizedType = Arrays.stream(Credit.ExternalType.values())
-            .filter(type ->
-                type.matches(typeDescription))
-            .findFirst();
-        Credit credit = recognizedType
-            .map(rec ->
-                new Credit(name, uri, typeDescription, rec))
-            .orElseGet(() ->
-                new Credit(name, uri, typeDescription, null));
-        return credits.contains(credit) ? this : new Credits(
-            Stream.concat(
-                Stream.of(credit),
-                credits.stream()
-            ).collect(Collectors.toSet()));
+        Optional<Credit.ExternalType> recognizedType =
+            Arrays.stream(Credit.ExternalType.values())
+                .filter(type ->
+                    type.matches(typeDescription))
+                .findFirst();
+        Credit credit =
+            new Credit(name, uri, typeDescription, recognizedType.orElse(null));
+        if (credits.contains(credit)) {
+            return this;
+        }
+        return new Credits(
+            Stream.concat(Stream.of(credit), credits.stream()).collect(Collectors.toSet()));
     }
 
     public Collection<Credit> getCredits() {
 
         return credits;
+    }
+
+    public Collection<Credit> getOtherCredits() {
+
+        return credits(other());
+    }
+
+    public Collection<Credit> getArtistCredits() {
+
+        return credits(other().negate());
+    }
+
+    public Collection<Credit> credits(Predicate<Credit> other) {
+
+        return credits.stream().filter(other).collect(Collectors.toList());
+    }
+
+    public Predicate<Credit> other() {
+
+        return credit -> credit.getExternalType() != null;
     }
 
     public Credits append(Credits albumContext) {

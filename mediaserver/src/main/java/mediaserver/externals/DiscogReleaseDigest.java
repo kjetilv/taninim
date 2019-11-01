@@ -1,5 +1,6 @@
 package mediaserver.externals;
 
+import javax.xml.stream.events.DTD;
 import java.util.List;
 
 public class DiscogReleaseDigest {
@@ -10,7 +11,17 @@ public class DiscogReleaseDigest {
 
     private String resource_url;
 
+    private String year;
+
+    private String notes;
+
+    private String uri;
+
     private List<DiscogArtistDigest> extraartists;
+
+    private List<DiscogTrackDigest> tracklist;
+
+    private List<DiscogSeriesDigest> series;
 
     @Override
     public String toString() {
@@ -42,6 +53,26 @@ public class DiscogReleaseDigest {
         this.title = title;
     }
 
+    public List<DiscogSeriesDigest> getSeries() {
+
+        return series;
+    }
+
+    public void setSeries(List<DiscogSeriesDigest> series) {
+
+        this.series = series;
+    }
+
+    public String getUri() {
+
+        return uri;
+    }
+
+    public void setUri(String uri) {
+
+        this.uri = uri;
+    }
+
     public String getResource_url() {
 
         return resource_url;
@@ -52,6 +83,26 @@ public class DiscogReleaseDigest {
         this.resource_url = resource_url;
     }
 
+    public String getYear() {
+
+        return year;
+    }
+
+    public void setYear(String year) {
+
+        this.year = year;
+    }
+
+    public String getNotes() {
+
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+
+        this.notes = notes;
+    }
+
     public List<DiscogArtistDigest> getExtraartists() {
 
         return extraartists;
@@ -60,5 +111,15 @@ public class DiscogReleaseDigest {
     public void setExtraartists(List<DiscogArtistDigest> extraartists) {
 
         this.extraartists = extraartists;
+    }
+
+    public List<DiscogTrackDigest> getTracklist() {
+
+        return tracklist;
+    }
+
+    public void setTracklist(List<DiscogTrackDigest> tracklist) {
+
+        this.tracklist = tracklist;
     }
 }

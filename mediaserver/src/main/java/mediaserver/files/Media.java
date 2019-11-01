@@ -1,5 +1,7 @@
 package mediaserver.files;
 
+import mediaserver.externals.DiscogReleaseDigest;
+import mediaserver.externals.DiscogSeriesDigest;
 import mediaserver.externals.XmlMapParser;
 import mediaserver.externals.iTunesLibrary;
 import mediaserver.util.IO;
@@ -9,10 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.Year;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ public interface Media {
 
     Media subLibrary(CategoryPath categoryPath, Artist artist);
 
-    Media addAlbumContext(UUID albumId, AlbumContext albumContext);
+    Media withAlbumContext(UUID albumId, AlbumContext albumContext);
 
     Optional<Track> getTrack(UUID uuid);
 
@@ -80,11 +80,13 @@ public interface Media {
 
     Optional<Album> getAlbum(UUID id);
 
+    Collection<Album> getAlbumsFeaturing(Artist id);
+
     Optional<Artist> getArtist(UUID id);
 
     Optional<Artist> getArtist(String name);
 
-    Optional<Album> getAlbum(String artistName, String albumName);
+    Optional<Album> getAlbum(String albumName);
 
     static Media local(String file, String library, String resources) {
 
@@ -120,38 +122,64 @@ public interface Media {
     static BiFunction<Media, Album, Media> addContextFrom(DiscogsDataResolver discogsData) {
 
         return (media, album) ->
-            discogsData.getDiscogRelease(album.getArtist(), album).map(release -> {
+            discogsData.getDiscogRelease(album).map(release -> {
                 AlbumContext context = Optional.ofNullable(release.getExtraartists()).stream()
                     .flatMap(Collection::stream)
                     .reduce(
-                        new AlbumContext(album),
-                        (albumContext1, discogArtist) ->
-                            albumContext1.credit(
-                                discogArtist.getName(),
-                                discogArtist.getUri(),
-                                discogArtist.getRole()),
-                        (albumContext1, albumContext2) -> {
-                            throw new IllegalStateException("No combine");
-                        });
-                return media.addAlbumContext(album.getUuid(), context);
+                        new AlbumContext(
+                            album,
+                            yearOf(release),
+                            URI.create(release.getUri()),
+                            release.getNotes(),
+                            series(release)),
+                        (ctx, dad) ->
+                            ctx.credit(
+                                dad.getName(),
+                                dad.getUri(),
+                                dad.getRole()),
+                        noCombine());
+                List<TrackContext> trackContexts = release.getTracklist().stream().map(
+                    track -> {
+                        Credits trackCredits = Optional.ofNullable(track.getExtraartists()).stream().flatMap(
+                            Collection::stream).reduce(
+                            new Credits(),
+                            (credits, dad) ->
+                                credits.credit(dad.getName(), dad.getUri(), dad.getRole()),
+                            noCombine());
+                        return new TrackContext(
+                            track.getPosition(),
+                            track.getTitle(),
+                            trackCredits
+                        );
+                    })
+                    .collect(Collectors.toList());
+                return media.withAlbumContext(album.getUuid(), context.withTrackContexts(trackContexts));
             }).orElse(media);
+    }
+
+    static List<String> series(DiscogReleaseDigest release) {
+
+        return release.getSeries().stream().map(DiscogSeriesDigest::getName).collect(Collectors.toList());
+    }
+
+    static Year yearOf(DiscogReleaseDigest release) {
+
+        return Optional.ofNullable(release.getYear()).map(Year::parse).orElse(null);
     }
 
     static Collection<DiscogConnection> metaConnections(Media media, iTunesLibrary iTunesLibrary) {
 
         return iTunesLibrary.getTracks().values().stream()
             .filter(track ->
-                Optional.ofNullable(track.getComments()).filter(
-                    comments -> comments.contains("discog")).isPresent())
+                Optional.ofNullable(track.getComments()).filter(comments ->
+                    comments.contains("discogs"))
+                    .isPresent())
             .map(track ->
-                media.getArtist(track.getArtist()).flatMap(
-                    artist ->
-                        media.getAlbum(artist.getName(), track.getAlbum())
-                            .map(album ->
-                                new DiscogConnection(
-                                    artist,
-                                    album,
-                                    URI.create(track.getComments())))))
+                media.getAlbum(track.getAlbum())
+                    .map(album ->
+                        new DiscogConnection(
+                            album,
+                            URI.create(track.getComments()))))
             .filter(Optional::isPresent).map(Optional::get)
             .distinct()
             .collect(Collectors.toList());

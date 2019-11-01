@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.util.List;
 
-public class DiscogReleases {
+public class DiscogReleaseDigests {
 
     private List<DiscogReleaseDigest> releases;
 

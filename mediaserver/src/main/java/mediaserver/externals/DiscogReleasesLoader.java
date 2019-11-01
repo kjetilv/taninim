@@ -19,7 +19,7 @@ public class DiscogReleasesLoader {
         List<DiscogReleaseDigest> releases = new ArrayList<>();
         for (int i = start; i <= end; i++) {
             try {
-                DiscogReleases x = IO.OM.readerFor(DiscogReleases.class).readValue(
+                DiscogReleaseDigests x = IO.OM.readerFor(DiscogReleaseDigests.class).readValue(
                     Thread.currentThread().getContextClassLoader()
                         .getResource(ref.replace("x", String.valueOf(i))));
                 releases.addAll(x.getReleases());

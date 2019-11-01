@@ -3,6 +3,7 @@ package flacsefugl
 import mediaserver.externals.AlbumMetadata
 import mediaserver.files.Album
 import mediaserver.files.Media
+import mediaserver.util.IO
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Files.copy
@@ -36,7 +37,9 @@ fun main() {
                         artist(path) == "derek bailey" ||
                         artist(path) == "evan parker" ||
                         artist(path) == "ruins" ||
+                        artist(path).contains("ruins") && artist(path).contains("derek") ||
                         artist(path).contains("bret higgins") ||
+                        artist(path).contains("bill frisell") ||
                         artist(path).contains("ratkje") ||
                         artist(path).contains("fred frith") ||
                         album(path).contains("great jewish music")
@@ -58,8 +61,9 @@ fun main() {
     }
 
     val root = Path.of(System.getProperty("user.home"), "FLAC")
-    val ilib = Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes\\ Library.xml")
-    val media = Media.local(root, ilib);
+    val ilib = Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml")
+    val res = Path.of("mediaserver", "src", "main", "resources")
+    val media = Media.local(root, ilib, res);
 
 //    val discogReleasesLoader = DiscogReleasesLoader("johnzorn-releases-x.json", 1, 27)
 

@@ -8,12 +8,14 @@ import org.gagravarr.flac.FlacTags;
 import java.io.File;
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class Track extends AbstractHashable

@@ -35,11 +35,11 @@ public class DiscogsDataResolver {
         this.connections = connections;
     }
 
-    public Optional<DiscogReleaseDigest> getDiscogRelease(Artist artist, Album album) {
+    public Optional<DiscogReleaseDigest> getDiscogRelease(Album album) {
 
         return connections.stream()
             .filter(meta ->
-                meta.getAlbum().equals(album) && meta.getArtist().equals(artist))
+                match(album, meta))
             .map(connection ->
                 digest(
                     connection,
@@ -51,12 +51,17 @@ public class DiscogsDataResolver {
             .findFirst();
     }
 
+    public boolean match(Album album, DiscogConnection meta) {
+
+        return meta.isUp() && meta.getAlbum().equals(album);
+    }
+
     public Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
 
         return withRetry(3, retry -> {
             try {
                 if (local.toFile().isFile() && raw.toFile().isFile()) {
-                    return readLocalFile(local);
+                    return updateAndReadLocalFile(raw, local);
                 }
                 return fetchAndWriteLocalFile(connection.getUri(), local, raw);
             } catch (Exception e) {
@@ -84,10 +89,12 @@ public class DiscogsDataResolver {
         return Optional.of(digest);
     }
 
-    public Optional<DiscogReleaseDigest> readLocalFile(Path localDigestPath) {
+    public Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path localDigestPath) {
 
-        return Optional.of(
-            IO.readStream(localDigestPath, this::readRelease));
+        Map<String, ?> rawData = IO.readData(raw);
+        DiscogReleaseDigest digest = readRelease(rawData);
+        IO.writeStream(localDigestPath, digest, writeRelease(DiscogReleaseDigest.class));
+        return Optional.of(digest);
     }
 
     public DiscogReleaseDigest readRelease(InputStream is) {

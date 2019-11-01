@@ -53,17 +53,27 @@ public class Credit {
 
         producer,
 
+        co_producer,
+
         produced,
+
+        co_produced,
 
         mixed,
 
         recorded,
 
+        mastered,
+
         engineer,
 
         executive,
 
+        concept_by,
+
         design,
+
+        illustration,
 
         photography,
 
@@ -80,6 +90,7 @@ public class Credit {
 
             return name.toLowerCase()
                 .replace('-', ' ')
+                .replace('_', ' ')
                 .replace(':', ' ');
         }
     }

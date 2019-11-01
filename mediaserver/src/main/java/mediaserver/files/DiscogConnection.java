@@ -2,6 +2,7 @@ package mediaserver.files;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class DiscogConnection {
 
@@ -15,10 +16,10 @@ public class DiscogConnection {
 
     private final String type;
 
-    public DiscogConnection(Artist artist, Album album, URI uri) {
+    public DiscogConnection(Album album, URI uri) {
 
-        this.artist = artist;
         this.album = album;
+        this.artist = album.getArtist();
         this.uri = uri;
 
         String uriString = uri.toASCIIString();
@@ -51,6 +52,13 @@ public class DiscogConnection {
     public String getType() {
 
         return type;
+    }
+
+    public boolean isUp() {
+
+        return uri != null && Stream.of("https://api.discogs.com/releases/", "https://api.discogs.com/releases")
+            .map(URI::create)
+            .noneMatch(uri::equals);
     }
 
     @Override

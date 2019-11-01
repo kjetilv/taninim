@@ -25,15 +25,81 @@
 <p>{if(albumPart.part)}Disc {albumPart.part}:{endif}
 <OL>
     {albumPart.tracks:{track |
-    <li>
-        {if(track.otherArtist.present)}{track.otherArtistPresent.name}: {endif}
+    <LI>
+
         {track.name}
         {track.prettyDuration}
         <A href="?artist={albumPart.artist.uuid}&album={albumPart.uuid}&track={track.uuid}">▶</A>
-    </li>
+        {if(track.otherArtist.present)}<UL><LI>{track.otherArtistPresent.name}</LI></UL>{endif}   </LI>
     }}
 </OL>
 }}
+
+{if(album.context.notes)}
+<H2>Info</H2>
+
+<P>Notes: <blockquote>{album.context.notes}</blockquote></P>
+
+<P>@ <A HREF="{album.context.discogPage}">Discogs</A></P>
+{endif}
+
+{if(album.context.series)}
+<P>Series:</P>
+
+<UL>
+    {album.context.series:{series|
+    <LI>{series}</LI>}}
+</UL>
+{endif}
+
+{if(album.context.year)}
+Released {album.context.year.value}
+{endif}
+
+{if(album.context.credits.credits)}
+<H3>Credits</H3>
+
+<UL>
+{album.context.credits.artistCredits:{credit |
+<LI>{credit.sourceType}: {credit.name}</LI>
+}}
+</UL>
+
+<H3>Other</H3>
+
+<UL>
+{album.context.credits.otherCredits:{credit |
+<LI>{credit.sourceType}: {credit.name}</LI>
+}}
+</UL>
+{endif}
+
+{if(album.context.additionalTrackContext)}
+<H3>Track details</H3>
+
+<OL>
+{album.context.trackContexts:{trackContext |
+    <LI>{trackContext.title}
+    <UL>
+        {trackContext.credits.artistCredits:{credit |
+        <LI>{credit.sourceType}: {credit.name}</LI>
+            }}
+    </UL>
+    <UL>
+        {trackContext.credits.otherCredits:{credit |
+        <LI>{credit.sourceType}: {credit.name}</LI>
+            }}
+    </UL>
+    </LI>
+}}
+</OL>
+{endif}
+
+{if(album.additionalArtists)}
+<H3>Artists</H3>
+
+{album.artists:{artist|📁{artist.name} }}
+{endif}
 
 <SCRIPT src="/resources/plyr.js"></SCRIPT>
 <SCRIPT>
