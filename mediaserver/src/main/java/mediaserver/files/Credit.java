@@ -45,25 +45,27 @@ public class Credit {
 
         composer,
 
-        composed,
+        composed_by,
 
-        written,
+        music_by,
 
-        arranged,
+        written_by,
+
+        arranged_by,
 
         producer,
 
         co_producer,
 
-        produced,
+        produced_by,
 
         co_produced,
 
-        mixed,
+        mixed_by,
 
-        recorded,
+        recorded_by,
 
-        mastered,
+        mastered_by,
 
         engineer,
 
@@ -79,7 +81,9 @@ public class Credit {
 
         typography,
 
-        painting;
+        painting,
+
+        liner_notes;
 
         boolean matches(String type) {
 
