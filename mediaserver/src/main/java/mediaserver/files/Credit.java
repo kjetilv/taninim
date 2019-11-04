@@ -80,6 +80,8 @@ public class Credit {
 
         design,
 
+        artwork,
+
         illustration,
 
         photography,

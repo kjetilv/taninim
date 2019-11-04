@@ -10,10 +10,10 @@
 <H1><A HREF="/">taninim</A></H1>
 
 {if(artist)}
-    <H2>Artist: {artist.name}</H2>
+    <H2>Artist: {artist.name} <A ALT="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A></H2>
 {else}
     {if(!media.categoryPath.root)}
-        <H2>Category: {media.categoryPath.pathString}</H2>
+        <H2>Category: {media.categoryPath.pathString} <A ALT="Playlist" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A></H2>
     {endif}
 {endif}
 
@@ -35,9 +35,8 @@
 <UL>
     {media.albums:{album|
     <LI>
-        <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
-
         <A ALT="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>
+        <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
     </LI>
     }}
 </UL>
@@ -48,7 +47,7 @@
 </H3>
 
 {media.artists:{artist|
-  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
+  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
 }}
 
 <H3>
@@ -56,7 +55,7 @@
 </H3>
 
 {media.allArtists:{artist|
-  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
+  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>] </SPAN>
 }}
 
 </body>
