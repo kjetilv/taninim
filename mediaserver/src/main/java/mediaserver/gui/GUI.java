@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class GUI extends Nettish {
 
@@ -42,47 +43,56 @@ public class GUI extends Nettish {
 
     private Template template(String uri, Media media) {
 
-        int queryParamPos = uri.indexOf("?");
-        String uriPath = uriPath(uri, queryParamPos);
-        QPars pars = new QPars(params(uri, queryParamPos));
-        return pars.apply(QPar.ALBUM).flatMap(media::getAlbum)
-            .map(album ->
-                     albumTemplate(media, album, pars))
-            .orElseGet(() ->
-                           indexTemplate(media, uriPath, pars));
+        int queryIndex = uri.indexOf("?");
+        String uriPath = queryIndex < 0 ? uri : uri.substring(0, queryIndex);
+        QPars pars = new QPars(params(uri, queryIndex));
+        if ("album".equals(unslashed(uriPath))) {
+            return pars.apply(QPar.ALBUM).flatMap(media::getAlbum)
+                .map(album ->
+                    albumTemplate(media, album, pars))
+                .orElseGet(() ->
+                    indexTemplate(media, uriPath, pars));
+        }
+        return indexTemplate(media, uriPath, pars);
+    }
+
+    private String unslashed(String uriPath) {
+
+        return uriPath.startsWith("/") ? unslashed(uriPath.substring(1))
+            : uriPath.endsWith("/") ? unslashed(uriPath.substring(0, uriPath.length() - 1))
+            : uriPath.toLowerCase();
     }
 
     private Template indexTemplate(Media media, String uriPath, QPars pars) {
 
         CategoryPath categoryPath = getCategoryPath(uriPath);
-        Artist artist = pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
+        Artist artist =
+            pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
         return template("index.html")
             .add(QPar.MEDIA, media.subLibrary(categoryPath, artist))
-            .add(QPar.ARTIST, pars.apply(QPar.ARTIST).orElse(null))
-            .add(QPar.ALBUM, pars.apply(QPar.ARTIST).orElse(null));
+            .add(QPar.ARTIST, artist);
     }
 
     private Template albumTemplate(Media media, Album album, QPars pars) {
 
-        Template tmpl = template("album.html")
+        return template("album.html")
             .add(QPar.MEDIA, media)
-            .add(QPar.ALBUM, album);
-        return pars.apply(QPar.TRACK).flatMap(media::getTrack)
-            .map(playTrack ->
-                     tmpl.add(QPar.PLAY_TRACK, playTrack))
-            .orElse(tmpl);
+            .add(QPar.ALBUM, album)
+            .add(QPar.PLAY_TRACK, pars.apply(QPar.TRACK).flatMap(media::getTrack).orElse(null));
     }
 
-    private static String uriPath(String uri, int queryParamPos) {
+    private Template artistTemplate(Media media, Album artist, QPars pars) {
 
-        return queryParamPos < 0 ? uri : uri.substring(0, uri.indexOf("?"));
+        return template("artist.html")
+            .add(QPar.ARTIST, artist)
+            .add(QPar.MEDIA, media);
     }
 
-    private static Map<QPar, String> params(String uri, int queryParamPos) {
+    private static Map<QPar, String> params(String uri, int queryIndex) {
 
-        return queryParamPos < 0
+        return queryIndex < 0
             ? Collections.emptyMap()
-            : URLs.queryParams(uri.substring(queryParamPos + 1));
+            : URLs.queryParams(uri.substring(queryIndex + 1));
     }
 
     private static Path path(String uri) {
@@ -118,6 +128,17 @@ public class GUI extends Nettish {
             } catch (Exception e) {
                 throw new IllegalStateException("Invalid album: " + value.get(), e);
             }
+        }
+
+        @Override
+        public String toString() {
+
+            return getClass().getSimpleName() + "[" +
+                pars.entrySet().stream()
+                    .map(e ->
+                        e.getKey() + "=" + e.getValue())
+                    .collect(Collectors.joining(" ")) +
+                "]";
         }
     }
 }

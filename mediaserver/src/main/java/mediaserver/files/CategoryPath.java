@@ -4,10 +4,7 @@ import mediaserver.hash.AbstractHashable;
 
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,6 +32,16 @@ public class CategoryPath extends AbstractHashable
     private CategoryPath(List<String> path) {
 
         this.path = path == null || path.isEmpty() ? Collections.emptyList() : path;
+    }
+
+    public Collection<CategoryPath> toRoot() {
+        if (path.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return IntStream.range(0, path.size())
+            .mapToObj(i ->
+                new CategoryPath(path.subList(0, i)))
+            .collect(Collectors.toList());
     }
 
     public boolean startsWith(CategoryPath category) {
@@ -110,6 +117,11 @@ public class CategoryPath extends AbstractHashable
     public String toStringBody() {
 
         return String.join("/", path);
+    }
+
+    public static Stream<CategoryPath> subPaths(CategoryPath categoryPath) {
+
+        return null;
     }
 
     private boolean isRoot() {

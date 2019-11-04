@@ -20,6 +20,8 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
     private final Collection<Artist> artists;
 
+    private final Collection<CategoryPath> categories;
+
     private static final long serialVersionUID = -7165763549356996140L;
 
     public LocalMedia(Path root) {
@@ -33,6 +35,10 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             ? new CategoryPath()
             : categoryPath;
         this.albums = albums.collect(Collectors.toList());
+        this.categories = this.albums.stream()
+            .map(Album::getCategoryPath)
+            .flatMap(CategoryPath::subPaths)
+            .collect(Collectors.toSet());
         this.albumContexts = albumContexts == null || albumContexts.isEmpty()
             ? Collections.emptyMap()
             : Map.copyOf(albumContexts);
@@ -63,7 +69,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
                 .filter(album ->
                     album.isIn(sub))
                 .filter(album ->
-                    artist == null || album.isBy(artist) || album.hasTracksBy(artist)),
+                    artist == null || album.isBy(artist) || album.hasTracksBy(artist) || album.features(artist)),
             albumContexts);
     }
 
@@ -99,6 +105,12 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
+    public Optional<CategoryPath> getCategoryPath(UUID uuid) {
+
+        return getCategories().stream().filter(category -> category.getUuid().equals(uuid)).findFirst();
+    }
+
+    @Override
     public Collection<CategoryPath> getTopCategories() {
 
         return categoryStream()
@@ -117,6 +129,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
         return categoryStream()
             .distinct()
+            .map(CategoryPath::toRoot)
+            .flatMap(Collection::stream)
+            .distinct()
             .sorted()
             .collect(Collectors.toList());
     }
@@ -131,6 +146,16 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     public Collection<Artist> getArtists(boolean recurse) {
 
         return artists;
+    }
+
+    @Override
+    public Collection<Artist> getAllArtists() {
+
+        return albumStream(true)
+            .flatMap(album ->
+                album.getArtists().stream())
+            .distinct()
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -174,7 +199,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     @Override
     public Optional<Artist> getArtist(UUID id) {
 
-        return artists.stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
+        return getAllArtists().stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
     }
 
     @Override

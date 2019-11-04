@@ -66,7 +66,7 @@ public class Album extends AbstractHashable
     ) {
 
         this.artist = artist;
-        this.context = context;
+        this.context = context == null ? new AlbumContext(this) : context;
         this.name = single(Track::getAlbum, tracks).orElse(name);
         this.parts = parts;
         this.part = part == null ? null : part + 1;
@@ -135,10 +135,15 @@ public class Album extends AbstractHashable
             Stream.of(getArtist()),
             tracks.stream().map(Track::getArtist),
             tracks.stream().map(Track::getOtherArtist).flatMap(Optional::stream),
+            context.getCredits().getCredits().stream()
+                .filter(Credit::isPerformer)
+                .map(Credit::getName)
+                .map(Artist::new),
             context.getTrackContexts().stream()
                 .map(TrackContext::getCredits)
                 .map(Credits::getCredits)
                 .flatMap(Collection::stream)
+                .filter(Credit::isPerformer)
                 .map(Credit::getName)
                 .map(Artist::new))
             .flatMap(s -> s)
@@ -208,6 +213,11 @@ public class Album extends AbstractHashable
             categoryPath,
             albumContext
         );
+    }
+
+    public boolean features(Artist artist) {
+
+        return getArtists().contains(artist);
     }
 
     private static Optional<String> single(Function<Track, String> getAlbum, List<Track> tracks) {

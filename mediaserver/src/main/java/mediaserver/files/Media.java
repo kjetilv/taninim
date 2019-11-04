@@ -34,6 +34,8 @@ public interface Media {
 
     CategoryPath getCategoryPath();
 
+    Optional<CategoryPath> getCategoryPath(UUID uuid);
+
     Collection<CategoryPath> getTopCategories();
 
     Collection<CategoryPath> getCategories();
@@ -51,6 +53,8 @@ public interface Media {
     }
 
     Collection<Artist> getArtists(boolean recurse);
+
+    Collection<Artist> getAllArtists();
 
     default Collection<Album> allAlbums() {
 

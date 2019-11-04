@@ -9,14 +9,16 @@
 
 <H1><A HREF="/">taninim</A></H1>
 
-{if(!media.categoryPath.root)}
-<H2>Category: {media.categoryPath.pathString}</H2>
+{if(artist)}
+    <H2>Artist: {artist.name}</H2>
+{else}
+    {if(!media.categoryPath.root)}
+        <H2>Category: {media.categoryPath.pathString}</H2>
+    {endif}
 {endif}
 
 {if(media.subCategories)}
-
-<H3>{length(media.topCategories)} / {length(media.categories)} categories</H3>
-
+<H3>Sub-categories [{length(media.topCategories)}]</H3>
 <UL>
     {media.topCategories:{cat|
     <LI>
@@ -27,7 +29,22 @@
 {endif}
 
 <H3>
-    {length(media.artists)} artists
+    Albums [{length(media.albums)}]
+</H3>
+
+<UL>
+    {media.albums:{album|
+    <LI>
+        <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
+
+        <A ALT="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>
+    </LI>
+    }}
+</UL>
+
+
+<H3>
+    Album artists [{length(media.artists)}]
 </H3>
 
 {media.artists:{artist|
@@ -35,18 +52,12 @@
 }}
 
 <H3>
-    {length(media.albums)} albums
+    All performing artists [{length(media.allArtists)}]
 </H3>
 
-<UL>
-    {media.albums:{album|
-    <LI>
-        <A HREF="?album={album.uuid}">📁</A>
-        {album.artist.name}: <em>{album.name}</em>
-        <A ALT="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>
-    </LI>
-    }}
-</UL>
+{media.allArtists:{artist|
+  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
+}}
 
 </body>
 

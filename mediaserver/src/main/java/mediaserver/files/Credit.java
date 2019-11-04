@@ -31,6 +31,11 @@ public class Credit {
         return sourceType;
     }
 
+    public boolean isPerformer() {
+
+        return externalType == null;
+    }
+
     public ExternalType getExternalType() {
 
         return externalType;

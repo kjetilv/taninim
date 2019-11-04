@@ -9,8 +9,9 @@
 
 <H1><A HREF="/">taninim</A></H1>
 
-<H2>Artist: {album.artist.name}</H2>
-<H3>Album: {album.name} <A HREF="/playlist/album/{album.uuid}">⏬</A></H3>
+<H2><A HREF="/{cat.pathString}">{album.categoryPath.pathString}</A></H2>
+
+<H3>{album.artist.name}: <EM>{album.name}</EM> <A HREF="/playlist/album/{album.uuid}">⏬</A></H3>
 
 {if(playTrack)}
 <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist.name}</em></P>
@@ -98,7 +99,9 @@ Released {album.context.year.value}
 {if(album.additionalArtists)}
 <H3>Artists</H3>
 
-{album.artists:{artist|📁{artist.name} }}
+{album.artists:{artist|
+<SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
+}}
 {endif}
 
 <SCRIPT src="/resources/plyr.js"></SCRIPT>

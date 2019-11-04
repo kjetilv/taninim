@@ -1,5 +1,6 @@
 package mediaserver.gui;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public enum QPar {
@@ -13,6 +14,8 @@ public enum QPar {
     ARTIST,
 
     TRACK,
+
+    CATEGORY,
 
     PLAY_TRACK("playTrack"),
 
@@ -32,17 +35,9 @@ public enum QPar {
     }
 
     public static Optional<QPar> get(String substring) {
-        switch (substring.toLowerCase()) {
-            case "album":
-                return Optional.of(ALBUM);
-            case "artist":
-                return Optional.of(ARTIST);
-            case "track":
-                return Optional.of(TRACK);
-            case "playtrack":
-                return Optional.of(PLAY_TRACK);
-            default:
-                return Optional.empty();
-        }
+        return Arrays.stream(values())
+            .filter(v ->
+                v.name().equalsIgnoreCase(substring))
+            .findFirst();
     }
 }
