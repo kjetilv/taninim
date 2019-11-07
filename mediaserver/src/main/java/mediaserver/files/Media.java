@@ -45,6 +45,11 @@ public interface Media {
         return getAlbumArtists(false);
     }
 
+    default Collection<Artist> getAllAlbumArtists() {
+
+        return getAlbumArtists(true);
+    }
+
     Collection<Artist> getAlbumArtists(boolean recurse);
 
     default Collection<Artist> getArtists() {

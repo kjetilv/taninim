@@ -10,6 +10,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.files.Media;
 import mediaserver.gui.*;
 import mediaserver.util.IO;
@@ -17,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.security.cert.CertificateException;
 import java.util.function.Supplier;
 
 public class Main {
@@ -34,6 +38,8 @@ public class Main {
         boolean isDev = Boolean.getBoolean(DEV_FLAG);
         log.info("Running in {} mode", local(args) ? "local" : "cloud");
 
+        SslContext sslCtx = getSslContext();
+
         Media media = retrieveMedia(args);
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
@@ -46,6 +52,9 @@ public class Main {
             protected void initChannel(SocketChannel ch) {
 
                 ChannelPipeline pipeline = ch.pipeline();
+                if (sslCtx != null) {
+                    pipeline.addLast(sslCtx.newHandler(ch.alloc()));
+                }
                 pipeline.addLast(new CustomHttpServerCodec());
                 pipeline.addLast(routerProvider.get());
             }
@@ -70,6 +79,45 @@ public class Main {
             listenGroup.shutdownGracefully();
             workGroup.shutdownGracefully();
         }
+    }
+
+    public static SslContext getSslContext() {
+
+        if (Boolean.getBoolean("openssl")) {
+
+            File certificateFile = new File("taninim-cert.pem");
+            File keyFile = new File("taninim-key.pkcs8.pem");
+
+            SslContext sslCtx;
+            try {
+                sslCtx = SslContextBuilder.forServer(certificateFile, keyFile, "pasju").build();
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to setup SSL context", e);
+            }
+            return sslCtx;
+        }
+
+        if (Boolean.getBoolean("ssc")) {
+            SelfSignedCertificate ssc;
+            try {
+                ssc = new SelfSignedCertificate();
+            } catch (CertificateException e) {
+                throw new IllegalStateException("Unexpected ssc error", e);
+            }
+
+            SslContext sslCtx;
+            try {
+                sslCtx = SslContextBuilder.forServer(
+                    ssc.certificate(),
+                    ssc.privateKey()
+                ).build();
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to setup SSL context", e);
+            }
+            return sslCtx;
+        }
+
+        return null;
     }
 
     public static Media retrieveMedia(String[] args) {

@@ -18,9 +18,9 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
     @Override
     public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
         if (total < 0) { // total unknown
-            log.info("{} {} => {}", future.channel(), source, progress);
+            log.info("{} {}% => {}", source, progress, future.channel().remoteAddress());
         } else {
-            log.info("{} {} => {}%", future.channel(), source, 100 * progress / total);
+            log.info("{} {}% => {}", source, 100 * progress / total, future.channel().remoteAddress());
         }
     }
 

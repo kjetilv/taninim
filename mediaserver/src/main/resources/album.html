@@ -31,7 +31,15 @@
         {track.name}
         {track.prettyDuration}
         <A href="?artist={albumPart.artist.uuid}&album={albumPart.uuid}&track={track.uuid}">▶</A>
-        {if(track.otherArtist.present)}<UL><LI>{track.otherArtistPresent.name}</LI></UL>{endif}   </LI>
+        {if(track.otherArtist.present)}
+        <UL>
+            <LI>
+                [<A HREF="/?artist={track.otherArtistPresent.uuid}">{track.otherArtistPresent.name}</A>&nbsp;
+                <A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>]
+            </LI>
+        </UL>
+        {endif}
+    </LI>
     }}
 </OL>
 }}
@@ -39,7 +47,9 @@
 {if(album.context.notes)}
 <H2>Info</H2>
 
-<P>Notes: <blockquote>{album.context.notes}</blockquote></P>
+<P>Notes:
+<blockquote>{album.context.notes}</blockquote>
+</P>
 
 <P>@ <A HREF="{album.context.discogPage}">Discogs</A></P>
 {endif}
@@ -49,7 +59,8 @@
 
 <UL>
     {album.context.series:{series|
-    <LI>{series}</LI>}}
+    <LI>{series}</LI>
+    }}
 </UL>
 {endif}
 
@@ -61,39 +72,44 @@ Released {album.context.year.value}
 <H3>Credits</H3>
 
 <UL>
-{album.context.credits.artistCredits:{credit |
-<LI>{credit.sourceType}: {credit.name}</LI>
-}}
+    {album.context.credits.artistCredits:{credit |
+    <LI>{credit.sourceType}:
+        [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+    </LI>
+    }}
 </UL>
 
 <H3>Other</H3>
 
 <UL>
-{album.context.credits.otherCredits:{credit |
-<LI>{credit.sourceType}: {credit.name}</LI>
-}}
+    {album.context.credits.otherCredits:{credit |
+    <LI>{credit.sourceType}: {credit.name}</LI>
+    }}
 </UL>
 {endif}
 
 {if(album.context.additionalTrackContext)}
 <H3>Track details</H3>
 
-<OL>
-{album.context.trackContexts:{trackContext |
-    <LI>{trackContext.title}
-    <UL>
-        {trackContext.credits.artistCredits:{credit |
-        <LI>{credit.sourceType}: {credit.name}</LI>
+<UL>
+    {album.context.trackContexts:{trackContext |
+    <LI>{trackContext.position} {trackContext.title}
+        <UL>
+            {trackContext.credits.artistCredits:{credit |
+            <LI>{credit.sourceType}:
+                [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A
+                        HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+            </LI>
             }}
-    </UL>
-    <UL>
-        {trackContext.credits.otherCredits:{credit |
-        <LI>{credit.sourceType}: {credit.name}</LI>
+        </UL>
+        <UL>
+            {trackContext.credits.otherCredits:{credit |
+            <LI>{credit.sourceType}: {credit.name}</LI>
             }}
-    </UL>
+        </UL>
     </LI>
-}}
-</OL>
+    }}
+</UL>
 {endif}
 
 {if(album.additionalArtists)}

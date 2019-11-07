@@ -36,6 +36,11 @@ public class Credit {
         return externalType == null;
     }
 
+    public Artist getArtist() {
+
+        return isPerformer() ? new Artist(name) : null;
+    }
+
     public ExternalType getExternalType() {
 
         return externalType;

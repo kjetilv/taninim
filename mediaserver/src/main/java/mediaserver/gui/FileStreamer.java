@@ -17,11 +17,13 @@ import java.io.RandomAccessFile;
 public final class FileStreamer extends AbstractStreamer {
 
     public FileStreamer(IO io, Media media) {
+
         super(media, io);
     }
 
     @Override
     protected HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx) {
+
         HttpResponse response = response(req);
 
         File file = track.getFile();
@@ -30,7 +32,9 @@ public final class FileStreamer extends AbstractStreamer {
 
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
         if (rangeHeader != null && rangeHeader.length() > 0) {
-            writeRange(response, fileLength, ctx, randomAccessFile, rangeHeader.trim());
+            writeRange(response, fileLength, ctx, randomAccessFile, rangeHeader.trim())
+                .addListener(new ProgressListener(
+                    track.getArtist().getName() + ": " + track.getName() + " [" + track.getAlbum() + "]"));
         } else {
             HttpUtil.setContentLength(response, fileLength);
             ctx.write(response);
@@ -45,6 +49,7 @@ public final class FileStreamer extends AbstractStreamer {
     }
 
     private static RandomAccessFile randomAccess(File file) {
+
         try {
             return new RandomAccessFile(file, "r");
         } catch (FileNotFoundException e) {
@@ -52,21 +57,22 @@ public final class FileStreamer extends AbstractStreamer {
         }
     }
 
-    private static void writeRange(
+    private static ChannelFuture writeRange(
         HttpResponse response, long length, ChannelHandlerContext ctx,
         RandomAccessFile file,
         String rangeHeader
     ) {
+
         PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
         updateHeaders(response, pri, length);
         ctx.write(response);
-        ctx.write(
+        return ctx.write(
             new DefaultFileRegion(file.getChannel(), pri.getStartOffset(), pri.getChunkSize()),
-            ctx.newProgressivePromise()
-        ).addListener(new ProgressListener(file));
+            ctx.newProgressivePromise());
     }
 
     private static long length(RandomAccessFile randomAccessFile) {
+
         try {
             return randomAccessFile.length();
         } catch (IOException e) {

@@ -114,6 +114,10 @@ public class Track extends AbstractHashable
         return trackNo;
     }
 
+    public String getPrettyTrackNo() {
+        return part == null ? String.valueOf(trackNo) : part + "-" + trackNo;
+    }
+
     public File getFile() {
         return new File(file);
     }

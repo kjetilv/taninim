@@ -166,6 +166,19 @@ public class Album extends AbstractHashable
         return tracks;
     }
 
+    public List<Track> getTracksFeaturing(Artist artist) {
+        if (artist.equals(getArtist())) {
+            return tracks;
+        }
+        return IntStream.range(0, context.getTrackContexts().size()).filter(position -> {
+            Track track = tracks.get(position);
+            return track.getOtherArtist().map(artist::equals).isPresent()
+                || context.getTrackContexts().get(position).getCredits().getCredits().stream()
+                .anyMatch(credit -> credit.getArtist().equals(artist));
+        }).mapToObj(tracks::get)
+            .collect(Collectors.toList());
+    }
+
     public CategoryPath getCategoryPath() {
 
         return categoryPath;

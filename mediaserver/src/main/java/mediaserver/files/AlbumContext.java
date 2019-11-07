@@ -21,7 +21,7 @@ public class AlbumContext {
 
     private final Credits credits;
 
-    private final Collection<TrackContext> trackContexts;
+    private final List<TrackContext> trackContexts;
 
     public AlbumContext(Album album) {
 
@@ -40,7 +40,7 @@ public class AlbumContext {
         String notes,
         Collection<String> series,
         Credits credits,
-        Collection<TrackContext> trackContexts
+        List<TrackContext> trackContexts
     ) {
 
         this.album = album;
@@ -79,7 +79,7 @@ public class AlbumContext {
         return series;
     }
 
-    public Collection<TrackContext> getTrackContexts() {
+    public List<TrackContext> getTrackContexts() {
 
         return trackContexts;
     }
