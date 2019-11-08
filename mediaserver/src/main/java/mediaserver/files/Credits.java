@@ -1,14 +1,17 @@
 package mediaserver.files;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Credits {
+public class Credits implements Serializable {
 
     private final Collection<Credit> credits;
+
+    private static final long serialVersionUID = 3560105313561183479L;
 
     public Credits() {
 

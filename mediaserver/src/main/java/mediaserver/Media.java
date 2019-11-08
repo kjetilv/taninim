@@ -1,9 +1,10 @@
-package mediaserver.files;
+package mediaserver;
 
 import mediaserver.externals.DiscogReleaseDigest;
 import mediaserver.externals.DiscogSeriesDigest;
 import mediaserver.externals.XmlMapParser;
 import mediaserver.externals.iTunesLibrary;
+import mediaserver.files.*;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public interface Media {
 
     Logger log = LoggerFactory.getLogger(Media.class);
 
-    Media subLibrary(CategoryPath categoryPath, Artist artist);
+    Media subLibrary(CategoryPath categoryPath, Artist artist, Series series);
 
     Media withAlbumContext(UUID albumId, AlbumContext albumContext);
 
@@ -89,9 +90,13 @@ public interface Media {
 
     Optional<Album> getAlbum(UUID id);
 
+    Collection<Series> getSeries();
+
     Collection<Album> getAlbumsFeaturing(Artist id);
 
     Optional<Artist> getArtist(UUID id);
+
+    Optional<Series> getSeries(UUID id);
 
     Optional<Artist> getArtist(String name);
 

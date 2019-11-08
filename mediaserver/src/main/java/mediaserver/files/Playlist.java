@@ -13,6 +13,8 @@ public class Playlist extends AbstractHashable {
 
     private final List<Track> tracks;
 
+    private static final long serialVersionUID = -6198219291681770060L;
+
     public Playlist(Album album) {
         this(album.getArtist() + ": " + album.getName(), album.getTracks());
     }

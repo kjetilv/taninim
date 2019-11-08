@@ -1,9 +1,10 @@
 package mediaserver.files;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Objects;
 
-public class Credit {
+public class Credit implements Serializable {
 
     private final URI uri;
 
@@ -12,6 +13,8 @@ public class Credit {
     private final String sourceType;
 
     private final String name;
+
+    private static final long serialVersionUID = 1917638609632123791L;
 
     public Credit(
         String name,
@@ -38,7 +41,7 @@ public class Credit {
 
     public Artist getArtist() {
 
-        return isPerformer() ? new Artist(name) : null;
+        return isPerformer() ? Artist.get(name) : null;
     }
 
     public ExternalType getExternalType() {
@@ -52,14 +55,6 @@ public class Credit {
     }
 
     enum ExternalType {
-
-        composer,
-
-        composed_by,
-
-        music_by,
-
-        written_by,
 
         arranged_by,
 

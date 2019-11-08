@@ -1,38 +1,16 @@
 package mediaserver.files;
 
-import mediaserver.hash.AbstractHashable;
+public class Artist extends AbstractNameHashable {
 
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.function.Consumer;
+    private static final long serialVersionUID = -6584400668175206925L;
 
-public class Artist extends AbstractHashable
-    implements Comparable<Artist>, Serializable {
+    private Artist(String name) {
 
-    private final String name;
-
-    private static final long serialVersionUID = 8396940978009264692L;
-
-    public Artist(String name) {
-        this.name = Objects.requireNonNull(name, "name");
+        super(name);
     }
 
-    @Override
-    public void hashTo(Consumer<byte[]> h) {
-        hash(h, name);
-    }
+    public static Artist get(String name) {
 
-    @Override
-    public int compareTo(Artist o) {
-        return name.compareTo(o.getName());
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    protected Object toStringBody() {
-        return name;
+        return AbstractNameHashable.get(Artist::new, name);
     }
 }

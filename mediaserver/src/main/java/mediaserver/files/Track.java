@@ -8,14 +8,12 @@ import org.gagravarr.flac.FlacTags;
 import java.io.File;
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class Track extends AbstractHashable
@@ -56,6 +54,7 @@ public class Track extends AbstractHashable
     private final long fileSize;
 
     public Track(File file) {
+
         this.part = part(Objects.requireNonNull(file, "file").getName());
         try (FlacFile flacFile = FlacFile.open(file)) {
             FlacTags tags = flacFile.getTags();
@@ -64,13 +63,13 @@ public class Track extends AbstractHashable
                     .filter(list -> list.size() == 1)
                     .filter(list -> list.contains("1"))
                     .isPresent();
-            this.artist = new Artist(tags.getArtist());
+            this.artist = Artist.get(tags.getArtist());
             this.albumArtist = compilation ? null : Optional.ofNullable(tags.getComments("albumartist"))
                 .filter(c ->
                     !c.isEmpty())
                 .map(c ->
                     c.get(0))
-                .map(Artist::new)
+                .map(Artist::get)
                 .orElse(this.artist);
             this.name = tags.getTitle();
             this.album = tags.getAlbum();
@@ -87,75 +86,92 @@ public class Track extends AbstractHashable
     }
 
     public Artist getArtist() {
+
         return artist;
     }
 
     public Optional<Artist> getOtherArtist() {
+
         return Objects.equals(artist, albumArtist) ? Optional.empty() : Optional.of(artist);
     }
 
     public Artist getOtherArtistPresent() {
+
         return getOtherArtist().orElse(null);
     }
 
     public String getAlbum() {
+
         return album;
     }
 
     public String getName() {
+
         return name;
     }
 
     public Integer getPart() {
+
         return part;
     }
 
     public int getTrackNo() {
+
         return trackNo;
     }
 
     public String getPrettyTrackNo() {
+
         return part == null ? String.valueOf(trackNo) : part + "-" + trackNo;
     }
 
     public File getFile() {
+
         return new File(file);
     }
 
     public Duration getDuration() {
+
         return duration;
     }
 
     public long getSeconds() {
+
         return duration.toSeconds();
     }
 
     public String getPrettyDuration() {
+
         return duration.getSeconds() / 60 + ":" + duration.getSeconds() % 60;
     }
 
     public boolean sameAlbum(Track track) {
+
         return track.getArtist().equals(getArtist()) && track.getAlbum().equals(getAlbum());
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(Track track) {
+
         return TRACK_COMPARATOR.compare(this, track);
     }
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
+
         hash(h, signature);
         hash(h, (int) numberOfSamples, (int) fileSize);
     }
 
     @Override
     protected Object toStringBody() {
+
         return artist + "/" + album + " " + trackNo + ": " + name;
     }
 
     private Integer part(String name) {
+
         if (name == null) {
             return null;
         }
@@ -167,15 +183,18 @@ public class Track extends AbstractHashable
     }
 
     private int trackNo(String fileName) {
+
         return Integer.parseInt(pick(fileName, 2, 1));
     }
 
     private String trackName(String fileName) {
+
         String name = pick(fileName, 3, 2);
         return name.endsWith(".flac") ? name.substring(0, name.length() - ".flac".length()) : name;
     }
 
     private String pick(String name, int partIndex, int noPartIndex) {
+
         Matcher partMatcher = PART_TRACK_NAME.matcher(name);
         if (partMatcher.matches()) {
             return partMatcher.group(partIndex);

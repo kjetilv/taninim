@@ -2,7 +2,7 @@ package flacsefugl
 
 import mediaserver.externals.AlbumMetadata
 import mediaserver.files.Album
-import mediaserver.files.Media
+import mediaserver.Media
 import mediaserver.util.IO
 import java.net.URI
 import java.nio.file.Files

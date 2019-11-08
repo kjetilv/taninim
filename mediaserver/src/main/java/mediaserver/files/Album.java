@@ -1,13 +1,11 @@
 package mediaserver.files;
 
 import mediaserver.hash.AbstractHashable;
-import mediaserver.util.MostlyOnce;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -36,7 +34,9 @@ public class Album extends AbstractHashable
 
     private static final long serialVersionUID = 6861992470450497236L;
 
-    private final Supplier<List<Artist>> artistsSupplier = MostlyOnce.get(this::resolveArtists);
+    private final List<Artist> artists;
+
+    private List<Series> series;
 
     Album(CategoryPath categoryPath, Artist artist, String name, List<Track> tracks) {
 
@@ -73,6 +73,10 @@ public class Album extends AbstractHashable
         this.tracks =
             Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
         this.categoryPath = categoryPath;
+        this.artists = this.resolveArtists();
+        this.series = context == null
+            ? Collections.emptyList()
+            : context.getSeries().stream().map(Series::get).collect(Collectors.toList());
     }
 
     @SuppressWarnings("unused") // StringTemplate
@@ -121,34 +125,16 @@ public class Album extends AbstractHashable
 
     public Collection<Artist> getArtists() {
 
-        return artistsSupplier.get();
+        return artists;
     }
 
     public boolean isAdditionalArtists() {
 
-        return getArtists().size() > 1;
+        return artists.size() > 1;
     }
 
-    public List<Artist> resolveArtists() {
-
-        return Stream.of(
-            Stream.of(getArtist()),
-            tracks.stream().map(Track::getArtist),
-            tracks.stream().map(Track::getOtherArtist).flatMap(Optional::stream),
-            context.getCredits().getCredits().stream()
-                .filter(Credit::isPerformer)
-                .map(Credit::getName)
-                .map(Artist::new),
-            context.getTrackContexts().stream()
-                .map(TrackContext::getCredits)
-                .map(Credits::getCredits)
-                .flatMap(Collection::stream)
-                .filter(Credit::isPerformer)
-                .map(Credit::getName)
-                .map(Artist::new))
-            .flatMap(s -> s)
-            .distinct()
-            .collect(Collectors.toList());
+    public Collection<Series> getSeries() {
+        return series;
     }
 
     public Integer getParts() {
@@ -167,6 +153,7 @@ public class Album extends AbstractHashable
     }
 
     public List<Track> getTracksFeaturing(Artist artist) {
+
         if (artist.equals(getArtist())) {
             return tracks;
         }
@@ -231,6 +218,28 @@ public class Album extends AbstractHashable
     public boolean features(Artist artist) {
 
         return getArtists().contains(artist);
+    }
+
+    private List<Artist> resolveArtists() {
+
+        return Stream.of(
+            Stream.of(getArtist()),
+            tracks.stream().map(Track::getArtist),
+            tracks.stream().map(Track::getOtherArtist).flatMap(Optional::stream),
+            context.getCredits().getCredits().stream()
+                .filter(Credit::isPerformer)
+                .map(Credit::getName)
+                .map(Artist::get),
+            context.getTrackContexts().stream()
+                .map(TrackContext::getCredits)
+                .map(Credits::getCredits)
+                .flatMap(Collection::stream)
+                .filter(Credit::isPerformer)
+                .map(Credit::getName)
+                .map(Artist::get))
+            .flatMap(s -> s)
+            .distinct()
+            .collect(Collectors.toList());
     }
 
     private static Optional<String> single(Function<Track, String> getAlbum, List<Track> tracks) {

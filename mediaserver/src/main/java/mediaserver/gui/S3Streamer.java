@@ -7,7 +7,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import mediaserver.files.Media;
+import mediaserver.Media;
 import mediaserver.files.Track;
 import mediaserver.util.IO;
 import mediaserver.util.S3;

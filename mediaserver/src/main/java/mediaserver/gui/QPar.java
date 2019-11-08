@@ -15,6 +15,8 @@ public enum QPar {
 
     TRACK,
 
+    SERIES,
+
     CATEGORY,
 
     PLAY_TRACK("playTrack"),

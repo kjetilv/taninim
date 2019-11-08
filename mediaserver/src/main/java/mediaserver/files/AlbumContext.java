@@ -1,5 +1,6 @@
 package mediaserver.files;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.time.Year;
 import java.util.Collection;
@@ -7,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class AlbumContext {
+public class AlbumContext implements Serializable {
 
     private final Album album;
 
@@ -22,6 +23,8 @@ public class AlbumContext {
     private final Credits credits;
 
     private final List<TrackContext> trackContexts;
+
+    private static final long serialVersionUID = 873700442732183661L;
 
     public AlbumContext(Album album) {
 

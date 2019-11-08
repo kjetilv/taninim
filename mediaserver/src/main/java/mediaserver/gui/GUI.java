@@ -3,10 +3,11 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import mediaserver.Media;
 import mediaserver.files.Album;
 import mediaserver.files.Artist;
 import mediaserver.files.CategoryPath;
-import mediaserver.files.Media;
+import mediaserver.files.Series;
 import mediaserver.util.IO;
 import mediaserver.util.URLs;
 
@@ -68,8 +69,10 @@ public class GUI extends Nettish {
         CategoryPath categoryPath = getCategoryPath(uriPath);
         Artist artist =
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
+        Series series =
+            pars.apply(QPar.SERIES).flatMap(media::getSeries).orElse(null);
         return template("index.html")
-            .add(QPar.MEDIA, media.subLibrary(categoryPath, artist))
+            .add(QPar.MEDIA, media.subLibrary(categoryPath, artist, series))
             .add(QPar.ARTIST, artist);
     }
 
@@ -79,13 +82,6 @@ public class GUI extends Nettish {
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAY_TRACK, pars.apply(QPar.TRACK).flatMap(media::getTrack).orElse(null));
-    }
-
-    private Template artistTemplate(Media media, Album artist, QPars pars) {
-
-        return template("artist.html")
-            .add(QPar.ARTIST, artist)
-            .add(QPar.MEDIA, media);
     }
 
     private static Map<QPar, String> params(String uri, int queryIndex) {

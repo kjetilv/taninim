@@ -3,6 +3,7 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import mediaserver.Media;
 import mediaserver.files.*;
 import mediaserver.util.IO;
 

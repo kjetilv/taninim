@@ -3,7 +3,6 @@ package mediaserver;
 import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.messages.Item;
-import mediaserver.files.Media;
 import mediaserver.util.S3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

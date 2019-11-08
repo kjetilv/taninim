@@ -41,6 +41,15 @@
     }}
 </UL>
 
+<H3>
+    Series [{length(media.series)}]
+</H3>
+
+<UL>
+    {media.series:{series|
+    <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
+    }}
+</UL>
 
 <H3>
     Album artists [{length(media.allAlbumArtists)}]

@@ -54,12 +54,12 @@
 <P>@ <A HREF="{album.context.discogPage}">Discogs</A></P>
 {endif}
 
-{if(album.context.series)}
+{if(album.series)}
 <P>Series:</P>
 
 <UL>
-    {album.context.series:{series|
-    <LI>{series}</LI>
+    {album.series:{series|
+    <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
     }}
 </UL>
 {endif}
