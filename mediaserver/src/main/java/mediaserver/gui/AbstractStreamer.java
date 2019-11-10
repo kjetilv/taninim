@@ -5,8 +5,6 @@ import io.netty.handler.codec.http.*;
 import mediaserver.Media;
 import mediaserver.files.Track;
 import mediaserver.util.IO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,21 +17,29 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public abstract class AbstractStreamer extends Nettish {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractStreamer.class);
+    protected static final String FLAC = "flac";
 
-    private static final String AUDIO_FLAC = "audio/flac";
+    protected static final String AAC = "aac";
+
+    protected static final String M4A = "m4a";
+
+    protected static final String AUDIO_FLAC = "audio/" + FLAC;
+
+    protected static final String AUDIO_AAC = "audio/" + AAC;
 
     protected final Media media;
 
     private static final int BYTES_PREAMBLE = (HttpHeaderValues.BYTES + "=").length();
 
     AbstractStreamer(Media media, IO io) {
+
         super(io, "/audio");
         this.media = media;
     }
 
     @Override
     public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+
         return getMediaTrack(resource(path))
             .map(track ->
                 stream(req, track, ctx))
@@ -42,15 +48,18 @@ public abstract class AbstractStreamer extends Nettish {
     }
 
     static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {
-        response.headers().add(HttpHeaderNames.CONTENT_RANGE,
+
+        response.headers().add(
+            HttpHeaderNames.CONTENT_RANGE,
             HttpHeaderValues.BYTES + " " + pri.getStartOffset() + "-" + pri.getEndOffset() + "/" + length);
         HttpUtil.setContentLength(response, pri.getChunkSize());
         response.setStatus(HttpResponseStatus.PARTIAL_CONTENT);
     }
 
     protected static HttpResponse response(HttpRequest req) {
+
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-        response.headers().set(CONTENT_TYPE, AUDIO_FLAC);
+        response.headers().set(CONTENT_TYPE, contentType(req));
         if (HttpUtil.isKeepAlive(req)) {
             response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }
@@ -59,6 +68,7 @@ public abstract class AbstractStreamer extends Nettish {
     }
 
     protected static PartialRequestInfo getPartialRequestInfo(String rangeHeader, long length) {
+
         try {
             long startOffset = Integer.parseInt(rangeHeader.substring(BYTES_PREAMBLE, rangeHeader.indexOf("-")));
             long endOffset = endOffset(length, startOffset);
@@ -71,12 +81,30 @@ public abstract class AbstractStreamer extends Nettish {
 
     protected abstract HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx);
 
+    protected static String audioType(HttpRequest req) {
+
+        return isFlac(req) ? FLAC : M4A;
+    }
+
+    protected static boolean isFlac(HttpRequest req) {
+
+        return req.uri().endsWith("." + FLAC);
+    }
+
+    private static String contentType(HttpRequest req) {
+
+        return req.uri().endsWith(FLAC) ? AUDIO_FLAC : AUDIO_AAC;
+    }
+
     private static long endOffset(long fileLength, long startOffset) {
+
         long endOffset = startOffset + fileLength;
         return endOffset < fileLength ? endOffset : fileLength - 1;
     }
 
     private Optional<Track> getMediaTrack(String path) {
-        return media.getTrack(UUID.fromString(path.substring(1)));
+        int dotIndex = path.indexOf('.', 1);
+        String uuidString = path.substring(1, dotIndex);
+        return media.getTrack(UUID.fromString(uuidString));
     }
 }

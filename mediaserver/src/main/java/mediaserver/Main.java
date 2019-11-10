@@ -10,16 +10,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.security.cert.CertificateException;
 import java.util.function.Supplier;
 
 public class Main {
@@ -34,89 +30,36 @@ public class Main {
 
     public static void main(String[] args) {
 
-        boolean isDev = Boolean.getBoolean(DEV_FLAG);
-        log.info("Running in {} mode", local(args) ? "local" : "cloud");
-
-        SslContext sslCtx = getSslContext();
+        log.info("Running in {}{} mode",
+            local(args) ? "local" : "cloud", dev() ? " dev" : "");
 
         Media media = retrieveMedia(args);
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
-        Supplier<Router> routerProvider = routerSupplier(media, local(args), isDev);
+        Supplier<Router> routerProvider = routerSupplier(media, local(args), dev());
 
-        ChannelInitializer<SocketChannel> handler = new ChannelInitializer<>() {
-            @Override
-            protected void initChannel(SocketChannel ch) {
+        ChannelInitializer<SocketChannel> handler = new Initializer(routerProvider);
 
-                ChannelPipeline pipeline = ch.pipeline();
-                if (sslCtx != null) {
-                    pipeline.addLast(sslCtx.newHandler(ch.alloc()));
-                }
-                pipeline.addLast(new CustomHttpServerCodec());
-                pipeline.addLast(routerProvider.get());
-            }
-        };
+        ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
-        ServerBootstrap bootstrap = new ServerBootstrap()
-            .group(listenGroup, workGroup)
-            .channel(NioServerSocketChannel.class)
-            .handler(new LoggingHandler(LogLevel.DEBUG))
-            .childHandler(handler);
+        int port = dev() || local(args) ? LOCALPORT : CLOUD_PORT;
 
-        int port = local(args) ? LOCALPORT : CLOUD_PORT;
-
-        try {
-            Channel ch = bootstrap.bind(port).sync().channel();
-            log.info("Bound to port {}", port);
-            ch.closeFuture().sync();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.warn("Interrupted", e);
-        } finally {
-            listenGroup.shutdownGracefully();
-            workGroup.shutdownGracefully();
-        }
+        start(bootstrap, port, listenGroup, workGroup);
     }
 
-    public static SslContext getSslContext() {
+    public static boolean dev() {
 
-        if (Boolean.getBoolean("openssl")) {
+        return Boolean.getBoolean(DEV_FLAG);
+    }
 
-            File certificateFile = new File("taninim-cert.pem");
-            File keyFile = new File("taninim-key.pkcs8.pem");
+    public static boolean local(String[] args) {
 
-            SslContext sslCtx;
-            try {
-                sslCtx = SslContextBuilder.forServer(certificateFile, keyFile, "pasju").build();
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to setup SSL context", e);
-            }
-            return sslCtx;
-        }
-
-        if (Boolean.getBoolean("ssc")) {
-            SelfSignedCertificate ssc;
-            try {
-                ssc = new SelfSignedCertificate();
-            } catch (CertificateException e) {
-                throw new IllegalStateException("Unexpected ssc error", e);
-            }
-
-            SslContext sslCtx;
-            try {
-                sslCtx = SslContextBuilder.forServer(
-                    ssc.certificate(),
-                    ssc.privateKey()
-                ).build();
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to setup SSL context", e);
-            }
-            return sslCtx;
-        }
-
-        return null;
+        return args.length > 2 &&
+            new File(args[0]).isDirectory() &&
+            new File(args[1]).isFile() &&
+            new File(args[2]).isDirectory();
     }
 
     public static Media retrieveMedia(String[] args) {
@@ -131,14 +74,6 @@ public class Main {
         }
     }
 
-    public static boolean local(String[] args) {
-
-        return args.length > 2 &&
-            new File(args[0]).isDirectory() &&
-            new File(args[1]).isFile() &&
-            new File(args[2]).isDirectory();
-    }
-
     private static Supplier<Router> routerSupplier(
         Media media,
         boolean local,
@@ -151,5 +86,56 @@ public class Main {
             local ? new FileStreamer(io, media) : new S3Streamer(io, media),
             new Resources(io),
             new GUI(io, media));
+    }
+
+    private static ServerBootstrap bootstrap(
+        EventLoopGroup listenGroup,
+        EventLoopGroup workGroup,
+        ChannelInitializer<SocketChannel> handler
+    ) {
+
+        return new ServerBootstrap()
+            .group(listenGroup, workGroup)
+            .channel(NioServerSocketChannel.class)
+            .handler(new LoggingHandler(LogLevel.DEBUG))
+            .childHandler(handler);
+    }
+
+    private static void start(
+        ServerBootstrap bootstrap,
+        int port,
+        EventLoopGroup listenGroup,
+        EventLoopGroup workGroup
+    ) {
+
+        try {
+            Channel ch = bootstrap.bind(port).sync().channel();
+            log.info("Bound to port {}", port);
+            ch.closeFuture().sync();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted", e);
+        } finally {
+            listenGroup.shutdownGracefully();
+            workGroup.shutdownGracefully();
+        }
+    }
+
+    private static class Initializer extends ChannelInitializer<SocketChannel> {
+
+        private final Supplier<Router> routerProvider;
+
+        public Initializer(Supplier<Router> routerProvider) {
+
+            this.routerProvider = routerProvider;
+        }
+
+        @Override
+        protected void initChannel(SocketChannel ch) {
+
+            ChannelPipeline pipeline = ch.pipeline();
+            pipeline.addLast(new CustomHttpServerCodec());
+            pipeline.addLast(routerProvider.get());
+        }
     }
 }

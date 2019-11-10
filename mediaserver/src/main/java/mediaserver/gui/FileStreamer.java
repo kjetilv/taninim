@@ -26,7 +26,7 @@ public final class FileStreamer extends AbstractStreamer {
 
         HttpResponse response = response(req);
 
-        File file = track.getFile();
+        File file = isFlac(req) ? track.getFile() : track.getCompressedFile();
         RandomAccessFile randomAccessFile = randomAccess(file);
         long fileLength = length(randomAccessFile);
 

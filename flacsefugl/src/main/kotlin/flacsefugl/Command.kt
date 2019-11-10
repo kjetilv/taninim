@@ -7,8 +7,9 @@ class Command(pwd: Path, vararg cmd: String) {
 
     private val process = ProcessBuilder(cmd.toList())
             .directory(pwd.toFile())
-            .redirectError(ProcessBuilder.Redirect.DISCARD)
-            .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+            .inheritIO()
+//            .redirectError(ProcessBuilder.Redirect.DISCARD)
+//            .redirectOutput(ProcessBuilder.Redirect.DISCARD)
             .start()
 
     fun await(): Boolean =

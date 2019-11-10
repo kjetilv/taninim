@@ -1,27 +1,21 @@
 package flacsefugl
 
-import mediaserver.externals.AlbumMetadata
-import mediaserver.files.Album
 import mediaserver.Media
-import mediaserver.util.IO
+import mediaserver.files.Album
 import java.net.URI
 import java.nio.file.Files
-import java.nio.file.Files.copy
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption.COPY_ATTRIBUTES
-import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 
 fun main() {
     val rootDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/Music/iTunes/iTunes%20Media/Music/"))
 //    val targetDir = Paths.get(".")
-    val targetDir = Paths.get(URI.create(
+    val flacDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/FLAC/John%20Zorn"))
-    val conversion = Conversion(
-            Mover(rootDir, targetDir, dists()),
-            Traverser(rootDir)
-    ) { path ->
+    val m4aDir = Paths.get(URI.create(
+            "file://${System.getProperty("user.home")}/M4A/John%20Zorn"))
+    val included: (Path) -> Boolean = { path: Path ->
         val name = path.toString().toLowerCase()
         name.endsWith(".m4a") && (
                 artist(path).contains("john zorn") ||
@@ -46,12 +40,17 @@ fun main() {
                 )
     }
 
-    conversion.convert("flac") { source, target ->
-        println("${rootDir.relativize(source)} -> ${targetDir.relativize(target)}")
+    val flacConversion = Conversion(
+            Mover(rootDir, flacDir, dists()),
+            Traverser(rootDir),
+            included)
+
+    flacConversion.convert("flac") { source, target ->
+        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
         true
     }
 
-    conversion.convert("flac") { source, target ->
+    flacConversion.convert("flac") { source, target ->
         if (Files.isRegularFile(target) && Files.size(target) > 0) {
             println("Not converting, already done: $target")
             true
@@ -60,44 +59,25 @@ fun main() {
         }
     }
 
-    val root = Path.of(System.getProperty("user.home"), "FLAC")
-    val ilib = Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml")
-    val res = Path.of("mediaserver", "src", "main", "resources")
-    val media = Media.local(root, ilib, res);
-
-//    val discogReleasesLoader = DiscogReleasesLoader("johnzorn-releases-x.json", 1, 27)
-
-    val albumsMetaPath = root.resolve(Path.of("album-meta"))
-    val albumsMetaDir = albumsMetaPath.toFile()
-    if (albumsMetaDir.isDirectory || albumsMetaDir.mkdir()) {
-        media.allAlbums().forEach { album ->
-            val target = albumsMetaPath.resolve("album.${album.uuid}")
-            setupMetaDirectory(target, album)
-            val metadataFile = target.resolve(Path.of("metadata.json"))
-            val metadata = AlbumMetadata().apply {
-                artist = album.artist.name
-                title = album.name
-            }
-            IO.OM.writeValue(metadataFile.toFile(), metadata);
-        }
-
-        val objectsPath = root.resolve(Path.of("objects"))
-        val objectsDir = objectsPath.toFile()
-        if (objectsDir.isDirectory || objectsDir.mkdirs()) {
-            media.allTracks.forEach { track ->
-                val target = objectsPath.resolve(Path.of("${track.uuid}.flac"))
-                val targetFile = target.toFile()
-                if (targetFile.isFile && targetFile.length() == track.file.length()) {
-                    println("Already copied: $track -> $target")
-                } else {
-                    println("Copying $track -> $target")
-                    copy(track.file.toPath(), target, REPLACE_EXISTING, COPY_ATTRIBUTES)
-                }
-            }
+    val m4aConversion = Conversion(
+            Mover(rootDir, m4aDir, dists()),
+            Traverser(rootDir),
+            included)
+    m4aConversion.convert("m4a") { source, target ->
+        if (Files.isRegularFile(target) && Files.size(target) > 0) {
+            println("Not converting, already done: $target")
+            true
         } else {
-            throw IllegalStateException("Could not create block storage")
+            ffmpegM4a(source, target).await()
         }
     }
+
+    val media = Media.local(
+            Path.of(System.getProperty("user.home"), "FLAC"),
+            Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml"),
+            Path.of("mediaserver", "src", "main", "resources"));
+
+    println("Media: $media")
 }
 
 fun setupMetaDirectory(target: Path, album: Album) {
@@ -193,6 +173,11 @@ private fun artist(path: Path) = path.parent.parent.fileName.toString().toLowerC
 private fun ffmpeg(source: Path, target: Path): Command =
         Command(Paths.get("."),
                 "/opt/local/bin/ffmpeg", "-i", absOf(source), "-c:a", "flac", absOf(target)
+        )
+
+private fun ffmpegM4a(source: Path, target: Path): Command =
+        Command(Paths.get("."),
+                "/opt/local/bin/ffmpeg", "-i", absOf(source), "-c:a", "aac", "-b:a", "128k", absOf(target)
         )
 
 

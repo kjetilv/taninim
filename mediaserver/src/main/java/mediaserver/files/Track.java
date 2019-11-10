@@ -4,8 +4,11 @@ import mediaserver.hash.AbstractHashable;
 import org.gagravarr.flac.FlacFile;
 import org.gagravarr.flac.FlacInfo;
 import org.gagravarr.flac.FlacTags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.Comparator;
@@ -18,6 +21,8 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public class Track extends AbstractHashable
     implements Comparable<Track>, Serializable {
+
+    private static final Logger log = LoggerFactory.getLogger(Track.class);
 
     private final Artist albumArtist;
 
@@ -53,6 +58,8 @@ public class Track extends AbstractHashable
 
     private final long fileSize;
 
+    private final File compressedFile;
+
     public Track(File file) {
 
         this.part = part(Objects.requireNonNull(file, "file").getName());
@@ -83,6 +90,16 @@ public class Track extends AbstractHashable
             throw new IllegalArgumentException("Failed to import flac file: " + file, e);
         }
         this.file = file.getPath();
+        try {
+            this.compressedFile = new File(file.getCanonicalPath()
+                .replaceAll("FLAC", "M4A")
+                .replaceAll(".flac", ".m4a"));
+        } catch (IOException e) {
+            throw new IllegalStateException("Unhandled compressed file: " + file, e);
+        }
+        if (!this.compressedFile.exists()) {
+            log.warn("{} has no compressed version", this);
+        }
     }
 
     public Artist getArtist() {
@@ -128,6 +145,14 @@ public class Track extends AbstractHashable
     public File getFile() {
 
         return new File(file);
+    }
+
+    public File getCompressedFile() {
+
+        if (!compressedFile.exists()){
+            throw new IllegalStateException(this + " has no compressed file");
+        }
+        return compressedFile;
     }
 
     public Duration getDuration() {

@@ -2,7 +2,9 @@ package mediaserver;
 
 import io.minio.MinioClient;
 import io.minio.Result;
+import io.minio.messages.DeleteError;
 import io.minio.messages.Item;
+import mediaserver.files.Track;
 import mediaserver.util.S3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CloudMedia {
 
@@ -21,51 +25,123 @@ public class CloudMedia {
 
     public static void main(String[] args) {
 
-        Media media = Media.local(args[0], args[1], args[2]);
-        File mediaFile = serialize(media);
-        S3.get().ifPresent(s3 -> {
-            uploadMediaSer(media, mediaFile, s3);
+        main(args[0], args[1], args[2]);
+    }
+
+    public static void removeRedundantRemotes(MinioClient s3, List<String> removables) {
+
+        log.info("Removables: {}", removables.size());
+        Iterable<Result<DeleteError>> results = s3.removeObjects(S3.BUCKET, removables);
+        System.out.println(
+            "Results : " + (results instanceof Collection<?> ? ((Collection<?>) results).size() : -1));
+
+        Collection<DeleteError> errors = new ArrayList<>();
+        Collection<Exception> failures = new ArrayList<>();
+        results.forEach(result -> {
+            try {
+                errors.add(result.get());
+            } catch (Exception e) {
+                failures.add(e);
+            }
         });
-        if (args.length > 3) {
-            File objectsDir = new File(args[1]);
-            S3.get().ifPresent(s3 -> {
-                Map<String, Long> remoteSizes = remoteFiles(s3);
-                Collection<File> localFiles = Optional.ofNullable(
-                    objectsDir.listFiles(pathname -> pathname.getName().endsWith(".flac"))
-                ).stream().flatMap(Arrays::stream).collect(Collectors.toList());
-                localFiles.forEach(localFile -> {
-                    Optional<Long> remoteSize =
-                        Optional.ofNullable(remoteSizes.get(localFile.getName()));
-                    if (remoteSize.filter(size -> size != localFile.length()).isPresent()) {
-                        log.info("Uploading {}", localFile.getName());
-                        try {
-                            s3.putObject(
-                                S3.BUCKET,
-                                localFile.getName(),
-                                localFile.getAbsolutePath(),
-                                localFile.length(),
-                                null,
-                                null,
-                                null);
-                        } catch (Exception e) {
-                            throw new IllegalStateException("Failed to put " + localFile.getName(), e);
-                        }
-                    } else {
-                        log.info("Already present: {}", localFile.getName());
-                    }
-                });
-                Collection<String> localFileNames =
-                    localFiles.stream().map(File::getName).collect(Collectors.toSet());
-                List<String> removables = remoteSizes.keySet().stream()
-                    .filter(remoteName ->
-                                !localFileNames.contains(remoteName))
-                    .collect(Collectors.toList());
-                if (!removables.isEmpty()) {
-                    log.info("Removables: {}", removables.size());
-                    s3.removeObjects(S3.BUCKET, removables);
-                }
+
+        System.out.println("Deleted: " + errors.size());
+        System.out.println("Failed : " + failures.size());
+    }
+
+    public static List<File> localFiles(String directory, String suffix) {
+
+        return getFiles(new File(directory), suffix).collect(Collectors.toList());
+    }
+
+    public static void uploadMissingRemote(
+        MinioClient s3,
+        Map<String, Long> remoteSizes,
+        File localFile
+    ) {
+
+        Track track = new Track(localFile);
+        String remoteFlac = track.getUuid() + ".flac";
+        String remoteM4a = track.getUuid() + ".m4a";
+
+        Optional<Long> remoteFlacSizes =
+            Optional.ofNullable(remoteSizes.get(remoteFlac))
+                .filter(size -> size == localFile.length());
+
+        File localCompressedFile = track.getCompressedFile();
+        Optional<Long> remoteM4aSizes =
+            Optional.ofNullable(remoteSizes.get(remoteM4a))
+                .filter(size -> size == localCompressedFile.length());
+
+        remoteFlacSizes.ifPresentOrElse(
+            size ->
+                log.info("Already present with {} bytes: {}/{}/{} / {}",
+                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
+                    remoteFlac),
+            () -> {
+                log.info("Uploading {} bytes: {}/{}/{} => {}",
+                    localFile.length(), track.getArtist().getName(), track.getAlbum(), track.getName(),
+                    remoteFlac);
+                put(s3, localFile, remoteFlac);
             });
+
+        remoteM4aSizes.ifPresentOrElse(
+            size ->
+                log.info("Already present with {} bytes: {}/{}/{} / {}",
+                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
+                    remoteM4a),
+            () -> {
+                String remoteCompressed = remoteFlac.replaceAll(".flac", ".m4a");
+                log.info("Uploading {} bytes: {}/{}/{} => {}",
+                    localCompressedFile.length(), track.getArtist().getName(), track.getAlbum(), track.getName(),
+                    remoteM4a);
+                put(s3, localCompressedFile, remoteCompressed);
+            });
+    }
+
+    public static File localCompressed(File localFile) {
+
+        try {
+            return new File(localFile.getCanonicalPath()
+                .replaceAll("FLAC", "M4A")
+                .replaceAll(".flac", ".m4a"));
+        } catch (IOException e) {
+            throw new IllegalStateException("Unhandled compressed file: " + localFile, e);
         }
+    }
+
+    public static void put(MinioClient s3, File localFile, String remoteName) {
+
+        try {
+            s3.putObject(
+                S3.BUCKET,
+                remoteName,
+                localFile.getAbsolutePath(),
+                localFile.length(),
+                null,
+                null,
+                null);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to put " + localFile.getName() + " -> " + remoteName, e);
+        }
+    }
+
+    public static Stream<File> getFiles(File file, String suffix) {
+
+        return getFiles(file, f -> f.getName().endsWith(suffix));
+    }
+
+    public static Stream<File> getFiles(File file, Predicate<File> predicate) {
+
+        if (file.isFile()) {
+            if (predicate.test(file)) {
+                return Stream.of(file);
+            }
+            return Stream.empty();
+        }
+        return Optional.ofNullable(file.listFiles()).stream().flatMap(Arrays::stream)
+            .flatMap(f ->
+                getFiles(f, predicate));
     }
 
     public static Map<String, Long> remoteFiles(MinioClient s3) {
@@ -116,14 +192,14 @@ public class CloudMedia {
                 throw new IllegalStateException("Could not download media file", e);
             }
         }).orElseThrow(() ->
-                           new IllegalStateException("No S3 connection"));
+            new IllegalStateException("No S3 connection"));
         log.info("Downloading media... ");
         Media media = deserialize(inputStream);
         log.info("Downloaded media {}", media);
         return media;
     }
 
-    static Media deserialize(InputStream inputStream) {
+    private static Media deserialize(InputStream inputStream) {
 
         try (
             BufferedInputStream bis = new BufferedInputStream(inputStream);
@@ -133,6 +209,47 @@ public class CloudMedia {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read media", e);
         }
+    }
+
+    private static void main(String root, String library, String resources) {
+
+        Media media = Media.local(root, library, resources);
+        File mediaFile = serialize(media);
+        String m4aRoot = new File(new File(root).getParentFile().getParentFile(), "M4A").getAbsolutePath();
+        S3.get().ifPresent(s3 -> {
+            Map<String, Long> remoteSizes = remoteFiles(s3);
+            localFiles(root, ".flac").forEach(localFile -> {
+                uploadMissingRemote(s3, remoteSizes, localFile);
+            });
+
+            List<String> removables = redundantRemotes(".flac", root, remoteSizes);
+            if (!removables.isEmpty()) {
+                removeRedundantRemotes(s3, removables);
+            }
+//            List<String> removableM4as = redundantRemotes(".m4a", m4aRoot, remoteSizes);
+//            if (!removables.isEmpty()) {
+//                removeRedundantRemotes(s3, removableM4as);
+//            }
+            System.out.println("Refreshing media");
+            uploadMediaSer(media, mediaFile, s3);
+        });
+
+    }
+
+    private static List<String> redundantRemotes(String suffix, String arg, Map<String, Long> remoteSizes) {
+
+        Collection<String> localTracks =
+            localFiles(arg, suffix).stream()
+                .map(Track::new)
+                .map(track ->
+                    track.getUuid() + suffix)
+                .collect(Collectors.toSet());
+        return remoteSizes.keySet().stream()
+            .filter(remoteName ->
+                remoteName.endsWith(suffix))
+            .filter(remoteName ->
+                !localTracks.contains(remoteName))
+            .collect(Collectors.toList());
     }
 
     private static File serialize(Media media) {
