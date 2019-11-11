@@ -33,7 +33,7 @@ public final class IO {
     public URL resolve(String path) {
 
         try {
-            return URI.create((dev ? "http://localhost:8080" : "https://taninim.stuf.link") + path).toURL();
+            return URI.create((dev ? "http://localhost:8080" : "https://tanin.im") + path).toURL();
         } catch (MalformedURLException e) {
             throw new IllegalStateException("Failed to resolve " + path, e);
         }

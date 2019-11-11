@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<html lang="no">
+<HTML lang="no">
 <HEAD>
     <META charset="UTF-8">
     <TITLE>taninim</TITLE>
 </HEAD>
 
-<body>
-
-<H1><A HREF="/">taninim</A></H1>
+<BODY>
+<SCRIPT SRC="/resources/facebook.js" LANGUAGE="JavaScript"></SCRIPT>
+<DIV id="fb-root"></DIV>
+<SCRIPT async defer crossorigin="anonymous"
+        src="https://connect.facebook.net/nn_NO/sdk.js#xfbml=1&version=v5.0&appId=398404340829160&autoLogAppEvents=1">
+</SCRIPT>
+<H1>
+    <A HREF="/">taninim</A>
+</H1>
 
 {if(artist)}
-    <H2>Artist: {artist.name} <A ALT="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A></H2>
+<H2>Artist: {artist.name} <A ALT="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A></H2>
 {else}
-    {if(!media.categoryPath.root)}
-        <H2>Category: {media.categoryPath.pathString} <A ALT="Playlist" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A></H2>
-    {endif}
+{if(!media.categoryPath.root)}
+<H2>Category: {media.categoryPath.pathString} <A ALT="Playlist"
+                                                 HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A></H2>
+{endif}
 {endif}
 
 {if(media.subCategories)}
@@ -56,7 +63,7 @@
 </H3>
 
 {media.artists:{artist|
-  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
+<SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
 }}
 
 <H3>
@@ -64,9 +71,17 @@
 </H3>
 
 {media.allArtists:{artist|
-  <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>] </SPAN>
+<SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>] </SPAN>
 }}
 
-</body>
+<P>
+    <fb:login-button
+            scope="public_profile,email"
+            onlogin="checkLoginState();">
+    </fb:login-button>
+</P>
 
-</html>
+</BODY>
+
+</HTML>
+

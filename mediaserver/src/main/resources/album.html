@@ -6,6 +6,7 @@
     <LINK rel="stylesheet" href="/resources/plyr.css"/>
 </HEAD>
 <BODY>
+<DIV id="fb-root"></DIV>
 
 <H1><A HREF="/">taninim</A></H1>
 
@@ -30,7 +31,7 @@
 
         {track.name}
         {track.prettyDuration}
-        <A href="?artist={albumPart.artist.uuid}&album={albumPart.uuid}&track={track.uuid}">▶</A>
+        <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>
         {if(track.otherArtist.present)}
         <UL>
             <LI>
