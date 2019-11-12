@@ -6,7 +6,21 @@
     <LINK rel="stylesheet" href="/resources/plyr.css"/>
 </HEAD>
 <BODY>
+<SCRIPT SRC="/resources/facebook.js">
+</SCRIPT>
 <DIV id="fb-root"></DIV>
+<SCRIPT async defer crossorigin="anonymous"
+        src="https://connect.facebook.net/nn_NO/sdk.js#xfbml=1&version=v5.0&appId=398404340829160&autoLogAppEvents=1">
+</SCRIPT>
+<SCRIPT SRC="/resources/connectfb.js">
+</SCRIPT>
+
+<div style="float: right">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="260" height="300">
+<path d="M22,87 130,275 238,87z" fill="none" stroke="lightblue" stroke-width="20" id="t"/>
+<use xlink:href="#t" transform="matrix(1,0,0,-1,0,300)"/>
+</svg>
+</div>
 
 <H1><A HREF="/">taninim</A></H1>
 
@@ -125,6 +139,19 @@ Released {album.context.year.value}
 <SCRIPT>
     const player = new plyr('#player');
 </SCRIPT>
+
+<P>
+    <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
+    <fb:login-button scope="public_profile" onlogin="checkLoginState();">
+    </fb:login-button>
+</P>
+
+<FORM ID="fbauth" ACTION="/fbauth">
+    <INPUT TYPE="HIDDEN" ID="userID" VALUE=""></INPUT>
+    <INPUT TYPE="HIDDEN" ID="accessToken" VALUE=""></INPUT>
+    <INPUT TYPE="HIDDEN" ID="signedRequest" VALUE=""></INPUT>
+    <INPUT TYPE="HIDDEN" ID="timeoutInSeconds" VALUE=""></INPUT>
+</FORM>
 
 </BODY>
 
