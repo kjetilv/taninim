@@ -10,23 +10,29 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.security.cert.CertificateException;
 import java.util.function.Supplier;
 
 public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static final int LOCALPORT = 8080;
+    private static final int LOCALPORT = 8443;
 
     private static final int CLOUD_PORT = 80;
 
     private static final String DEV_FLAG = "dev";
+
+    private static final String LIVE_FLAG = "dev";
 
     public static void main(String[] args) {
 
@@ -38,9 +44,9 @@ public class Main {
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
-        Supplier<Router> routerProvider = routerSupplier(media, local(args), dev());
+        Supplier<Router> routerProvider = routerSupplier(media, !live(), local(args), dev());
 
-        ChannelInitializer<SocketChannel> handler = new Initializer(routerProvider);
+        ChannelInitializer<SocketChannel> handler = new Initializer(routerProvider, sslContext());
 
         ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
@@ -52,6 +58,11 @@ public class Main {
     public static boolean dev() {
 
         return Boolean.getBoolean(DEV_FLAG);
+    }
+
+    public static boolean live() {
+
+        return Boolean.getBoolean(LIVE_FLAG);
     }
 
     public static boolean local(String[] args) {
@@ -74,18 +85,46 @@ public class Main {
         }
     }
 
+    private static SslContext sslContext() {
+
+        SelfSignedCertificate ssc;
+        try {
+            ssc = new SelfSignedCertificate();
+        } catch (CertificateException e) {
+            throw new IllegalStateException("Unexpected ssc error", e);
+        }
+
+        try {
+            return SslContextBuilder.forServer(
+                ssc.certificate(),
+                ssc.privateKey()
+            ).build();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to setup SSL context", e);
+        }
+    }
+
     private static Supplier<Router> routerSupplier(
         Media media,
+        boolean neuter,
         boolean local,
         boolean dev
     ) {
 
         IO io = new IO(dev);
         return () -> new Router(
+            streamer(media, neuter, local, io),
             new Playlists(io, media),
-            local ? new FileStreamer(io, media) : new S3Streamer(io, media),
+            new FbAuth(io),
             new Resources(io),
             new GUI(io, media));
+    }
+
+    private static Nettish streamer(Media media, boolean neuter, boolean local, IO io) {
+
+        return neuter ? new NullStreamer(io, media)
+            : local ? new FileStreamer(io, media)
+            : new S3Streamer(io, media);
     }
 
     private static ServerBootstrap bootstrap(
@@ -125,15 +164,19 @@ public class Main {
 
         private final Supplier<Router> routerProvider;
 
-        public Initializer(Supplier<Router> routerProvider) {
+        private final SslContext sslContext;
+
+        public Initializer(Supplier<Router> routerProvider, SslContext sslContext) {
 
             this.routerProvider = routerProvider;
+            this.sslContext = sslContext;
         }
 
         @Override
         protected void initChannel(SocketChannel ch) {
 
             ChannelPipeline pipeline = ch.pipeline();
+            pipeline.addLast(sslContext.newHandler(ch.alloc()));
             pipeline.addLast(new CustomHttpServerCodec());
             pipeline.addLast(routerProvider.get());
         }

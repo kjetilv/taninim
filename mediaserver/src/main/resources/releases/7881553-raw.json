@@ -1,0 +1,732 @@
+{
+  "status": "Accepted",
+  "videos": [
+    {
+      "duration": 3310,
+      "embed": true,
+      "title": "Naked City - Naked City [Full Album]",
+      "description": "Naked City - Naked City [Full Album]",
+      "uri": "https://www.youtube.com/watch?v=5xC0ZvuEuMg"
+    },
+    {
+      "duration": 338,
+      "embed": true,
+      "title": "John Zorn (Naked City) - Batman, The Sicilian Clan",
+      "description": "John Zorn (Naked City) - Batman, The Sicilian Clan",
+      "uri": "https://www.youtube.com/watch?v=417ChVeZ2FE"
+    }
+  ],
+  "series": [],
+  "labels": [
+    {
+      "name": "Elektra Nonesuch",
+      "entity_type": "1",
+      "catno": "7559-79238-2",
+      "resource_url": "https://api.discogs.com/labels/146599",
+      "id": 146599,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 1990,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 30,
+      "average": 4.47
+    },
+    "want": 48,
+    "contributors": [
+      {
+        "username": "galactix",
+        "resource_url": "https://api.discogs.com/users/galactix"
+      },
+      {
+        "username": "gippy",
+        "resource_url": "https://api.discogs.com/users/gippy"
+      },
+      {
+        "username": "florette69",
+        "resource_url": "https://api.discogs.com/users/florette69"
+      },
+      {
+        "username": "venetian-guy",
+        "resource_url": "https://api.discogs.com/users/venetian-guy"
+      },
+      {
+        "username": "ubongo",
+        "resource_url": "https://api.discogs.com/users/ubongo"
+      }
+    ],
+    "have": 316,
+    "submitter": {
+      "username": "galactix",
+      "resource_url": "https://api.discogs.com/users/galactix"
+    },
+    "data_quality": "Correct"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 470,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 7881553,
+  "artists_sort": "John Zorn",
+  "genres": [
+    "Electronic",
+    "Jazz",
+    "Rock"
+  ],
+  "thumb": "",
+  "num_for_sale": 16,
+  "title": "Naked City",
+  "date_changed": "2018-05-03T08:11:54-07:00",
+  "master_id": 15553,
+  "lowest_price": 5.56,
+  "styles": [
+    "Noise",
+    "Blues Rock",
+    "Avantgarde",
+    "Free Jazz",
+    "Art Rock",
+    "Thrash"
+  ],
+  "released_formatted": "1990",
+  "formats": [
+    {
+      "qty": "1",
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD"
+    }
+  ],
+  "estimated_weight": 85,
+  "master_url": "https://api.discogs.com/masters/15553",
+  "released": "1990",
+  "date_added": "2015-12-22T12:26:07-08:00",
+  "extraartists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Alto Saxophone",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Arranged By",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Yukihiro Takahashi",
+      "anv": "Takahashi Yukihiro",
+      "tracks": "",
+      "role": "Artwork [Photo-Type Setting]",
+      "resource_url": "https://api.discogs.com/artists/58981",
+      "id": 58981
+    },
+    {
+      "join": "",
+      "name": "Fred Frith",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass",
+      "resource_url": "https://api.discogs.com/artists/78003",
+      "id": 78003
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "1, 3, 4, 6, 7, 10 to 17, 19 to 21, 23, 25, 26",
+      "role": "Composed By",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Tanaka Tomoyo",
+      "anv": "",
+      "tracks": "",
+      "role": "Design",
+      "resource_url": "https://api.discogs.com/artists/2071855",
+      "id": 2071855
+    },
+    {
+      "join": "",
+      "name": "Joey Baron",
+      "anv": "",
+      "tracks": "",
+      "role": "Drums",
+      "resource_url": "https://api.discogs.com/artists/260851",
+      "id": 260851
+    },
+    {
+      "join": "",
+      "name": "Robert Hurwitz",
+      "anv": "Bob Hurwitz",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/430282",
+      "id": 430282
+    },
+    {
+      "join": "",
+      "name": "Bill Frisell",
+      "anv": "",
+      "tracks": "",
+      "role": "Guitar",
+      "resource_url": "https://api.discogs.com/artists/144927",
+      "id": 144927
+    },
+    {
+      "join": "",
+      "name": "Suehiro Maruo",
+      "anv": "Maruo Suehiro",
+      "tracks": "",
+      "role": "Illustration",
+      "resource_url": "https://api.discogs.com/artists/1730020",
+      "id": 1730020
+    },
+    {
+      "join": "",
+      "name": "Wayne Horvitz",
+      "anv": "",
+      "tracks": "",
+      "role": "Keyboards",
+      "resource_url": "https://api.discogs.com/artists/230534",
+      "id": 230534
+    },
+    {
+      "join": "",
+      "name": "Bob Ludwig",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/271098",
+      "id": 271098
+    },
+    {
+      "join": "",
+      "name": "Wilma Wilcox",
+      "anv": "",
+      "tracks": "",
+      "role": "Photography By [Front Cover, Photo Courtesy, Curator]",
+      "resource_url": "https://api.discogs.com/artists/6462796",
+      "id": 6462796
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Naked City",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/205814",
+      "id": 205814
+    },
+    {
+      "join": "",
+      "name": "Roger Moutenot",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By, Mixed By",
+      "resource_url": "https://api.discogs.com/artists/254509",
+      "id": 254509
+    },
+    {
+      "join": "",
+      "name": "Yamatsuka Eye",
+      "anv": "",
+      "tracks": "",
+      "role": "Vocals",
+      "resource_url": "https://api.discogs.com/artists/170037",
+      "id": 170037
+    }
+  ],
+  "tracklist": [
+    {
+      "duration": "1:58",
+      "position": "1",
+      "type_": "track",
+      "title": "Batman"
+    },
+    {
+      "duration": "3:27",
+      "position": "2",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Ennio Morricone",
+          "anv": "",
+          "tracks": "",
+          "role": "Composed By",
+          "resource_url": "https://api.discogs.com/artists/15900",
+          "id": 15900
+        }
+      ],
+      "title": "The Sicilian Clan"
+    },
+    {
+      "duration": "1:29",
+      "position": "3",
+      "type_": "track",
+      "title": "You Will Be Shot"
+    },
+    {
+      "duration": "4:05",
+      "position": "4",
+      "type_": "track",
+      "title": "Latin Quarter"
+    },
+    {
+      "duration": "3:09",
+      "position": "5",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Henry Mancini",
+          "anv": "",
+          "tracks": "",
+          "role": "Composed By",
+          "resource_url": "https://api.discogs.com/artists/10529",
+          "id": 10529
+        }
+      ],
+      "title": "A Shot In The Dark"
+    },
+    {
+      "duration": "1:34",
+      "position": "6",
+      "type_": "track",
+      "title": "Reanimator"
+    },
+    {
+      "duration": "2:14",
+      "position": "7",
+      "type_": "track",
+      "title": "Snagglepuss"
+    },
+    {
+      "duration": "2:08",
+      "position": "8",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Johnny Mandel",
+          "anv": "",
+          "tracks": "",
+          "role": "Composed By",
+          "resource_url": "https://api.discogs.com/artists/263472",
+          "id": 263472
+        }
+      ],
+      "title": "I Want To Live"
+    },
+    {
+      "duration": "2:38",
+      "position": "9",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Ornette Coleman",
+          "anv": "",
+          "tracks": "",
+          "role": "Composed By",
+          "resource_url": "https://api.discogs.com/artists/224506",
+          "id": 224506
+        }
+      ],
+      "title": "Lonely Woman"
+    },
+    {
+      "duration": "0:20",
+      "position": "10",
+      "type_": "track",
+      "title": "Igneous Ejaculation"
+    },
+    {
+      "duration": "0:13",
+      "position": "11",
+      "type_": "track",
+      "title": "Blood Duster"
+    },
+    {
+      "duration": "0:08",
+      "position": "12",
+      "type_": "track",
+      "title": "Hammerhead"
+    },
+    {
+      "duration": "0:38",
+      "position": "13",
+      "type_": "track",
+      "title": "Demon Sanctuary"
+    },
+    {
+      "duration": "0:17",
+      "position": "14",
+      "type_": "track",
+      "title": "Obeah Man"
+    },
+    {
+      "duration": "0:27",
+      "position": "15",
+      "type_": "track",
+      "title": "Ujaku"
+    },
+    {
+      "duration": "0:11",
+      "position": "16",
+      "type_": "track",
+      "title": "Fuck The Facts"
+    },
+    {
+      "duration": "0:37",
+      "position": "17",
+      "type_": "track",
+      "title": "Speedball"
+    },
+    {
+      "duration": "4:23",
+      "position": "18",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Jerry Goldsmith",
+          "anv": "",
+          "tracks": "",
+          "role": "Composed By",
+          "resource_url": "https://api.discogs.com/artists/208267",
+          "id": 208267
+        }
+      ],
+      "title": "Chinatown"
+    },
+    {
+      "duration": "3:01",
+      "position": "19",
+      "type_": "track",
+      "title": "Punk China Doll"
+    },
+    {
+      "duration": "0:43",
+      "position": "20",
+      "type_": "track",
+      "title": "N.Y. Flat Top Box"
+    },
+    {
+      "duration": "4:46",
+      "position": "21",
+      "type_": "track",
+      "title": "Saigon Pickup"
+    },
+    {
+      "duration": "3:02",
+      "position": "22",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "John Barry",
+          "anv": "",
+          "tracks": "",
+          "role": "Composed By",
+          "resource_url": "https://api.discogs.com/artists/19502",
+          "id": 19502
+        }
+      ],
+      "title": "The James Bond Theme"
+    },
+    {
+      "duration": "1:08",
+      "position": "23",
+      "type_": "track",
+      "title": "Den Of Sins"
+    },
+    {
+      "duration": "2:49",
+      "position": "24",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Georges Delerue",
+          "anv": "",
+          "tracks": "",
+          "role": "Composed By",
+          "resource_url": "https://api.discogs.com/artists/206215",
+          "id": 206215
+        }
+      ],
+      "title": "Contempt"
+    },
+    {
+      "duration": "3:25",
+      "position": "25",
+      "type_": "track",
+      "title": "Graveyard Shift"
+    },
+    {
+      "duration": "4:10",
+      "position": "26",
+      "type_": "track",
+      "title": "Inside Straight"
+    }
+  ],
+  "notes": "Tray insert:\nElektra Entertainment a division of Warner Communications Inc. [logo \"W\"]\n℗ & © 1990 Elektra Entertainment for the United States and WEA International Inc. for the world outside of the United States.\nMade in Germany\n\nBooklet:\nElektra Entertainment a division of Warner Communications Inc. [logo \"W\"]\n℗ & © 1989 Elektra Entertainment for the United States and WEA International Inc. for the world outside of the United States.\n\nDisc imprint:\nTracks 2 Tank (CAM)\n5,8 EMI U Catalog Inc. (ASCAP)\n9 MJQ Music (BMI)\n18 Ensign Music Corp. (BMI)\n22 EMI Unart Catalog Inc. (BMI)\n24 Jewel Music Publishing Co. (ASCAP)\nAll other tracks Theater of Musical optics (BMI)\n℗ 1990 Elektra Entertainment\nMade in Germany",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "description": "Scanned, UPC_A",
+      "value": "075597923827"
+    },
+    {
+      "type": "Barcode",
+      "description": "Text",
+      "value": "0 7559-79238-2 7"
+    },
+    {
+      "type": "Matrix / Runout",
+      "description": "Glass master text",
+      "value": "7599792238-2 RSA"
+    },
+    {
+      "type": "Matrix / Runout",
+      "description": "Mould text",
+      "value": "[logo \"W\"] 43"
+    },
+    {
+      "type": "Rights Society",
+      "value": "GEMA / BIEM"
+    },
+    {
+      "type": "Label Code",
+      "value": "LC 0286"
+    },
+    {
+      "type": "Price Code",
+      "description": "France:",
+      "value": "WE 810"
+    }
+  ],
+  "companies": [
+    {
+      "name": "Warner Communications Inc.",
+      "entity_type": "4",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/141847",
+      "id": 141847,
+      "entity_type_name": "Record Company"
+    },
+    {
+      "name": "Elektra Entertainment",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/35282",
+      "id": 35282,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "Elektra Entertainment",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/35282",
+      "id": 35282,
+      "entity_type_name": "Copyright (c)"
+    },
+    {
+      "name": "WEA International Inc.",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/1255",
+      "id": 1255,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "WEA International Inc.",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/1255",
+      "id": 1255,
+      "entity_type_name": "Copyright (c)"
+    },
+    {
+      "name": "Record Service Alsdorf",
+      "entity_type": "31",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/826122",
+      "id": 826122,
+      "entity_type_name": "Glass Mastered At"
+    },
+    {
+      "name": "Record Service Alsdorf",
+      "entity_type": "17",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/826122",
+      "id": 826122,
+      "entity_type_name": "Pressed By"
+    },
+    {
+      "name": "Record Service GmbH",
+      "entity_type": "10",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264652",
+      "id": 264652,
+      "entity_type_name": "Manufactured By"
+    },
+    {
+      "name": "Edizioni Tank",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/436704",
+      "id": 436704,
+      "entity_type_name": "Published By"
+    },
+    {
+      "name": "EMI U Catalog Inc.",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/287381",
+      "id": 287381,
+      "entity_type_name": "Published By"
+    },
+    {
+      "name": "MJQ Music, Inc.",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/394599",
+      "id": 394599,
+      "entity_type_name": "Published By"
+    },
+    {
+      "name": "Ensign Music Corp.",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264509",
+      "id": 264509,
+      "entity_type_name": "Published By"
+    },
+    {
+      "name": "EMI Unart Catalog Inc.",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/303610",
+      "id": 303610,
+      "entity_type_name": "Published By"
+    },
+    {
+      "name": "Jewel Music Pub. Co.",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/852112",
+      "id": 852112,
+      "entity_type_name": "Published By"
+    },
+    {
+      "name": "Theater Of Musical Optics",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/384255",
+      "id": 384255,
+      "entity_type_name": "Published By"
+    }
+  ],
+  "uri": "https://www.discogs.com/John-Zorn-Naked-City/release/7881553",
+  "country": "Europe",
+  "resource_url": "https://api.discogs.com/releases/7881553",
+  "data_quality": "Correct"
+}

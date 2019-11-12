@@ -1,0 +1,294 @@
+{
+  "artist": null,
+  "title": "Naked City",
+  "resource_url": "https://api.discogs.com/releases/7881553",
+  "year": "1990",
+  "notes": "Tray insert:\nElektra Entertainment a division of Warner Communications Inc. [logo \"W\"]\n℗ & © 1990 Elektra Entertainment for the United States and WEA International Inc. for the world outside of the United States.\nMade in Germany\n\nBooklet:\nElektra Entertainment a division of Warner Communications Inc. [logo \"W\"]\n℗ & © 1989 Elektra Entertainment for the United States and WEA International Inc. for the world outside of the United States.\n\nDisc imprint:\nTracks 2 Tank (CAM)\n5,8 EMI U Catalog Inc. (ASCAP)\n9 MJQ Music (BMI)\n18 Ensign Music Corp. (BMI)\n22 EMI Unart Catalog Inc. (BMI)\n24 Jewel Music Publishing Co. (ASCAP)\nAll other tracks Theater of Musical optics (BMI)\n℗ 1990 Elektra Entertainment\nMade in Germany",
+  "uri": "https://www.discogs.com/John-Zorn-Naked-City/release/7881553",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Alto Saxophone",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Arranged By",
+      "uri": null
+    },
+    {
+      "id": 58981,
+      "name": "Yukihiro Takahashi",
+      "role": "Artwork [Photo-Type Setting]",
+      "uri": null
+    },
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Composed By",
+      "uri": null
+    },
+    {
+      "id": 2071855,
+      "name": "Tanaka Tomoyo",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 260851,
+      "name": "Joey Baron",
+      "role": "Drums",
+      "uri": null
+    },
+    {
+      "id": 430282,
+      "name": "Robert Hurwitz",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 1730020,
+      "name": "Suehiro Maruo",
+      "role": "Illustration",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Keyboards",
+      "uri": null
+    },
+    {
+      "id": 271098,
+      "name": "Bob Ludwig",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 6462796,
+      "name": "Wilma Wilcox",
+      "role": "Photography By [Front Cover, Photo Courtesy, Curator]",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 205814,
+      "name": "Naked City",
+      "role": "Producer",
+      "uri": null
+    },
+    {
+      "id": 254509,
+      "name": "Roger Moutenot",
+      "role": "Recorded By, Mixed By",
+      "uri": null
+    },
+    {
+      "id": 170037,
+      "name": "Yamatsuka Eye",
+      "role": "Vocals",
+      "uri": null
+    }
+  ],
+  "tracklist": [
+    {
+      "extraartists": null,
+      "title": "Batman",
+      "position": "1"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 15900,
+          "name": "Ennio Morricone",
+          "role": "Composed By",
+          "uri": null
+        }
+      ],
+      "title": "The Sicilian Clan",
+      "position": "2"
+    },
+    {
+      "extraartists": null,
+      "title": "You Will Be Shot",
+      "position": "3"
+    },
+    {
+      "extraartists": null,
+      "title": "Latin Quarter",
+      "position": "4"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 10529,
+          "name": "Henry Mancini",
+          "role": "Composed By",
+          "uri": null
+        }
+      ],
+      "title": "A Shot In The Dark",
+      "position": "5"
+    },
+    {
+      "extraartists": null,
+      "title": "Reanimator",
+      "position": "6"
+    },
+    {
+      "extraartists": null,
+      "title": "Snagglepuss",
+      "position": "7"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 263472,
+          "name": "Johnny Mandel",
+          "role": "Composed By",
+          "uri": null
+        }
+      ],
+      "title": "I Want To Live",
+      "position": "8"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 224506,
+          "name": "Ornette Coleman",
+          "role": "Composed By",
+          "uri": null
+        }
+      ],
+      "title": "Lonely Woman",
+      "position": "9"
+    },
+    {
+      "extraartists": null,
+      "title": "Igneous Ejaculation",
+      "position": "10"
+    },
+    {
+      "extraartists": null,
+      "title": "Blood Duster",
+      "position": "11"
+    },
+    {
+      "extraartists": null,
+      "title": "Hammerhead",
+      "position": "12"
+    },
+    {
+      "extraartists": null,
+      "title": "Demon Sanctuary",
+      "position": "13"
+    },
+    {
+      "extraartists": null,
+      "title": "Obeah Man",
+      "position": "14"
+    },
+    {
+      "extraartists": null,
+      "title": "Ujaku",
+      "position": "15"
+    },
+    {
+      "extraartists": null,
+      "title": "Fuck The Facts",
+      "position": "16"
+    },
+    {
+      "extraartists": null,
+      "title": "Speedball",
+      "position": "17"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 208267,
+          "name": "Jerry Goldsmith",
+          "role": "Composed By",
+          "uri": null
+        }
+      ],
+      "title": "Chinatown",
+      "position": "18"
+    },
+    {
+      "extraartists": null,
+      "title": "Punk China Doll",
+      "position": "19"
+    },
+    {
+      "extraartists": null,
+      "title": "N.Y. Flat Top Box",
+      "position": "20"
+    },
+    {
+      "extraartists": null,
+      "title": "Saigon Pickup",
+      "position": "21"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 19502,
+          "name": "John Barry",
+          "role": "Composed By",
+          "uri": null
+        }
+      ],
+      "title": "The James Bond Theme",
+      "position": "22"
+    },
+    {
+      "extraartists": null,
+      "title": "Den Of Sins",
+      "position": "23"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 206215,
+          "name": "Georges Delerue",
+          "role": "Composed By",
+          "uri": null
+        }
+      ],
+      "title": "Contempt",
+      "position": "24"
+    },
+    {
+      "extraartists": null,
+      "title": "Graveyard Shift",
+      "position": "25"
+    },
+    {
+      "extraartists": null,
+      "title": "Inside Straight",
+      "position": "26"
+    }
+  ],
+  "series": []
+}

@@ -1,0 +1,137 @@
+{
+  "artist": null,
+  "title": "Absinthe",
+  "resource_url": "https://api.discogs.com/releases/12878181",
+  "year": "1993",
+  "notes": "Recorded at Electric Lady, NYC in December 1992.\r\n\r\nCover photo \"Les Jeux de la Poupee\"\r\n\r\nSpecial thanks to [url=http://www.discogs.com/artist/364736]Fujieda Mamoru[/url], [a=Giacinto Scelsi] and [a=Mick Harris]\r\n\r\nTrack 3 is misprinted as \"La Feé Verte\".",
+  "uri": "https://www.discogs.com/Naked-City-Absinthe/release/12878181",
+  "extraartists": [
+    {
+      "id": 805317,
+      "name": "Tomoyo T.L.",
+      "role": "Design [Cover]",
+      "uri": null
+    },
+    {
+      "id": 86674,
+      "name": "Joe Ferla",
+      "role": "Engineer",
+      "uri": null
+    },
+    {
+      "id": 273946,
+      "name": "Hoover Le",
+      "role": "Engineer [Assistant Mix]",
+      "uri": null
+    },
+    {
+      "id": 2392894,
+      "name": "Disk Union",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Executive-Producer [Associate Producer]",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Music By, Producer",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Performer",
+      "uri": null
+    },
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Performer",
+      "uri": null
+    },
+    {
+      "id": 260851,
+      "name": "Joey Baron",
+      "role": "Performer",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Performer",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Performer",
+      "uri": null
+    },
+    {
+      "id": 1158438,
+      "name": "Hans Bellmer",
+      "role": "Photography By [Cover Photo]",
+      "uri": null
+    },
+    {
+      "id": 1865944,
+      "name": "Lisa Wells (2)",
+      "role": "Typography [Photo Typesetting]",
+      "uri": null
+    }
+  ],
+  "tracklist": [
+    {
+      "extraartists": null,
+      "title": "Val De Travers",
+      "position": "1"
+    },
+    {
+      "extraartists": null,
+      "title": "Une Correspondance",
+      "position": "2"
+    },
+    {
+      "extraartists": null,
+      "title": "La Fée Verte",
+      "position": "3"
+    },
+    {
+      "extraartists": null,
+      "title": "Fleurs Du Mal",
+      "position": "4"
+    },
+    {
+      "extraartists": null,
+      "title": "Artemisia Absinthium",
+      "position": "5"
+    },
+    {
+      "extraartists": null,
+      "title": "Notre Dame De L'Oubli (For Olivier Messiaen)",
+      "position": "6"
+    },
+    {
+      "extraartists": null,
+      "title": "Verlaine",
+      "position": ""
+    },
+    {
+      "extraartists": null,
+      "title": "...Rend Fou",
+      "position": "9"
+    }
+  ],
+  "series": []
+}

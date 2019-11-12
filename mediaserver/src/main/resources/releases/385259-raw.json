@@ -1,0 +1,400 @@
+{
+  "styles": [
+    "Contemporary Jazz"
+  ],
+  "series": [],
+  "labels": [
+    {
+      "name": "DIW",
+      "entity_type": "1",
+      "catno": "DIW-935",
+      "resource_url": "https://api.discogs.com/labels/42689",
+      "id": 42689,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 1998,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 23,
+      "average": 4.26
+    },
+    "have": 263,
+    "contributors": [
+      {
+        "username": "egonkey",
+        "resource_url": "https://api.discogs.com/users/egonkey"
+      },
+      {
+        "username": "rhythmic_disturbance",
+        "resource_url": "https://api.discogs.com/users/rhythmic_disturbance"
+      },
+      {
+        "username": "ubongo",
+        "resource_url": "https://api.discogs.com/users/ubongo"
+      },
+      {
+        "username": "choan",
+        "resource_url": "https://api.discogs.com/users/choan"
+      },
+      {
+        "username": "al1",
+        "resource_url": "https://api.discogs.com/users/al1"
+      },
+      {
+        "username": "Piotrlerouge",
+        "resource_url": "https://api.discogs.com/users/Piotrlerouge"
+      },
+      {
+        "username": "Kater_Murr",
+        "resource_url": "https://api.discogs.com/users/Kater_Murr"
+      },
+      {
+        "username": "Don_Cupidon",
+        "resource_url": "https://api.discogs.com/users/Don_Cupidon"
+      }
+    ],
+    "want": 82,
+    "submitter": {
+      "username": "egonkey",
+      "resource_url": "https://api.discogs.com/users/egonkey"
+    },
+    "data_quality": "Correct"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "Masada (3)",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/264514",
+      "id": 264514
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 350,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 527,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 515,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 385259,
+  "artists_sort": "Masada (3)",
+  "genres": [
+    "Jazz"
+  ],
+  "thumb": "",
+  "num_for_sale": 8,
+  "title": "Yod",
+  "date_changed": "2016-03-05T05:46:31-08:00",
+  "master_id": 968013,
+  "lowest_price": 22.29,
+  "status": "Accepted",
+  "released_formatted": "Sep 1998",
+  "estimated_weight": 85,
+  "master_url": "https://api.discogs.com/masters/968013",
+  "released": "1998-09-00",
+  "date_added": "2005-02-16T05:02:09-08:00",
+  "tracklist": [
+    {
+      "duration": "4:07",
+      "position": "1",
+      "type_": "track",
+      "title": "Ruach"
+    },
+    {
+      "duration": "6:45",
+      "position": "2",
+      "type_": "track",
+      "title": "Kilayim"
+    },
+    {
+      "duration": "6:45",
+      "position": "3",
+      "type_": "track",
+      "title": "Taltalim"
+    },
+    {
+      "duration": "3:22",
+      "position": "4",
+      "type_": "track",
+      "title": "Hashmal"
+    },
+    {
+      "duration": "5:48",
+      "position": "5",
+      "type_": "track",
+      "title": "Tevel"
+    },
+    {
+      "duration": "5:31",
+      "position": "6",
+      "type_": "track",
+      "title": "Segulah"
+    },
+    {
+      "duration": "7:49",
+      "position": "7",
+      "type_": "track",
+      "title": "Yechida"
+    },
+    {
+      "duration": "3:21",
+      "position": "8",
+      "type_": "track",
+      "title": "Tzalim"
+    },
+    {
+      "duration": "4:38",
+      "position": "9",
+      "type_": "track",
+      "title": "Nashim"
+    },
+    {
+      "duration": "14:28",
+      "position": "10",
+      "type_": "track",
+      "title": "Abrakala"
+    },
+    {
+      "duration": "2:16",
+      "position": "11",
+      "type_": "track",
+      "title": "Zevul"
+    }
+  ],
+  "extraartists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Alto Saxophone",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Greg Cohen",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass",
+      "resource_url": "https://api.discogs.com/artists/64506",
+      "id": 64506
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Composed By",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Yasunori Arai",
+      "anv": "Arai Yasunori",
+      "tracks": "",
+      "role": "Design [Cover]",
+      "resource_url": "https://api.discogs.com/artists/851962",
+      "id": 851962
+    },
+    {
+      "join": "",
+      "name": "Joey Baron",
+      "anv": "",
+      "tracks": "",
+      "role": "Drums",
+      "resource_url": "https://api.discogs.com/artists/260851",
+      "id": 260851
+    },
+    {
+      "join": "",
+      "name": "DIW Records",
+      "anv": "DIW",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/1307317",
+      "id": 1307317
+    },
+    {
+      "join": "",
+      "name": "Disk Union",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/2392894",
+      "id": 2392894
+    },
+    {
+      "join": "",
+      "name": "Allan Tucker",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/388202",
+      "id": 388202
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Kazunori Sugiyama",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/272583",
+      "id": 272583
+    },
+    {
+      "join": "",
+      "name": "Jim Anderson",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By, Mixed By",
+      "resource_url": "https://api.discogs.com/artists/282077",
+      "id": 282077
+    },
+    {
+      "join": "",
+      "name": "Dave Douglas",
+      "anv": "",
+      "tracks": "",
+      "role": "Trumpet",
+      "resource_url": "https://api.discogs.com/artists/163953",
+      "id": 163953
+    }
+  ],
+  "country": "Japan",
+  "notes": "This recording is also known under the name:\r\n\"MASADA TEN\"\r\nRecorded at Avatar, New York City on September 15, 1997. Mastered at Foothill Digital, NYC.\r\n\r\n(C)(P)1998 DiskUnion\r\nJASRAC R-9870028\r\n",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "value": "4 988044 009356"
+    },
+    {
+      "type": "Matrix / Runout",
+      "value": "DIW-935"
+    },
+    {
+      "type": "Mastering SID Code",
+      "value": "IFPI L715"
+    },
+    {
+      "type": "Mould SID Code",
+      "value": "IFPI 1X03"
+    },
+    {
+      "type": "Rights Society",
+      "value": "JASRAC"
+    }
+  ],
+  "companies": [
+    {
+      "name": "Disk Union",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/66044",
+      "id": 66044,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "Disk Union",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/66044",
+      "id": 66044,
+      "entity_type_name": "Copyright (c)"
+    },
+    {
+      "name": "Avatar Studios",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/264960",
+      "id": 264960,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Foothill Digital",
+      "entity_type": "29",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/269205",
+      "id": 269205,
+      "entity_type_name": "Mastered At"
+    }
+  ],
+  "uri": "https://www.discogs.com/Masada-Yod/release/385259",
+  "formats": [
+    {
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD",
+      "qty": "1"
+    }
+  ],
+  "resource_url": "https://api.discogs.com/releases/385259",
+  "data_quality": "Correct"
+}

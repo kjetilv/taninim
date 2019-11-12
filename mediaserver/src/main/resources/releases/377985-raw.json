@@ -1,0 +1,291 @@
+{
+  "status": "Accepted",
+  "videos": [
+    {
+      "duration": 1902,
+      "embed": true,
+      "title": "Naked City - Leng Tch'e",
+      "description": "Naked City - Leng Tch'e",
+      "uri": "https://www.youtube.com/watch?v=sDP19Vieg7k"
+    },
+    {
+      "duration": 1900,
+      "embed": true,
+      "title": "Naked City - Leng Tch'e (EP)",
+      "description": "Naked City - Leng Tch'e (EP)",
+      "uri": "https://www.youtube.com/watch?v=Gx9iawLxSgU"
+    }
+  ],
+  "series": [],
+  "labels": [
+    {
+      "name": "Toy's Factory",
+      "entity_type": "1",
+      "catno": "TFCK-88604",
+      "resource_url": "https://api.discogs.com/labels/3467",
+      "id": 3467,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 1992,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 61,
+      "average": 4.39
+    },
+    "want": 218,
+    "contributors": [
+      {
+        "username": "krrratz",
+        "resource_url": "https://api.discogs.com/users/krrratz"
+      },
+      {
+        "username": "-yard-",
+        "resource_url": "https://api.discogs.com/users/-yard-"
+      },
+      {
+        "username": "We.Have.Explosive",
+        "resource_url": "https://api.discogs.com/users/We.Have.Explosive"
+      },
+      {
+        "username": "eiki",
+        "resource_url": "https://api.discogs.com/users/eiki"
+      },
+      {
+        "username": "Dr.SultanAszazin",
+        "resource_url": "https://api.discogs.com/users/Dr.SultanAszazin"
+      },
+      {
+        "username": "jmoortga",
+        "resource_url": "https://api.discogs.com/users/jmoortga"
+      },
+      {
+        "username": "zyzytop",
+        "resource_url": "https://api.discogs.com/users/zyzytop"
+      },
+      {
+        "username": "goncalobcunha69",
+        "resource_url": "https://api.discogs.com/users/goncalobcunha69"
+      },
+      {
+        "username": "n-f-r",
+        "resource_url": "https://api.discogs.com/users/n-f-r"
+      }
+    ],
+    "have": 293,
+    "submitter": {
+      "username": "krrratz",
+      "resource_url": "https://api.discogs.com/users/krrratz"
+    },
+    "data_quality": "Correct"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "Naked City",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/205814",
+      "id": 205814
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 525,
+      "width": 600,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 525,
+      "width": 304,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 594,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 459,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 582,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 377985,
+  "artists_sort": "Naked City",
+  "genres": [
+    "Jazz",
+    "Rock"
+  ],
+  "thumb": "",
+  "num_for_sale": 12,
+  "title": "Leng Tch'e",
+  "date_changed": "2013-06-16T07:52:57-07:00",
+  "lowest_price": 17.78,
+  "styles": [
+    "Doom Metal",
+    "Experimental"
+  ],
+  "released_formatted": "01 Nov 1992",
+  "formats": [
+    {
+      "qty": "1",
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD"
+    }
+  ],
+  "estimated_weight": 85,
+  "released": "1992-11-01",
+  "date_added": "2005-02-02T08:36:22-08:00",
+  "extraartists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Composed By, Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Tomoyo T.L.",
+      "anv": "",
+      "tracks": "",
+      "role": "Cover",
+      "resource_url": "https://api.discogs.com/artists/805317",
+      "id": 805317
+    },
+    {
+      "join": "",
+      "name": "Bob Ludwig",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/271098",
+      "id": 271098
+    },
+    {
+      "join": "",
+      "name": "Oz Fritz",
+      "anv": "",
+      "tracks": "",
+      "role": "Mixed By",
+      "resource_url": "https://api.discogs.com/artists/196031",
+      "id": 196031
+    },
+    {
+      "join": "",
+      "name": "Alec Head",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By",
+      "resource_url": "https://api.discogs.com/artists/228362",
+      "id": 228362
+    }
+  ],
+  "tracklist": [
+    {
+      "duration": "31:37",
+      "position": "1",
+      "type_": "track",
+      "title": "Leng Tch'e"
+    }
+  ],
+  "notes": "Published by Theatre Of Musical Optics (BMI).\r\nManufactured by Toy's Factory Records, Tokyo, Japan.\r\n\r\nThanks - Patton, The Melvins.\r\n",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "description": "Text",
+      "value": "4988061886046"
+    },
+    {
+      "type": "Barcode",
+      "description": "Uncut",
+      "value": "4 988061 886046"
+    },
+    {
+      "type": "Rights Society",
+      "value": "BMI"
+    }
+  ],
+  "companies": [
+    {
+      "name": "Theatre Of Musical Optics",
+      "entity_type": "21",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/311941",
+      "id": 311941,
+      "entity_type_name": "Published By"
+    },
+    {
+      "name": "Toy's Factory",
+      "entity_type": "10",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/3467",
+      "id": 3467,
+      "entity_type_name": "Manufactured By"
+    },
+    {
+      "name": "Naked City",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/327201",
+      "id": 327201,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "John Zorn",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/327202",
+      "id": 327202,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "Naked City",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/327201",
+      "id": 327201,
+      "entity_type_name": "Copyright (c)"
+    },
+    {
+      "name": "John Zorn",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/327202",
+      "id": 327202,
+      "entity_type_name": "Copyright (c)"
+    }
+  ],
+  "uri": "https://www.discogs.com/Naked-City-Leng-Tche/release/377985",
+  "country": "Japan",
+  "resource_url": "https://api.discogs.com/releases/377985",
+  "data_quality": "Correct"
+}

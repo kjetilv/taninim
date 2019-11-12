@@ -1,0 +1,204 @@
+{
+  "artist": null,
+  "title": "Radio",
+  "resource_url": "https://api.discogs.com/releases/309314",
+  "year": "1993",
+  "notes": "On disc: A PROJECT OF HIP'S ROAD\n\nRecorded in April 1992\nMixed in September 1992\n\nⒸⓅ 1993 disk Union\n",
+  "uri": "https://www.discogs.com/Naked-City-Radio/release/309314",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Arranged By, Composed By, Producer, Alto Saxophone, Vocals",
+      "uri": null
+    },
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Co-producer [Associate]",
+      "uri": null
+    },
+    {
+      "id": 805317,
+      "name": "Tomoyo T.L.",
+      "role": "Design [Cover Design]",
+      "uri": null
+    },
+    {
+      "id": 260851,
+      "name": "Joey Baron",
+      "role": "Drums",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Edited By [Digital]",
+      "uri": null
+    },
+    {
+      "id": 273946,
+      "name": "Hoover Le",
+      "role": "Engineer [Assistant]",
+      "uri": null
+    },
+    {
+      "id": 2392894,
+      "name": "Disk Union",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Keyboards",
+      "uri": null
+    },
+    {
+      "id": 271098,
+      "name": "Bob Ludwig",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 254509,
+      "name": "Roger Moutenot",
+      "role": "Mixed By",
+      "uri": null
+    },
+    {
+      "id": 75490,
+      "name": "Man Ray",
+      "role": "Photography By [Cover]",
+      "uri": null
+    },
+    {
+      "id": 228362,
+      "name": "Alec Head",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 1865944,
+      "name": "Lisa Wells (2)",
+      "role": "Typography [Typesetting]",
+      "uri": null
+    },
+    {
+      "id": 170037,
+      "name": "Yamatsuka Eye",
+      "role": "Vocals",
+      "uri": null
+    }
+  ],
+  "tracklist": [
+    {
+      "extraartists": null,
+      "title": "Asylum",
+      "position": "1"
+    },
+    {
+      "extraartists": null,
+      "title": "Sunset Surfer",
+      "position": "2"
+    },
+    {
+      "extraartists": null,
+      "title": "Party Girl",
+      "position": "3"
+    },
+    {
+      "extraartists": null,
+      "title": "The Outsider",
+      "position": "4"
+    },
+    {
+      "extraartists": null,
+      "title": "Triggerfingers",
+      "position": "5"
+    },
+    {
+      "extraartists": null,
+      "title": "Terkmani Teepee",
+      "position": "6"
+    },
+    {
+      "extraartists": null,
+      "title": "Sex Fiend",
+      "position": "7"
+    },
+    {
+      "extraartists": null,
+      "title": "Razorwire",
+      "position": "8"
+    },
+    {
+      "extraartists": null,
+      "title": "The Bitter And The Sweet",
+      "position": "9"
+    },
+    {
+      "extraartists": null,
+      "title": "Krazy Kat",
+      "position": "10"
+    },
+    {
+      "extraartists": null,
+      "title": "The Vault",
+      "position": "11"
+    },
+    {
+      "extraartists": null,
+      "title": "Metaltov",
+      "position": "12"
+    },
+    {
+      "extraartists": null,
+      "title": "Poisonhead",
+      "position": "13"
+    },
+    {
+      "extraartists": null,
+      "title": "Bone Orchard",
+      "position": "14"
+    },
+    {
+      "extraartists": null,
+      "title": "I Die Screaming",
+      "position": "15"
+    },
+    {
+      "extraartists": null,
+      "title": "Pistol Whipping",
+      "position": "16"
+    },
+    {
+      "extraartists": null,
+      "title": "Skatekey",
+      "position": "17"
+    },
+    {
+      "extraartists": null,
+      "title": "Shock Corridor",
+      "position": "18"
+    },
+    {
+      "extraartists": null,
+      "title": "American Psycho",
+      "position": "19"
+    }
+  ],
+  "series": []
+}

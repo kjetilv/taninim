@@ -1,0 +1,425 @@
+{
+  "status": "Accepted",
+  "videos": [
+    {
+      "duration": 300,
+      "embed": true,
+      "title": "Masada Rock - Shadrakh (John Zorn)",
+      "description": "Masada Rock - Shadrakh (John Zorn)",
+      "uri": "https://www.youtube.com/watch?v=wT20ls45TI0"
+    },
+    {
+      "duration": 508,
+      "embed": true,
+      "title": "Terumah -  Masada Anniversary Edition",
+      "description": "Terumah -  Masada Anniversary Edition",
+      "uri": "https://www.youtube.com/watch?v=5Kfe4pS3A_E"
+    }
+  ],
+  "series": [
+    {
+      "name": "Radical Jewish Culture",
+      "entity_type": "2",
+      "catno": "103",
+      "resource_url": "https://api.discogs.com/labels/223159",
+      "id": 223159,
+      "entity_type_name": "Series"
+    },
+    {
+      "name": "Masada 10 Years",
+      "entity_type": "2",
+      "catno": "Volume Five",
+      "resource_url": "https://api.discogs.com/labels/354068",
+      "id": 354068,
+      "entity_type_name": "Series"
+    }
+  ],
+  "labels": [
+    {
+      "name": "Tzadik",
+      "entity_type": "1",
+      "catno": "TZ 8103",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 2005,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 18,
+      "average": 3.56
+    },
+    "want": 35,
+    "contributors": [
+      {
+        "username": "al1",
+        "resource_url": "https://api.discogs.com/users/al1"
+      },
+      {
+        "username": "IvanRavan",
+        "resource_url": "https://api.discogs.com/users/IvanRavan"
+      },
+      {
+        "username": "brianvy",
+        "resource_url": "https://api.discogs.com/users/brianvy"
+      },
+      {
+        "username": "toefootie",
+        "resource_url": "https://api.discogs.com/users/toefootie"
+      },
+      {
+        "username": "marcozambon",
+        "resource_url": "https://api.discogs.com/users/marcozambon"
+      },
+      {
+        "username": "venetian-guy",
+        "resource_url": "https://api.discogs.com/users/venetian-guy"
+      }
+    ],
+    "have": 140,
+    "submitter": {
+      "username": "al1",
+      "resource_url": "https://api.discogs.com/users/al1"
+    },
+    "data_quality": "Needs Vote"
+  },
+  "artists": [
+    {
+      "join": "/",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Rashanim",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/369726",
+      "id": 369726
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 500,
+      "width": 500,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 1553996,
+  "artists_sort": "John Zorn / Rashanim",
+  "genres": [
+    "Jazz",
+    "Rock"
+  ],
+  "thumb": "",
+  "num_for_sale": 10,
+  "title": "Masada Rock",
+  "date_changed": "2019-01-04T05:21:54-08:00",
+  "lowest_price": 8.89,
+  "styles": [
+    "Jazz-Rock",
+    "Avantgarde"
+  ],
+  "released_formatted": "2005",
+  "formats": [
+    {
+      "qty": "1",
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD"
+    }
+  ],
+  "estimated_weight": 85,
+  "released": "2005",
+  "date_added": "2008-11-29T06:21:05-08:00",
+  "extraartists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Composed By",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Heung-Heung Chin",
+      "anv": "",
+      "tracks": "",
+      "role": "Design",
+      "resource_url": "https://api.discogs.com/artists/1835385",
+      "id": 1835385
+    },
+    {
+      "join": "",
+      "name": "Mathias Künzli",
+      "anv": "",
+      "tracks": "",
+      "role": "Drums, Percussion",
+      "resource_url": "https://api.discogs.com/artists/442672",
+      "id": 442672
+    },
+    {
+      "join": "",
+      "name": "Shanir Ezra Blumenkranz",
+      "anv": "",
+      "tracks": "",
+      "role": "Electric Bass, Oud",
+      "resource_url": "https://api.discogs.com/artists/376673",
+      "id": 376673
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Kazunori Sugiyama",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer [Associate]",
+      "resource_url": "https://api.discogs.com/artists/272583",
+      "id": 272583
+    },
+    {
+      "join": "",
+      "name": "Jon Madof",
+      "anv": "",
+      "tracks": "",
+      "role": "Guitar",
+      "resource_url": "https://api.discogs.com/artists/442668",
+      "id": 442668
+    },
+    {
+      "join": "",
+      "name": "Scott Hull (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/360567",
+      "id": 360567
+    },
+    {
+      "join": "",
+      "name": "Jamie Saft",
+      "anv": "",
+      "tracks": "",
+      "role": "Mixed By",
+      "resource_url": "https://api.discogs.com/artists/199656",
+      "id": 199656
+    },
+    {
+      "join": "",
+      "name": "Karen Liebowitz",
+      "anv": "",
+      "tracks": "",
+      "role": "Painting [Cover Painting]",
+      "resource_url": "https://api.discogs.com/artists/2385427",
+      "id": 2385427
+    },
+    {
+      "join": "",
+      "name": "Lasta Slavicek",
+      "anv": "",
+      "tracks": "",
+      "role": "Photography By [Obi Photo]",
+      "resource_url": "https://api.discogs.com/artists/6505747",
+      "id": 6505747
+    },
+    {
+      "join": "",
+      "name": "Rashanim",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer, Arranged By",
+      "resource_url": "https://api.discogs.com/artists/369726",
+      "id": 369726
+    },
+    {
+      "join": "",
+      "name": "Dan Stein (3)",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By",
+      "resource_url": "https://api.discogs.com/artists/952380",
+      "id": 952380
+    },
+    {
+      "join": "",
+      "name": "Jamie Saft",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By",
+      "resource_url": "https://api.discogs.com/artists/199656",
+      "id": 199656
+    }
+  ],
+  "tracklist": [
+    {
+      "duration": "4:08",
+      "position": "1",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Marc Ribot",
+          "anv": "",
+          "tracks": "",
+          "role": "Guest [Special], Guitar",
+          "resource_url": "https://api.discogs.com/artists/132535",
+          "id": 132535
+        }
+      ],
+      "title": "Bahir"
+    },
+    {
+      "duration": "5:19",
+      "position": "2",
+      "type_": "track",
+      "title": "Makom"
+    },
+    {
+      "duration": "4:39",
+      "position": "3",
+      "type_": "track",
+      "title": "Zidon"
+    },
+    {
+      "duration": "4:57",
+      "position": "4",
+      "type_": "track",
+      "extraartists": [
+        {
+          "join": "",
+          "name": "Marc Ribot",
+          "anv": "",
+          "tracks": "",
+          "role": "Guest [Special], Guitar",
+          "resource_url": "https://api.discogs.com/artists/132535",
+          "id": 132535
+        }
+      ],
+      "title": "Shadrakh"
+    },
+    {
+      "duration": "4:58",
+      "position": "5",
+      "type_": "track",
+      "title": "Chorek"
+    },
+    {
+      "duration": "5:16",
+      "position": "6",
+      "type_": "track",
+      "title": "Anakim"
+    },
+    {
+      "duration": "3:45",
+      "position": "7",
+      "type_": "track",
+      "title": "Zemanim"
+    },
+    {
+      "duration": "3:24",
+      "position": "8",
+      "type_": "track",
+      "title": "Ahavah"
+    },
+    {
+      "duration": "3:01",
+      "position": "9",
+      "type_": "track",
+      "title": "Arad"
+    },
+    {
+      "duration": "8:27",
+      "position": "10",
+      "type_": "track",
+      "title": "Terumah"
+    }
+  ],
+  "notes": "Recorded April 4 and 6, 2005 at Frank Booth, Brooklyn.\r\nMixed April 14 and 18, 2005 at Frank Booth, Brooklyn.\r\nMastered at Jigsaw Sound, NYC.\r\nK2 Technology by JVC Disc America.",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "description": "On Obi",
+      "value": "702397810322"
+    },
+    {
+      "type": "Matrix / Runout",
+      "value": "TZACD8103 1J 01 K"
+    },
+    {
+      "type": "Mastering SID Code",
+      "value": "IFPI L239"
+    },
+    {
+      "type": "Mould SID Code",
+      "value": "IFPI 4121"
+    }
+  ],
+  "companies": [
+    {
+      "name": "Tzadik",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Copyright (c)"
+    },
+    {
+      "name": "Tzadik",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "Frank Booth",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/277125",
+      "id": 277125,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "Frank Booth",
+      "entity_type": "27",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/277125",
+      "id": 277125,
+      "entity_type_name": "Mixed At"
+    },
+    {
+      "name": "Jigsaw Sound",
+      "entity_type": "29",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/290288",
+      "id": 290288,
+      "entity_type_name": "Mastered At"
+    }
+  ],
+  "uri": "https://www.discogs.com/John-Zorn-Rashanim-Masada-Rock/release/1553996",
+  "country": "US",
+  "resource_url": "https://api.discogs.com/releases/1553996",
+  "data_quality": "Needs Vote"
+}

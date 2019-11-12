@@ -18,7 +18,7 @@ public final class FileStreamer extends AbstractStreamer {
 
     public FileStreamer(IO io, Media media) {
 
-        super(media, io);
+        super(io, media);
     }
 
     @Override

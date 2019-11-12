@@ -1,0 +1,393 @@
+{
+  "artist": null,
+  "title": "Grand Guignol",
+  "resource_url": "https://api.discogs.com/releases/504853",
+  "year": "1992",
+  "notes": "Tracks 9-41 are also available on the Naked City 1989 [r=265804] album.\r\n\r\nThis Album is lovingly dedicated to Jack Smith. Legendary Filmmaker. Theatrical Genius. Exotic Art Collector. Father of the New York Underground, who died a victim of the AIDS virus September 18, 1989.\r\n",
+  "uri": "https://www.discogs.com/Naked-City-Grand-Guignol/release/504853",
+  "extraartists": [
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Arranged By, Composed By",
+      "uri": null
+    },
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 805317,
+      "name": "Tomoyo T.L.",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 260851,
+      "name": "Joey Baron",
+      "role": "Drums",
+      "uri": null
+    },
+    {
+      "id": 2392894,
+      "name": "Disk Union",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 1730020,
+      "name": "Suehiro Maruo",
+      "role": "Illustration",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Keyboards",
+      "uri": null
+    },
+    {
+      "id": 271098,
+      "name": "Bob Ludwig",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 254509,
+      "name": "Roger Moutenot",
+      "role": "Mixed By",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Producer [Associate]",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Producer, Alto Saxophone, Vocals",
+      "uri": null
+    },
+    {
+      "id": 141327,
+      "name": "Martin Bisi",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 279218,
+      "name": "Oliver Dicicco",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 254509,
+      "name": "Roger Moutenot",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 427368,
+      "name": "Scott Ansell",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 92180,
+      "name": "Seigen Ono",
+      "role": "Recorded By",
+      "uri": null
+    },
+    {
+      "id": 1865944,
+      "name": "Lisa Wells (2)",
+      "role": "Typography [Typesetting]",
+      "uri": null
+    },
+    {
+      "id": 1865947,
+      "name": "Strong Silent Type",
+      "role": "Typography [Typesetting]",
+      "uri": null
+    },
+    {
+      "id": 170037,
+      "name": "Yamatsuka Eye",
+      "role": "Vocals",
+      "uri": null
+    }
+  ],
+  "tracklist": [
+    {
+      "extraartists": null,
+      "title": "Grand Guignol",
+      "position": "1"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 96123,
+          "name": "Claude Debussy",
+          "role": "Composed By [Original]",
+          "uri": null
+        }
+      ],
+      "title": "La Cathédrale Engloutie",
+      "position": "2"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 521381,
+          "name": "Alexander Scriabine",
+          "role": "Composed By [Original]",
+          "uri": null
+        }
+      ],
+      "title": "Three Preludes Op. 74 (Douloureux, Déchirant)",
+      "position": "3"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 521381,
+          "name": "Alexander Scriabine",
+          "role": "Composed By [Original]",
+          "uri": null
+        }
+      ],
+      "title": "Three Preludes Op. 74 (Très Lent, Contemplatif)",
+      "position": "4"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 521381,
+          "name": "Alexander Scriabine",
+          "role": "Composed By [Original]",
+          "uri": null
+        },
+        {
+          "id": 57626,
+          "name": "Bob Dorough",
+          "role": "Vocals",
+          "uri": null
+        }
+      ],
+      "title": "Three Preludes Op. 74 (Allegro Drammatico)",
+      "position": "5"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 834703,
+          "name": "Roland de Lassus",
+          "role": "Composed By [Original]",
+          "uri": null
+        }
+      ],
+      "title": "Prophetiae Sybillarum",
+      "position": "6"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 202092,
+          "name": "Charles Ives",
+          "role": "Composed By [Original]",
+          "uri": null
+        }
+      ],
+      "title": "The Cage",
+      "position": "7"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 32180,
+          "name": "Olivier Messiaen",
+          "role": "Composed By [Original]",
+          "uri": null
+        }
+      ],
+      "title": "Louange A L'Eternité De Jésus",
+      "position": "8"
+    },
+    {
+      "extraartists": null,
+      "title": "Blood Is Thin",
+      "position": "9"
+    },
+    {
+      "extraartists": null,
+      "title": "Thrash Jazz Assassin",
+      "position": "10"
+    },
+    {
+      "extraartists": null,
+      "title": "Dead Spot",
+      "position": "11"
+    },
+    {
+      "extraartists": null,
+      "title": "Bonehead",
+      "position": "12"
+    },
+    {
+      "extraartists": null,
+      "title": "Piledriver",
+      "position": "13"
+    },
+    {
+      "extraartists": null,
+      "title": "Shangkuan Ling-Feng",
+      "position": "14"
+    },
+    {
+      "extraartists": null,
+      "title": "Numbskull",
+      "position": "15"
+    },
+    {
+      "extraartists": null,
+      "title": "Perfume Of A Critic's Burning Flesh",
+      "position": "16"
+    },
+    {
+      "extraartists": null,
+      "title": "Jazz Snob: Eat Shit",
+      "position": "17"
+    },
+    {
+      "extraartists": null,
+      "title": "The Prestidigitator",
+      "position": "18"
+    },
+    {
+      "extraartists": null,
+      "title": "No Reason To Believe",
+      "position": "19"
+    },
+    {
+      "extraartists": null,
+      "title": "Hellraiser",
+      "position": "20"
+    },
+    {
+      "extraartists": null,
+      "title": "Torture Garden",
+      "position": "21"
+    },
+    {
+      "extraartists": null,
+      "title": "Slan",
+      "position": "22"
+    },
+    {
+      "extraartists": null,
+      "title": "The Ways Of Pain",
+      "position": "23"
+    },
+    {
+      "extraartists": null,
+      "title": "The Noose",
+      "position": "24"
+    },
+    {
+      "extraartists": null,
+      "title": "Sack Of Shit",
+      "position": "25"
+    },
+    {
+      "extraartists": null,
+      "title": "Blunt Instrument",
+      "position": "26"
+    },
+    {
+      "extraartists": null,
+      "title": "Osaka Bondage",
+      "position": "27"
+    },
+    {
+      "extraartists": null,
+      "title": "Shallow Grave",
+      "position": "28"
+    },
+    {
+      "extraartists": null,
+      "title": "Kaoru",
+      "position": "29"
+    },
+    {
+      "extraartists": null,
+      "title": "Dead Dread",
+      "position": "30"
+    },
+    {
+      "extraartists": null,
+      "title": "Billy Liar",
+      "position": "31"
+    },
+    {
+      "extraartists": null,
+      "title": "Victims Of Torture",
+      "position": "32"
+    },
+    {
+      "extraartists": null,
+      "title": "Speedfreaks",
+      "position": "33"
+    },
+    {
+      "extraartists": null,
+      "title": "New Jersey Scum Swamp",
+      "position": "34"
+    },
+    {
+      "extraartists": null,
+      "title": "S-M Sniper",
+      "position": "35"
+    },
+    {
+      "extraartists": null,
+      "title": "Pigfucker",
+      "position": "36"
+    },
+    {
+      "extraartists": null,
+      "title": "Cairo Chop Shop",
+      "position": "37"
+    },
+    {
+      "extraartists": null,
+      "title": "Facelifter",
+      "position": "38"
+    },
+    {
+      "extraartists": null,
+      "title": "Whiplash",
+      "position": "39"
+    },
+    {
+      "extraartists": null,
+      "title": "The Blade",
+      "position": "40"
+    },
+    {
+      "extraartists": null,
+      "title": "Gob Of Spit",
+      "position": "41"
+    }
+  ],
+  "series": []
+}

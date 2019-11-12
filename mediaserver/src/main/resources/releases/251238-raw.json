@@ -1,0 +1,401 @@
+{
+  "status": "Accepted",
+  "videos": [
+    {
+      "duration": 2888,
+      "embed": true,
+      "title": "Painkiller - Talisman [FULL ALBUM]",
+      "description": "Painkiller - Talisman [FULL ALBUM]",
+      "uri": "https://www.youtube.com/watch?v=lzeM8t7AE_o"
+    },
+    {
+      "duration": 1917,
+      "embed": true,
+      "title": "Painkiller-Batrachophrenoboocosmomachia",
+      "description": "Painkiller-Batrachophrenoboocosmomachia",
+      "uri": "https://www.youtube.com/watch?v=yS0wgCgFI28"
+    }
+  ],
+  "series": [
+    {
+      "name": "Archival Series",
+      "entity_type": "2",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/227055",
+      "id": 227055,
+      "entity_type_name": "Series"
+    }
+  ],
+  "labels": [
+    {
+      "name": "Tzadik",
+      "entity_type": "1",
+      "catno": "TZ 7342",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 2002,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 49,
+      "average": 4.37
+    },
+    "want": 115,
+    "contributors": [
+      {
+        "username": "horloge",
+        "resource_url": "https://api.discogs.com/users/horloge"
+      },
+      {
+        "username": "ec",
+        "resource_url": "https://api.discogs.com/users/ec"
+      },
+      {
+        "username": "al1",
+        "resource_url": "https://api.discogs.com/users/al1"
+      },
+      {
+        "username": "Yasss",
+        "resource_url": "https://api.discogs.com/users/Yasss"
+      },
+      {
+        "username": "NAPALMED",
+        "resource_url": "https://api.discogs.com/users/NAPALMED"
+      },
+      {
+        "username": "kalishane",
+        "resource_url": "https://api.discogs.com/users/kalishane"
+      },
+      {
+        "username": "goncalobcunha69",
+        "resource_url": "https://api.discogs.com/users/goncalobcunha69"
+      },
+      {
+        "username": "epet",
+        "resource_url": "https://api.discogs.com/users/epet"
+      },
+      {
+        "username": "venetian-guy",
+        "resource_url": "https://api.discogs.com/users/venetian-guy"
+      },
+      {
+        "username": "KUPIKU-COM",
+        "resource_url": "https://api.discogs.com/users/KUPIKU-COM"
+      },
+      {
+        "username": "gunkldunk",
+        "resource_url": "https://api.discogs.com/users/gunkldunk"
+      },
+      {
+        "username": "seppuku",
+        "resource_url": "https://api.discogs.com/users/seppuku"
+      }
+    ],
+    "have": 320,
+    "submitter": {
+      "username": "horloge",
+      "resource_url": "https://api.discogs.com/users/horloge"
+    },
+    "data_quality": "Correct"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "PainKiller (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/69896",
+      "id": 69896
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 589,
+      "width": 594,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 523,
+      "width": 591,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 556,
+      "width": 562,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 588,
+      "width": 594,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 585,
+      "width": 589,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 580,
+      "width": 571,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 576,
+      "width": 569,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 588,
+      "width": 591,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 47,
+      "width": 579,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 531,
+      "width": 314,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 251238,
+  "artists_sort": "PainKiller (2)",
+  "genres": [
+    "Jazz",
+    "Rock"
+  ],
+  "thumb": "",
+  "num_for_sale": 9,
+  "title": "Talisman (Live In Nagoya)",
+  "date_changed": "2018-10-24T02:54:20-07:00",
+  "lowest_price": 10.0,
+  "styles": [
+    "Free Jazz",
+    "Grindcore"
+  ],
+  "released_formatted": "Nov 2002",
+  "formats": [
+    {
+      "qty": "1",
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD"
+    }
+  ],
+  "estimated_weight": 85,
+  "released": "2002-11-00",
+  "date_added": "2004-05-06T03:25:12-07:00",
+  "extraartists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Alto Saxophone [Alto Sax], Vocals",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Bill Laswell",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass",
+      "resource_url": "https://api.discogs.com/artists/661",
+      "id": 661
+    },
+    {
+      "join": "",
+      "name": "PainKiller (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Created By",
+      "resource_url": "https://api.discogs.com/artists/69896",
+      "id": 69896
+    },
+    {
+      "join": "",
+      "name": "Chippy (3)",
+      "anv": "",
+      "tracks": "",
+      "role": "Design [Designed By]",
+      "resource_url": "https://api.discogs.com/artists/1973998",
+      "id": 1973998
+    },
+    {
+      "join": "",
+      "name": "Heung-Heung Chin",
+      "anv": "",
+      "tracks": "",
+      "role": "Design [Designed By]",
+      "resource_url": "https://api.discogs.com/artists/1835385",
+      "id": 1835385
+    },
+    {
+      "join": "",
+      "name": "Tomoyo T.L.",
+      "anv": "",
+      "tracks": "",
+      "role": "Design [Designed Via]",
+      "resource_url": "https://api.discogs.com/artists/805317",
+      "id": 805317
+    },
+    {
+      "join": "",
+      "name": "Mick Harris",
+      "anv": "",
+      "tracks": "",
+      "role": "Drums, Vocals",
+      "resource_url": "https://api.discogs.com/artists/4417",
+      "id": 4417
+    },
+    {
+      "join": "",
+      "name": "Scott Hull (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By [Mastering]",
+      "resource_url": "https://api.discogs.com/artists/360567",
+      "id": 360567
+    },
+    {
+      "join": "",
+      "name": "Oz Fritz",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By",
+      "resource_url": "https://api.discogs.com/artists/196031",
+      "id": 196031
+    }
+  ],
+  "tracklist": [
+    {
+      "duration": "31:58",
+      "position": "1",
+      "type_": "track",
+      "title": "Batrachophrenoboocosmomachia"
+    },
+    {
+      "duration": "6:11",
+      "position": "2",
+      "type_": "track",
+      "title": "Transport Of Sorcerers"
+    },
+    {
+      "duration": "10:01",
+      "position": "3",
+      "type_": "track",
+      "title": "Ahamkara"
+    }
+  ],
+  "notes": "Recorded live November 24, 1994 in Nagoya, Japan.\n\n℗©2002 Tzadik\n\nDesigned via Tomoyo T.L. (Karath=Razar)\n\nA project of Hips Road",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "description": "Text, on obi",
+      "value": "7 02397-73422 2"
+    },
+    {
+      "type": "Barcode",
+      "description": "Scanned",
+      "value": "702397734222"
+    },
+    {
+      "type": "Matrix / Runout",
+      "description": "CD",
+      "value": "TZACD7342 1J01 K"
+    },
+    {
+      "type": "Mastering SID Code",
+      "value": "IFPI L239"
+    },
+    {
+      "type": "Mould SID Code",
+      "value": "IFPI 4121"
+    }
+  ],
+  "companies": [
+    {
+      "name": "Hip's Road",
+      "entity_type": "4",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/814633",
+      "id": 814633,
+      "entity_type_name": "Record Company"
+    },
+    {
+      "name": "Classic Sound, New York",
+      "entity_type": "29",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/297048",
+      "id": 297048,
+      "entity_type_name": "Mastered At"
+    },
+    {
+      "name": "Tzadik",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Copyright (c)"
+    },
+    {
+      "name": "Tzadik",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "Karath=Razar",
+      "entity_type": "33",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/351744",
+      "id": 351744,
+      "entity_type_name": "Designed At"
+    }
+  ],
+  "uri": "https://www.discogs.com/PainKiller-Talisman-Live-In-Nagoya/release/251238",
+  "country": "US",
+  "resource_url": "https://api.discogs.com/releases/251238",
+  "data_quality": "Correct"
+}

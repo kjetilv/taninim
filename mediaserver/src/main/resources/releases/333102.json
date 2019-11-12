@@ -1,0 +1,601 @@
+{
+  "artist": null,
+  "title": "Heretic: Jeux Des Dames Cruelles",
+  "resource_url": "https://api.discogs.com/releases/333102",
+  "year": "1992",
+  "notes": "Recorded and mixed at Shelley Palmer Studios, NYC, 1991.\r\nⒸⓅ 1992 disk Union\r\n\r\nThis record is dedicated to [a562423], Mystical Animator, Pioneer Ethnomusicologist, Hermetic Scholar, Creator of \"Heaven + Earth Magic\" one of the greatest films of all time.",
+  "uri": "https://www.discogs.com/Naked-City-Heretic-Jeux-Des-Dames-Cruelles/release/333102",
+  "extraartists": [
+    {
+      "id": 78003,
+      "name": "Fred Frith",
+      "role": "Bass",
+      "uri": null
+    },
+    {
+      "id": 272583,
+      "name": "Kazunori Sugiyama",
+      "role": "Co-producer [Associate]",
+      "uri": null
+    },
+    {
+      "id": 805317,
+      "name": "Tomoyo T.L.",
+      "role": "Design",
+      "uri": null
+    },
+    {
+      "id": 260851,
+      "name": "Joey Baron",
+      "role": "Drums",
+      "uri": null
+    },
+    {
+      "id": 360567,
+      "name": "Scott Hull (2)",
+      "role": "Edited By [Digital]",
+      "uri": null
+    },
+    {
+      "id": 254509,
+      "name": "Roger Moutenot",
+      "role": "Engineer [Mixing]",
+      "uri": null
+    },
+    {
+      "id": 434164,
+      "name": "Jason Baker",
+      "role": "Engineer [Recording]",
+      "uri": null
+    },
+    {
+      "id": 2392894,
+      "name": "Disk Union",
+      "role": "Executive-Producer",
+      "uri": null
+    },
+    {
+      "id": 144927,
+      "name": "Bill Frisell",
+      "role": "Guitar",
+      "uri": null
+    },
+    {
+      "id": 1730020,
+      "name": "Suehiro Maruo",
+      "role": "Illustration",
+      "uri": null
+    },
+    {
+      "id": 230534,
+      "name": "Wayne Horvitz",
+      "role": "Keyboards",
+      "uri": null
+    },
+    {
+      "id": 271098,
+      "name": "Bob Ludwig",
+      "role": "Mastered By",
+      "uri": null
+    },
+    {
+      "id": 205814,
+      "name": "Naked City",
+      "role": "Music By",
+      "uri": null
+    },
+    {
+      "id": 99731,
+      "name": "John Zorn",
+      "role": "Producer, Alto Saxophone",
+      "uri": null
+    },
+    {
+      "id": 1865944,
+      "name": "Lisa Wells (2)",
+      "role": "Typography [Typesetting]",
+      "uri": null
+    },
+    {
+      "id": 170037,
+      "name": "Yamatsuka Eye",
+      "role": "Voice",
+      "uri": null
+    }
+  ],
+  "tracklist": [
+    {
+      "extraartists": [
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 170037,
+          "name": "Yamatsuka Eye",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Main Titles",
+      "position": "1"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Sex Games",
+      "position": "2"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "The Brood",
+      "position": "3"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 170037,
+          "name": "Yamatsuka Eye",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Sweat, Sperm + Blood",
+      "position": "4"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Vliet",
+      "position": "5"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Heretic 1",
+      "position": "6"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Submission",
+      "position": "7"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Heretic 2",
+      "position": "8"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Catacombs",
+      "position": "9"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Heretic 3",
+      "position": "10"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "My Master, My Slave",
+      "position": "11"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Saint Jude",
+      "position": "12"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "The Conqueror Worm",
+      "position": "13"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Dominatrix 5B",
+      "position": "14"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Back Through The Looking Glass",
+      "position": "15"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 170037,
+          "name": "Yamatsuka Eye",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Here Come The 7,000 Frogs",
+      "position": "16"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Slaughterhouse/Chase Sequence",
+      "position": "17"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Castle Keep",
+      "position": "18"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 99731,
+          "name": "John Zorn",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 170037,
+          "name": "Yamatsuka Eye",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Mantra Of Resurrected Shit",
+      "position": "19"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Trypsicore",
+      "position": "20"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 205814,
+          "name": "Naked City",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Fire And Ice (Club Scene)",
+      "position": "21"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 78003,
+          "name": "Fred Frith",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Crosstalk",
+      "position": "22"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 230534,
+          "name": "Wayne Horvitz",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 170037,
+          "name": "Yamatsuka Eye",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Copraphagist Rituals",
+      "position": "23"
+    },
+    {
+      "extraartists": [
+        {
+          "id": 144927,
+          "name": "Bill Frisell",
+          "role": "Written-By",
+          "uri": null
+        },
+        {
+          "id": 260851,
+          "name": "Joey Baron",
+          "role": "Written-By",
+          "uri": null
+        }
+      ],
+      "title": "Labyrinth",
+      "position": "24"
+    }
+  ],
+  "series": []
+}

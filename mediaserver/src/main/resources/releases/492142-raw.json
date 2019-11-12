@@ -1,0 +1,312 @@
+{
+  "styles": [
+    "Post Bop",
+    "Contemporary Jazz"
+  ],
+  "videos": [
+    {
+      "duration": 237,
+      "description": "Masada's Dalet Track 3",
+      "embed": true,
+      "uri": "https://www.youtube.com/watch?v=fZEmFLDxtMA",
+      "title": "Masada's Dalet Track 3"
+    }
+  ],
+  "series": [],
+  "labels": [
+    {
+      "name": "DIW",
+      "entity_type": "1",
+      "catno": "DIW-923",
+      "resource_url": "https://api.discogs.com/labels/42689",
+      "id": 42689,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 1997,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 17,
+      "average": 4.12
+    },
+    "have": 283,
+    "contributors": [
+      {
+        "username": "al1",
+        "resource_url": "https://api.discogs.com/users/al1"
+      },
+      {
+        "username": "rhythmic_disturbance",
+        "resource_url": "https://api.discogs.com/users/rhythmic_disturbance"
+      },
+      {
+        "username": "ubongo",
+        "resource_url": "https://api.discogs.com/users/ubongo"
+      },
+      {
+        "username": "choan",
+        "resource_url": "https://api.discogs.com/users/choan"
+      },
+      {
+        "username": "Oedipus_Recs",
+        "resource_url": "https://api.discogs.com/users/Oedipus_Recs"
+      },
+      {
+        "username": "Piotrlerouge",
+        "resource_url": "https://api.discogs.com/users/Piotrlerouge"
+      },
+      {
+        "username": "Kater_Murr",
+        "resource_url": "https://api.discogs.com/users/Kater_Murr"
+      }
+    ],
+    "want": 69,
+    "submitter": {
+      "username": "al1",
+      "resource_url": "https://api.discogs.com/users/al1"
+    },
+    "data_quality": "Correct"
+  },
+  "artists": [
+    {
+      "join": "",
+      "name": "Masada (3)",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/264514",
+      "id": 264514
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 525,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 514,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 492142,
+  "artists_sort": "Masada (3)",
+  "genres": [
+    "Jazz"
+  ],
+  "thumb": "",
+  "num_for_sale": 3,
+  "title": "Dalet",
+  "date_changed": "2015-08-20T10:22:49-07:00",
+  "lowest_price": 44.61,
+  "status": "Accepted",
+  "released_formatted": "Feb 1997",
+  "estimated_weight": 85,
+  "released": "1997-02-00",
+  "date_added": "2005-07-29T11:27:32-07:00",
+  "tracklist": [
+    {
+      "duration": "6:20",
+      "position": "1",
+      "type_": "track",
+      "title": "Midbar"
+    },
+    {
+      "duration": "8:19",
+      "position": "2",
+      "type_": "track",
+      "title": "Mahlah"
+    },
+    {
+      "duration": "3:57",
+      "position": "3",
+      "type_": "track",
+      "title": "Zenan"
+    }
+  ],
+  "extraartists": [
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Alto Saxophone",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Greg Cohen",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass",
+      "resource_url": "https://api.discogs.com/artists/64506",
+      "id": 64506
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Composed By",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Yasunori Arai",
+      "anv": "Arai Yasunori",
+      "tracks": "",
+      "role": "Design [Cover]",
+      "resource_url": "https://api.discogs.com/artists/851962",
+      "id": 851962
+    },
+    {
+      "join": "",
+      "name": "Joey Baron",
+      "anv": "",
+      "tracks": "",
+      "role": "Drums",
+      "resource_url": "https://api.discogs.com/artists/260851",
+      "id": 260851
+    },
+    {
+      "join": "",
+      "name": "DIW Records",
+      "anv": "DIW",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/1307317",
+      "id": 1307317
+    },
+    {
+      "join": "",
+      "name": "Disk Union",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/2392894",
+      "id": 2392894
+    },
+    {
+      "join": "",
+      "name": "Allan Tucker",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/388202",
+      "id": 388202
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Kazunori Sugiyama",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/272583",
+      "id": 272583
+    },
+    {
+      "join": "",
+      "name": "Jim Anderson",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By, Mixed By",
+      "resource_url": "https://api.discogs.com/artists/282077",
+      "id": 282077
+    },
+    {
+      "join": "",
+      "name": "Dave Douglas",
+      "anv": "",
+      "tracks": "",
+      "role": "Trumpet",
+      "resource_url": "https://api.discogs.com/artists/163953",
+      "id": 163953
+    }
+  ],
+  "country": "Japan",
+  "notes": "This recording is also known under the name: \r\n\"Masada 4\".\r\nRecorded at RPM, New York City on February 20, 1994.\r\nMastered at Foothill Digital, NYC.\r\n\r\nThe original pressing of this record was never available for retail, it was given away by DIW in exchange of the proof of buying the three first Masada, in June 1995.\r\nThe record was reissued in 1997 as a regular record.\r\n\r\nⒸⓅ 1995 diskUnion\r\nJASRAC R-9680307\r\n",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "description": "On obi",
+      "value": "40988044009233"
+    },
+    {
+      "type": "Matrix / Runout",
+      "value": "DIWS-3 1MM1 C 53"
+    },
+    {
+      "type": "Mastering SID Code",
+      "value": "IFPI L223"
+    },
+    {
+      "type": "Mould SID Code",
+      "value": "none"
+    }
+  ],
+  "companies": [],
+  "uri": "https://www.discogs.com/Masada-Dalet/release/492142",
+  "formats": [
+    {
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD",
+      "qty": "1"
+    }
+  ],
+  "resource_url": "https://api.discogs.com/releases/492142",
+  "data_quality": "Correct"
+}

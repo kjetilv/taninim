@@ -98,7 +98,7 @@ public class Track extends AbstractHashable
             throw new IllegalStateException("Unhandled compressed file: " + file, e);
         }
         if (!this.compressedFile.exists()) {
-            log.warn("{} has no compressed version", this);
+            throw new IllegalStateException(this + " has no compressed version");
         }
     }
 

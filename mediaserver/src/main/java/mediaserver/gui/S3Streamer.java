@@ -19,7 +19,7 @@ public final class S3Streamer extends AbstractStreamer {
 
     public S3Streamer(IO io, Media media) {
 
-        super(media, io);
+        super(io, media);
     }
 
     @Override

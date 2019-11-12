@@ -1,0 +1,305 @@
+{
+  "styles": [
+    "Contemporary Jazz"
+  ],
+  "series": [
+    {
+      "name": "Book Of Angels",
+      "entity_type": "2",
+      "catno": "Volume 32",
+      "resource_url": "https://api.discogs.com/labels/227295",
+      "id": 227295,
+      "entity_type_name": "Series"
+    }
+  ],
+  "labels": [
+    {
+      "name": "Tzadik",
+      "entity_type": "1",
+      "catno": "TZ 8356",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Label"
+    }
+  ],
+  "year": 2017,
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 7,
+      "average": 4.43
+    },
+    "have": 116,
+    "contributors": [
+      {
+        "username": "maa.desmet",
+        "resource_url": "https://api.discogs.com/users/maa.desmet"
+      },
+      {
+        "username": "becs0214",
+        "resource_url": "https://api.discogs.com/users/becs0214"
+      },
+      {
+        "username": "adelpy",
+        "resource_url": "https://api.discogs.com/users/adelpy"
+      },
+      {
+        "username": "javahut",
+        "resource_url": "https://api.discogs.com/users/javahut"
+      }
+    ],
+    "want": 49,
+    "submitter": {
+      "username": "maa.desmet",
+      "resource_url": "https://api.discogs.com/users/maa.desmet"
+    },
+    "data_quality": "Needs Vote"
+  },
+  "artists": [
+    {
+      "join": "–",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Mary Halvorson Quartet",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/6157330",
+      "id": 6157330
+    }
+  ],
+  "images": [
+    {
+      "uri": "",
+      "height": 600,
+      "width": 600,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 530,
+      "width": 600,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 11217172,
+  "artists_sort": "John Zorn – Mary Halvorson Quartet",
+  "genres": [
+    "Jazz"
+  ],
+  "thumb": "",
+  "num_for_sale": 8,
+  "title": "Paimon: Book Of Angels Volume 32",
+  "date_changed": "2019-10-16T16:51:57-07:00",
+  "lowest_price": 12.83,
+  "status": "Accepted",
+  "released_formatted": "Oct 2017",
+  "estimated_weight": 85,
+  "released": "2017-10-00",
+  "date_added": "2017-11-30T10:30:42-08:00",
+  "tracklist": [
+    {
+      "duration": "4:01",
+      "position": "1",
+      "type_": "track",
+      "title": "Chaskiel"
+    },
+    {
+      "duration": "3:25",
+      "position": "2",
+      "type_": "track",
+      "title": "Beniel"
+    },
+    {
+      "duration": "3:28",
+      "position": "3",
+      "type_": "track",
+      "title": "Ruhiel"
+    },
+    {
+      "duration": "4:11",
+      "position": "4",
+      "type_": "track",
+      "title": "Dahariel"
+    },
+    {
+      "duration": "5:04",
+      "position": "5",
+      "type_": "track",
+      "title": "Yeqon"
+    },
+    {
+      "duration": "4:04",
+      "position": "6",
+      "type_": "track",
+      "title": "Uzza"
+    },
+    {
+      "duration": "5:08",
+      "position": "7",
+      "type_": "track",
+      "title": "Verchiel"
+    },
+    {
+      "duration": "1:52",
+      "position": "8",
+      "type_": "track",
+      "title": "Jesodoth"
+    },
+    {
+      "duration": "5:32",
+      "position": "9",
+      "type_": "track",
+      "title": "Phul"
+    },
+    {
+      "duration": "4:28",
+      "position": "10",
+      "type_": "track",
+      "title": "Rachmiah"
+    }
+  ],
+  "extraartists": [
+    {
+      "join": "",
+      "name": "Mary Halvorson",
+      "anv": "",
+      "tracks": "",
+      "role": "Arranged By",
+      "resource_url": "https://api.discogs.com/artists/530402",
+      "id": 530402
+    },
+    {
+      "join": "",
+      "name": "Drew Gress",
+      "anv": "",
+      "tracks": "",
+      "role": "Bass",
+      "resource_url": "https://api.discogs.com/artists/316511",
+      "id": 316511
+    },
+    {
+      "join": "",
+      "name": "Kazunori Sugiyama",
+      "anv": "",
+      "tracks": "",
+      "role": "Co-producer",
+      "resource_url": "https://api.discogs.com/artists/272583",
+      "id": 272583
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Composed By",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Heung-Heung Chin",
+      "anv": "",
+      "tracks": "",
+      "role": "Design",
+      "resource_url": "https://api.discogs.com/artists/1835385",
+      "id": 1835385
+    },
+    {
+      "join": "",
+      "name": "Tomas Fujiwara",
+      "anv": "",
+      "tracks": "",
+      "role": "Drums",
+      "resource_url": "https://api.discogs.com/artists/1165312",
+      "id": 1165312
+    },
+    {
+      "join": "",
+      "name": "Mary Halvorson",
+      "anv": "",
+      "tracks": "",
+      "role": "Guitar",
+      "resource_url": "https://api.discogs.com/artists/530402",
+      "id": 530402
+    },
+    {
+      "join": "",
+      "name": "Miles Okazaki",
+      "anv": "",
+      "tracks": "",
+      "role": "Guitar",
+      "resource_url": "https://api.discogs.com/artists/1401080",
+      "id": 1401080
+    },
+    {
+      "join": "",
+      "name": "Scott Hull (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/360567",
+      "id": 360567
+    },
+    {
+      "join": "",
+      "name": "Marc Urselli",
+      "anv": "",
+      "tracks": "",
+      "role": "Mixed By",
+      "resource_url": "https://api.discogs.com/artists/840398",
+      "id": 840398
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Marc Urselli",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By",
+      "resource_url": "https://api.discogs.com/artists/840398",
+      "id": 840398
+    }
+  ],
+  "country": "US",
+  "notes": "Packaged in a Digipak with a die-cut front cover and, around the spine, a photo-illustrated black obi that includes notes.\n\n\"After 13 years and 32 CDs, Zorn's expansive Book of Angels project is now complete.\"",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "value": "702397835622"
+    }
+  ],
+  "companies": [],
+  "uri": "https://www.discogs.com/John-Zorn-Mary-Halvorson-Quartet-Paimon-Book-Of-Angels-Volume-32/release/11217172",
+  "formats": [
+    {
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD",
+      "qty": "1"
+    }
+  ],
+  "resource_url": "https://api.discogs.com/releases/11217172",
+  "data_quality": "Needs Vote"
+}

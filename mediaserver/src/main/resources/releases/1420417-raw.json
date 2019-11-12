@@ -1,0 +1,386 @@
+{
+  "status": "Accepted",
+  "series": [
+    {
+      "name": "Radical Jewish Culture",
+      "entity_type": "2",
+      "catno": "90",
+      "resource_url": "https://api.discogs.com/labels/223159",
+      "id": 223159,
+      "entity_type_name": "Series"
+    },
+    {
+      "name": "Masada 10 Years",
+      "entity_type": "2",
+      "catno": "Volume Four",
+      "resource_url": "https://api.discogs.com/labels/354068",
+      "id": 354068,
+      "entity_type_name": "Series"
+    }
+  ],
+  "labels": [
+    {
+      "name": "Tzadik",
+      "entity_type": "1",
+      "catno": "TZ 7190",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Label"
+    }
+  ],
+  "community": {
+    "status": "Accepted",
+    "rating": {
+      "count": 10,
+      "average": 3.8
+    },
+    "want": 38,
+    "contributors": [
+      {
+        "username": "Eulvin",
+        "resource_url": "https://api.discogs.com/users/Eulvin"
+      },
+      {
+        "username": "stassen",
+        "resource_url": "https://api.discogs.com/users/stassen"
+      },
+      {
+        "username": "Oedipus_Recs",
+        "resource_url": "https://api.discogs.com/users/Oedipus_Recs"
+      },
+      {
+        "username": "al1",
+        "resource_url": "https://api.discogs.com/users/al1"
+      },
+      {
+        "username": "gippy",
+        "resource_url": "https://api.discogs.com/users/gippy"
+      },
+      {
+        "username": "Szakall",
+        "resource_url": "https://api.discogs.com/users/Szakall"
+      },
+      {
+        "username": "EBIS",
+        "resource_url": "https://api.discogs.com/users/EBIS"
+      },
+      {
+        "username": "venetian-guy",
+        "resource_url": "https://api.discogs.com/users/venetian-guy"
+      },
+      {
+        "username": "marcozambon",
+        "resource_url": "https://api.discogs.com/users/marcozambon"
+      }
+    ],
+    "have": 120,
+    "submitter": {
+      "username": "Eulvin",
+      "resource_url": "https://api.discogs.com/users/Eulvin"
+    },
+    "data_quality": "Needs Vote"
+  },
+  "year": 2004,
+  "images": [
+    {
+      "uri": "",
+      "height": 240,
+      "width": 240,
+      "resource_url": "",
+      "type": "primary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 478,
+      "width": 261,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    },
+    {
+      "uri": "",
+      "height": 456,
+      "width": 583,
+      "resource_url": "",
+      "type": "secondary",
+      "uri150": ""
+    }
+  ],
+  "format_quantity": 1,
+  "id": 1420417,
+  "artists_sort": "John Zorn - Mark Feldman / Sylvie Courvoisier",
+  "genres": [
+    "Jazz"
+  ],
+  "thumb": "",
+  "num_for_sale": 11,
+  "title": "Masada Recital",
+  "artists": [
+    {
+      "join": "-",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Mark Feldman / Sylvie Courvoisier",
+      "anv": "",
+      "tracks": "",
+      "role": "",
+      "resource_url": "https://api.discogs.com/artists/1739984",
+      "id": 1739984
+    }
+  ],
+  "date_changed": "2019-08-30T04:07:36-07:00",
+  "lowest_price": 7.78,
+  "styles": [
+    "Avant-garde Jazz"
+  ],
+  "released_formatted": "Jun 2004",
+  "formats": [
+    {
+      "qty": "1",
+      "descriptions": [
+        "Album"
+      ],
+      "name": "CD"
+    }
+  ],
+  "estimated_weight": 85,
+  "released": "2004-06-00",
+  "date_added": "2008-08-08T13:05:30-07:00",
+  "extraartists": [
+    {
+      "join": "",
+      "name": "Sylvie Courvoisier",
+      "anv": "",
+      "tracks": "",
+      "role": "Arranged By",
+      "resource_url": "https://api.discogs.com/artists/369026",
+      "id": 369026
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Composed By [All Compositions By]",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Heung-Heung Chin",
+      "anv": "",
+      "tracks": "",
+      "role": "Design",
+      "resource_url": "https://api.discogs.com/artists/1835385",
+      "id": 1835385
+    },
+    {
+      "join": "",
+      "name": "John Zorn",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer",
+      "resource_url": "https://api.discogs.com/artists/99731",
+      "id": 99731
+    },
+    {
+      "join": "",
+      "name": "Kazunori Sugiyama",
+      "anv": "",
+      "tracks": "",
+      "role": "Executive-Producer [Associate Producer]",
+      "resource_url": "https://api.discogs.com/artists/272583",
+      "id": 272583
+    },
+    {
+      "join": "",
+      "name": "Scott Hull (2)",
+      "anv": "",
+      "tracks": "",
+      "role": "Mastered By",
+      "resource_url": "https://api.discogs.com/artists/360567",
+      "id": 360567
+    },
+    {
+      "join": "",
+      "name": "Karen Liebowitz",
+      "anv": "",
+      "tracks": "",
+      "role": "Painting [Cover Painting]",
+      "resource_url": "https://api.discogs.com/artists/2385427",
+      "id": 2385427
+    },
+    {
+      "join": "",
+      "name": "Sylvie Courvoisier",
+      "anv": "",
+      "tracks": "",
+      "role": "Piano",
+      "resource_url": "https://api.discogs.com/artists/369026",
+      "id": 369026
+    },
+    {
+      "join": "",
+      "name": "Michael McCoy",
+      "anv": "",
+      "tracks": "",
+      "role": "Recorded By",
+      "resource_url": "https://api.discogs.com/artists/266680",
+      "id": 266680
+    },
+    {
+      "join": "",
+      "name": "Mark Feldman",
+      "anv": "",
+      "tracks": "",
+      "role": "Violin",
+      "resource_url": "https://api.discogs.com/artists/260081",
+      "id": 260081
+    }
+  ],
+  "tracklist": [
+    {
+      "duration": "4:15",
+      "position": "1",
+      "type_": "track",
+      "title": "Kanah"
+    },
+    {
+      "duration": "3:46",
+      "position": "2",
+      "type_": "track",
+      "title": "Socoh"
+    },
+    {
+      "duration": "5:39",
+      "position": "3",
+      "type_": "track",
+      "title": "Mahshav"
+    },
+    {
+      "duration": "2:05",
+      "position": "4",
+      "type_": "track",
+      "title": "Karet"
+    },
+    {
+      "duration": "3:07",
+      "position": "5",
+      "type_": "track",
+      "title": "Abidan"
+    },
+    {
+      "duration": "2:15",
+      "position": "6",
+      "type_": "track",
+      "title": "Malkut"
+    },
+    {
+      "duration": "6:05",
+      "position": "7",
+      "type_": "track",
+      "title": "Azekah"
+    },
+    {
+      "duration": "2:14",
+      "position": "8",
+      "type_": "track",
+      "title": "Nezikin"
+    },
+    {
+      "duration": "8:55",
+      "position": "9",
+      "type_": "track",
+      "title": "Karaim"
+    },
+    {
+      "duration": "2:12",
+      "position": "10",
+      "type_": "track",
+      "title": "Hath Arob"
+    },
+    {
+      "duration": "3:48",
+      "position": "11",
+      "type_": "track",
+      "title": "Aravot"
+    },
+    {
+      "duration": "4:52",
+      "position": "12",
+      "type_": "track",
+      "title": "Mahlah"
+    }
+  ],
+  "notes": "Recorded February 17, 2004 at Hit Factory, NYC\nMastered at Hit Factory Mastering, NYC\nK2 Technology by JVC Disc America\n\nCover painting detail from The Gift of the Sabbath Bride\n",
+  "identifiers": [
+    {
+      "type": "Barcode",
+      "description": "From Obi",
+      "value": "702397719021"
+    },
+    {
+      "type": "Barcode",
+      "description": "On obi",
+      "value": "7 02397-71902 1"
+    },
+    {
+      "type": "Mastering SID Code",
+      "value": "IFPI L239"
+    },
+    {
+      "type": "Matrix / Runout",
+      "value": "TZACD7190 1J 01 K"
+    },
+    {
+      "type": "Mould SID Code",
+      "value": "IFPI 4150"
+    }
+  ],
+  "companies": [
+    {
+      "name": "The Hit Factory",
+      "entity_type": "23",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/266839",
+      "id": 266839,
+      "entity_type_name": "Recorded At"
+    },
+    {
+      "name": "The Hit Factory",
+      "entity_type": "29",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/266839",
+      "id": 266839,
+      "entity_type_name": "Mastered At"
+    },
+    {
+      "name": "Tzadik",
+      "entity_type": "13",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Phonographic Copyright (p)"
+    },
+    {
+      "name": "Tzadik",
+      "entity_type": "14",
+      "catno": "",
+      "resource_url": "https://api.discogs.com/labels/3650",
+      "id": 3650,
+      "entity_type_name": "Copyright (c)"
+    }
+  ],
+  "uri": "https://www.discogs.com/John-Zorn-Mark-Feldman-Sylvie-Courvoisier-Masada-Recital/release/1420417",
+  "country": "US",
+  "resource_url": "https://api.discogs.com/releases/1420417",
+  "data_quality": "Needs Vote"
+}
