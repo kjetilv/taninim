@@ -16,13 +16,26 @@
 </SCRIPT>
 
 <div style="float: right">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="260" height="300">
-<path d="M22,87 130,275 238,87z" fill="none" stroke="lightblue" stroke-width="20" id="t"/>
-<use xlink:href="#t" transform="matrix(1,0,0,-1,0,300)"/>
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="260" height="300">
+        <path d="M22,87 130,275 238,87z" fill="none" stroke="lightblue" stroke-width="20" id="t"/>
+        <use xlink:href="#t" transform="matrix(1,0,0,-1,0,300)"/>
+    </svg>
 </div>
 
 <H1><A HREF="/">taninim</A></H1>
+
+
+<div style="float: right">
+    {if(album.series)}
+<H3>Series</H3>
+
+<UL>
+    {album.series:{series|
+    <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
+    }}
+</UL>
+{endif}
+</div>
 
 <H2><A HREF="/{cat.pathString}">{album.categoryPath.pathString}</A></H2>
 
@@ -35,110 +48,116 @@
 </AUDIO>
 {endif}
 
-<H3>Tracks</H3>
+<div>
 
-{album.albumParts:{albumPart |
-<p>{if(albumPart.part)}Disc {albumPart.part}:{endif}
-<OL>
-    {albumPart.tracks:{track |
-    <LI>
+    <H3>Tracks</H3>
 
-        {track.name}
-        {track.prettyDuration}
-        <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>
-        {if(track.otherArtist.present)}
-        <UL>
-            <LI>
-                [<A HREF="/?artist={track.otherArtistPresent.uuid}">{track.otherArtistPresent.name}</A>&nbsp;
-                <A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>]
-            </LI>
-        </UL>
-        {endif}
-    </LI>
+    {album.albumParts:{albumPart |
+    <p>{if(albumPart.part)}Disc {albumPart.part}:{endif}
+    <OL>
+        {albumPart.tracks:{track |
+        <LI>
+
+            {track.name}
+            {track.prettyDuration}
+            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>
+            {if(track.otherArtist.present)}
+            <UL>
+                <LI>
+                    [<A HREF="/?artist={track.otherArtistPresent.uuid}">{track.otherArtistPresent.name}</A>&nbsp;
+                    <A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>]
+                </LI>
+            </UL>
+            {endif}
+        </LI>
+        }}
+    </OL>
     }}
-</OL>
-}}
+</div>
 
-{if(album.context.notes)}
-<H2>Info</H2>
+<div style="clear: both">
+    {if(album.additionalArtists)}
+    <H3>Artists</H3>
 
-<P>Notes:
-<blockquote>{album.context.notes}</blockquote>
-</P>
-
-<P>@ <A HREF="{album.context.discogPage}">Discogs</A></P>
-{endif}
-
-{if(album.series)}
-<P>Series:</P>
-
-<UL>
-    {album.series:{series|
-    <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
+    {album.artists:{artist|
+    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A
+            HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
     }}
-</UL>
-{endif}
+    {endif}
 
-{if(album.context.year)}
-Released {album.context.year.value}
-{endif}
+    <SCRIPT src="/resources/plyr.js"></SCRIPT>
+    <SCRIPT>
+        const player = new plyr('#player');
+    </SCRIPT>
+</div>
 
 {if(album.context.credits.credits)}
-<H3>Credits</H3>
 
-<UL>
-    {album.context.credits.artistCredits:{credit |
-    <LI>{credit.sourceType}:
-        [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
-    </LI>
-    }}
-</UL>
+<div style="float: right">
+    <H3>Other credits</H3>
 
-<H3>Other</H3>
+    <UL>
+        {album.context.credits.otherCredits:{credit |
+        <LI>{credit.sourceType}: {credit.name}</LI>
+        }}
+    </UL>
+</div>
+<div>
+    <H3>Artist credits</H3>
 
-<UL>
-    {album.context.credits.otherCredits:{credit |
-    <LI>{credit.sourceType}: {credit.name}</LI>
-    }}
-</UL>
+    <UL>
+        {album.context.credits.artistCredits:{credit |
+        <LI>{credit.sourceType}:
+            [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A
+                    HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+        </LI>
+        }}
+    </UL>
+</div>
 {endif}
 
-{if(album.context.additionalTrackContext)}
-<H3>Track details</H3>
+<div>
+    {if(album.context.additionalTrackContext)}
 
-<UL>
-    {album.context.trackContexts:{trackContext |
-    <LI>{trackContext.position} {trackContext.title}
-        <UL>
-            {trackContext.credits.artistCredits:{credit |
-            <LI>{credit.sourceType}:
-                [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A
-                        HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
-            </LI>
-            }}
-        </UL>
-        <UL>
-            {trackContext.credits.otherCredits:{credit |
-            <LI>{credit.sourceType}: {credit.name}</LI>
-            }}
-        </UL>
-    </LI>
-    }}
-</UL>
-{endif}
+    <H3>Track details</H3>
 
-{if(album.additionalArtists)}
-<H3>Artists</H3>
+    <UL>
+        {album.context.trackContexts:{trackContext |
+        <LI>{trackContext.position} {trackContext.title}
+            <UL>
+                {trackContext.credits.artistCredits:{credit |
+                <LI>{credit.sourceType}:
+                    [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A
+                            HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+                </LI>
+                }}
+            </UL>
+            <UL>
+                {trackContext.credits.otherCredits:{credit |
+                <LI>{credit.sourceType}: {credit.name}</LI>
+                }}
+            </UL>
+        </LI>
+        }}
+    </UL>
+    {endif}
+</div>
 
-{album.artists:{artist|
-<SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
-}}
-{endif}
+<div style="float: right">
+    <H2>Info</H2>
 
-<SCRIPT src="/resources/plyr.js"></SCRIPT>
-<SCRIPT>
-    const player = new plyr('#player');
-</SCRIPT>
+    {if(album.context.notes)}
+    <P>Notes:
+    <blockquote>{album.context.notes}</blockquote>
+
+    <P>@ <A HREF="{album.context.discogPage}">Discogs</A>
+        {endif}
+
+
+    {if(album.context.year)}
+    <P>Released {album.context.year.value}
+        {endif}
+</div>
 
 <P>
     <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->

@@ -1,12 +1,15 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import mediaserver.util.IO;
+
+import java.util.List;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class FbAuth extends Nettish {
 
@@ -17,11 +20,13 @@ public class FbAuth extends Nettish {
 
     @Override
     public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+
         HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(req);
         try {
-//            decoder.offer().
-//
-//            List<InterfaceHttpData> bodyHttpDatas = decoder.getBodyHttpDatas();
+
+            List<InterfaceHttpData> bodyHttpDatas = decoder.getBodyHttpDatas();
+
+            System.out.println(bodyHttpDatas.size());
 
             return respond(ctx, path, HttpResponseStatus.BAD_REQUEST);
         } finally {

@@ -3,7 +3,6 @@ package mediaserver;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -44,9 +43,12 @@ public class Main {
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
-        Supplier<Router> routerProvider = routerSupplier(media, !live(), local(args), dev());
+        boolean neuter = !live();
+        IO io = new IO(dev());
 
-        ChannelInitializer<SocketChannel> handler = new Initializer(routerProvider, sslContext());
+        Supplier<Router> routerProvider = routerSupplier(io, media, neuter, local(args));
+
+        ChannelInitializer<SocketChannel> handler = new ServerInitializer(routerProvider, sslContext());
 
         ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
@@ -104,23 +106,17 @@ public class Main {
         }
     }
 
-    private static Supplier<Router> routerSupplier(
-        Media media,
-        boolean neuter,
-        boolean local,
-        boolean dev
-    ) {
+    private static Supplier<Router> routerSupplier(IO io, Media media, boolean neuter, boolean local) {
 
-        IO io = new IO(dev);
         return () -> new Router(
-            streamer(media, neuter, local, io),
-            new Playlists(io, media),
+            streamer(io, media, neuter, local),
             new FbAuth(io),
+            new Playlists(io, media),
             new Resources(io),
             new GUI(io, media));
     }
 
-    private static Nettish streamer(Media media, boolean neuter, boolean local, IO io) {
+    private static Nettish streamer(IO io, Media media, boolean neuter, boolean local) {
 
         return neuter ? new NullStreamer(io, media)
             : local ? new FileStreamer(io, media)
@@ -160,25 +156,4 @@ public class Main {
         }
     }
 
-    private static class Initializer extends ChannelInitializer<SocketChannel> {
-
-        private final Supplier<Router> routerProvider;
-
-        private final SslContext sslContext;
-
-        public Initializer(Supplier<Router> routerProvider, SslContext sslContext) {
-
-            this.routerProvider = routerProvider;
-            this.sslContext = sslContext;
-        }
-
-        @Override
-        protected void initChannel(SocketChannel ch) {
-
-            ChannelPipeline pipeline = ch.pipeline();
-            pipeline.addLast(sslContext.newHandler(ch.alloc()));
-            pipeline.addLast(new CustomHttpServerCodec());
-            pipeline.addLast(routerProvider.get());
-        }
-    }
 }

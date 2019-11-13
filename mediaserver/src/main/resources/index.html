@@ -27,6 +27,19 @@
     <A HREF="/">taninim</A>
 </H1>
 
+<div style="float:right">
+
+    <H3>
+        Series [{length(media.series)}]
+    </H3>
+
+    <UL>
+        {media.series:{series|
+        <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
+        }}
+    </UL>
+</div>
+
 {if(artist)}
 <H2>Artist: {artist.name}
     <A TITLE="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A></H2>
@@ -37,6 +50,7 @@
 {endif}
 {endif}
 
+<div>
 {if(media.subCategories)}
 <H3>Sub-categories [{length(media.topCategories)}]</H3>
 <UL>
@@ -47,7 +61,9 @@
     }}
 </UL>
 {endif}
+</div>
 
+<div style="clear: both">
 <H3>
     Albums [{length(media.albums)}]
 </H3>
@@ -60,17 +76,9 @@
     </LI>
     }}
 </UL>
+</div>
 
-<H3>
-    Series [{length(media.series)}]
-</H3>
-
-<UL>
-    {media.series:{series|
-    <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
-    }}
-</UL>
-
+<div style="clear: both">
 <H3>
     Album artists [{length(media.allAlbumArtists)}]
 </H3>
@@ -78,7 +86,9 @@
 {media.artists:{artist|
 <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
 }}
+</div>
 
+<div>
 <H3>
     All performing artists [{length(media.allArtists)}]
 </H3>
@@ -86,14 +96,14 @@
 {media.allArtists:{artist|
 <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>] </SPAN>
 }}
-
+</div>
 <P>
     <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
     <fb:login-button scope="public_profile" onlogin="checkLoginState();">
     </fb:login-button>
 </P>
 
-<FORM ID="fbauth" ACTION="/fbauth">
+<FORM ID="fbauth" ACTION="/auth">
     <INPUT TYPE="HIDDEN" ID="userID" VALUE=""></INPUT>
     <INPUT TYPE="HIDDEN" ID="accessToken" VALUE=""></INPUT>
     <INPUT TYPE="HIDDEN" ID="signedRequest" VALUE=""></INPUT>

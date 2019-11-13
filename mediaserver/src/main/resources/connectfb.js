@@ -8,13 +8,13 @@ function checkLoginState() {
                 const timeoutInSeconds = authResponse.expiresIn;
 
                 document.querySelector(
-                    '#fbauth input[name="userID"]').value = userID;
+                    '#fbauth input[id="userID"]').value = userID;
                 document.querySelector(
-                    '#fbauth input[name="accessToken"]').value = accessToken;
+                    '#fbauth input[id="accessToken"]').value = accessToken;
                 document.querySelector(
-                    '#fbauth input[name="signedRequest"]').value = signedRequest;
+                    '#fbauth input[id="signedRequest"]').value = signedRequest;
                 document.querySelector(
-                    '#fbauth input[name="timeoutInSeconds"]').value = timeoutInSeconds;
+                    '#fbauth input[id="timeoutInSeconds"]').value = timeoutInSeconds;
                 document.querySelector(
                     '#fbauth').submit();
 

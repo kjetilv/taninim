@@ -3,8 +3,10 @@ package mediaserver;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpUtil;
 import mediaserver.gui.Nettish;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 class Router extends SimpleChannelInboundHandler<HttpRequest> {
 
@@ -88,6 +91,11 @@ class Router extends SimpleChannelInboundHandler<HttpRequest> {
     }
 
     private HttpResponse handlePath(HttpRequest req, String path, ChannelHandlerContext ctx) {
+        if (HttpUtil.is100ContinueExpected(req)) {
+            DefaultFullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
+            ctx.write(res);
+            return res;
+        }
         return nettishes.stream()
             .filter(nettish ->
                 nettish.shouldHandle(path))
