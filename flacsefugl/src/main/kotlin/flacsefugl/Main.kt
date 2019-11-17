@@ -1,10 +1,12 @@
 package flacsefugl
 
 import mediaserver.Media
+import java.lang.IllegalStateException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 fun main() {
     val rootDir = Paths.get(URI.create(
@@ -79,7 +81,17 @@ fun main() {
         Traverser(flacDir).paths { path ->
             path.toString().endsWith(".flac")
         }.forEach { path ->
-            println("${walkDir.resolve(path)} ${walkDir.resolve(path).toFile().exists()}")
+            val walkFlac = walkDir.resolve(flacDir.relativize(path))
+            if (Files.exists(walkFlac) && Files.size(walkFlac) == Files.size(path)) {
+                println("Already walkin: $path")
+            } else {
+                val dir = walkFlac.toFile().parentFile
+                if (dir.isDirectory || dir.mkdirs()) {
+                    Files.copy(path, walkFlac, StandardCopyOption.COPY_ATTRIBUTES)
+                } else {
+                    throw IllegalStateException("Bad target: " + dir)
+                }
+            }
         }
     } else {
         println("Walkman not connected @ $walkDir")
