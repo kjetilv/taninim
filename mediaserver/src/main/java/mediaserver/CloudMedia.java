@@ -225,11 +225,11 @@ public class CloudMedia {
             if (!removables.isEmpty()) {
                 removeRedundantRemotes(s3, removables);
             }
-            String m4aRoot = new File(new File(root).getParentFile().getParentFile(), "M4A").getAbsolutePath();
-            List<String> removableM4as = redundantRemotes(".m4a", m4aRoot, remoteSizes);
-            if (!removables.isEmpty()) {
-                removeRedundantRemotes(s3, removableM4as);
-            }
+//            String m4aRoot = new File(new File(root).getParentFile().getParentFile(), "M4A").getAbsolutePath();
+//            List<String> removableM4as = redundantRemotes(".m4a", m4aRoot, remoteSizes);
+//            if (!removables.isEmpty()) {
+//                removeRedundantRemotes(s3, removableM4as);
+//            }
             System.out.println("Refreshing media");
             uploadMediaSer(media, mediaFile, s3);
         });

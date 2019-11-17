@@ -68,8 +68,12 @@ public abstract class Nettish {
 
     public static Optional<UUID> authCookie(HttpRequest req) {
 
-        Collection<Cookie> cookies = ServerCookieDecoder.STRICT.decode(req.headers().get(COOKIE));
-        return cookies.stream()
+        return Optional.of(req.headers())
+            .map(headers ->
+                headers.get(COOKIE))
+            .map(ServerCookieDecoder.STRICT::decode)
+            .stream()
+            .flatMap(Collection::stream)
             .filter(cookie ->
                 cookie.name().equalsIgnoreCase(GUI.TANINIM_ID))
             .map(Cookie::value)
@@ -161,7 +165,8 @@ public abstract class Nettish {
 
     protected static String cookie(Session session) {
 
-        Cookie cookie = new io.netty.handler.codec.http.cookie.DefaultCookie(GUI.TANINIM_ID, session == null ? "" : session.getCookie().toString());
+        Cookie cookie = new io.netty.handler.codec.http.cookie.DefaultCookie(
+            GUI.TANINIM_ID, session == null ? "" : session.getCookie().toString());
         cookie.setMaxAge(COOKIE_TIME);
         return ServerCookieEncoder.STRICT.encode(cookie);
     }

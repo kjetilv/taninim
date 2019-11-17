@@ -36,8 +36,6 @@ public class FbAuth extends Nettish {
 
     private final Map<String, String> ids;
 
-    private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
-
     public FbAuth(
         IO io,
         Sessions sessions,

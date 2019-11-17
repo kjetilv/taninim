@@ -37,7 +37,7 @@ public class Main {
 
     private static final String DEV_FLAG = "dev";
 
-    private static final String LIVE_FLAG = "dev";
+    private static final String LIVE_FLAG = "live";
 
     private static final String FB_SEC = "fbSec";
 
@@ -49,7 +49,8 @@ public class Main {
         boolean ssl = dev || local(args);
 
         log.info("Running in {}{} mode, streaming {}abled",
-            local(args) ? "local" : "cloud", dev ? " dev" : "",
+            local(args) ? "local" : "cloud",
+            dev ? " dev" : "",
             neuter ? "dis" : "en");
 
         Media media = retrieveMedia(args);
@@ -140,7 +141,7 @@ public class Main {
         Map<String, String> luckyFew
     ) {
 
-        Supplier<char[]> passwordSupplier = () ->
+        Supplier<char[]> secretProvider = () ->
             getProperty(FB_SEC).toCharArray();
         Sessions sessions =
             new Sessions(Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
@@ -148,7 +149,7 @@ public class Main {
             new Router(
                 streamer(io, media, sessions, neuter, local),
                 new FbUnauth(io, sessions),
-                new FbAuth(io, sessions, passwordSupplier, luckyFew),
+                new FbAuth(io, sessions, secretProvider, luckyFew),
                 new Playlists(io, media),
                 new Resources(io),
                 new GUI(io, media, sessions));
@@ -193,5 +194,4 @@ public class Main {
             workGroup.shutdownGracefully();
         }
     }
-
 }
