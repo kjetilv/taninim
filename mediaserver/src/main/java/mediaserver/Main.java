@@ -46,6 +46,7 @@ public class Main {
         boolean dev = dev();
         boolean live = live();
         boolean neuter = !(live || dev);
+        boolean ssl = dev || local(args);
 
         log.info("Running in {}{} mode, streaming {}abled",
             local(args) ? "local" : "cloud", dev ? " dev" : "",
@@ -62,11 +63,12 @@ public class Main {
 
         Supplier<Router> routerProvider = routerSupplier(io, media, neuter, local(args), luckyFew);
 
-        ChannelInitializer<SocketChannel> handler = new ServerInitializer(routerProvider, sslContext());
+        ChannelInitializer<SocketChannel> handler =
+            new ServerInitializer(routerProvider, ssl ? sslContext() : null);
 
         ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
-        int port = dev || local(args) ? LOCALPORT : CLOUD_PORT;
+        int port = ssl ? LOCALPORT : CLOUD_PORT;
 
         start(bootstrap, port, listenGroup, workGroup);
     }

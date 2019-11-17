@@ -25,7 +25,9 @@ class ServerInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel ch) {
 
         ChannelPipeline pipeline = ch.pipeline();
-        pipeline.addLast(sslContext.newHandler(ch.alloc()));
+        if (sslContext != null) {
+            pipeline.addLast(sslContext.newHandler(ch.alloc()));
+        }
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(64 * 1024));
         pipeline.addLast(routerProvider.get());
