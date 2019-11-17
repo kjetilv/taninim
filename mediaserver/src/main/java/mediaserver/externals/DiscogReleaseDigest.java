@@ -17,6 +17,8 @@ public class DiscogReleaseDigest {
 
     private String uri;
 
+    private List<DiscogArtistDigest> artists;
+
     private List<DiscogArtistDigest> extraartists;
 
     private List<DiscogTrackDigest> tracklist;
@@ -101,6 +103,16 @@ public class DiscogReleaseDigest {
     public void setNotes(String notes) {
 
         this.notes = notes;
+    }
+
+    public List<DiscogArtistDigest> getArtists() {
+
+        return artists;
+    }
+
+    public void setArtists(List<DiscogArtistDigest> artists) {
+
+        this.artists = artists;
     }
 
     public List<DiscogArtistDigest> getExtraartists() {

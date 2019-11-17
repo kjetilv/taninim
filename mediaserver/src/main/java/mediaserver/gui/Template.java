@@ -35,8 +35,11 @@ public class Template {
     }
 
     Template add(QPar param, Object value) {
-        values.put(param, value);
-        st.add(param.getName(), value);
+
+        if (value != null) {
+            values.put(param, value);
+            st.add(param.getName(), value);
+        }
         return this;
     }
 

@@ -1,21 +1,28 @@
 package mediaserver.gui;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import mediaserver.Media;
 import mediaserver.files.Track;
+import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public abstract class AbstractStreamer extends Nettish {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractStreamer.class);
 
     protected static final String FLAC = "flac";
 
@@ -29,22 +36,39 @@ public abstract class AbstractStreamer extends Nettish {
 
     protected final Media media;
 
+    private final Sessions sessions;
+
     private static final int BYTES_PREAMBLE = (HttpHeaderValues.BYTES + "=").length();
 
-    AbstractStreamer(IO io, Media media) {
+    AbstractStreamer(IO io, Media media, Sessions sessions) {
 
         super(io, "/audio");
         this.media = media;
+        this.sessions = sessions;
     }
 
     @Override
-    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        return getMediaTrack(resource(path))
-            .map(track ->
-                stream(req, track, ctx))
+        return activeUserByCookie(req).or(() -> activeUserByPath(req))
+            .map(user ->
+                getMediaTrack(resource(path))
+                    .map(track ->
+                        stream(req, track, ctx))
+                    .orElseGet(() ->
+                        respond(ctx, path, NOT_FOUND)))
             .orElseGet(() ->
-                respond(ctx, path, BAD_REQUEST));
+                teapot(req, ctx));
+    }
+
+    public Optional<String> activeUserByCookie(FullHttpRequest req) {
+
+        return authCookie(req).flatMap(sessions::activeUser);
+    }
+
+    public Optional<String> activeUserByPath(FullHttpRequest req) {
+
+        return authToken(req).flatMap(sessions::activeUser);
     }
 
     static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {
@@ -91,6 +115,27 @@ public abstract class AbstractStreamer extends Nettish {
         return req.uri().endsWith("." + FLAC);
     }
 
+    protected HttpResponse teapot(HttpRequest req, ChannelHandlerContext ctx) {
+
+        return respond(ctx, req.uri(), HttpResponseStatus.valueOf(418, "I'm a teapot"));
+    }
+
+    protected HttpResponse respondStream(HttpRequest req, ChannelHandlerContext ctx, HttpResponse response) {
+
+        ChannelFuture lastContentFuture =
+            ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+        if (!HttpUtil.isKeepAlive(req)) {
+            lastContentFuture.addListener(ChannelFutureListener.CLOSE);
+        }
+        return response;
+    }
+
+    protected void writeLength(ChannelHandlerContext ctx, HttpResponse response, long fileLength) {
+
+        HttpUtil.setContentLength(response, fileLength);
+        ctx.write(response);
+    }
+
     private static String contentType(HttpRequest req) {
 
         return req.uri().endsWith(FLAC) ? AUDIO_FLAC : AUDIO_AAC;
@@ -103,8 +148,15 @@ public abstract class AbstractStreamer extends Nettish {
     }
 
     private Optional<Track> getMediaTrack(String path) {
+
         int dotIndex = path.indexOf('.', 1);
         String uuidString = path.substring(1, dotIndex);
         return media.getTrack(UUID.fromString(uuidString));
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + sessions + "]";
     }
 }

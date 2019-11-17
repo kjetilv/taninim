@@ -1,6 +1,7 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -22,7 +23,7 @@ public class Resources extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
         try {
             String resource = path.startsWith(FAVICON_ICO)
                 ? path.substring(0, FAVICON_ICO.length())

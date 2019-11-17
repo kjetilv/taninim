@@ -13,12 +13,18 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
+import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.security.cert.CertificateException;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class Main {
@@ -33,38 +39,56 @@ public class Main {
 
     private static final String LIVE_FLAG = "dev";
 
+    private static final String FB_SEC = "fbSec";
+
     public static void main(String[] args) {
 
-        log.info("Running in {}{} mode",
-            local(args) ? "local" : "cloud", dev() ? " dev" : "");
+        boolean dev = dev();
+        boolean live = live();
+        boolean neuter = !(live || dev);
+
+        log.info("Running in {}{} mode, streaming {}abled",
+            local(args) ? "local" : "cloud", dev ? " dev" : "",
+            neuter ? "dis" : "en");
 
         Media media = retrieveMedia(args);
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
-        boolean neuter = !live();
-        IO io = new IO(dev());
+        IO io = new IO(dev);
 
-        Supplier<Router> routerProvider = routerSupplier(io, media, neuter, local(args));
+        Map<String, String> luckyFew = IO.readResource("ids.json");
+
+        Supplier<Router> routerProvider = routerSupplier(io, media, neuter, local(args), luckyFew);
 
         ChannelInitializer<SocketChannel> handler = new ServerInitializer(routerProvider, sslContext());
 
         ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
-        int port = dev() || local(args) ? LOCALPORT : CLOUD_PORT;
+        int port = dev || local(args) ? LOCALPORT : CLOUD_PORT;
 
         start(bootstrap, port, listenGroup, workGroup);
     }
 
     public static boolean dev() {
 
-        return Boolean.getBoolean(DEV_FLAG);
+        return isTrue(DEV_FLAG);
     }
 
     public static boolean live() {
 
-        return Boolean.getBoolean(LIVE_FLAG);
+        return isTrue(LIVE_FLAG);
+    }
+
+    public static boolean isTrue(String flag) {
+
+        return Boolean.getBoolean(flag) || Optional.ofNullable(System.getenv(flag)).filter("true"::equals).isPresent();
+    }
+
+    public static String getProperty(String property) {
+
+        return System.getProperty(property, System.getenv(property));
     }
 
     public static boolean local(String[] args) {
@@ -106,21 +130,33 @@ public class Main {
         }
     }
 
-    private static Supplier<Router> routerSupplier(IO io, Media media, boolean neuter, boolean local) {
+    private static Supplier<Router> routerSupplier(
+        IO io,
+        Media media,
+        boolean neuter,
+        boolean local,
+        Map<String, String> luckyFew
+    ) {
 
-        return () -> new Router(
-            streamer(io, media, neuter, local),
-            new FbAuth(io),
-            new Playlists(io, media),
-            new Resources(io),
-            new GUI(io, media));
+        Supplier<char[]> passwordSupplier = () ->
+            getProperty(FB_SEC).toCharArray();
+        Sessions sessions =
+            new Sessions(Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
+        return () ->
+            new Router(
+                streamer(io, media, sessions, neuter, local),
+                new FbUnauth(io, sessions),
+                new FbAuth(io, sessions, passwordSupplier, luckyFew),
+                new Playlists(io, media),
+                new Resources(io),
+                new GUI(io, media, sessions));
     }
 
-    private static Nettish streamer(IO io, Media media, boolean neuter, boolean local) {
+    private static Nettish streamer(IO io, Media media, Sessions sessions, boolean neuter, boolean local) {
 
-        return neuter ? new NullStreamer(io, media)
-            : local ? new FileStreamer(io, media)
-            : new S3Streamer(io, media);
+        return neuter ? new NullStreamer(io, media, sessions)
+            : local ? new FileStreamer(io, media, sessions)
+            : new S3Streamer(io, media, sessions);
     }
 
     private static ServerBootstrap bootstrap(

@@ -2,7 +2,7 @@ package mediaserver;
 
 import mediaserver.externals.DiscogReleaseDigest;
 import mediaserver.externals.DiscogSeriesDigest;
-import mediaserver.externals.XmlMapParser;
+import mediaserver.externals.IOSMapParser;
 import mediaserver.externals.iTunesLibrary;
 import mediaserver.files.*;
 import mediaserver.util.IO;
@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface Media {
 
@@ -137,7 +138,8 @@ public interface Media {
 
         return (media, album) ->
             discogsData.getDiscogRelease(album).map(release -> {
-                AlbumContext context = Optional.ofNullable(release.getExtraartists()).stream()
+                AlbumContext context = Stream.of(release.getArtists(), release.getExtraartists())
+                    .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
                     .reduce(
                         new AlbumContext(
@@ -202,7 +204,7 @@ public interface Media {
     static iTunesLibrary iTunesLibrary(Path libraryPath) {
 
         try {
-            Map<String, ?> plist = IO.readStream(libraryPath, new XmlMapParser()::convert);
+            Map<String, ?> plist = IO.readStream(libraryPath, new IOSMapParser()::convert);
             return IO.OM.readerFor(iTunesLibrary.class)
                 .readValue(IO.OM.writerFor(Map.class)
                     .writeValueAsBytes(plist));

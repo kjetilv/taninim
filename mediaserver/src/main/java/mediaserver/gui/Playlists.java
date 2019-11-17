@@ -1,6 +1,7 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Media;
@@ -33,7 +34,7 @@ public class Playlists extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
         String resource = resource(path);
         if (resource.startsWith(ALBUM)) {
             return albumPlaylist(uuid(resource, ALBUM_PREAMBLE)).map(

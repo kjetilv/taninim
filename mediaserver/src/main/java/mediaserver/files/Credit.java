@@ -31,7 +31,7 @@ public class Credit implements Serializable {
 
     public String getSourceType() {
 
-        return sourceType;
+        return sourceType == null || sourceType.isBlank() ? null : sourceType;
     }
 
     public boolean isPerformer() {

@@ -16,99 +16,107 @@
 <SCRIPT SRC="/resources/connectfb.js">
 </SCRIPT>
 
-<div style="float: right">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="260" height="300">
-<path d="M22,87 130,275 238,87z" fill="none" stroke="lightblue" stroke-width="20" id="t"/>
-<use xlink:href="#t" transform="matrix(1,0,0,-1,0,300)"/>
-</svg>
-</div>
+<DIV STYLE="float: right">
+    <SVG xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" WIDTH="260" HEIGHT="300">
+        <PATH d="M22,87 130,275 238,87z" FILL="none" STROKE="lightblue" stroke-WIDTH="20" id="t"/>
+        <USE xlink:href="#t" TRANSFORM="matrix(1,0,0,-1,0,300)"/>
+    </SVG>
+</DIV>
 
 <H1>
     <A HREF="/">taninim</A>
 </H1>
+<DIV>
+    <P>
+    <P>Hello, {if(user)}{user.name}{else}stranger{endif}</P>
+    <P>
+        <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
+        <fb:login-button scope="public_profile" onlogin="checkLoginState();">
+        </fb:login-button>
+        {if(user)}&nbsp;<button id="fb-logout" onclick="dropLoginState();">
+        Logout
+    </button>
+        {endif}
 
-<div style="float:right">
+    </P>
+</DIV>
 
-    <H3>
+<DIV STYLE="float:right">
+
+    <H2>
         Series [{length(media.series)}]
-    </H3>
+    </H2>
 
     <UL>
         {media.series:{series|
         <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
         }}
     </UL>
-</div>
+</DIV>
 
 {if(artist)}
 <H2>Artist: {artist.name}
-    <A TITLE="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A></H2>
+    {if(user)}<A TITLE="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A>{endif}
+</H2>
 {else}
 {if(!media.categoryPath.root)}
 <H2>Category: {media.categoryPath.pathString}
-    <A TITLE="Playlist" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A></H2>
+    {if(user)}<A TITLE="Playlist" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A>{endif}
+</H2>
 {endif}
 {endif}
 
 <div>
-{if(media.subCategories)}
-<H3>Sub-categories [{length(media.topCategories)}]</H3>
-<UL>
-    {media.topCategories:{cat|
-    <LI>
-        <A HREF="/{cat.pathString}">📁</A> {cat.pathString}
-    </LI>
-    }}
-</UL>
-{endif}
+    {if(media.subCategories)}
+    <H3>Sub-categories [{length(media.topCategories)}]</H3>
+    <UL>
+        {media.topCategories:{cat|
+        <LI>
+            <A HREF="/{cat.pathString}">📁</A> {cat.pathString}
+        </LI>
+        }}
+    </UL>
+    {endif}
 </div>
 
 <div style="clear: both">
-<H3>
-    Albums [{length(media.albums)}]
-</H3>
+    <H3>
+        Albums [{length(media.albums)}]
+    </H3>
 
-<UL>
-    {media.albums:{album|
-    <LI>
-        <A ALT="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>
-        <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
-    </LI>
-    }}
-</UL>
+    <UL>
+        {media.albums:{album|
+        <LI>
+            {if(user)}<A ALT="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
+            <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
+        </LI>
+        }}
+    </UL>
 </div>
 
 <div style="clear: both">
-<H3>
-    Album artists [{length(media.allAlbumArtists)}]
-</H3>
+    <H3>
+        Album artists [{length(media.allAlbumArtists)}]
+    </H3>
 
-{media.artists:{artist|
-<SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
-}}
+    {media.artists:{artist|
+    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
+    }}
 </div>
 
 <div>
-<H3>
-    All performing artists [{length(media.allArtists)}]
-</H3>
+    <H3>
+        All performing artists [{length(media.allArtists)}]
+    </H3>
 
-{media.allArtists:{artist|
-<SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>] </SPAN>
-}}
+    {media.allArtists:{artist|
+    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>] </SPAN>
+    }}
 </div>
-<P>
-    <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
-    <fb:login-button scope="public_profile" onlogin="checkLoginState();">
-    </fb:login-button>
-</P>
 
-<FORM ID="fbauth" ACTION="/auth">
-    <INPUT TYPE="HIDDEN" ID="userID" VALUE=""></INPUT>
-    <INPUT TYPE="HIDDEN" ID="accessToken" VALUE=""></INPUT>
-    <INPUT TYPE="HIDDEN" ID="signedRequest" VALUE=""></INPUT>
-    <INPUT TYPE="HIDDEN" ID="timeoutInSeconds" VALUE=""></INPUT>
-</FORM>
+<SCRIPT>
+    checkLoginState();
+</SCRIPT>
 
 </BODY>
 

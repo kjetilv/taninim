@@ -1,7 +1,6 @@
 package flacsefugl
 
 import mediaserver.Media
-import mediaserver.files.Album
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,6 +14,8 @@ fun main() {
             "file://${System.getProperty("user.home")}/FLAC/John%20Zorn"))
     val m4aDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/M4A/John%20Zorn"))
+    val walkDir = Paths.get(URI.create(
+            "file:///Volumes/WALKMAN/MUSIC/John%20Zorn"))
     val included: (Path) -> Boolean = { path: Path ->
         val name = path.toString().toLowerCase()
         name.endsWith(".m4a") && (
@@ -31,6 +32,7 @@ fun main() {
                         artist(path) == "derek bailey" ||
                         artist(path) == "evan parker" ||
                         artist(path) == "ruins" ||
+                        artist(path) == "hemophiliac" ||
                         artist(path).contains("ruins") && artist(path).contains("derek") ||
                         artist(path).contains("bret higgins") ||
                         artist(path).contains("bill frisell") ||
@@ -72,24 +74,23 @@ fun main() {
         }
     }
 
+    if (Files.isDirectory(walkDir)) {
+        println("Copying to walkman @ $walkDir")
+        Traverser(flacDir).paths { path ->
+            path.toString().endsWith(".flac")
+        }.forEach { path ->
+            println("${walkDir.resolve(path)} ${walkDir.resolve(path).toFile().exists()}")
+        }
+    } else {
+        println("Walkman not connected @ $walkDir")
+    }
+
     val media = Media.local(
             Path.of(System.getProperty("user.home"), "FLAC"),
             Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml"),
             Path.of("mediaserver", "src", "main", "resources"));
 
     println("Media: $media")
-}
-
-fun setupMetaDirectory(target: Path, album: Album) {
-    val targetFile = target.toFile()
-    when {
-        targetFile.isDirectory ->
-            println("Found album context dir for ${album.artist.name}/${album.name}: ${targetFile.path}")
-        targetFile.mkdirs() ->
-            println("Created album context dir for ${album.artist.name}/${album.name}: ${targetFile.path}")
-        else ->
-            throw java.lang.IllegalStateException("Not a directory: $targetFile")
-    }
 }
 
 fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
@@ -128,7 +129,11 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
 
         Paths.get("Cobra") to albumContains("Cobra"),
 
+        Paths.get("The Hermetic Organ") to albumContains("Hermetic Organ"),
+
         Paths.get("John Zorn") to artistContains("John Zorn"),
+
+        Paths.get("John Zorn") to artistContains("Hemophiliac"),
 
         Paths.get("On Tzadik") to { path ->
             artist(path) == "makigami koichi" ||
@@ -138,7 +143,8 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
                     artist(path) == "evan parker" ||
                     artist(path).contains("bret higgins") ||
                     artist(path).contains("ratkje") ||
-                    artist(path) == "ruins"
+                    artist(path) == "ruins" ||
+                    artist(path).contains("ruins") && artist(path).contains("derek")
         },
 
         Paths.get("Various") to { _ ->

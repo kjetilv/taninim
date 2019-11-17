@@ -3,12 +3,14 @@ package mediaserver.gui;
 import io.minio.ObjectStat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Media;
 import mediaserver.files.Track;
+import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
 
@@ -17,9 +19,9 @@ import java.util.UUID;
 
 public final class S3Streamer extends AbstractStreamer {
 
-    public S3Streamer(IO io, Media media) {
+    public S3Streamer(IO io, Media media, Sessions sessions) {
 
-        super(io, media);
+        super(io, media, sessions);
     }
 
     @Override
@@ -35,16 +37,10 @@ public final class S3Streamer extends AbstractStreamer {
         if (rangeHeader != null && rangeHeader.length() > 0) {
             writePartial(ctx, uuid, audioType, fileLength, response, rangeHeader);
         } else {
-            HttpUtil.setContentLength(response, fileLength);
-            ctx.write(response);
+            writeLength(ctx, response, fileLength);
         }
 
-        ChannelFuture lastContentFuture =
-            ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-        if (!HttpUtil.isKeepAlive(req)) {
-            lastContentFuture.addListener(ChannelFutureListener.CLOSE);
-        }
-        return response;
+        return respondStream(req, ctx, response);
     }
 
     private long length(UUID uuid, String type) {

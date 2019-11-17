@@ -17,6 +17,7 @@ dependencies {
     implementation("software.amazon.awssdk:s3")
 
     implementation("org.gagravarr", "vorbis-java-core", "0.8")
+    implementation("com.restfb", "restfb", "3.0.0-RC.2")
     implementation("io.netty", "netty-all", "4.1.41.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.antlr:ST4:4.1")

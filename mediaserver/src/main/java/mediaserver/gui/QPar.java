@@ -17,11 +17,11 @@ public enum QPar {
 
     SERIES,
 
-    CATEGORY,
-
     PLAY_TRACK("playTrack"),
 
-    HOST;
+    HOST,
+
+    USER;
 
     private final String name;
 

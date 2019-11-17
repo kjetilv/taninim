@@ -1,3 +1,5 @@
+
+
 package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
@@ -7,6 +9,7 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
 import mediaserver.Media;
 import mediaserver.files.Track;
+import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 
 import java.io.File;
@@ -16,9 +19,9 @@ import java.io.RandomAccessFile;
 
 public final class FileStreamer extends AbstractStreamer {
 
-    public FileStreamer(IO io, Media media) {
+    public FileStreamer(IO io, Media media, Sessions sessions) {
 
-        super(io, media);
+        super(io, media, sessions);
     }
 
     @Override
@@ -36,16 +39,10 @@ public final class FileStreamer extends AbstractStreamer {
                 .addListener(new ProgressListener(
                     track.getArtist().getName() + ": " + track.getName() + " [" + track.getAlbum() + "]"));
         } else {
-            HttpUtil.setContentLength(response, fileLength);
-            ctx.write(response);
+            writeLength(ctx, response, fileLength);
         }
 
-        ChannelFuture lastContentFuture =
-            ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-        if (!HttpUtil.isKeepAlive(req)) {
-            lastContentFuture.addListener(ChannelFutureListener.CLOSE);
-        }
-        return response;
+        return respondStream(req, ctx, response);
     }
 
     private static RandomAccessFile randomAccess(File file) {

@@ -57,23 +57,28 @@ public class CloudMedia {
     public static void uploadMissingRemote(
         MinioClient s3,
         Map<String, Long> remoteSizes,
-        File localFile
+        File localFile,
+        Predicate<Track> alsoInclude
     ) {
 
         Track track = new Track(localFile);
         String remoteFlac = track.getUuid() + ".flac";
         String remoteM4a = track.getUuid() + ".m4a";
 
-        Optional<Long> remoteFlacSizes =
+        Predicate<Track> neverHeardOfIt = alsoInclude.negate();
+
+        Optional<Long> remoteFlacSize =
             Optional.ofNullable(remoteSizes.get(remoteFlac))
-                .filter(size -> size == localFile.length());
+                .filter(size ->
+                    size == localFile.length() || neverHeardOfIt.test(track));
 
         File localCompressedFile = track.getCompressedFile();
-        Optional<Long> remoteM4aSizes =
+        Optional<Long> remoteM4aSize =
             Optional.ofNullable(remoteSizes.get(remoteM4a))
-                .filter(size -> size == localCompressedFile.length());
+                .filter(size -> size == localCompressedFile.length() || neverHeardOfIt.test(track));
 
-        remoteFlacSizes.ifPresentOrElse(
+
+        remoteFlacSize.ifPresentOrElse(
             size ->
                 log.info("Already present with {} bytes: {}/{}/{} / {}",
                     size, track.getArtist().getName(), track.getAlbum(), track.getName(),
@@ -85,7 +90,7 @@ public class CloudMedia {
                 put(s3, localFile, remoteFlac);
             });
 
-        remoteM4aSizes.ifPresentOrElse(
+        remoteM4aSize.ifPresentOrElse(
             size ->
                 log.info("Already present with {} bytes: {}/{}/{} / {}",
                     size, track.getArtist().getName(), track.getAlbum(), track.getName(),
@@ -97,17 +102,6 @@ public class CloudMedia {
                     remoteM4a);
                 put(s3, localCompressedFile, remoteCompressed);
             });
-    }
-
-    public static File localCompressed(File localFile) {
-
-        try {
-            return new File(localFile.getCanonicalPath()
-                .replaceAll("FLAC", "M4A")
-                .replaceAll(".flac", ".m4a"));
-        } catch (IOException e) {
-            throw new IllegalStateException("Unhandled compressed file: " + localFile, e);
-        }
     }
 
     public static void put(MinioClient s3, File localFile, String remoteName) {
@@ -211,25 +205,31 @@ public class CloudMedia {
         }
     }
 
-    private static void main(String root, String library, String resources) {
+    private static void main(String root, String library, String resources, String... albumIncludes) {
 
         Media media = Media.local(root, library, resources);
         File mediaFile = serialize(media);
-        String m4aRoot = new File(new File(root).getParentFile().getParentFile(), "M4A").getAbsolutePath();
         S3.get().ifPresent(s3 -> {
             Map<String, Long> remoteSizes = remoteFiles(s3);
             localFiles(root, ".flac").forEach(localFile -> {
-                uploadMissingRemote(s3, remoteSizes, localFile);
+                uploadMissingRemote(
+                    s3,
+                    remoteSizes,
+                    localFile,
+                    track ->
+                        Arrays.stream(albumIncludes).anyMatch(inc ->
+                            track.getAlbum().toLowerCase().contains(inc)));
             });
 
             List<String> removables = redundantRemotes(".flac", root, remoteSizes);
             if (!removables.isEmpty()) {
                 removeRedundantRemotes(s3, removables);
             }
-//            List<String> removableM4as = redundantRemotes(".m4a", m4aRoot, remoteSizes);
-//            if (!removables.isEmpty()) {
-//                removeRedundantRemotes(s3, removableM4as);
-//            }
+            String m4aRoot = new File(new File(root).getParentFile().getParentFile(), "M4A").getAbsolutePath();
+            List<String> removableM4as = redundantRemotes(".m4a", m4aRoot, remoteSizes);
+            if (!removables.isEmpty()) {
+                removeRedundantRemotes(s3, removableM4as);
+            }
             System.out.println("Refreshing media");
             uploadMediaSer(media, mediaFile, s3);
         });

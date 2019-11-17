@@ -24,31 +24,34 @@
 
 <H1><A HREF="/">taninim</A></H1>
 
-
-<div style="float: right">
+<DIV STYLE="float: right">
     {if(album.series)}
-<H3>Series</H3>
+    <H3>Series</H3>
 
-<UL>
-    {album.series:{series|
-    <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
-    }}
-</UL>
-{endif}
-</div>
+    <UL>
+        {album.series:{series|
+        <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
+        }}
+    </UL>
+    {endif}
+</DIV>
 
 <H2><A HREF="/{cat.pathString}">{album.categoryPath.pathString}</A></H2>
 
-<H3>{album.artist.name}: <EM>{album.name}</EM> <A HREF="/playlist/album/{album.uuid}">⏬</A></H3>
+<H3>{album.artist.name}: <EM>{album.name}</EM>
+    {if(user)}<A HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
+</H3>
 
+{if(user)}
 {if(playTrack)}
 <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist.name}</em></P>
 <AUDIO id="player" controls autoplay data-plyr-config='\{ "autoplay": true, "autopause": true }'>
     <SOURCE src="/audio/{playTrack.uuid}.m4a" type="audio/aac"/>
 </AUDIO>
 {endif}
+{endif}
 
-<div>
+<DIV>
 
     <H3>Tracks</H3>
 
@@ -60,12 +63,12 @@
 
             {track.name}
             {track.prettyDuration}
-            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>
+            {if(user)}<A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>{endif}
             {if(track.otherArtist.present)}
             <UL>
                 <LI>
                     [<A HREF="/?artist={track.otherArtistPresent.uuid}">{track.otherArtistPresent.name}</A>&nbsp;
-                    <A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>]
+                    {if(user)}<A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>{endif}]
                 </LI>
             </UL>
             {endif}
@@ -73,15 +76,15 @@
         }}
     </OL>
     }}
-</div>
+</DIV>
 
-<div style="clear: both">
+<DIV STYLE="clear: both">
     {if(album.additionalArtists)}
     <H3>Artists</H3>
 
     {album.artists:{artist|
-    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A
-            HREF="/playlist/artist/{artist.uuid}">⏬</A>]</SPAN>
+    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;
+        {if(user)}<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]{endif}</SPAN>
     }}
     {endif}
 
@@ -89,34 +92,33 @@
     <SCRIPT>
         const player = new plyr('#player');
     </SCRIPT>
-</div>
+</DIV>
 
 {if(album.context.credits.credits)}
-
-<div style="float: right">
+<DIV STYLE="float: right">
     <H3>Other credits</H3>
 
     <UL>
         {album.context.credits.otherCredits:{credit |
-        <LI>{credit.sourceType}: {credit.name}</LI>
+        <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}{credit.name}</LI>
         }}
     </UL>
-</div>
-<div>
+</DIV>
+<DIV>
     <H3>Artist credits</H3>
 
     <UL>
         {album.context.credits.artistCredits:{credit |
-        <LI>{credit.sourceType}:
-            [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A
-                    HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+        <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
+            [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
+            &nbsp;{if(user)}<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>{endif}]
         </LI>
         }}
     </UL>
-</div>
+</DIV>
 {endif}
 
-<div>
+<DIV>
     {if(album.context.additionalTrackContext)}
 
     <H3>Track details</H3>
@@ -126,24 +128,24 @@
         <LI>{trackContext.position} {trackContext.title}
             <UL>
                 {trackContext.credits.artistCredits:{credit |
-                <LI>{credit.sourceType}:
-                    [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>&nbsp;<A
-                            HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+                <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
+                    [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
+                    {if(user)}nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>{endif}]
                 </LI>
                 }}
             </UL>
             <UL>
                 {trackContext.credits.otherCredits:{credit |
-                <LI>{credit.sourceType}: {credit.name}</LI>
+                <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}{credit.name}</LI>
                 }}
             </UL>
         </LI>
         }}
     </UL>
     {endif}
-</div>
+</DIV>
 
-<div style="float: right">
+<DIV STYLE="float: right">
     <H2>Info</H2>
 
     {if(album.context.notes)}
@@ -154,23 +156,18 @@
         {endif}
 
 
-    {if(album.context.year)}
+        {if(album.context.year)}
     <P>Released {album.context.year.value}
         {endif}
-</div>
+</DIV>
 
-<P>
-    <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
-    <fb:login-button scope="public_profile" onlogin="checkLoginState();">
-    </fb:login-button>
-</P>
-
-<FORM ID="fbauth" ACTION="/fbauth">
-    <INPUT TYPE="HIDDEN" ID="userID" VALUE=""></INPUT>
-    <INPUT TYPE="HIDDEN" ID="accessToken" VALUE=""></INPUT>
-    <INPUT TYPE="HIDDEN" ID="signedRequest" VALUE=""></INPUT>
-    <INPUT TYPE="HIDDEN" ID="timeoutInSeconds" VALUE=""></INPUT>
-</FORM>
+<DIV style="clear: both">
+    <P>
+        <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
+        <fb:login-button scope="public_profile" onlogin="checkLoginState();">
+        </fb:login-button>
+    </P>
+</DIV>
 
 </BODY>
 

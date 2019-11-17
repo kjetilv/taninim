@@ -1,47 +1,142 @@
 package mediaserver.gui;
 
+import com.restfb.*;
+import com.restfb.types.User;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import mediaserver.externals.FacebookAuthResponse;
+import mediaserver.externals.FacebookUser;
+import mediaserver.sessions.Session;
+import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class FbAuth extends Nettish {
 
-    public FbAuth(IO io) {
+    private static final Logger log = LoggerFactory.getLogger(FbAuth.class);
+
+    private static final Clock CLOCK = Clock.system(ZoneId.of("CET"));
+
+    private static final Charset UTF_8 = StandardCharsets.UTF_8;
+
+    private final Sessions sessions;
+
+    private final Supplier<char[]> appSecret;
+
+    private final Map<String, String> ids;
+
+    private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
+
+    public FbAuth(
+        IO io,
+        Sessions sessions,
+        Supplier<char[]> appSecret,
+        Map<String, String> ids
+    ) {
 
         super(io, "/auth");
+
+        this.sessions = sessions;
+        this.appSecret = appSecret;
+        this.ids = ids;
     }
 
     @Override
-    public HttpResponse handle(HttpRequest req, String path, ChannelHandlerContext ctx) {
+    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(req);
-        try {
-
-            List<InterfaceHttpData> bodyHttpDatas = decoder.getBodyHttpDatas();
-
-            System.out.println(bodyHttpDatas.size());
-
-            return respond(ctx, path, HttpResponseStatus.BAD_REQUEST);
-        } finally {
-            decoder.destroy();
-        }
+        return sessions.activeUser(req).map(user ->
+            respond(ctx, path, HttpResponseStatus.OK)
+        ).orElseGet(() ->
+            facebookUser(req)
+                .map(facebookUser ->
+                    login(path, ctx, facebookUser))
+                .orElseGet(() ->
+                    super.handle(req, path, ctx)));
     }
 
-    private enum FPar {
+    private static HttpResponse logout(String path, ChannelHandlerContext ctx) {
 
-        userID,
-
-        accessToken,
-
-        signedRequest,
-
-        timeoutInSeconds;
+        return respond(ctx, path, logoutCoookieResponse());
     }
+
+    private HttpResponse login(String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
+
+        return recognizedUsers()
+            .filter(entry ->
+                entry.getValue().equalsIgnoreCase(facebookUser.getId()))
+            .findFirst()
+            .map(entry ->
+                resolveSession(path, ctx, facebookUser, entry))
+            .orElseGet(() ->
+                unprocessed(path, ctx, facebookUser));
+    }
+
+    private Stream<Map.Entry<String, String>> recognizedUsers() {
+
+        return ids.entrySet().stream();
+    }
+
+    private HttpResponse resolveSession(
+        String path,
+        ChannelHandlerContext ctx,
+        FacebookUser facebookUser,
+        Map.Entry<String, String> e
+    ) {
+
+        Session session = sessions.sessionUp(facebookUser);
+        log.info("{} logged in {}! [{}/{}]", e.getKey(), session, facebookUser.getName(), facebookUser.getId());
+        return respond(ctx, path, sessionCoookieResponse(session));
+    }
+
+    private Optional<FacebookUser> facebookUser(FullHttpRequest req) {
+
+        return Optional.of(req.content())
+            .map(content ->
+                content.toString(StandardCharsets.UTF_8))
+            .map(json -> {
+                String input = req.content().toString(StandardCharsets.UTF_8);
+                FacebookAuthResponse authResponse = IO.readJson(FacebookAuthResponse.class, input);
+                FacebookClient fc = facebookClient(authResponse);
+                User user = fc.fetchObject(authResponse.getUserID(), User.class);
+                return new FacebookUser(user.getName(), user.getId());
+            });
+    }
+
+    private FacebookClient facebookClient(FacebookAuthResponse authResponse) {
+
+        return new DefaultFacebookClient(
+            authResponse.getAccessToken(),
+            new String(appSecret.get()),
+            new DefaultWebRequestor(),
+            new DefaultJsonMapper(),
+            Version.LATEST);
+    }
+
+    private static HttpResponse unprocessed(String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
+
+        log.warn("Unknown user logged in: {}/{}", facebookUser.getName(), facebookUser.getId());
+        return respond(ctx, path, HttpResponseStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    private static HttpResponse sessionCoookieResponse(Session session) {
+
+        return cookieResponse(cookie(session));
+    }
+
+    private static HttpResponse logoutCoookieResponse() {
+
+        return cookieResponse(cookie(null));
+    }
+
 }

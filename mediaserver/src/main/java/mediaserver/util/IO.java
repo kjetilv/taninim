@@ -63,6 +63,20 @@ public final class IO {
         return tryReadStream(uri, readMapFrom(uri));
     }
 
+    public static Map<String, String> readResource(String resource) {
+
+        return Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource))
+            .map(res ->
+                readMapFrom(resource).apply(res))
+            .map(map ->
+                map.entrySet().stream().collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> e.getValue().toString()
+                )))
+            .orElseThrow(() ->
+                new IllegalArgumentException("No resource found @ " + resource));
+    }
+
     public static <T> T readStream(Path path, Function<InputStream, T> receptor) {
 
         try (InputStream fos = new BufferedInputStream(new FileInputStream(path.toFile()))) {
@@ -72,7 +86,44 @@ public final class IO {
         }
     }
 
-    public static <T> T tryReadStream(URI uri, Function<InputStream, T> receptor) {
+    public Optional<String> read(String resource) {
+
+        return readBytes(resource)
+            .map(bytes -> new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    public Optional<byte[]> readBytes(String resource) {
+
+        return readStream(resource)
+            .map(stream -> {
+                byte[] buf = new byte[8192];
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    return readTo(stream, buf, baos);
+                } catch (Exception e) {
+                    throw new IllegalStateException("Failed to read " + resource, e);
+                }
+            });
+    }
+
+    public static <T> T readJson(Class<T> type, String input) {
+
+        try {
+            return OM.readerFor(type).readValue(input);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to read " + type, e);
+        }
+    }
+
+    public static <T> T readJson(Class<T> type, byte[] bytes) {
+
+        try {
+            return OM.readerFor(type).readValue(bytes);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to read " + type, e);
+        }
+    }
+
+    private static <T> T tryReadStream(URI uri, Function<InputStream, T> receptor) {
 
         HttpURLConnection urlConnection;
         try {
@@ -102,25 +153,6 @@ public final class IO {
         } finally {
             urlConnection.disconnect();
         }
-    }
-
-    public Optional<String> read(String resource) {
-
-        return readBytes(resource)
-            .map(bytes -> new String(bytes, StandardCharsets.UTF_8));
-    }
-
-    public Optional<byte[]> readBytes(String resource) {
-
-        return readStream(resource)
-            .map(stream -> {
-                byte[] buf = new byte[8192];
-                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    return readTo(stream, buf, baos);
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to read " + resource, e);
-                }
-            });
     }
 
     private static String error(InputStream fos) {

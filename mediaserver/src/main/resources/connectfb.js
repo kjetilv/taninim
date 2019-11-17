@@ -1,26 +1,50 @@
 function checkLoginState() {
     FB.getLoginStatus(function (response) {
             if (response.status === 'connected') {
-                const authResponse = response.authResponse;
-                const accessToken = authResponse.accessToken;
-                const userID = authResponse.userID;
-                const signedRequest = authResponse.signedRequest;
-                const timeoutInSeconds = authResponse.expiresIn;
-
-                document.querySelector(
-                    '#fbauth input[id="userID"]').value = userID;
-                document.querySelector(
-                    '#fbauth input[id="accessToken"]').value = accessToken;
-                document.querySelector(
-                    '#fbauth input[id="signedRequest"]').value = signedRequest;
-                document.querySelector(
-                    '#fbauth input[id="timeoutInSeconds"]').value = timeoutInSeconds;
-                document.querySelector(
-                    '#fbauth').submit();
-
+                handleConnected(response.authResponse)
             } else {
-                alert("Login failed!")
+                FB.login(function (response) {
+                    if (response.status === 'connected') {
+                        handleConnected(response.authResponse);
+                    } else {
+                        alert("Login failed!")
+                    }
+                });
             }
         }
     );
+}
+
+function dropLoginState() {
+    FB.logout(function (response) {
+    });
+    postData('/auth', "");
+    alert("Goodbye");
+}
+
+function openEscapeHatch() {
+    document.getElementById('fb-logout').style = 'display: block';
+}
+
+async function handleConnected(authResponse) {
+    let response = await postData('/auth', authResponse);
+    if (response.status === 200 && response.text && response.text()) {
+        Location.reload(false);
+    } else {
+        alert('General Error: Major Malfunction [Colonel panic]');
+    }
+}
+
+async function postData(url = '', data = {}) {
+    return await fetch(url, {
+        method: 'POST',
+        mode: 'same-origin',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'error',
+        body: JSON.stringify(data)
+    });
 }
