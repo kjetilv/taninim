@@ -128,13 +128,18 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             ctx.write(res);
             return res;
         }
-        return nettishes.stream()
-            .filter(nettish ->
-                nettish.shouldHandle(path))
-            .findFirst()
-            .map(nettish ->
-                nettish.handle(req, path, ctx))
-            .orElseGet(
-                reset(ctx));
+        try {
+            return nettishes.stream()
+                .filter(nettish ->
+                    nettish.shouldHandle(path))
+                .findFirst()
+                .map(nettish ->
+                    nettish.handle(req, path, ctx))
+                .orElseGet(
+                    reset(ctx));
+        } catch (Exception e) {
+            log.error("Failed: {}", req, e);
+            return Nettish.respond(ctx, "", INTERNAL_SERVER_ERROR);
+        }
     }
 }

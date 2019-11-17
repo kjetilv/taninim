@@ -81,11 +81,6 @@ public abstract class Nettish {
             .findFirst();
     }
 
-    public static Optional<UUID> authToken(HttpRequest req) {
-
-        return qpars(req.uri()).apply(QPar.USER);
-    }
-
     String resource(String path) {
 
         return path.substring(getPrefix(path).length());

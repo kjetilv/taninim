@@ -66,8 +66,7 @@ public class Sessions {
 
     private Optional<Session> activeSession(HttpRequest req) {
 
-        return Nettish.authCookie(req).or(() -> Nettish.authToken(req))
-            .flatMap(this::session);
+        return Nettish.authCookie(req).flatMap(this::session);
     }
 
     private Session resolve(FacebookUser facebookUser, Session oldSession) {

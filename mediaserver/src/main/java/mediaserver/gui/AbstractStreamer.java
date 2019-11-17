@@ -50,7 +50,7 @@ public abstract class AbstractStreamer extends Nettish {
     @Override
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        return activeUserByCookie(req).or(() -> activeUserByPath(req))
+        return activeUserByCookie(req)
             .map(user ->
                 getMediaTrack(resource(path))
                     .map(track ->
@@ -64,11 +64,6 @@ public abstract class AbstractStreamer extends Nettish {
     public Optional<String> activeUserByCookie(FullHttpRequest req) {
 
         return authCookie(req).flatMap(sessions::activeUser);
-    }
-
-    public Optional<String> activeUserByPath(FullHttpRequest req) {
-
-        return authToken(req).flatMap(sessions::activeUser);
     }
 
     static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {
