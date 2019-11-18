@@ -35,11 +35,6 @@
         <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
         <fb:login-button scope="public_profile" onlogin="checkLoginState();">
         </fb:login-button>
-        {if(user)}&nbsp;<button id="fb-logout" onclick="dropLoginState();">
-        Logout
-    </button>
-        {endif}
-
     </P>
 </DIV>
 
@@ -57,13 +52,15 @@
 </DIV>
 
 {if(artist)}
-<H2>Artist: {artist.name}
-    {if(user)}<A TITLE="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A>{endif}
+<H2>Artist: {artist.name}{if(user)}
+    <A TITLE="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A>
+    {endif}
 </H2>
 {else}
 {if(!media.categoryPath.root)}
-<H2>Category: {media.categoryPath.pathString}
-    {if(user)}<A TITLE="Playlist" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A>{endif}
+<H2>Category: {media.categoryPath.pathString}{if(user)}
+    <A TITLE="Playlist" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A>
+    {endif}
 </H2>
 {endif}
 {endif}
@@ -115,10 +112,6 @@
     <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>] </SPAN>
     }}
 </div>
-
-<SCRIPT>
-    checkLoginState();
-</SCRIPT>
 
 </BODY>
 

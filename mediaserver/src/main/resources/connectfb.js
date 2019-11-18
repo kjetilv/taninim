@@ -1,29 +1,11 @@
 function checkLoginState() {
-    FB.getLoginStatus(function (response) {
+    FB.getLoginStatus(
+        function (response) {
             if (response.status === 'connected') {
                 handleConnected(response.authResponse)
-            } else {
-                FB.login(function (response) {
-                    if (response.status === 'connected') {
-                        handleConnected(response.authResponse);
-                    } else {
-                        alert("Login failed!")
-                    }
-                });
             }
         }
     );
-}
-
-function dropLoginState() {
-    FB.logout(function (response) {
-    });
-    postData('/auth', "");
-    alert("Goodbye");
-}
-
-function openEscapeHatch() {
-    document.getElementById('fb-logout').style = 'display: block';
 }
 
 async function handleConnected(authResponse) {

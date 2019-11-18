@@ -72,6 +72,8 @@ public class Credit implements Serializable {
 
         mastered_by,
 
+        remastered_by,
+
         engineer,
 
         executive,

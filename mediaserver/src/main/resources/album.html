@@ -38,6 +38,10 @@
     {endif}
 </DIV>
 
+<P>
+<P>Hello, {if(user)}{user.name}{else}stranger{endif}</P>
+<P>
+
 <H2><A HREF="/{cat.pathString}">{album.categoryPath.pathString}</A></H2>
 
 <H3>{album.artist.name}: <EM>{album.name}</EM>
@@ -69,8 +73,9 @@
             {if(track.otherArtist.present)}
             <UL>
                 <LI>
-                    [<A HREF="/?artist={track.otherArtistPresent.uuid}">{track.otherArtistPresent.name}</A>&nbsp;
-                    {if(user)}<A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>{endif}]
+                    [<A HREF="/?artist={track.otherArtistPresent.uuid}">{track.otherArtistPresent.name}</A>{if(user)}
+                    &nbsp;<A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>
+                    {endif}]
                 </LI>
             </UL>
             {endif}
@@ -85,8 +90,9 @@
     <H3>Artists</H3>
 
     {album.artists:{artist|
-    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;
-        {if(user)}<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]{endif}</SPAN>
+    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>{if(user)}
+        &nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>
+        {endif}]</SPAN>
     }}
     {endif}
 
@@ -112,8 +118,9 @@
     <UL>
         {album.context.credits.artistCredits:{credit |
         <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
-            [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
-            &nbsp;{if(user)}<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>{endif}]
+            [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>{if(user)}
+            &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
+            {endif}]
         </LI>
         }}
     </UL>
@@ -131,8 +138,9 @@
             <UL>
                 {trackContext.credits.artistCredits:{credit |
                 <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
-                    [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
-                    {if(user)}nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>{endif}]
+                    [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>{if(user)}
+                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
+                    {endif}]
                 </LI>
                 }}
             </UL>
@@ -161,14 +169,6 @@
         {if(album.context.year)}
     <P>Released {album.context.year.value}
         {endif}
-</DIV>
-
-<DIV style="clear: both">
-    <P>
-        <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
-        <fb:login-button scope="public_profile" onlogin="checkLoginState();">
-        </fb:login-button>
-    </P>
 </DIV>
 
 </BODY>
