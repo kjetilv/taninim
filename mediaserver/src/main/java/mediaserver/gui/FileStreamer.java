@@ -16,10 +16,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.function.Supplier;
 
 public final class FileStreamer extends AbstractStreamer {
 
-    public FileStreamer(IO io, Media media, Sessions sessions) {
+    public FileStreamer(IO io, Supplier<Media> media, Sessions sessions) {
 
         super(io, media, sessions);
     }

@@ -10,10 +10,8 @@ function checkLoginState() {
 
 async function handleConnected(authResponse) {
     let response = await postData('/auth', authResponse);
-    if (response.status === 200 && response.text && response.text()) {
-        Location.reload(false);
-    } else {
-        alert('General Error: Major Malfunction [Colonel panic]');
+    if (response.status === 200) {
+        location.reload();
     }
 }
 

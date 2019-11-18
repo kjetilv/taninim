@@ -15,6 +15,8 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
+import mediaserver.util.OnceEvery;
+import mediaserver.util.UpdateDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,8 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class Main {
@@ -41,6 +45,8 @@ public class Main {
 
     private static final String FB_SEC = "fbSec";
 
+    private static final Duration REFRESH_TIME = Duration.ofMinutes(5);
+
     public static void main(String[] args) {
 
         boolean dev = dev();
@@ -48,12 +54,20 @@ public class Main {
         boolean neuter = !(live || dev);
         boolean ssl = dev || local(args);
 
-        log.info("Running in {}{} mode, streaming {}abled",
+        log.info(
+            "Running in {}{} mode, streaming {}abled",
             local(args) ? "local" : "cloud",
             dev ? " dev" : "",
             neuter ? "dis" : "en");
 
-        Media media = retrieveMedia(args);
+        OnceEvery onceEvery = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
+
+        BooleanSupplier shouldRefresh = local(args)
+            ? () -> true
+            : new UpdateDetector(CloudMedia::lastUpdatedMedia);
+
+        Supplier<Media> media =
+            onceEvery.interval(REFRESH_TIME).when(shouldRefresh).get(() -> retrieveMedia(args));
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
@@ -135,7 +149,7 @@ public class Main {
 
     private static Supplier<Router> routerSupplier(
         IO io,
-        Media media,
+        Supplier<Media> media,
         boolean neuter,
         boolean local,
         Map<String, String> luckyFew
@@ -155,7 +169,7 @@ public class Main {
                 new GUI(io, media, sessions));
     }
 
-    private static Nettish streamer(IO io, Media media, Sessions sessions, boolean neuter, boolean local) {
+    private static Nettish streamer(IO io, Supplier<Media> media, Sessions sessions, boolean neuter, boolean local) {
 
         return neuter ? new NullStreamer(io, media, sessions)
             : local ? new FileStreamer(io, media, sessions)

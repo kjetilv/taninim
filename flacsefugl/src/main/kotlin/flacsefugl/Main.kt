@@ -49,14 +49,14 @@ fun main() {
             Traverser(rootDir),
             included)
 
-    flacConversion.convert("flac") { source, target ->
-        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
-        true
-    }
+//    flacConversion.convert("flac") { source, target ->
+//        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
+//        true
+//    }
 
     flacConversion.convert("flac") { source, target ->
         if (Files.isRegularFile(target) && Files.size(target) > 0) {
-            println("Not converting, already done: $target")
+//            println("Not converting, already done: $target")
             true
         } else {
             ffmpeg(source, target).await()
@@ -69,7 +69,7 @@ fun main() {
             included)
     m4aConversion.convert("m4a") { source, target ->
         if (Files.isRegularFile(target) && Files.size(target) > 0) {
-            println("Not converting, already done: $target")
+//            println("Not converting, already done: $target")
             true
         } else {
             ffmpegM4a(source, target).await()
@@ -83,11 +83,12 @@ fun main() {
         }.forEach { path ->
             val walkFlac = walkDir.resolve(flacDir.relativize(path))
             if (Files.exists(walkFlac) && Files.size(walkFlac) == Files.size(path)) {
-                println("Already walkin: $path")
+//                println("Already walkin: $path")
             } else {
                 val dir = walkFlac.toFile().parentFile
                 if (dir.isDirectory || dir.mkdirs()) {
-                    Files.copy(path, walkFlac, StandardCopyOption.COPY_ATTRIBUTES)
+                    println("Now walkin: $path")
+                    Files.copy(path, walkFlac, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING)
                 } else {
                     throw IllegalStateException("Bad target: " + dir)
                 }

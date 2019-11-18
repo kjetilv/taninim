@@ -1,6 +1,7 @@
 package mediaserver;
 
 import io.minio.MinioClient;
+import io.minio.ObjectStat;
 import io.minio.Result;
 import io.minio.messages.DeleteError;
 import io.minio.messages.Item;
@@ -12,6 +13,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -79,10 +83,11 @@ public class CloudMedia {
 
 
         remoteFlacSize.ifPresentOrElse(
-            size ->
-                log.info("Already present with {} bytes: {}/{}/{} / {}",
-                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
-                    remoteFlac),
+            size -> {
+//                log.info("Already present with {} bytes: {}/{}/{} / {}",
+//                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
+//                    remoteFlac)
+            },
             () -> {
                 log.info("Uploading {} bytes: {}/{}/{} => {}",
                     localFile.length(), track.getArtist().getName(), track.getAlbum(), track.getName(),
@@ -91,10 +96,11 @@ public class CloudMedia {
             });
 
         remoteM4aSize.ifPresentOrElse(
-            size ->
-                log.info("Already present with {} bytes: {}/{}/{} / {}",
-                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
-                    remoteM4a),
+            size -> {
+//                log.debug("Already present with {} bytes: {}/{}/{} / {}",
+//                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
+//                    remoteM4a);
+            },
             () -> {
                 String remoteCompressed = remoteFlac.replaceAll(".flac", ".m4a");
                 log.info("Uploading {} bytes: {}/{}/{} => {}",
@@ -175,6 +181,20 @@ public class CloudMedia {
             throw new IllegalStateException("Failed upload: " + media, e);
 
         }
+    }
+
+    public static Instant lastUpdatedMedia() {
+
+        return S3.get().map(s3 -> {
+            ObjectStat objectStat = null;
+            try {
+                objectStat = s3.statObject(S3.BUCKET, MEDIA_SER);
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed", e);
+            }
+            return objectStat.createdTime().toInstant();
+        }).orElseThrow(() ->
+            new IllegalStateException("Failed to stat media"));
     }
 
     static Media download() {

@@ -14,18 +14,19 @@ import mediaserver.util.IO;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Supplier;
 
 public class GUI extends Nettish {
 
     public static final String TANINIM_ID = "taninim-id";
 
-    private final Media media;
+    private final Supplier<Media> media;
 
     private final Sessions sessions;
 
     private static final String TEXT_HTML = "text/html";
 
-    public GUI(IO io, Media media, Sessions sessions) {
+    public GUI(IO io, Supplier<Media> media, Sessions sessions) {
 
         super(io, "/");
         this.media = media;
@@ -35,7 +36,7 @@ public class GUI extends Nettish {
     @Override
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        Template template = template(req, resource(path), this.media);
+        Template template = template(req, resource(path), media.get());
         return respond(
             ctx,
             path,

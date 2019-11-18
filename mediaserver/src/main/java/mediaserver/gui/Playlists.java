@@ -2,15 +2,18 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Media;
-import mediaserver.files.*;
+import mediaserver.files.Album;
+import mediaserver.files.Artist;
+import mediaserver.files.Playlist;
+import mediaserver.files.Track;
 import mediaserver.util.IO;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 
@@ -24,11 +27,11 @@ public class Playlists extends Nettish {
 
     private static final int ARTIST_PREAMBLE = ARTIST.length();
 
-    private final Media media;
+    private final Supplier<Media> media;
 
     private static final String AUDIO_MPEGURL = "audio/mpegurl";
 
-    public Playlists(IO io, Media media) {
+    public Playlists(IO io, Supplier<Media> media) {
         super(io, "/playlist");
         this.media = media;
     }
@@ -58,15 +61,17 @@ public class Playlists extends Nettish {
     }
 
     private Optional<Template> albumPlaylist(UUID albumUUID) {
-        return media.getAlbum(albumUUID).map(this::playlist);
+        return media.get().getAlbum(albumUUID).map(this::playlist);
     }
 
     private Optional<Template> artistPlaylist(UUID artistUUID) {
-        return media.getArtist(artistUUID).map(media::getTracksBy)
+
+        Media currentMedia = this.media.get();
+        return currentMedia.getArtist(artistUUID).map(currentMedia::getTracksBy)
             .filter(tracks ->
                 !tracks.isEmpty())
             .flatMap(tracks ->
-                media.getArtist(artistUUID).map(a ->
+                currentMedia.getArtist(artistUUID).map(a ->
                     this.playlist(a, tracks)));
     }
 

@@ -5,9 +5,7 @@ window.fbAsyncInit = function () {
         xfbml: true,
         version: 'v5.0'
     });
-
-    FB.AppEvents.logPageView();
-
+    // FB.AppEvents.logPageView();
 };
 
 (function (d, s, id) {

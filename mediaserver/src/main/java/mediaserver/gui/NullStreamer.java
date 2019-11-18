@@ -8,9 +8,11 @@ import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 
+import java.util.function.Supplier;
+
 public class NullStreamer extends AbstractStreamer {
 
-    public NullStreamer(IO io, Media media, Sessions sessions) {
+    public NullStreamer(IO io, Supplier<Media> media, Sessions sessions) {
 
         super(io, media, sessions);
     }

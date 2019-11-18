@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -34,13 +35,13 @@ public abstract class AbstractStreamer extends Nettish {
 
     protected static final String AUDIO_AAC = "audio/" + AAC;
 
-    protected final Media media;
+    protected final Supplier<Media> media;
 
     private final Sessions sessions;
 
     private static final int BYTES_PREAMBLE = (HttpHeaderValues.BYTES + "=").length();
 
-    AbstractStreamer(IO io, Media media, Sessions sessions) {
+    AbstractStreamer(IO io, Supplier<Media> media, Sessions sessions) {
 
         super(io, "/audio");
         this.media = media;
@@ -146,7 +147,7 @@ public abstract class AbstractStreamer extends Nettish {
 
         int dotIndex = path.indexOf('.', 1);
         String uuidString = path.substring(1, dotIndex);
-        return media.getTrack(UUID.fromString(uuidString));
+        return media.get().getTrack(UUID.fromString(uuidString));
     }
 
     @Override
