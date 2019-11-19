@@ -1,6 +1,0 @@
-PainKiller (2): Execution Ground -> https://api.discogs.com/masters/12945
-PainKiller (2): Execution Ground -> https://api.discogs.com/masters/12945
-Violent Femmes: Hallowed Ground -> https://api.discogs.com/masters/38936
-Ground-Zero*: Ground Zero -> https://api.discogs.com/masters/172671
-Elliott Sharp: Figure Ground -> https://api.discogs.com/releases/1972605
-Dying Ground: Dying Ground -> https://api.discogs.com/releases/1193467
