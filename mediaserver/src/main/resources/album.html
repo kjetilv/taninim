@@ -86,23 +86,6 @@
     }}
 </DIV>
 
-<DIV STYLE="clear: both">
-    {if(album.additionalArtists)}
-    <H3>Artists</H3>
-
-    {album.artists:{artist|
-    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>{if(user)}
-        &nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>
-        {endif}]</SPAN>
-    }}
-    {endif}
-
-    <SCRIPT src="/resources/plyr.js"></SCRIPT>
-    <SCRIPT>
-        const player = new plyr('#player');
-    </SCRIPT>
-</DIV>
-
 {if(album.context.credits.credits)}
 <DIV STYLE="float: right">
     <H3>Other credits</H3>
@@ -154,6 +137,24 @@
         }}
     </UL>
     {endif}
+</DIV>
+
+
+<DIV STYLE="clear: both">
+    {if(album.additionalArtists)}
+    <H3>Artists</H3>
+
+    {album.artists:{artist|
+    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>{if(user)}
+        &nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>
+        {endif}]</SPAN>
+    }}
+    {endif}
+
+    <SCRIPT src="/resources/plyr.js"></SCRIPT>
+    <SCRIPT>
+        const player = new plyr('#player');
+    </SCRIPT>
 </DIV>
 
 <DIV STYLE="clear: both">

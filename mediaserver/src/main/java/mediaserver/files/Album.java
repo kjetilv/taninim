@@ -36,6 +36,8 @@ public class Album extends AbstractHashable
 
     private final List<Artist> artists;
 
+    private final List<Artist> allArtists;
+
     private List<Series> series;
 
     Album(CategoryPath categoryPath, Artist artist, String name, List<Track> tracks) {
@@ -73,7 +75,8 @@ public class Album extends AbstractHashable
         this.tracks =
             Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
         this.categoryPath = categoryPath;
-        this.artists = this.resolveArtists();
+        this.artists = this.resolveArtists(false);
+        this.allArtists = this.resolveArtists(true);
         this.series = context == null
             ? Collections.emptyList()
             : context.getSeries().stream().map(Series::get).collect(Collectors.toList());
@@ -128,12 +131,18 @@ public class Album extends AbstractHashable
         return artists;
     }
 
+    public Collection<Artist> getAllArtists() {
+
+        return allArtists;
+    }
+
     public boolean isAdditionalArtists() {
 
         return artists.size() > 1;
     }
 
     public Collection<Series> getSeries() {
+
         return series;
     }
 
@@ -217,10 +226,10 @@ public class Album extends AbstractHashable
 
     public boolean features(Artist artist) {
 
-        return getArtists().contains(artist);
+        return getAllArtists().contains(artist);
     }
 
-    private List<Artist> resolveArtists() {
+    private List<Artist> resolveArtists(boolean all) {
 
         return Stream.of(
             Stream.of(getArtist()),
@@ -230,16 +239,23 @@ public class Album extends AbstractHashable
                 .filter(Credit::isPerformer)
                 .map(Credit::getName)
                 .map(Artist::get),
-            context.getTrackContexts().stream()
-                .map(TrackContext::getCredits)
-                .map(Credits::getCredits)
-                .flatMap(Collection::stream)
-                .filter(Credit::isPerformer)
-                .map(Credit::getName)
-                .map(Artist::get))
-            .flatMap(s -> s)
+            all
+                ? trackArtists()
+                : Stream.<Artist>empty()
+        ).flatMap(s -> s)
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    private Stream<Artist> trackArtists() {
+
+        return context.getTrackContexts().stream()
+            .map(TrackContext::getCredits)
+            .map(Credits::getCredits)
+            .flatMap(Collection::stream)
+            .filter(Credit::isPerformer)
+            .map(Credit::getName)
+            .map(Artist::get);
     }
 
     private static Optional<String> single(Function<Track, String> getAlbum, List<Track> tracks) {

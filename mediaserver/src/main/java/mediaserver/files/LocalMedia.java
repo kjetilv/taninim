@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -157,13 +158,15 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
-    public Collection<Artist> getAllArtists() {
+    public Collection<Artist> getAlbumCreditedArtists() {
 
-        return albumStream(true)
-            .flatMap(album ->
-                album.getArtists().stream())
-            .distinct()
-            .collect(Collectors.toList());
+        return collectArtists(Album::getArtists);
+    }
+
+    @Override
+    public Collection<Artist> getTrackCreditedArtists() {
+
+        return collectArtists(Album::getAllArtists);
     }
 
     @Override
@@ -210,14 +213,14 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     public Collection<Album> getAlbumsFeaturing(Artist artist) {
 
         return albumStream(true).filter(album ->
-            album.getArtists().contains(artist)
+            album.getAllArtists().contains(artist)
         ).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Artist> getArtist(UUID id) {
 
-        return getAllArtists().stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
+        return getTrackCreditedArtists().stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
     }
 
     @Override
@@ -253,6 +256,15 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     protected Object toStringBody() {
 
         return albums.size() + " albums";
+    }
+
+    private Collection<Artist> collectArtists(Function<Album, Collection<Artist>> getAllArtists) {
+
+        return albumStream(true)
+            .map(getAllArtists)
+            .flatMap(Collection::stream)
+            .distinct()
+            .collect(Collectors.toList());
     }
 
     private Stream<Album> stream(boolean recurse) {

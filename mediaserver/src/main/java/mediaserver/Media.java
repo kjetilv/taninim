@@ -61,7 +61,9 @@ public interface Media {
 
     Collection<Artist> getArtists(boolean recurse);
 
-    Collection<Artist> getAllArtists();
+    Collection<Artist> getAlbumCreditedArtists();
+
+    Collection<Artist> getTrackCreditedArtists();
 
     default Collection<Album> allAlbums() {
 
