@@ -53,34 +53,35 @@ public class Main {
         boolean dev = dev();
         boolean live = live();
         boolean neuter = !(live || dev);
-        boolean ssl = dev || local(args);
+        boolean local = local(args);
+        boolean ssl = dev || local;
 
         log.info(
             "Running in {}{} mode, streaming {}abled",
-            local(args) ? "local" : "cloud",
+            local ? "local" : "cloud",
             dev ? " dev" : "",
             neuter ? "dis" : "en");
 
         OnceEvery onceEvery = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
-        Supplier<Media> media =
-            onceEvery.interval(REFRESH_TIME)
-                .when(shouldRefresh(args, CloudMedia::lastUpdatedMedia))
-                .get(() -> retrieveMedia(args));
-        Supplier<Map<String, ?>> ids =
-            onceEvery.interval(REFRESH_TIME)
-                .when(shouldRefresh(args, CloudMedia::lastUpdatedIds))
-                .get(() -> refreshIds(args));
-
-        EventLoopGroup listenGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workGroup = new NioEventLoopGroup(4);
+        Supplier<Media> media = onceEvery.interval(REFRESH_TIME)
+            .when(shouldRefresh(local, CloudMedia::lastUpdatedMedia))
+            .get(() ->
+                retrieveMedia(local, args));
+        Supplier<Map<String, ?>> ids = onceEvery.interval(REFRESH_TIME)
+            .when(shouldRefresh(local, CloudMedia::lastUpdatedIds))
+            .get(() ->
+                refreshIds(local));
 
         IO io = new IO(dev);
 
-        Supplier<Router> routerProvider = routerSupplier(io, media, neuter, local(args), ids);
+        Supplier<Router> routerProvider = routerSupplier(media, ids, io, neuter, local);
 
         ChannelInitializer<SocketChannel> handler =
             new ServerInitializer(routerProvider, ssl ? sslContext() : null);
+
+        EventLoopGroup listenGroup = new NioEventLoopGroup(1);
+        EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
         ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
@@ -89,16 +90,14 @@ public class Main {
         start(bootstrap, port, listenGroup, workGroup);
     }
 
-    public static Map<String, ?> refreshIds(String[] args) {
+    public static Map<String, ?> refreshIds(boolean local) {
 
-        return local(args) ? IO.readResource("ids.json") : CloudMedia.ids();
+        return local ? IO.readResource("ids.json") : CloudMedia.ids();
     }
 
-    public static BooleanSupplier shouldRefresh(String[] args, Supplier<Instant> lastUpdatedMedia) {
+    public static BooleanSupplier shouldRefresh(boolean local, Supplier<Instant> lastUpdatedMedia) {
 
-        return local(args)
-                ? () -> true
-                : new UpdateDetector(lastUpdatedMedia);
+        return local ? () -> true : new UpdateDetector(lastUpdatedMedia);
     }
 
     public static boolean dev() {
@@ -129,10 +128,10 @@ public class Main {
             new File(args[2]).isDirectory();
     }
 
-    public static Media retrieveMedia(String[] args) {
+    public static Media retrieveMedia(boolean local, String[] args) {
 
         try {
-            return local(args)
+            return local
                 ? Media.local(args[0], args[1], args[2])
                 : CloudMedia.download();
         } catch (Exception e) {
@@ -161,11 +160,11 @@ public class Main {
     }
 
     private static Supplier<Router> routerSupplier(
-        IO io,
         Supplier<Media> media,
+        Supplier<Map<String, ?>> ids,
+        IO io,
         boolean neuter,
-        boolean local,
-        Supplier<Map<String, ?>> ids
+        boolean local
     ) {
 
         Supplier<char[]> secretProvider = () ->
