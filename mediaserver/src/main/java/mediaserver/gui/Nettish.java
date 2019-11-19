@@ -34,6 +34,8 @@ public abstract class Nettish {
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
 
+    private static final String NO_CACHE = "no-cache";
+
     Nettish(IO io, String... prefix) {
 
         this.io = io;
@@ -191,7 +193,8 @@ public abstract class Nettish {
         HttpHeaders headers = new DefaultHttpHeaders()
             .set(CONTENT_TYPE, contentType)
             .set(CONTENT_LENGTH, length)
-            .set(ACCESS_CONTROL_ALLOW_HEADERS, "*");
+            .set(ACCESS_CONTROL_ALLOW_HEADERS, "*")
+            .set(CACHE_CONTROL, NO_CACHE);
         if (HttpUtil.isKeepAlive(req)) {
             headers.set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }

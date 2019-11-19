@@ -46,7 +46,7 @@ public class Main {
 
     private static final String FB_SEC = "fbSec";
 
-    private static final Duration REFRESH_TIME = Duration.ofMinutes(5);
+    private static final Duration REFRESH_TIME = Duration.ofMinutes(1);
 
     public static void main(String[] args) {
 
