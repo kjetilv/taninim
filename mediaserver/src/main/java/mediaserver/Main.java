@@ -24,6 +24,7 @@ import java.io.File;
 import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
@@ -62,21 +63,21 @@ public class Main {
 
         OnceEvery onceEvery = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
-        BooleanSupplier shouldRefresh = local(args)
-            ? () -> true
-            : new UpdateDetector(CloudMedia::lastUpdatedMedia);
-
         Supplier<Media> media =
-            onceEvery.interval(REFRESH_TIME).when(shouldRefresh).get(() -> retrieveMedia(args));
+            onceEvery.interval(REFRESH_TIME)
+                .when(shouldRefresh(args, CloudMedia::lastUpdatedMedia))
+                .get(() -> retrieveMedia(args));
+        Supplier<Map<String, ?>> ids =
+            onceEvery.interval(REFRESH_TIME)
+                .when(shouldRefresh(args, CloudMedia::lastUpdatedIds))
+                .get(() -> refreshIds(args));
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
 
         IO io = new IO(dev);
 
-        Map<String, String> luckyFew = IO.readResource("ids.json");
-
-        Supplier<Router> routerProvider = routerSupplier(io, media, neuter, local(args), luckyFew);
+        Supplier<Router> routerProvider = routerSupplier(io, media, neuter, local(args), ids);
 
         ChannelInitializer<SocketChannel> handler =
             new ServerInitializer(routerProvider, ssl ? sslContext() : null);
@@ -86,6 +87,18 @@ public class Main {
         int port = ssl ? LOCALPORT : CLOUD_PORT;
 
         start(bootstrap, port, listenGroup, workGroup);
+    }
+
+    public static Map<String, ?> refreshIds(String[] args) {
+
+        return local(args) ? IO.readResource("ids.json") : CloudMedia.ids();
+    }
+
+    public static BooleanSupplier shouldRefresh(String[] args, Supplier<Instant> lastUpdatedMedia) {
+
+        return local(args)
+                ? () -> true
+                : new UpdateDetector(lastUpdatedMedia);
     }
 
     public static boolean dev() {
@@ -152,7 +165,7 @@ public class Main {
         Supplier<Media> media,
         boolean neuter,
         boolean local,
-        Map<String, String> luckyFew
+        Supplier<Map<String, ?>> ids
     ) {
 
         Supplier<char[]> secretProvider = () ->
@@ -163,7 +176,7 @@ public class Main {
             new Router(
                 streamer(io, media, sessions, neuter, local),
                 new FbUnauth(io, sessions),
-                new FbAuth(io, sessions, secretProvider, luckyFew),
+                new FbAuth(io, sessions, secretProvider, ids),
                 new Playlists(io, media),
                 new Resources(io),
                 new GUI(io, media, sessions));

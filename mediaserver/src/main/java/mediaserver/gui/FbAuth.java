@@ -3,7 +3,9 @@ package mediaserver.gui;
 import com.restfb.*;
 import com.restfb.types.User;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
 import mediaserver.sessions.Session;
@@ -12,11 +14,7 @@ import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -26,21 +24,17 @@ public class FbAuth extends Nettish {
 
     private static final Logger log = LoggerFactory.getLogger(FbAuth.class);
 
-    private static final Clock CLOCK = Clock.system(ZoneId.of("CET"));
-
-    private static final Charset UTF_8 = StandardCharsets.UTF_8;
-
     private final Sessions sessions;
 
     private final Supplier<char[]> appSecret;
 
-    private final Map<String, String> ids;
+    private final Supplier<Map<String, ?>> ids;
 
     public FbAuth(
         IO io,
         Sessions sessions,
         Supplier<char[]> appSecret,
-        Map<String, String> ids
+        Supplier<Map<String, ?>> ids
     ) {
 
         super(io, "/auth");
@@ -72,7 +66,7 @@ public class FbAuth extends Nettish {
 
         return recognizedUsers()
             .filter(entry ->
-                entry.getValue().equalsIgnoreCase(facebookUser.getId()))
+                String.valueOf(entry.getValue()).equalsIgnoreCase(facebookUser.getId()))
             .findFirst()
             .map(entry ->
                 resolveSession(path, ctx, facebookUser, entry))
@@ -80,16 +74,16 @@ public class FbAuth extends Nettish {
                 unprocessed(path, ctx, facebookUser));
     }
 
-    private Stream<Map.Entry<String, String>> recognizedUsers() {
+    private Stream<? extends Map.Entry<String, ?>> recognizedUsers() {
 
-        return ids.entrySet().stream();
+        return ids.get().entrySet().stream();
     }
 
     private HttpResponse resolveSession(
         String path,
         ChannelHandlerContext ctx,
         FacebookUser facebookUser,
-        Map.Entry<String, String> e
+        Map.Entry<String, ?> e
     ) {
 
         Session session = sessions.sessionUp(facebookUser);

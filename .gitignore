@@ -9,3 +9,5 @@ taninim/target
 taninim/figwheel_server.log
 taninim/.rebel_readline_history
 taninim/.lein-env
+
+flacsefugl/src/main/resources/ids.json

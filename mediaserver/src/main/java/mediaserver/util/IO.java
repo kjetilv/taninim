@@ -123,6 +123,15 @@ public final class IO {
         }
     }
 
+    public static Map<String, ?> readMap(Object source, InputStream is) {
+
+        try {
+            return IO.OM.readerFor(Map.class).readValue(is);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read: " + source, e);
+        }
+    }
+
     private static <T> T tryReadStream(URI uri, Function<InputStream, T> receptor) {
 
         HttpURLConnection urlConnection;
@@ -162,13 +171,7 @@ public final class IO {
 
     private static Function<InputStream, Map<String, ?>> readMapFrom(Object source) {
 
-        return is -> {
-            try {
-                return IO.OM.readerFor(Map.class).readValue(is);
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to read: " + source, e);
-            }
-        };
+        return is -> readMap(source, is);
     }
 
     private Optional<InputStream> readStream(String resource) {
