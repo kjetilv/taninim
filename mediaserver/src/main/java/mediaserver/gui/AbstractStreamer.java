@@ -47,16 +47,13 @@ public abstract class AbstractStreamer extends Nettish {
     @Override
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        return activeUserByCookie(req)
-            .map(user ->
-                getMediaTrack(resource(path))
-                    .map(track -> {
-                        HttpResponse response = response(req);
-                        stream(req, track, ctx, response);
-                        return respondStream(req, ctx, response);
-                    })
-                    .orElseGet(() ->
-                        respond(ctx, path, NOT_FOUND)))
+        return activeUserByCookie(req).map(user ->
+            getMediaTrack(resource(path)).map(track -> {
+                HttpResponse response = response(req);
+                stream(req, track, ctx, response);
+                return respondStream(req, ctx, response);
+            }).orElseGet(() ->
+                respond(ctx, path, NOT_FOUND)))
             .orElseGet(() ->
                 teapot(req, ctx));
     }
