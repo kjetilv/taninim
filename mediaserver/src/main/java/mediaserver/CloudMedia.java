@@ -242,7 +242,10 @@ public class CloudMedia {
 
     private static void main(String root, String library, String resources, String... albumIncludes) {
 
-        Media media = Media.local(root, library, resources);
+        Media media = Media.local(
+            new File(root).toPath(),
+            new File(library).toPath(),
+            new File(resources).toPath());
         File mediaFile = serialize(media);
         S3.get().ifPresent(s3 -> {
             Map<String, Long> remoteSizes = remoteFiles(s3);

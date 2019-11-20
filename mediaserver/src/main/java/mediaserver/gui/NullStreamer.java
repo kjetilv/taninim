@@ -1,5 +1,6 @@
 package mediaserver.gui;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -18,8 +19,8 @@ public class NullStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx) {
-
-        return teapot(req, ctx);
+    protected ChannelFuture stream(HttpRequest req, Track track, ChannelHandlerContext ctx, HttpResponse res) {
+        teapot(req, ctx);
+        return null;
     }
 }

@@ -19,6 +19,8 @@ public enum QPar {
 
     PLAY_TRACK("playTrack"),
 
+    PLAY_TRACKS("playTracks"),
+
     HOST,
 
     USER;

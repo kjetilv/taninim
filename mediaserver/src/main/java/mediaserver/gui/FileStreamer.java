@@ -1,12 +1,11 @@
-
-
 package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Media;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
@@ -26,24 +25,24 @@ public final class FileStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx) {
-
-        HttpResponse response = response(req);
+    protected ChannelFuture stream(HttpRequest req, Track track, ChannelHandlerContext ctx, HttpResponse res) {
 
         File file = isFlac(req) ? track.getFile() : track.getCompressedFile();
         RandomAccessFile randomAccessFile = randomAccess(file);
         long fileLength = length(randomAccessFile);
 
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
-        if (rangeHeader != null && rangeHeader.length() > 0) {
-            writeRange(response, fileLength, ctx, randomAccessFile, rangeHeader.trim())
-                .addListener(new ProgressListener(
-                    track.getArtist().getName() + ": " + track.getName() + " [" + track.getAlbum() + "]"));
-        } else {
-            writeLength(ctx, response, fileLength);
+        if (rangeHeader == null || rangeHeader.length() == 0) {
+            return writeLength(ctx, res, fileLength);
         }
+        return writeRange(res, fileLength, ctx, randomAccessFile, rangeHeader.trim())
+            .addListener(progressListener(track));
+    }
 
-        return respondStream(req, ctx, response);
+    private static ProgressListener progressListener(Track track) {
+
+        return new ProgressListener(
+            track.getArtist().getName() + ": " + track.getName() + " [" + track.getAlbum() + "]");
     }
 
     private static RandomAccessFile randomAccess(File file) {

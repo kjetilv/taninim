@@ -105,14 +105,6 @@ public interface Media {
 
     Optional<Album> getAlbum(String albumName);
 
-    static Media local(String file, String library, String resources) {
-
-        return local(
-            new File(file).toPath(),
-            new File(library).toPath(),
-            new File(resources).toPath());
-    }
-
     static Media local(Path mediaPath, Path libraryPath, Path resourcesPath) {
 
         log.info("Scanning from {}", mediaPath);

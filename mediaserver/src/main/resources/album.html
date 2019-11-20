@@ -4,7 +4,6 @@
 <HEAD>
     <META charset="utf-8">
     <TITLE>taninim: {album.uuid}</TITLE>
-    <LINK rel="stylesheet" href="/resources/plyr.css"></LINK>
 </HEAD>
 <BODY>
 <SCRIPT SRC="/resources/facebook.js">
@@ -15,15 +14,14 @@
 </SCRIPT>
 <SCRIPT SRC="/resources/connectfb.js">
 </SCRIPT>
-
-<div style="float: right">
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="260" height="300">
-        <g id="sod">
+<DIV STYLE="float: right">
+    <SVG xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="260" height="300">
+        <G id="sod">
             <path d="M22,87 130,275 238,87z" fill="lightblue" stroke="lightblue" stroke-width="24" id="t"/>
             <use xlink:href="#t" transform="matrix(1,0,0,-1,0,300)"/>
-        </g>
-    </svg>
-</div>
+        </G>
+    </SVG>
+</DIV>
 
 <H1><A HREF="/">taninim</A></H1>
 
@@ -43,7 +41,7 @@
 <P>Hello, {if(user)}{user.name}{else}stranger{endif}</P>
 <P>
 
-<H2><A HREF="/{cat.pathString}">{album.categoryPath.pathString}</A></H2>
+<H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
 
 <H3>{album.artist.name}: <EM>{album.name}</EM>
     {if(user)}<A HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
@@ -52,8 +50,8 @@
 {if(user)}
 {if(playTrack)}
 <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist.name}</em></P>
-<AUDIO id="player" controls autoplay data-plyr-config='\{ "autoplay": true, "autopause": true }'>
-    <SOURCE src="/audio/{playTrack.uuid}.m4a" type="audio/aac"/>
+<AUDIO id="player" controls title="{playTrack.name}" autoplay>
+    <SOURCE src="/audio/{playTrack.uuid}.m4a" type="audio/aac">
 </AUDIO>
 {endif}
 {endif}
@@ -150,11 +148,6 @@
         {endif}]</SPAN>
     }}
     {endif}
-
-    <SCRIPT src="/resources/plyr.js"></SCRIPT>
-    <SCRIPT>
-        const player = new plyr('#player');
-    </SCRIPT>
 </DIV>
 
 <DIV STYLE="clear: both">

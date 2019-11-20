@@ -82,7 +82,9 @@ public class GUI extends Nettish {
         return initTemplate(req, "album.html")
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
-            .add(QPar.PLAY_TRACK, pars.apply(QPar.TRACK).flatMap(media::getTrack).orElse(null));
+            .add(QPar.PLAY_TRACK,
+                pars.apply(QPar.TRACK).flatMap(media::getTrack).orElse(null))
+            .add(QPar.PLAY_TRACKS, album.getTracks());
     }
 
     private Template initTemplate(HttpRequest req, String source) {

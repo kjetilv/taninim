@@ -8,8 +8,6 @@ import mediaserver.Media;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -22,8 +20,6 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public abstract class AbstractStreamer extends Nettish {
-
-    private static final Logger log = LoggerFactory.getLogger(AbstractStreamer.class);
 
     protected static final String FLAC = "flac";
 
@@ -54,8 +50,11 @@ public abstract class AbstractStreamer extends Nettish {
         return activeUserByCookie(req)
             .map(user ->
                 getMediaTrack(resource(path))
-                    .map(track ->
-                        stream(req, track, ctx))
+                    .map(track -> {
+                        HttpResponse response = response(req);
+                        stream(req, track, ctx, response);
+                        return respondStream(req, ctx, response);
+                    })
                     .orElseGet(() ->
                         respond(ctx, path, NOT_FOUND)))
             .orElseGet(() ->
@@ -99,7 +98,12 @@ public abstract class AbstractStreamer extends Nettish {
         }
     }
 
-    protected abstract HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx);
+    protected abstract ChannelFuture stream(
+        HttpRequest req,
+        Track track,
+        ChannelHandlerContext ctx,
+        HttpResponse res
+    );
 
     protected static String audioType(HttpRequest req) {
 
@@ -126,10 +130,10 @@ public abstract class AbstractStreamer extends Nettish {
         return response;
     }
 
-    protected void writeLength(ChannelHandlerContext ctx, HttpResponse response, long fileLength) {
+    protected ChannelFuture writeLength(ChannelHandlerContext ctx, HttpResponse response, long fileLength) {
 
         HttpUtil.setContentLength(response, fileLength);
-        ctx.write(response);
+        return ctx.write(response);
     }
 
     private static String contentType(HttpRequest req) {

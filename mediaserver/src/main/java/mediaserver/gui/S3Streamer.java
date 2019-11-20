@@ -3,6 +3,7 @@ package mediaserver.gui;
 import io.minio.ObjectStat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -26,22 +27,17 @@ public final class S3Streamer extends AbstractStreamer {
     }
 
     @Override
-    protected HttpResponse stream(HttpRequest req, Track track, ChannelHandlerContext ctx) {
-
+    protected ChannelFuture stream(HttpRequest req, Track track, ChannelHandlerContext ctx, HttpResponse res) {
         UUID uuid = track.getUuid();
-        HttpResponse response = response(req);
-        String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
-
         String audioType = audioType(req);
         long fileLength = length(uuid, audioType);
 
-        if (rangeHeader != null && rangeHeader.length() > 0) {
-            writePartial(ctx, uuid, audioType, fileLength, response, rangeHeader);
-        } else {
-            writeLength(ctx, response, fileLength);
+        String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
+        if (rangeHeader == null || rangeHeader.length() <= 0) {
+            return writeLength(ctx, res, fileLength);
         }
-
-        return respondStream(req, ctx, response);
+        return writePartial(ctx, uuid, audioType, fileLength, res, rangeHeader)
+            .addListener(new ProgressListener(uuid));
     }
 
     private long length(UUID uuid, String type) {
@@ -74,7 +70,7 @@ public final class S3Streamer extends AbstractStreamer {
             new IllegalStateException("No S3 connection"));
     }
 
-    private void writePartial(
+    private ChannelFuture writePartial(
         ChannelHandlerContext ctx,
         UUID uuid,
         String type,
@@ -87,8 +83,9 @@ public final class S3Streamer extends AbstractStreamer {
         ByteBuf byteBuf = read(uuid, type, pri);
         updateHeaders(response, pri, length);
         ctx.write(response);
-        ctx.writeAndFlush(new DefaultHttpContent(byteBuf), ctx.newProgressivePromise())
-            .addListener(new ProgressListener(uuid));
+        return ctx.writeAndFlush(
+            new DefaultHttpContent(byteBuf),
+            ctx.newProgressivePromise());
     }
 
     private ByteBuf read(UUID uuid, String type, PartialRequestInfo pri) {

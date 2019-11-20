@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.ssl.NotSslRecordException;
 import mediaserver.gui.Nettish;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,10 +83,15 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             if (e instanceof SocketException && e.getMessage().equalsIgnoreCase("Connection reset")) {
                 return true;
             }
+            boolean testing = ctx.channel().localAddress().toString().contains("0:0:0:0:0:0:0:1:8443");
             for (Throwable t = e; t != null && t.getCause() != t; t = t.getCause()) {
                 if (e.getMessage().contains(SSLHandshakeException.class.getName()) &&
-                    ctx.channel().localAddress().toString().contains("0:0:0:0:0:0:0:1:8443")
+                    testing
                 ) {
+                    return true;
+                }
+                if (e.getMessage().contains(NotSslRecordException.class.getName()) &&
+                    testing) {
                     return true;
                 }
             }

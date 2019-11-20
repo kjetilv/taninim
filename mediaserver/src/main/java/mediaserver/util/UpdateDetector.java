@@ -10,11 +10,11 @@ public class UpdateDetector implements BooleanSupplier {
 
     private final AtomicReference<Instant> lastUpdate = new AtomicReference<>();
 
-    private final Supplier<Instant> update;
+    private final Supplier<Instant> updater;
 
-    public UpdateDetector(Supplier<Instant> update) {
+    public UpdateDetector(Supplier<Instant> updater) {
 
-        this.update = update;
+        this.updater = updater;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class UpdateDetector implements BooleanSupplier {
 
         AtomicBoolean updated = new AtomicBoolean();
         lastUpdate.updateAndGet(instant -> {
-            Instant newUpdate = update.get();
+            Instant newUpdate = updater.get();
             if (instant == null || newUpdate.isAfter(instant)) {
                 updated.set(true);
                 return newUpdate;

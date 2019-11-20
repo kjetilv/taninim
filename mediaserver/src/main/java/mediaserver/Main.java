@@ -21,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Duration;
@@ -65,11 +68,11 @@ public class Main {
         OnceEvery onceEvery = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
         Supplier<Media> media = onceEvery.interval(REFRESH_TIME)
-            .when(shouldRefresh(local, CloudMedia::lastUpdatedMedia))
+            .when(shouldRefresh(args, CloudMedia::lastUpdatedMedia))
             .get(() ->
                 retrieveMedia(local, args));
         Supplier<Map<String, ?>> ids = onceEvery.interval(REFRESH_TIME)
-            .when(shouldRefresh(local, CloudMedia::lastUpdatedIds))
+            .when(shouldRefresh(args, CloudMedia::lastUpdatedIds))
             .get(() ->
                 refreshIds(local));
 
@@ -95,9 +98,21 @@ public class Main {
         return local ? IO.readResource("ids.json") : CloudMedia.ids();
     }
 
-    public static BooleanSupplier shouldRefresh(boolean local, Supplier<Instant> lastUpdatedMedia) {
+    public static BooleanSupplier shouldRefresh(String[] args, Supplier<Instant> lastUpdatedMedia) {
 
-        return local ? () -> true : new UpdateDetector(lastUpdatedMedia);
+        return new UpdateDetector(local(args)
+            ? () -> lastMediaUpdate(args)
+            : CloudMedia::lastUpdatedMedia);
+    }
+
+    public static Instant lastMediaUpdate(String[] args) {
+
+        try {
+            return Files.getLastModifiedTime(mediaFile(args)).toInstant();
+        } catch (IOException e) {
+            log.warn("Failed to check modified time of {}", mediaFile(args));
+            return Instant.EPOCH;
+        }
     }
 
     public static boolean dev() {
@@ -131,13 +146,29 @@ public class Main {
     public static Media retrieveMedia(boolean local, String[] args) {
 
         try {
-            return local
-                ? Media.local(args[0], args[1], args[2])
-                : CloudMedia.download();
+            if (local) {
+                return Media.local(mediaFile(args), libraryPath(args), resourcesPath(args));
+            }
+            return CloudMedia.download();
         } catch (Exception e) {
             log.error("Error retrieving media, proceeding with empty... ", e);
             return Media.empty();
         }
+    }
+
+    public static Path mediaFile(String[] args) {
+
+        return new File(args[0]).toPath();
+    }
+
+    public static Path libraryPath(String[] args) {
+
+        return new File(args[1]).toPath();
+    }
+
+    public static Path resourcesPath(String[] args) {
+
+        return new File(args[2]).toPath();
     }
 
     private static SslContext sslContext() {
