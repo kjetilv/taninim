@@ -4,6 +4,7 @@ import com.restfb.*;
 import com.restfb.types.User;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.externals.FacebookAuthResponse;
@@ -18,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class FbAuth extends Nettish {
 
@@ -38,7 +38,6 @@ public class FbAuth extends Nettish {
     ) {
 
         super(io, "/auth");
-
         this.sessions = sessions;
         this.appSecret = appSecret;
         this.ids = ids;
@@ -47,48 +46,44 @@ public class FbAuth extends Nettish {
     @Override
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        return sessions.activeUser(req).map(user ->
-            respond(ctx, path, HttpResponseStatus.OK)
-        ).orElseGet(() ->
-            facebookUser(req)
-                .map(facebookUser ->
-                    login(path, ctx, facebookUser))
-                .orElseGet(() ->
-                    super.handle(req, path, ctx)));
+        return sessions.activeUser(req)
+            .map(user ->
+                respond(ctx, path, HttpResponseStatus.OK))
+            .orElseGet(() ->
+                facebookUser(req)
+                    .map(facebookUser ->
+                        login(req, path, ctx, facebookUser))
+                    .orElseGet(() ->
+                        super.handle(req, path, ctx)));
     }
 
-    private static HttpResponse logout(String path, ChannelHandlerContext ctx) {
+    private HttpResponse login(HttpRequest req, String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
-        return respond(ctx, path, logoutCoookieResponse());
-    }
-
-    private HttpResponse login(String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
-
-        return recognizedUsers()
-            .filter(entry ->
-                String.valueOf(entry.getValue()).equalsIgnoreCase(facebookUser.getId()))
+        return ids.get().values().stream()
+            .filter(id ->
+                authorized(id, facebookUser))
             .findFirst()
-            .map(entry ->
-                resolveSession(path, ctx, facebookUser, entry))
+            .map(authorized ->
+                resolveAuthorizedSession(req, path, ctx, facebookUser))
             .orElseGet(() ->
                 unprocessed(path, ctx, facebookUser));
     }
 
-    private Stream<? extends Map.Entry<String, ?>> recognizedUsers() {
+    private boolean authorized(Object entry, FacebookUser facebookUser) {
 
-        return ids.get().entrySet().stream();
+        return String.valueOf(entry).equalsIgnoreCase(facebookUser.getId());
     }
 
-    private HttpResponse resolveSession(
+    private HttpResponse resolveAuthorizedSession(
+        HttpRequest req,
         String path,
         ChannelHandlerContext ctx,
-        FacebookUser facebookUser,
-        Map.Entry<String, ?> e
+        FacebookUser facebookUser
     ) {
 
         Session session = sessions.sessionUp(facebookUser);
-        log.info("{} logged in {}! [{}/{}]", e.getKey(), session, facebookUser.getName(), facebookUser.getId());
-        return respond(ctx, path, sessionCoookieResponse(session));
+        HttpResponse response = cookieResponse(req, session, cookie(session));
+        return respond(ctx, path, response);
     }
 
     private Optional<FacebookUser> facebookUser(FullHttpRequest req) {
@@ -117,18 +112,7 @@ public class FbAuth extends Nettish {
 
     private static HttpResponse unprocessed(String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
-        log.warn("Unknown user logged in: {}/{}", facebookUser.getName(), facebookUser.getId());
+        log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
         return respond(ctx, path, HttpResponseStatus.UNPROCESSABLE_ENTITY);
     }
-
-    private static HttpResponse sessionCoookieResponse(Session session) {
-
-        return cookieResponse(cookie(session));
-    }
-
-    private static HttpResponse logoutCoookieResponse() {
-
-        return cookieResponse(cookie(null));
-    }
-
 }

@@ -72,7 +72,7 @@ public class Sessions {
     private Session resolve(FacebookUser facebookUser, Session oldSession) {
 
         Instant time = now();
-        if (timedout(oldSession, time)) {
+        if (refreshable(oldSession, time)) {
             Session session = new Session(facebookUser, UUID.randomUUID(), cutoff(time));
             log.info("Established new session {} for {}, previous session: {}",
                 session, facebookUser, oldSession);
@@ -82,7 +82,7 @@ public class Sessions {
         return oldSession;
     }
 
-    private boolean timedout(Session oldSession, Instant time) {
+    private boolean refreshable(Session oldSession, Instant time) {
 
         return oldSession == null || oldSession.timedout(time);
     }

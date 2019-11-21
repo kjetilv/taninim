@@ -46,7 +46,7 @@ public class Resources extends Nettish {
     private Function<String, Optional<HttpResponse>> read(HttpRequest req) {
         return path ->
             readBytes(path.substring(1)).map(bytes ->
-                response(req, contentType(path), bytes, IMMUTABLE));
+                response(req, null, contentType(path), bytes, IMMUTABLE));
     }
 
     private static String contentType(String path) {

@@ -1,7 +1,10 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 
@@ -21,18 +24,18 @@ public class FbUnauth extends Nettish {
 
         return sessions.closeSession(req)
             .map(closed ->
-                logout(path, ctx))
+                logout(req, closed, path, ctx))
             .orElseGet(() ->
                 super.handle(req, path, ctx));
     }
 
-    private static HttpResponse logout(String path, ChannelHandlerContext ctx) {
+    private static HttpResponse logout(HttpRequest req, Session session, String path, ChannelHandlerContext ctx) {
 
-        return respond(ctx, path, logoutCoookieResponse());
+        return respond(ctx, path, logoutCoookieResponse(req, session));
     }
 
-    private static HttpResponse logoutCoookieResponse() {
+    private static HttpResponse logoutCoookieResponse(HttpRequest req, Session session) {
 
-        return cookieResponse(cookie(null));
+        return cookieResponse(req, session, cookie(null));
     }
 }

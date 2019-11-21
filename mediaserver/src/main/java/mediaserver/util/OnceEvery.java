@@ -107,7 +107,7 @@ public final class OnceEvery {
                         this.value.set(supplier.get());
                     }
                 },
-                0, interval.getSeconds(), TimeUnit.SECONDS);
+                interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS);
         }
 
         @Override

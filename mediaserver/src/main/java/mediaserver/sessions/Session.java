@@ -30,11 +30,6 @@ public class Session {
         return facebookUser;
     }
 
-    public Instant getCutoff() {
-
-        return cutoff;
-    }
-
     public boolean timedout(Instant time) {
 
         return time.isAfter(cutoff);

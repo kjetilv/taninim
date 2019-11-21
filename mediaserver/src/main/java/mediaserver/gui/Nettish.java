@@ -1,5 +1,6 @@
 package mediaserver.gui;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,12 +13,15 @@ import mediaserver.util.IO;
 import mediaserver.util.URLs;
 
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
+import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -33,8 +37,6 @@ public abstract class Nettish {
             headers.accept(CACHE_CONTROL, "immutable");
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
-
-    private static final String NO_CACHE = "no-cache";
 
     Nettish(IO io, String... prefix) {
 
@@ -58,14 +60,9 @@ public abstract class Nettish {
         return respond(ctx, value, redirect(value));
     }
 
-    public static HttpResponse respond(ChannelHandlerContext ctx, String path, HttpResponseStatus response) {
+    public static HttpResponse respond(ChannelHandlerContext ctx, String path, HttpResponseStatus status) {
 
-        return respond(ctx, path, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, response));
-    }
-
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
-
-        return respond(ctx, path, BAD_REQUEST);
+        return respond(ctx, path, response(null, status, null, null, null));
     }
 
     public static Optional<UUID> authCookie(HttpRequest req) {
@@ -116,26 +113,36 @@ public abstract class Nettish {
 
     static HttpResponse response(
         HttpRequest req,
-        String contentType,
-        byte[] bytes
-    ) {
-
-        return response(req, contentType, bytes, null);
-    }
-
-    static HttpResponse response(
-        HttpRequest req,
+        HttpResponseStatus status,
         String contentType,
         byte[] bytes,
-        Consumer<BiConsumer<CharSequence, CharSequence>> headers
+        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
+        HttpHeaders headers = new DefaultHttpHeaders();
+        if (contentType != null) {
+            headers.set(CONTENT_TYPE, contentType);
+        }
+        if (bytes != null) {
+            headers.set(CONTENT_LENGTH, bytes.length);
+        }
+        if (req != null && HttpUtil.isKeepAlive(req)) {
+            headers.set(CONNECTION, KEEP_ALIVE);
+        }
+        if (moreHeaders != null) {
+            moreHeaders.accept(headers::set);
+        }
+        ByteBuf body = bytes == null
+            ? Unpooled.EMPTY_BUFFER
+            : Unpooled.wrappedBuffer(bytes);
+
         return new DefaultFullHttpResponse(
-            HTTP_1_1,
-            OK,
-            Unpooled.wrappedBuffer(bytes),
-            headers(req, contentType, bytes.length, headers),
-            EmptyHttpHeaders.INSTANCE);
+            HTTP_1_1, status == null ? OK : status, body, headers, EmptyHttpHeaders.INSTANCE);
+    }
+
+    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+
+        return respond(ctx, path, BAD_REQUEST);
     }
 
     protected static QPars qpars(String uri) {
@@ -149,15 +156,15 @@ public abstract class Nettish {
         return queryIndex < 0 ? uri : uri.substring(0, queryIndex);
     }
 
-    protected static HttpResponse cookieResponse(String cookie) {
+    protected static HttpResponse cookieResponse(HttpRequest req, Session session, String cookie) {
 
-        return new DefaultFullHttpResponse(
-            HTTP_1_1,
-            OK,
-            Unpooled.EMPTY_BUFFER,
-            new DefaultHttpHeaders()
-                .set(SET_COOKIE, cookie),
-            EmptyHttpHeaders.INSTANCE);
+        return response(
+            req,
+            null,
+            APPLICATION_JSON.toString(),
+            jsonString(session.getFacebookUser().getName()).getBytes(StandardCharsets.UTF_8),
+            headers ->
+                headers.accept(SET_COOKIE, cookie));
     }
 
     protected static String cookie(Session session) {
@@ -166,6 +173,11 @@ public abstract class Nettish {
             GUI.TANINIM_ID, session == null ? "" : session.getCookie().toString());
         cookie.setMaxAge(COOKIE_TIME);
         return ServerCookieEncoder.STRICT.encode(cookie);
+    }
+
+    private static String jsonString(String name1) {
+
+        return "\"" + name1 + "\"";
     }
 
     private static DefaultFullHttpResponse redirect(String value) {
@@ -181,27 +193,6 @@ public abstract class Nettish {
     private Optional<String> matching(String path) {
 
         return prefix.stream().filter(path::startsWith).findFirst();
-    }
-
-    private static HttpHeaders headers(
-        HttpRequest req,
-        String contentType,
-        int length,
-        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
-    ) {
-
-        HttpHeaders headers = new DefaultHttpHeaders()
-            .set(CONTENT_TYPE, contentType)
-            .set(CONTENT_LENGTH, length)
-            .set(ACCESS_CONTROL_ALLOW_HEADERS, "*")
-            .set(CACHE_CONTROL, NO_CACHE);
-        if (HttpUtil.isKeepAlive(req)) {
-            headers.set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        }
-        if (moreHeaders != null) {
-            moreHeaders.accept(headers::set);
-        }
-        return headers;
     }
 
     private static Map<QPar, String> params(String uri, int queryIndex) {

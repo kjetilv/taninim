@@ -33,7 +33,7 @@ class Conversion(
                 println("Not used: $it")
             }
         }
-        val conversions = paths.mapIndexed { i, path ->
+        val conversions = paths.mapIndexed { _, path ->
 //            println("Processing #$i/${paths.size}: ${path.toFile().absolutePath}")
             process(path, mover.target(path, newSuffix))
         }

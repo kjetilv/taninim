@@ -1,17 +1,25 @@
 function checkLoginState() {
-    FB.getLoginStatus(
-        function (response) {
-            if (response.status === 'connected') {
-                handleConnected(response.authResponse)
-            }
+    FB.getLoginStatus(function (statusResponse) {
+        if (statusResponse.status === 'connected') {
+            handleConnected(statusResponse.authResponse);
+        } else {
+            FB.login(function (loginResponse) {
+                if (loginResponse.status === 'connected') {
+                    handleConnected(loginResponse.authResponse);
+                } else {
+                    alert("Login failed!")
+                }
+            });
         }
-    );
+    });
 }
 
 async function handleConnected(authResponse) {
     let response = await postData('/auth', authResponse);
     if (response.status === 200) {
-        location.reload();
+        if (document.getElementById('user').innerText === "stranger") {
+            location.reload()
+        }
     }
 }
 

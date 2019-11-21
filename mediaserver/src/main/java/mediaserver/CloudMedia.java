@@ -171,28 +171,28 @@ public class CloudMedia {
         put(s3, file, MEDIA_SER);
     }
 
-    public static Instant lastUpdatedMedia() {
+    public static Optional<Instant> lastUpdatedMedia() {
 
         return lastUpdate(MEDIA_SER);
     }
 
-    public static Instant lastUpdatedIds() {
+    public static Optional<Instant> lastUpdatedIds() {
 
         return lastUpdate(IDS_JSON);
     }
 
-    public static Instant lastUpdate(String object) {
+    public static Optional<Instant> lastUpdate(String object) {
 
-        return S3.get().map(s3 -> {
+        return S3.get().flatMap(s3 -> {
             ObjectStat objectStat;
             try {
                 objectStat = s3.statObject(S3.BUCKET, object);
+                return Optional.of(objectStat.createdTime().toInstant());
             } catch (Exception e) {
-                throw new IllegalStateException("Failed", e);
+                log.warn("Failed", e);
             }
-            return objectStat.createdTime().toInstant();
-        }).orElseThrow(() ->
-            new IllegalStateException("No S3 connection"));
+            return Optional.empty();
+        });
     }
 
     static Media download() {

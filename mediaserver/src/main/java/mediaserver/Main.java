@@ -39,13 +39,17 @@ public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static final int LOCALPORT = 8443;
+    private static final int LOCALPORT = 1080;
+
+    private static final int LOCALPORT_SSL = 1443;
 
     private static final int CLOUD_PORT = 80;
 
     private static final String DEV_FLAG = "dev";
 
     private static final String LIVE_FLAG = "live";
+
+    private static final String SSL_FLAG = "ssl";
 
     private static final String FB_SEC = "fbSec";
 
@@ -57,7 +61,7 @@ public class Main {
         boolean live = live();
         boolean neuter = !(live || dev);
         boolean local = local(args);
-        boolean ssl = dev || local;
+        boolean ssl = ssl();
 
         log.info(
             "Running in {}{} mode, streaming {}abled",
@@ -68,11 +72,11 @@ public class Main {
         OnceEvery onceEvery = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
         Supplier<Media> media = onceEvery.interval(REFRESH_TIME)
-            .when(shouldRefresh(args, CloudMedia::lastUpdatedMedia))
+            .when(shouldRefresh(args))
             .get(() ->
                 retrieveMedia(local, args));
         Supplier<Map<String, ?>> ids = onceEvery.interval(REFRESH_TIME)
-            .when(shouldRefresh(args, CloudMedia::lastUpdatedIds))
+            .when(shouldRefresh(args))
             .get(() ->
                 refreshIds(local));
 
@@ -88,7 +92,9 @@ public class Main {
 
         ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
-        int port = ssl ? LOCALPORT : CLOUD_PORT;
+        int port = ssl ? LOCALPORT_SSL
+            : dev ? LOCALPORT
+            : CLOUD_PORT;
 
         start(bootstrap, port, listenGroup, workGroup);
     }
@@ -98,20 +104,20 @@ public class Main {
         return local ? IO.readResource("ids.json") : CloudMedia.ids();
     }
 
-    public static BooleanSupplier shouldRefresh(String[] args, Supplier<Instant> lastUpdatedMedia) {
+    public static BooleanSupplier shouldRefresh(String[] args) {
 
         return new UpdateDetector(local(args)
             ? () -> lastMediaUpdate(args)
             : CloudMedia::lastUpdatedMedia);
     }
 
-    public static Instant lastMediaUpdate(String[] args) {
+    public static Optional<Instant> lastMediaUpdate(String[] args) {
 
         try {
-            return Files.getLastModifiedTime(mediaFile(args)).toInstant();
+            return Optional.of(Files.getLastModifiedTime(mediaFile(args)).toInstant());
         } catch (IOException e) {
             log.warn("Failed to check modified time of {}", mediaFile(args));
-            return Instant.EPOCH;
+            return Optional.empty();
         }
     }
 
@@ -123,6 +129,11 @@ public class Main {
     public static boolean live() {
 
         return isTrue(LIVE_FLAG);
+    }
+
+    public static boolean ssl() {
+
+        return isTrue(SSL_FLAG);
     }
 
     public static boolean isTrue(String flag) {

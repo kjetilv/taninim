@@ -29,8 +29,7 @@
     <A HREF="/">taninim</A>
 </H1>
 <DIV>
-    <P>
-    <P>Hello, {if(user)}{user.name}{else}stranger{endif}
+    <P>Hello, <SPAN id="user">{if(user)}{user.name}{else}stranger{endif}</SPAN>
         <!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
         <fb:login-button scope="public_profile" onlogin="checkLoginState();">
         </fb:login-button>
@@ -101,6 +100,10 @@
     <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
     }}
 </div>
+
+<SCRIPT>
+    checkLoginState();
+</SCRIPT>
 
 </BODY>
 

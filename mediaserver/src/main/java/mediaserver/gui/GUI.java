@@ -37,10 +37,11 @@ public class GUI extends Nettish {
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         Template template = template(req, resource(path), media.get());
+
         return respond(
             ctx,
             path,
-            response(req, TEXT_HTML, template.bytes()));
+            response(req, null, TEXT_HTML, template.bytes(), null));
     }
 
     private Template template(HttpRequest req, String uri, Media media) {
@@ -82,7 +83,8 @@ public class GUI extends Nettish {
         return initTemplate(req, "album.html")
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
-            .add(QPar.PLAY_TRACK,
+            .add(
+                QPar.PLAY_TRACK,
                 pars.apply(QPar.TRACK).flatMap(media::getTrack).orElse(null))
             .add(QPar.PLAY_TRACKS, album.getTracks());
     }
@@ -90,7 +92,10 @@ public class GUI extends Nettish {
     private Template initTemplate(HttpRequest req, String source) {
 
         Template template = template(source);
-        return sessions.activeUser(req).map(user -> template.add(QPar.USER, user)).orElse(template);
+        return sessions.activeUser(req)
+            .map(user ->
+                template.add(QPar.USER, user))
+            .orElse(template);
     }
 
     private static Path path(String uri) {
