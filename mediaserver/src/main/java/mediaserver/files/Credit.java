@@ -28,7 +28,7 @@ public class Credit implements Serializable {
         this.name = name;
         this.uri = uri;
         this.externalType = externalType;
-        this.sourceType = sourceType;
+        this.sourceType = sourceType == null || sourceType.isBlank() ? "" : sourceType;
     }
 
     public String getSourceType() {
@@ -62,6 +62,11 @@ public class Credit implements Serializable {
             .map(artist ->
                 new Credit(artist.getName(), uri, sourceType, externalType))
             .collect(Collectors.toList());
+    }
+
+    public boolean isEmpty() {
+
+        return sourceType.isBlank();
     }
 
     enum ExternalType {

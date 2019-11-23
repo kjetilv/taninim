@@ -23,6 +23,8 @@ public class Artist extends AbstractNameHashable {
 
         return split(getName(), "&")
             .flatMap(split -> split(split, ","))
+            .flatMap(split -> split(split, ", and "))
+            .flatMap(split -> split(split, " and "))
             .flatMap(split -> split(split, "/"))
             .map(Artist::get)
             .collect(Collectors.toList());

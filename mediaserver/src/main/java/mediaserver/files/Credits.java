@@ -36,14 +36,15 @@ public class Credits implements Serializable {
                 .findFirst();
         Credit credit =
             new Credit(name, uri, typeDescription, recognizedType.orElse(null));
-        if (credits.contains(credit)) {
+
+        if (credits.containsAll(credit.getCompositeCredits())) {
             return this;
         }
+
         return new Credits(Stream.concat(
             credit.getCompositeCredits().stream(),
-            credits.stream())
-            .distinct()
-            .collect(Collectors.toList()));
+            credits.stream()
+        ).distinct().collect(Collectors.toList()));
     }
 
     public Collection<Credit> getCredits() {
@@ -58,13 +59,23 @@ public class Credits implements Serializable {
 
     public Collection<Credit> getArtistCredits() {
 
-        return credits(other().negate());
+        return withoutRedundants(credits(other().negate()));
     }
 
     public Collection<Credit> credits(Predicate<Credit> other) {
 
-        List<Credit> collect = credits.stream().filter(other).collect(Collectors.toList());
-        return collect;
+        return this.credits.stream().filter(other).collect(Collectors.toList());
+    }
+
+    public Collection<Credit> withoutRedundants(Collection<Credit> credits) {
+
+        Collection<Artist> empty = credits.stream()
+            .filter(Credit::isEmpty)
+            .map(Credit::getArtist).collect(Collectors.toSet());
+        return credits.stream()
+            .filter(c ->
+                !(c.isEmpty() && empty.contains(c.getArtist())))
+            .collect(Collectors.toList());
     }
 
     public Predicate<Credit> other() {
