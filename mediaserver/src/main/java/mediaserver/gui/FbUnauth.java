@@ -36,6 +36,6 @@ public class FbUnauth extends Nettish {
 
     private static HttpResponse logoutCoookieResponse(HttpRequest req, Session session) {
 
-        return cookieResponse(req, session, cookie(null));
+        return helloCookieResponse(req, session, cookie(null));
     }
 }

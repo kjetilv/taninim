@@ -2,7 +2,9 @@ package mediaserver.files;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Credit implements Serializable {
 
@@ -41,7 +43,7 @@ public class Credit implements Serializable {
 
     public Artist getArtist() {
 
-        return isPerformer() ? Artist.get(name) : null;
+        return Artist.get(name);
     }
 
     public ExternalType getExternalType() {
@@ -52,6 +54,14 @@ public class Credit implements Serializable {
     public String getName() {
 
         return name;
+    }
+
+    public Collection<Credit> getCompositeCredits() {
+
+        return getArtist().getCompositeArtists().stream()
+            .map(artist ->
+                new Credit(artist.getName(), uri, sourceType, externalType))
+            .collect(Collectors.toList());
     }
 
     enum ExternalType {
@@ -123,5 +133,12 @@ public class Credit implements Serializable {
                 Objects.equals(uri, ((Credit) o).uri) &&
                 externalType == ((Credit) o).externalType &&
                 Objects.equals(sourceType, ((Credit) o).sourceType);
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() +
+            "[" + name + ": " + sourceType + "/" + externalType + "]";
     }
 }

@@ -1,0 +1,7 @@
+Privay policy
+
+This site uses Facebook Login and matches the users' Facebook ID to a small set of my personal friends and acquintances.
+
+If your ID is in that set, I give you a cookie and you are given access to additional information.
+
+If not, nothing will happen.

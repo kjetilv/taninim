@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.netty.util.AsciiString;
 import mediaserver.sessions.Session;
 import mediaserver.util.IO;
 import mediaserver.util.URLs;
@@ -62,7 +63,7 @@ public abstract class Nettish {
 
     public static HttpResponse respond(ChannelHandlerContext ctx, String path, HttpResponseStatus status) {
 
-        return respond(ctx, path, response(null, status, null, null, null));
+        return respond(ctx, path, response(null, status, (String)null, null, null));
     }
 
     public static Optional<UUID> authCookie(HttpRequest req) {
@@ -78,6 +79,11 @@ public abstract class Nettish {
             .map(Cookie::value)
             .map(UUID::fromString)
             .findFirst();
+    }
+
+    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+
+        return respond(ctx, path, BAD_REQUEST);
     }
 
     String resource(String path) {
@@ -114,8 +120,29 @@ public abstract class Nettish {
     static HttpResponse response(
         HttpRequest req,
         HttpResponseStatus status,
+        AsciiString contentType,
+        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
+    ) {
+
+        return response(req, status, contentType, null, moreHeaders);
+    }
+
+    static HttpResponse response(
+        HttpRequest req,
+        HttpResponseStatus status,
+        AsciiString contentType,
+        byte[] content,
+        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
+    ) {
+        return response(
+            req, status, contentType == null ? null : contentType.toString(), content, moreHeaders);
+    }
+
+    static HttpResponse response(
+        HttpRequest req,
+        HttpResponseStatus status,
         String contentType,
-        byte[] bytes,
+        byte[] content,
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
@@ -123,8 +150,8 @@ public abstract class Nettish {
         if (contentType != null) {
             headers.set(CONTENT_TYPE, contentType);
         }
-        if (bytes != null) {
-            headers.set(CONTENT_LENGTH, bytes.length);
+        if (content != null) {
+            headers.set(CONTENT_LENGTH, content.length);
         }
         if (req != null && HttpUtil.isKeepAlive(req)) {
             headers.set(CONNECTION, KEEP_ALIVE);
@@ -132,17 +159,12 @@ public abstract class Nettish {
         if (moreHeaders != null) {
             moreHeaders.accept(headers::set);
         }
-        ByteBuf body = bytes == null
+        ByteBuf body = content == null
             ? Unpooled.EMPTY_BUFFER
-            : Unpooled.wrappedBuffer(bytes);
+            : Unpooled.wrappedBuffer(content);
 
         return new DefaultFullHttpResponse(
             HTTP_1_1, status == null ? OK : status, body, headers, EmptyHttpHeaders.INSTANCE);
-    }
-
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
-
-        return respond(ctx, path, BAD_REQUEST);
     }
 
     protected static QPars qpars(String uri) {
@@ -156,15 +178,14 @@ public abstract class Nettish {
         return queryIndex < 0 ? uri : uri.substring(0, queryIndex);
     }
 
-    protected static HttpResponse cookieResponse(HttpRequest req, Session session, String cookie) {
+    protected static HttpResponse okCookieResponse(HttpRequest req, String cookieCookie) {
 
-        return response(
-            req,
-            null,
-            APPLICATION_JSON.toString(),
-            jsonString(session.getFacebookUser().getName()).getBytes(StandardCharsets.UTF_8),
-            headers ->
-                headers.accept(SET_COOKIE, cookie));
+        return response(req, OK, APPLICATION_JSON, setCookie(cookieCookie));
+    }
+
+    protected static HttpResponse helloCookieResponse(HttpRequest req, Session session, String cookie) {
+
+        return response(req, OK, APPLICATION_JSON, helloContent(session), setCookie(cookie));
     }
 
     protected static String cookie(Session session) {
@@ -173,6 +194,24 @@ public abstract class Nettish {
             GUI.TANINIM_ID, session == null ? "" : session.getCookie().toString());
         cookie.setMaxAge(COOKIE_TIME);
         return ServerCookieEncoder.STRICT.encode(cookie);
+    }
+
+    protected static String cookieCookie() {
+
+        Cookie cookie = new io.netty.handler.codec.http.cookie.DefaultCookie(GUI.COOKIES_OK, "gimmeCookies");
+        cookie.setMaxAge(Long.MAX_VALUE);
+        return ServerCookieEncoder.STRICT.encode(cookie);
+    }
+
+    private static byte[] helloContent(Session session) {
+
+        return jsonString(session.getFacebookUser().getName()).getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static Consumer<BiConsumer<CharSequence, CharSequence>> setCookie(String cookie) {
+
+        return headers ->
+            headers.accept(SET_COOKIE, cookie);
     }
 
     private static String jsonString(String name1) {

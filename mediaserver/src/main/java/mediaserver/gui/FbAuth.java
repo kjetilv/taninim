@@ -82,7 +82,7 @@ public class FbAuth extends Nettish {
     ) {
 
         Session session = sessions.sessionUp(facebookUser);
-        HttpResponse response = cookieResponse(req, session, cookie(session));
+        HttpResponse response = helloCookieResponse(req, session, cookie(session));
         return respond(ctx, path, response);
     }
 

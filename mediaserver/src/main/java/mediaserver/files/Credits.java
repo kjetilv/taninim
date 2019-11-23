@@ -39,8 +39,11 @@ public class Credits implements Serializable {
         if (credits.contains(credit)) {
             return this;
         }
-        return new Credits(
-            Stream.concat(Stream.of(credit), credits.stream()).collect(Collectors.toSet()));
+        return new Credits(Stream.concat(
+            credit.getCompositeCredits().stream(),
+            credits.stream())
+            .distinct()
+            .collect(Collectors.toList()));
     }
 
     public Collection<Credit> getCredits() {
@@ -60,7 +63,8 @@ public class Credits implements Serializable {
 
     public Collection<Credit> credits(Predicate<Credit> other) {
 
-        return credits.stream().filter(other).collect(Collectors.toList());
+        List<Credit> collect = credits.stream().filter(other).collect(Collectors.toList());
+        return collect;
     }
 
     public Predicate<Credit> other() {

@@ -232,17 +232,21 @@ public class Album extends AbstractHashable
     private List<Artist> resolveArtists(boolean all) {
 
         return Stream.of(
-            Stream.of(getArtist()),
-            tracks.stream().map(Track::getArtist),
-            tracks.stream().map(Track::getOtherArtist).flatMap(Optional::stream),
+            Stream.of(artist),
+            tracks.stream()
+                .map(Track::getArtist),
+            tracks.stream().map(Track::getOtherArtist).
+                flatMap(Optional::stream),
             context.getCredits().getCredits().stream()
                 .filter(Credit::isPerformer)
                 .map(Credit::getName)
                 .map(Artist::get),
             all
                 ? trackArtists()
-                : Stream.<Artist>empty()
-        ).flatMap(s -> s)
+                : Stream.<Artist>empty())
+            .flatMap(s -> s)
+            .flatMap(s ->
+                s.getCompositeArtists().stream())
             .distinct()
             .collect(Collectors.toList());
     }

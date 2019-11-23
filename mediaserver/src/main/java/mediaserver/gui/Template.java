@@ -5,8 +5,6 @@ import mediaserver.util.MostlyOnce;
 import org.stringtemplate.v4.ST;
 
 import java.nio.charset.StandardCharsets;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class Template {
@@ -17,11 +15,10 @@ public class Template {
 
     private Supplier<byte[]> bytes;
 
-    private final Map<QPar, Object> values = new EnumMap<>(QPar.class);
-
     private final String resource;
 
     public Template(IO io, String resource) {
+
         this.resource = resource;
         st = st(io, resource);
         result = MostlyOnce.get(() ->
@@ -31,19 +28,25 @@ public class Template {
     }
 
     public byte[] bytes() {
+
         return this.bytes.get();
     }
 
     Template add(QPar param, Object value) {
 
+        return add(param.getName(), value);
+    }
+
+    Template add(String name, Object value) {
+
         if (value != null) {
-            values.put(param, value);
-            st.add(param.getName(), value);
+            st.add(name, value);
         }
         return this;
     }
 
     private static ST st(IO io, String resource) {
+
         return io.read(resource).map(data ->
             new ST(data, '{', '}')
         ).orElseThrow(() ->
@@ -52,6 +55,7 @@ public class Template {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + resource + " vals:" + values.keySet() + "]";
+
+        return getClass().getSimpleName() + "[" + resource + "]";
     }
 }

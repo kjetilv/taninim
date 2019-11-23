@@ -148,7 +148,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     @Override
     public Collection<Artist> getAlbumArtists(boolean recurse) {
 
-        return stream(recurse).map(Album::getArtist).collect(Collectors.toSet());
+        return stream(recurse).map(Album::getArtists).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     @Override

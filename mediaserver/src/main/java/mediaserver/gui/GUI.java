@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.util.AsciiString;
 import mediaserver.Media;
 import mediaserver.files.Album;
 import mediaserver.files.Artist;
@@ -19,6 +20,8 @@ import java.util.function.Supplier;
 public class GUI extends Nettish {
 
     public static final String TANINIM_ID = "taninim-id";
+
+    public static final String COOKIES_OK = "cookies-ok";
 
     private final Supplier<Media> media;
 
