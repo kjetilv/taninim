@@ -55,7 +55,7 @@
 
 <H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
 
-<H3>{album.artist.name}: <EM>{album.name}</EM>
+<H3>{album.artists:{artist|{artist.name} }}: <EM>{album.name}</EM>
     {if(user)}<A HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
 </H3>
 
@@ -85,14 +85,18 @@
 
             {track.name}
             {track.prettyDuration}
+            {album.artists:{artist|
             {if(user)}<A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>{endif}
-            {if(track.otherArtist.present)}
+            }}
+            {if(track.otherArtists)}
             <UL>
+                {track.otherArtists:{otherArtist|
                 <LI>
-                    [<A HREF="/?artist={track.otherArtistPresent.uuid}">{track.otherArtistPresent.name}</A>{if(user)}
-                    &nbsp;<A HREF="/playlist/artist/{track.otherArtistPresent.uuid}">⏬</A>
+                    [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>{if(user)}
+                    &nbsp;<A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
                     {endif}]
                 </LI>
+                }}
             </UL>
             {endif}
         </LI>

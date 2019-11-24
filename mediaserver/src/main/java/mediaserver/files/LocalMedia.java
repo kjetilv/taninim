@@ -50,7 +50,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             trackStream(true).flatMap(track ->
                 Stream.concat(
                     Stream.of(track.getArtist()),
-                    track.getOtherArtist().stream()
+                    track.getOtherArtists().stream()
                 )))
             .filter(Objects::nonNull)
             .distinct()
@@ -183,7 +183,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             .map(Album::getTracks)
             .flatMap(Collection::stream)
             .filter(track ->
-                artist.equals(track.getArtist()) || track.getOtherArtist().filter(artist::equals).isPresent())
+                artist.equals(track.getArtist()) || track.getOtherArtists().stream().anyMatch(artist::equals))
             .collect(Collectors.toList());
     }
 

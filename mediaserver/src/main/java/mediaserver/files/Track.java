@@ -11,9 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,9 +22,13 @@ public class Track extends AbstractHashable
 
     private static final Logger log = LoggerFactory.getLogger(Track.class);
 
+    private final Artist artist;
+
+    private final Collection<Artist> artists;
+
     private final Artist albumArtist;
 
-    private final Artist artist;
+    private final Collection<Artist> albumArtists;
 
     private final String name;
 
@@ -71,13 +73,18 @@ public class Track extends AbstractHashable
                     .filter(list -> list.contains("1"))
                     .isPresent();
             this.artist = Artist.get(tags.getArtist());
-            this.albumArtist = compilation ? null : Optional.ofNullable(tags.getComments("albumartist"))
-                .filter(c ->
-                    !c.isEmpty())
-                .map(c ->
-                    c.get(0))
-                .map(Artist::get)
-                .orElse(this.artist);
+            this.artists = this.artist.getCompositeArtists();
+            this.albumArtist =
+                compilation ? null : Optional.ofNullable(tags.getComments("albumartist"))
+                    .filter(c ->
+                        !c.isEmpty())
+                    .map(c ->
+                        c.get(0))
+                    .map(Artist::get)
+                    .orElse(this.artist);
+            this.albumArtists = this.albumArtist == null
+                ? Collections.emptyList()
+                : this.albumArtist.getCompositeArtists();
             this.name = tags.getTitle();
             this.album = tags.getAlbum();
             this.trackNo = trackNo(file.getName());
@@ -107,14 +114,19 @@ public class Track extends AbstractHashable
         return artist;
     }
 
-    public Optional<Artist> getOtherArtist() {
+    public Collection<Artist> getArtists() {
 
-        return Objects.equals(artist, albumArtist) ? Optional.empty() : Optional.of(artist);
+        return artists;
     }
 
-    public Artist getOtherArtistPresent() {
+    public Collection<Artist> getOtherArtists() {
 
-        return getOtherArtist().orElse(null);
+        return albumArtists.containsAll(artists) ? Collections.emptyList() : artists;
+    }
+
+    public Collection<Artist> getOtherArtistPresent() {
+
+        return getOtherArtists();
     }
 
     public String getAlbum() {
@@ -149,7 +161,7 @@ public class Track extends AbstractHashable
 
     public File getCompressedFile() {
 
-        if (!compressedFile.exists()){
+        if (!compressedFile.exists()) {
             throw new IllegalStateException(this + " has no compressed file");
         }
         return compressedFile;
@@ -172,7 +184,7 @@ public class Track extends AbstractHashable
 
     public boolean sameAlbum(Track track) {
 
-        return track.getArtist().equals(getArtist()) && track.getAlbum().equals(getAlbum());
+        return Objects.equals(track.getArtist(), artist) && Objects.equals(track.getAlbum(), album);
     }
 
     @SuppressWarnings("NullableProblems")

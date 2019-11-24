@@ -168,7 +168,7 @@ public class Album extends AbstractHashable
         }
         return IntStream.range(0, context.getTrackContexts().size()).filter(position -> {
             Track track = tracks.get(position);
-            return track.getOtherArtist().map(artist::equals).isPresent()
+            return track.getOtherArtists().stream().anyMatch(artist::equals)
                 || context.getTrackContexts().get(position).getCredits().getCredits().stream()
                 .anyMatch(credit -> credit.getArtist().equals(artist));
         }).mapToObj(tracks::get)
@@ -208,7 +208,9 @@ public class Album extends AbstractHashable
 
         return tracks.stream()
             .anyMatch(track ->
-                artist == null || track.getOtherArtist().filter(artist::equals).isPresent());
+                artist == null ||
+                    track.getArtists().stream().anyMatch(artist::equals) ||
+                    track.getOtherArtists().stream().anyMatch(artist::equals));
     }
 
     public Album withContext(AlbumContext albumContext) {
@@ -235,8 +237,7 @@ public class Album extends AbstractHashable
             Stream.of(artist),
             tracks.stream()
                 .map(Track::getArtist),
-            tracks.stream().map(Track::getOtherArtist).
-                flatMap(Optional::stream),
+            tracks.stream().map(Track::getOtherArtists).flatMap(Collection::stream),
             context.getCredits().getCredits().stream()
                 .filter(Credit::isPerformer)
                 .map(Credit::getName)
