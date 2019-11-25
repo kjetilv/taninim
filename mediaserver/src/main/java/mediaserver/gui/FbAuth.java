@@ -59,19 +59,9 @@ public class FbAuth extends Nettish {
 
     private HttpResponse login(HttpRequest req, String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
-        return ids.get().ids().stream()
-            .filter(id ->
-                authorized(id, facebookUser))
-            .findFirst()
-            .map(authorized ->
-                resolveAuthorizedSession(req, path, ctx, facebookUser))
-            .orElseGet(() ->
-                unprocessed(path, ctx, facebookUser));
-    }
-
-    private boolean authorized(Object entry, FacebookUser facebookUser) {
-
-        return String.valueOf(entry).equalsIgnoreCase(facebookUser.getId());
+        return ids.get().authorized(facebookUser)
+            ? resolveAuthorizedSession(req, path, ctx, facebookUser)
+            : unprocessed(path, ctx, facebookUser);
     }
 
     private HttpResponse resolveAuthorizedSession(

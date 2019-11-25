@@ -1,9 +1,9 @@
 package mediaserver.sessions;
 
-import java.util.Collection;
+import mediaserver.externals.FacebookUser;
+
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class Ids {
 
@@ -11,20 +11,10 @@ public class Ids {
 
     private final boolean dev;
 
-    public Ids(Map<String, ?> sources) {
-
-        this(sources, false);
-    }
-
     public Ids(Map<String, ?> sources, boolean dev) {
 
         this.sources = sources;
         this.dev = dev;
-    }
-
-    public Optional<String> id(String name) {
-
-        return Optional.ofNullable(sources.get(name)).map(String::valueOf);
     }
 
     public Optional<String> dev() {
@@ -32,8 +22,9 @@ public class Ids {
         return dev ? Optional.of("dev") : Optional.empty();
     }
 
-    public Collection<String> ids() {
+    public boolean authorized(FacebookUser facebookUser) {
 
-        return sources.keySet().stream().map(String::valueOf).collect(Collectors.toList());
+        return sources.values().stream().anyMatch(id ->
+            String.valueOf(id).equalsIgnoreCase(facebookUser.getId()));
     }
 }
