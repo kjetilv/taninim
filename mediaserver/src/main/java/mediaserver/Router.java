@@ -3,10 +3,7 @@ package mediaserver;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.NotSslRecordException;
 import mediaserver.gui.Nettish;
 import org.slf4j.Logger;
@@ -23,6 +20,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -33,6 +32,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(Router.class);
+
+    private static final Collection<String> ROUTED = new ConcurrentSkipListSet<>();
 
     private final Collection<Nettish> nettishes;
 
@@ -54,7 +55,10 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                 "Failed to respond to " + req.uri() + " (" + ms + " ms)", e);
         }
         long ms = Duration.between(start, Instant.now()).toMillis();
-        log.debug("Responded {} -> {} in {}ms", req.uri(), res.status(), ms);
+        if (ROUTED.add(req.uri())) {
+            log.info("{} -> {}/{} in {}ms",
+                req.uri(), res.status(), res.headers().get(HttpHeaderNames.CONTENT_LENGTH), ms);
+        }
     }
 
     @Override

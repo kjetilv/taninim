@@ -13,6 +13,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
+import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import mediaserver.util.OnceEvery;
@@ -72,13 +73,13 @@ public class Main {
         OnceEvery onceEvery = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
         Supplier<Media> media = onceEvery.interval(REFRESH_TIME)
-            .when(shouldRefresh(args))
+            .when(shouldRefresh(local, args))
             .get(() ->
                 retrieveMedia(local, args));
-        Supplier<Map<String, ?>> ids = onceEvery.interval(REFRESH_TIME)
-            .when(shouldRefresh(args))
+        Supplier<Ids> ids = onceEvery.interval(REFRESH_TIME)
+            .when(shouldRefresh(local, args))
             .get(() ->
-                refreshIds(local));
+                refreshIds(local, ssl, dev));
 
         IO io = new IO(dev);
 
@@ -99,16 +100,19 @@ public class Main {
         start(bootstrap, port, listenGroup, workGroup);
     }
 
-    public static Map<String, ?> refreshIds(boolean local) {
-
-        return local ? IO.readResource("ids.json") : CloudMedia.ids();
+    public static Ids refreshIds(boolean local, boolean ssl, boolean dev) {
+        Map<String, ?> sources = local
+            ? IO.readResource("ids.json")
+            : CloudMedia.ids();
+        return new Ids(sources, dev && !ssl);
     }
 
-    public static BooleanSupplier shouldRefresh(String[] args) {
+    public static BooleanSupplier shouldRefresh(boolean local, String[] args) {
 
-        return new UpdateDetector(local(args)
+        Supplier<Optional<Instant>> updater = local
             ? () -> lastMediaUpdate(args)
-            : CloudMedia::lastUpdatedMedia);
+            : CloudMedia::lastUpdatedMedia;
+        return new UpdateDetector(updater);
     }
 
     public static Optional<Instant> lastMediaUpdate(String[] args) {
@@ -203,7 +207,7 @@ public class Main {
 
     private static Supplier<Router> routerSupplier(
         Supplier<Media> media,
-        Supplier<Map<String, ?>> ids,
+        Supplier<Ids> ids,
         IO io,
         boolean neuter,
         boolean local
@@ -212,7 +216,7 @@ public class Main {
         Supplier<char[]> secretProvider = () ->
             getProperty(FB_SEC).toCharArray();
         Sessions sessions =
-            new Sessions(Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
+            new Sessions(ids, Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
         return () ->
             new Router(
                 streamer(io, media, sessions, neuter, local),

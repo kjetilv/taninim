@@ -124,7 +124,7 @@ public class CategoryPath extends AbstractHashable
         return null;
     }
 
-    private boolean isRoot() {
+    public boolean isRoot() {
 
         return path.isEmpty();
     }

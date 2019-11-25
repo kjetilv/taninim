@@ -16,10 +16,10 @@ public class Resources extends Nettish {
 
     private final Map<String, Optional<HttpResponse>> cache = new ConcurrentHashMap<>();
 
-    private static final String FAVICON_ICO = "/favicon.ico";
+    private static final String FAVICON_ICO = "/res/favicon.ico";
 
     public Resources(IO io) {
-        super(io, "/resources", FAVICON_ICO);
+        super(io, "/res", FAVICON_ICO);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class Resources extends Nettish {
 
     private Function<String, Optional<HttpResponse>> read(HttpRequest req) {
         return path ->
-            readBytes(path.substring(1)).map(bytes ->
+            readBytes("res/" + path.substring(1)).map(bytes ->
                 response(req, null, contentType(path), bytes, IMMUTABLE));
     }
 

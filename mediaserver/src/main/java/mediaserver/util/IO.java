@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -71,7 +72,10 @@ public final class IO {
             .map(map ->
                 map.entrySet().stream().collect(Collectors.toMap(
                     Map.Entry::getKey,
-                    e -> e.getValue().toString()
+                    e -> e.getValue().toString(),
+                    (s1, s2) ->
+                        s1,
+                    LinkedHashMap::new
                 )))
             .orElseThrow(() ->
                 new IllegalArgumentException("No resource found @ " + resource));

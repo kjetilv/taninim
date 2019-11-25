@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 public class Sessions {
 
@@ -20,12 +21,15 @@ public class Sessions {
 
     private final Map<FacebookUser, Session> sessions = new ConcurrentHashMap<>();
 
+    private final Supplier<Ids> ids;
+
     private final Duration sessionLength;
 
     private final Clock clock;
 
-    public Sessions(Duration sessionLength, Clock clock) {
+    public Sessions(Supplier<Ids> ids, Duration sessionLength, Clock clock) {
 
+        this.ids = ids;
         this.sessionLength = sessionLength;
         this.clock = clock;
     }
@@ -43,12 +47,17 @@ public class Sessions {
     public Optional<FacebookUser> activeUser(HttpRequest req) {
 
         return activeSession(req)
-            .map(Session::getFacebookUser);
+            .map(Session::getFacebookUser)
+            .or(() ->
+                ids.get().dev().map(FacebookUser::new));
     }
 
     public Optional<String> activeUser(UUID uuid) {
 
-        return session(uuid).map(this::name);
+        return session(uuid)
+            .map(this::name)
+            .or(() ->
+                ids.get().dev());
     }
 
     private String name(Session session) {

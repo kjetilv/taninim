@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
+import mediaserver.sessions.Ids;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -28,13 +28,13 @@ public class FbAuth extends Nettish {
 
     private final Supplier<char[]> appSecret;
 
-    private final Supplier<Map<String, ?>> ids;
+    private final Supplier<Ids> ids;
 
     public FbAuth(
         IO io,
         Sessions sessions,
         Supplier<char[]> appSecret,
-        Supplier<Map<String, ?>> ids
+        Supplier<Ids> ids
     ) {
 
         super(io, "/auth");
@@ -59,7 +59,7 @@ public class FbAuth extends Nettish {
 
     private HttpResponse login(HttpRequest req, String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
-        return ids.get().values().stream()
+        return ids.get().ids().stream()
             .filter(id ->
                 authorized(id, facebookUser))
             .findFirst()

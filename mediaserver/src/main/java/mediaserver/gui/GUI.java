@@ -4,7 +4,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.util.AsciiString;
 import mediaserver.Media;
 import mediaserver.files.Album;
 import mediaserver.files.Artist;
@@ -76,14 +75,14 @@ public class GUI extends Nettish {
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
         Series series =
             pars.apply(QPar.SERIES).flatMap(media::getSeries).orElse(null);
-        return initTemplate(req, "index.html")
+        return initTemplate(req, "res/index.html")
             .add(QPar.MEDIA, media.subLibrary(categoryPath, artist, series))
             .add(QPar.ARTIST, artist);
     }
 
     private Template albumTemplate(HttpRequest req, Media media, Album album, QPars pars) {
 
-        return initTemplate(req, "album.html")
+        return initTemplate(req, "res/album.html")
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
             .add(
@@ -94,11 +93,7 @@ public class GUI extends Nettish {
 
     private Template initTemplate(HttpRequest req, String source) {
 
-        Template template = template(source);
-        return sessions.activeUser(req)
-            .map(user ->
-                template.add(QPar.USER, user))
-            .orElse(template);
+        return template(source).add(QPar.USER, sessions.activeUser(req).orElse(null));
     }
 
     private static Path path(String uri) {

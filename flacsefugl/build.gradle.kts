@@ -9,16 +9,16 @@ plugins {
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_13
+    targetCompatibility = JavaVersion.VERSION_13
 }
 
 dependencies {
     implementation(project(":mediaserver"))
     implementation(kotlin("stdlib"))
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.9")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.9")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     testImplementation("junit:junit:4.12")
 }
 

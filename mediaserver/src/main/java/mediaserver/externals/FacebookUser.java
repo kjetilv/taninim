@@ -10,6 +10,11 @@ public class FacebookUser extends AbstractHashable {
 
     private final String id;
 
+    public FacebookUser(String name) {
+
+        this(name, name);
+    }
+
     public FacebookUser(String name, String id) {
 
         this.name = name;

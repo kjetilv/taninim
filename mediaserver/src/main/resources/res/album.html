@@ -2,17 +2,18 @@
 <!--suppress HtmlUnknownTarget -->
 <HTML lang="en">
 <HEAD>
+    <LINK REL="stylesheet" HREF="res/plyr.css">
     <META charset="utf-8">
     <TITLE>taninim: {album.uuid}</TITLE>
 </HEAD>
 <BODY>
-<SCRIPT SRC="/resources/facebook.js">
+<SCRIPT SRC="/res/facebook.js">
 </SCRIPT>
 <DIV id="fb-root"></DIV>
 <SCRIPT async defer crossorigin="anonymous"
         src="https://connect.facebook.net/nn_NO/sdk.js#xfbml=1&version=v5.0&appId=398404340829160&autoLogAppEvents=1">
 </SCRIPT>
-<SCRIPT SRC="/resources/connectfb.js">
+<SCRIPT SRC="/res/connectfb.js">
 </SCRIPT>
 
 <DIV STYLE="float: right">
@@ -55,21 +56,21 @@
 
 <H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
 
-<H3>{album.artists:{artist|{artist.name} }}: <EM>{album.name}</EM>
+<H3>{album.artist.name}: <EM>{album.name}</EM>
     {if(user)}<A HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
 </H3>
 
 {if(user)}
 {if(playTrack)}
+<div style="clear: both">
 <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist.name}</em></P>
 <AUDIO id="player" controls>
     <SOURCE src="/audio/{playTrack.uuid}.m4a" type="audio/aac">
 </AUDIO>
 
-<SCRIPT src="resources/plyr.js"></SCRIPT>
-<SCRIPT>
-    Plyr.setup('#player');
-</SCRIPT>
+<SCRIPT src="/res/plyr.js"></SCRIPT>
+<SCRIPT src="/res/plyr-setup.js"></SCRIPT>
+</div>
 {endif}
 {endif}
 
@@ -85,16 +86,13 @@
 
             {track.name}
             {track.prettyDuration}
-            {album.artists:{artist|
             {if(user)}<A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>{endif}
-            }}
             {if(track.otherArtists)}
             <UL>
                 {track.otherArtists:{otherArtist|
                 <LI>
-                    [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>{if(user)}
-                    &nbsp;<A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
-                    {endif}]
+                    [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>{if(user)
+                    } <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>{endif}]
                 </LI>
                 }}
             </UL>

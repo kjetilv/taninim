@@ -26,8 +26,6 @@ public class Track extends AbstractHashable
 
     private final Collection<Artist> artists;
 
-    private final Artist albumArtist;
-
     private final Collection<Artist> albumArtists;
 
     private final String name;
@@ -74,17 +72,9 @@ public class Track extends AbstractHashable
                     .isPresent();
             this.artist = Artist.get(tags.getArtist());
             this.artists = this.artist.getCompositeArtists();
-            this.albumArtist =
-                compilation ? null : Optional.ofNullable(tags.getComments("albumartist"))
-                    .filter(c ->
-                        !c.isEmpty())
-                    .map(c ->
-                        c.get(0))
-                    .map(Artist::get)
-                    .orElse(this.artist);
-            this.albumArtists = this.albumArtist == null
-                ? Collections.emptyList()
-                : this.albumArtist.getCompositeArtists();
+            this.albumArtists = getAlbumArtist(tags, compilation)
+                .orElse(this.artist)
+                .getCompositeArtists();
             this.name = tags.getTitle();
             this.album = tags.getAlbum();
             this.trackNo = trackNo(file.getName());
@@ -109,6 +99,16 @@ public class Track extends AbstractHashable
         }
     }
 
+    public Optional<Artist> getAlbumArtist(FlacTags tags, boolean compilation) {
+
+        return compilation ? Optional.empty() : Optional.ofNullable(tags.getComments("albumartist"))
+            .filter(c ->
+                !c.isEmpty())
+            .map(c ->
+                c.get(0))
+            .map(Artist::get);
+    }
+
     public Artist getArtist() {
 
         return artist;
@@ -122,11 +122,6 @@ public class Track extends AbstractHashable
     public Collection<Artist> getOtherArtists() {
 
         return albumArtists.containsAll(artists) ? Collections.emptyList() : artists;
-    }
-
-    public Collection<Artist> getOtherArtistPresent() {
-
-        return getOtherArtists();
     }
 
     public String getAlbum() {
@@ -179,7 +174,8 @@ public class Track extends AbstractHashable
 
     public String getPrettyDuration() {
 
-        return duration.getSeconds() / 60 + ":" + duration.getSeconds() % 60;
+        long secs = duration.getSeconds() % 60;
+        return duration.getSeconds() / 60 + ":" + (secs < 10 ? "0" : "") + secs;
     }
 
     public boolean sameAlbum(Track track) {
