@@ -81,7 +81,7 @@ public class AlbumContext implements Serializable {
 
     public String getNotes() {
 
-        return notes == null ? "None" : notes;
+        return notes;
     }
 
     public Album getAlbum() {

@@ -33,9 +33,9 @@
 </DIV>
 
 <DIV align="center">
-<H1>
-    <A HREF="/">taninim</A>
-</H1>
+    <H1>
+        <A HREF="/">taninim</A>
+    </H1>
     <HR>
 </DIV>
 
@@ -70,8 +70,9 @@
 
 <DIV>
     <P>
-        Spilletid: {media.prettyDuration}
-    </P>
+        {length(media.tracks)} spor
+    <P>
+        Spilletid {media.prettyDuration}
 </DIV>
 
 <DIV>
@@ -106,7 +107,7 @@
 <DIV align="center">
     {media.sevenRandomAlbums:{album|
     <A HREF="/album?album={album.uuid}">
-    <IMG TITLE="{album.name}" ALT="{album.name}" SRC="{album.context.discogCover}">
+        <IMG TITLE="{album.name}" ALT="{album.name}" SRC="{album.context.discogCover}">
     </A>
     }}
 </DIV>
@@ -122,8 +123,8 @@
 </DIV>
 
 <DIV style="float:right"><!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
-<fb:login-button scope="public_profile" onlogin="checkLoginState();">
-</fb:login-button>
+    <fb:login-button scope="public_profile" onlogin="checkLoginState();">
+    </fb:login-button>
 </DIV>
 
 <SCRIPT>

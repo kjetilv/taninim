@@ -2,7 +2,6 @@ package mediaserver.files;
 
 import mediaserver.Media;
 import mediaserver.hash.AbstractHashable;
-import mediaserver.util.MostlyOnce;
 
 import java.io.File;
 import java.io.Serializable;
@@ -12,7 +11,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,11 +27,6 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     private final Collection<Artist> artists;
 
     private final Collection<CategoryPath> categories;
-
-    private Supplier<Duration> durationSupplier = MostlyOnce
-        .get(() -> albumStream(true).map(Album::getDuration).reduce(
-            Duration.ZERO,
-            Duration::plus));
 
     private static final long serialVersionUID = -7165763549356996140L;
 
@@ -158,7 +151,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     @Override
     public Duration getDuration() {
 
-        return durationSupplier.get();
+        return albumStream(true).map(Album::getDuration).reduce(
+            Duration.ZERO,
+            Duration::plus);
     }
 
     @Override
