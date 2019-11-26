@@ -16,6 +16,8 @@ public class AlbumContext implements Serializable {
 
     private final URI discogPage;
 
+    private final URI discogCover;
+
     private final String notes;
 
     private final Collection<String> series;
@@ -28,18 +30,27 @@ public class AlbumContext implements Serializable {
 
     public AlbumContext(Album album) {
 
-        this(album, null, null, null, null);
+        this(album, null, null, null, null, null);
     }
 
-    public AlbumContext(Album album, Year year, URI discogPage, String notes, Collection<String> series) {
+    public AlbumContext(Album album, Year year, URI discogPage, URI discogCover, String notes, Collection<String> series) {
 
-        this(Objects.requireNonNull(album, "album"), year, discogPage, notes,  series, null, null);
+        this(
+            Objects.requireNonNull(album, "album"),
+            year,
+            discogPage,
+            discogCover,
+            notes,
+            series,
+            null,
+            null);
     }
 
     private AlbumContext(
         Album album,
         Year year,
         URI discogPage,
+        URI discogCover,
         String notes,
         Collection<String> series,
         Credits credits,
@@ -49,6 +60,7 @@ public class AlbumContext implements Serializable {
         this.album = album;
         this.year = year;
         this.discogPage = discogPage;
+        this.discogCover = discogCover;
         this.notes = notes == null || notes.isBlank() ? null : notes.trim();
         this.series = series == null || series.isEmpty() ? Collections.emptyList() : List.copyOf(series);
         this.credits = credits == null ? new Credits() : credits;
@@ -93,6 +105,11 @@ public class AlbumContext implements Serializable {
             trackContext.getCredits().getCredits().isEmpty());
     }
 
+    public URI getDiscogCover() {
+
+        return discogCover;
+    }
+
     public URI getDiscogPage() {
 
         return discogPage;
@@ -104,6 +121,7 @@ public class AlbumContext implements Serializable {
             album,
             year,
             discogPage,
+            discogCover,
             notes,
             series,
             credits.credit(name, uri, type),
@@ -122,6 +140,7 @@ public class AlbumContext implements Serializable {
             album,
             albumContext.year == null ? year : albumContext.year,
             discogPage,
+            discogCover,
             albumContext.notes == null ? notes : albumContext.notes,
             albumContext.series.isEmpty() ? series : albumContext.series,
             credits.append(albumContext.getCredits()),
@@ -134,6 +153,7 @@ public class AlbumContext implements Serializable {
             album,
             year,
             discogPage,
+            discogCover,
             notes,
             series,
             credits,

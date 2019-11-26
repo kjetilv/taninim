@@ -1,17 +1,14 @@
 package mediaserver;
 
-import mediaserver.externals.DiscogReleaseDigest;
-import mediaserver.externals.DiscogSeriesDigest;
-import mediaserver.externals.IOSMapParser;
-import mediaserver.externals.iTunesLibrary;
+import mediaserver.externals.*;
 import mediaserver.files.*;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Year;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -19,9 +16,12 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public interface Media {
 
     Logger log = LoggerFactory.getLogger(Media.class);
+
+    int SE7EN = 7;
 
     Media subLibrary(CategoryPath categoryPath, Artist artist, Series series);
 
@@ -41,6 +41,12 @@ public interface Media {
     Collection<CategoryPath> getTopCategories();
 
     Collection<CategoryPath> getCategories();
+
+    Duration getDuration();
+
+    default String getPrettyDuration() {
+        return IO.pretty(getDuration());
+    }
 
     default Collection<Artist> getAlbumArtists() {
 
@@ -64,6 +70,12 @@ public interface Media {
     Collection<Artist> getAlbumCreditedArtists();
 
     Collection<Artist> getTrackCreditedArtists();
+
+    default Collection<Album> getSevenRandomAlbums() {
+        return getRandomAlbums(SE7EN);
+    }
+
+    Collection<Album> getRandomAlbums(int count);
 
     default Collection<Album> allAlbums() {
 
@@ -115,7 +127,7 @@ public interface Media {
 
         iTunesLibrary iTunesLibrary = iTunesLibrary(libraryPath);
         Collection<DiscogConnection> metaConnections = metaConnections(baseMedia, iTunesLibrary);
-        DiscogsDataResolver discogsData = new DiscogsDataResolver(resourcesPath, metaConnections);
+        DiscogsDataResolver discogsData = new DiscogsDataResolver(resourcesPath, metaConnections, Duration.ofDays(7));
         Media media = baseMedia.allAlbums().stream().reduce(baseMedia, addContextFrom(discogsData), noCombine());
         log.info("Returning {}", media);
         return media;
@@ -140,6 +152,7 @@ public interface Media {
                             album,
                             yearOf(release),
                             URI.create(release.getUri()),
+                            cover(release).orElse(null),
                             release.getNotes(),
                             series(release)),
                         (ctx, dad) ->
@@ -167,6 +180,14 @@ public interface Media {
             }).orElse(media);
     }
 
+    static Optional<URI> cover(DiscogReleaseDigest release) {
+
+        return Optional.ofNullable(release.getImages()).stream().flatMap(Collection::stream)
+            .filter(image -> "primary".equalsIgnoreCase(image.getType()))
+            .map(DiscogImage::getUri150)
+            .findFirst();
+    }
+
     static List<String> series(DiscogReleaseDigest release) {
 
         return release.getSeries().stream().map(DiscogSeriesDigest::getName).collect(Collectors.toList());
@@ -189,7 +210,7 @@ public interface Media {
                     .map(album ->
                         new DiscogConnection(
                             album,
-                            URI.create(track.getComments()))))
+                            URI.create(track.getComments().trim()))))
             .filter(Optional::isPresent).map(Optional::get)
             .distinct()
             .collect(Collectors.toList());

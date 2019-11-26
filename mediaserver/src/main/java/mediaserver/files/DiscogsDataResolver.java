@@ -1,20 +1,24 @@
 package mediaserver.files;
 
+import mediaserver.Main;
 import mediaserver.externals.DiscogReleaseDigest;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -22,17 +26,28 @@ public class DiscogsDataResolver {
 
     private static final Logger log = LoggerFactory.getLogger(DiscogsDataResolver.class);
 
+    private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
+
+    private static final String SECRET = Main.getProperty("dSec");
+
+    private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
+        headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);
+
     private final Path resourcesDirectory;
 
     private final Collection<DiscogConnection> connections;
 
+    private final Duration refreshTime;
+
     public DiscogsDataResolver(
         Path resourcesDirectory,
-        Collection<DiscogConnection> connections
+        Collection<DiscogConnection> connections,
+        Duration refreshTime
     ) {
 
         this.resourcesDirectory = resourcesDirectory;
         this.connections = connections;
+        this.refreshTime = refreshTime;
     }
 
     public Optional<DiscogReleaseDigest> getDiscogRelease(Album album) {
@@ -60,15 +75,33 @@ public class DiscogsDataResolver {
 
         return withRetry(3, retry -> {
             try {
-                if (local.toFile().isFile() && raw.toFile().isFile()) {
+                if (Files.isRegularFile(local) && Files.isRegularFile(raw) && fresh(raw)) {
                     return updateAndReadLocalFile(raw, local);
                 }
-                return fetchAndWriteLocalFile(connection.getUri(), local, raw);
+                try {
+                    return fetchAndWriteLocalFile(connection.getUri(), local, raw);
+                } catch (Exception e) {
+                    log.warn("Discog read problem for {}/{}, continuing...", local, raw, e);
+                    return updateAndReadLocalFile(raw, local);
+                }
             } catch (Exception e) {
                 log.warn("Failed to retrieve data for {}, proceeding", connection, e);
             }
             return Optional.empty();
         });
+    }
+
+    public boolean fresh(Path raw) {
+
+        try {
+            return Duration.between(
+                Files.getLastModifiedTime(raw).toInstant(),
+                Instant.now()
+            ).minus(refreshTime).isNegative();
+        } catch (IOException e) {
+            log.warn("Could not assert age of {}", raw, e);
+            return false;
+        }
     }
 
     public <T> Optional<T> withRetry(int retries, IntFunction<Optional<T>> fun) {
@@ -82,28 +115,26 @@ public class DiscogsDataResolver {
         Path localRawPath
     ) {
 
-        Map<String, ?> rawData = IO.readData(uri);
+        Map<String, ?> rawData = IO.readData(uri, AUTHORIZATION);
         DiscogReleaseDigest digest = readRelease(rawData);
         IO.writeStream(localDigestPath, digest, writeRelease(DiscogReleaseDigest.class));
         IO.writeStream(localRawPath, rawData, writeRelease(Map.class));
         return Optional.of(digest);
     }
 
-    public Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path localDigestPath) {
+    public Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path local) {
 
         Map<String, ?> rawData = IO.readData(raw);
         DiscogReleaseDigest digest = readRelease(rawData);
-        IO.writeStream(localDigestPath, digest, writeRelease(DiscogReleaseDigest.class));
-        return Optional.of(digest);
-    }
-
-    public DiscogReleaseDigest readRelease(InputStream is) {
-
         try {
-            return IO.OM.readerFor(DiscogReleaseDigest.class).readValue(is);
+            if (Files.getLastModifiedTime(local).toInstant().isBefore(Files.getLastModifiedTime(raw).toInstant())) {
+                IO.writeStream(local, digest, writeRelease(DiscogReleaseDigest.class));
+            }
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to read", e);
+            log.warn("Failed comparison of files {}/{}, rewriting", local, raw, e);
+            IO.writeStream(local, digest, writeRelease(DiscogReleaseDigest.class));
         }
+        return Optional.of(digest);
     }
 
     public DiscogReleaseDigest readRelease(Map<String, ?> rawData) {

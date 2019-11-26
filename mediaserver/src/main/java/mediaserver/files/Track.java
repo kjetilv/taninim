@@ -1,6 +1,7 @@
 package mediaserver.files;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.IO;
 import org.gagravarr.flac.FlacFile;
 import org.gagravarr.flac.FlacInfo;
 import org.gagravarr.flac.FlacTags;
@@ -174,8 +175,7 @@ public class Track extends AbstractHashable
 
     public String getPrettyDuration() {
 
-        long secs = duration.getSeconds() % 60;
-        return duration.getSeconds() / 60 + ":" + (secs < 10 ? "0" : "") + secs;
+        return IO.pretty(this.duration);
     }
 
     public boolean sameAlbum(Track track) {

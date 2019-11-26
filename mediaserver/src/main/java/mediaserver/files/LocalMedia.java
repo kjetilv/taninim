@@ -2,18 +2,23 @@ package mediaserver.files;
 
 import mediaserver.Media;
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.MostlyOnce;
 
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LocalMedia extends AbstractHashable implements Media, Serializable {
+
+    public static final Random RND = new Random();
 
     private final CategoryPath categoryPath;
 
@@ -24,6 +29,11 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     private final Collection<Artist> artists;
 
     private final Collection<CategoryPath> categories;
+
+    private Supplier<Duration> durationSupplier = MostlyOnce
+        .get(() -> albumStream(true).map(Album::getDuration).reduce(
+            Duration.ZERO,
+            Duration::plus));
 
     private static final long serialVersionUID = -7165763549356996140L;
 
@@ -146,6 +156,12 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
+    public Duration getDuration() {
+
+        return durationSupplier.get();
+    }
+
+    @Override
     public Collection<Artist> getAlbumArtists(boolean recurse) {
 
         return stream(recurse).map(Album::getArtists).flatMap(Collection::stream).collect(Collectors.toSet());
@@ -167,6 +183,25 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     public Collection<Artist> getTrackCreditedArtists() {
 
         return collectArtists(Album::getAllArtists);
+    }
+
+    @Override
+    public Collection<Album> getRandomAlbums(int count) {
+
+        List<Album> indexed = this.albums.stream()
+            .filter(album ->
+                album.getContext().getDiscogCover() != null)
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        if (count < indexed.size()) {
+            Collection<Integer> indexes = new HashSet<>();
+            while (indexes.size() < count) {
+                indexes.add(RND.nextInt(indexed.size()));
+            }
+            return indexes.stream().map(indexed::get).collect(Collectors.toList());
+        }
+        Collections.shuffle(indexed);
+        return indexed;
     }
 
     @Override

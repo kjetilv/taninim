@@ -1,6 +1,5 @@
 package mediaserver.externals;
 
-import javax.xml.stream.events.DTD;
 import java.util.List;
 
 public class DiscogReleaseDigest {
@@ -16,6 +15,8 @@ public class DiscogReleaseDigest {
     private String notes;
 
     private String uri;
+
+    private List<DiscogImage> images;
 
     private List<DiscogArtistDigest> artists;
 
@@ -53,6 +54,16 @@ public class DiscogReleaseDigest {
     public void setTitle(String title) {
 
         this.title = title;
+    }
+
+    public List<DiscogImage> getImages() {
+
+        return images;
+    }
+
+    public void setImages(List<DiscogImage> images) {
+
+        this.images = images;
     }
 
     public List<DiscogSeriesDigest> getSeries() {

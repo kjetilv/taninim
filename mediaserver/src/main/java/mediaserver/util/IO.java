@@ -10,10 +10,12 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,9 +61,9 @@ public final class IO {
         return readStream(path, readMapFrom(path));
     }
 
-    public static Map<String, ?> readData(URI uri) {
+    public static Map<String, ?> readData(URI uri, Consumer<BiConsumer<String, String>> headers) {
 
-        return tryReadStream(uri, readMapFrom(uri));
+        return tryReadStream(uri, headers, readMapFrom(uri));
     }
 
     public static Map<String, String> readResource(String resource) {
@@ -136,13 +138,46 @@ public final class IO {
         }
     }
 
-    private static <T> T tryReadStream(URI uri, Function<InputStream, T> receptor) {
+    public static String pretty(Duration dur) {
+
+        if (dur.minus(Duration.ofHours(1)).isNegative()) {
+            return String.format(
+                "%d:%02d",
+                dur.toMinutesPart(),
+                dur.toSecondsPart());
+        }
+        if (dur.minus(Duration.ofDays(1)).isNegative()) {
+            return String.format(
+                "%d time%s og %d minutt%s",
+                dur.toHoursPart(),
+                dur.toHoursPart() > 1 ? "r" : "",
+                dur.toMinutesPart(),
+                dur.toMinutesPart() > 1 ? "er" : "");
+        }
+        return String.format(
+            "%d dag%s, %d time%s og %d minutt%s",
+            dur.toDaysPart(),
+            dur.toDaysPart() > 1 ? "er" : "",
+            dur.toHoursPart(),
+            dur.toHoursPart() > 1 ? "r" : "",
+            dur.toMinutesPart(),
+            dur.toMinutesPart() > 1 ? "er" : "");
+    }
+
+    private static <T> T tryReadStream(
+        URI uri,
+        Consumer<BiConsumer<String, String>> headers,
+        Function<InputStream, T> receptor
+    ) {
 
         HttpURLConnection urlConnection;
         try {
             urlConnection = (HttpURLConnection) uri.toURL().openConnection();
         } catch (Exception e) {
             throw new IllegalStateException("Made no sense of " + uri, e);
+        }
+        if (headers != null) {
+            headers.accept(urlConnection::setRequestProperty);
         }
         try {
             int responseCode;

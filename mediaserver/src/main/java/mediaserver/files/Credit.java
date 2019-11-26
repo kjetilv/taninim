@@ -97,6 +97,8 @@ public class Credit implements Serializable {
 
         design,
 
+        cover_by,
+
         artwork,
 
         illustration,

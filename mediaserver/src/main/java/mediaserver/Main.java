@@ -54,6 +54,8 @@ public class Main {
 
     private static final String FB_SEC = "fbSec";
 
+    private static final String D_SEC = "dSec";
+
     private static final Duration REFRESH_TIME = Duration.ofMinutes(5);
 
     public static void main(String[] args) {
@@ -161,10 +163,9 @@ public class Main {
     public static Media retrieveMedia(boolean local, String[] args) {
 
         try {
-            if (local) {
-                return Media.local(mediaFile(args), libraryPath(args), resourcesPath(args));
-            }
-            return CloudMedia.download();
+            return local
+                ? Media.local(mediaFile(args), libraryPath(args), resourcesPath(args))
+                : CloudMedia.download();
         } catch (Exception e) {
             log.error("Error retrieving media, proceeding with empty... ", e);
             return Media.empty();

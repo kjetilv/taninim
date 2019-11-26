@@ -1,8 +1,10 @@
 package mediaserver.files;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.IO;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -102,6 +104,16 @@ public class Album extends AbstractHashable
                 categoryPath,
                 context
             )).collect(Collectors.toList());
+    }
+
+    public Duration getDuration() {
+        return getTracks().stream().map(Track::getDuration).reduce(
+            Duration.ZERO,
+            Duration::plus);
+    }
+
+    public String getPrettyDuration() {
+        return IO.pretty(getDuration());
     }
 
     @SuppressWarnings("NullableProblems")
