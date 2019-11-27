@@ -49,14 +49,14 @@ fun main() {
             Traverser(rootDir),
             included)
 
-//    flacConversion.convert("flac") { source, target ->
-//        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
-//        true
-//    }
+    flacConversion.convert("flac") { source, target ->
+        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
+        true
+    }
 
     flacConversion.convert("flac") { source, target ->
         if (Files.isRegularFile(target) && Files.size(target) > 0) {
-//            println("Not converting, already done: $target")
+            println("Not converting, already done: $target")
             true
         } else {
             ffmpeg(source, target).await()
@@ -69,7 +69,7 @@ fun main() {
             included)
     m4aConversion.convert("m4a") { source, target ->
         if (Files.isRegularFile(target) && Files.size(target) > 0) {
-//            println("Not converting, already done: $target")
+            println("Not converting, already done: $target")
             true
         } else {
             ffmpegM4a(source, target).await()
@@ -112,7 +112,7 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
 
         Paths.get("Masada", "The Book Beri'ah") to albumContains("book beri'ah vol. "),
 
-        Paths.get("Masada", "Masada Book 1") to { path ->
+        Paths.get("Masada") to { path ->
             artist(path) == "masada" && album(path).contains("book 1 vol. ")
         },
 
@@ -123,18 +123,18 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
                     artist(path) == "masada" && album(path).contains("50th birthday")
         },
 
-        Paths.get("Masada", "Masada Book 1", "10. Anniversary") to { path ->
+        Paths.get("Masada", "More Masada", "10. Anniversary") to { path ->
             artist(path) == "masada" && album(path).contains("book 1 vol. ") ||
                     album(path).contains("masada 10. anniversary")
         },
 
-        Paths.get("Masada", "Masada Book 1", "Live") to { path ->
+        Paths.get("Masada", "More Masada", "Live") to { path ->
             artist(path).contains("masada") && album(path).contains(" live ")
         },
 
-        Paths.get("Masada", "Various") to artistIs("electric masada"),
+        Paths.get("Masada", "More Masada") to albumContains("Sanhedrin"),
 
-        Paths.get("Masada", "Masada Book 1") to albumContains("Sanhedrin"),
+        Paths.get("Masada", "Various") to artistIs("electric masada"),
 
         Paths.get("Hardcore miniatures", "Painkiller") to artistContains("painkiller"),
 

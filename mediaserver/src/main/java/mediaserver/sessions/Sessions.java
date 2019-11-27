@@ -83,11 +83,11 @@ public class Sessions {
         Instant time = now();
         if (refreshable(oldSession, time)) {
             Session session = new Session(facebookUser, UUID.randomUUID(), cutoff(time));
-            log.info("Established new session {} for {}, previous session: {}",
-                session, facebookUser, oldSession);
+            log.info("{}: New session {}, previous: {}",
+                facebookUser, session, oldSession);
             return session;
         }
-        log.info("Reused old session for {}: {}", facebookUser, oldSession);
+        log.info("{} reused session: {}", facebookUser, oldSession);
         return oldSession;
     }
 
