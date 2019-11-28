@@ -10,12 +10,14 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Media;
+import mediaserver.externals.FacebookUser;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
 
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -27,17 +29,22 @@ public final class S3Streamer extends AbstractStreamer {
     }
 
     @Override
-    protected ChannelFuture stream(HttpRequest req, Track track, ChannelHandlerContext ctx, HttpResponse res) {
+    protected Optional<ChannelFuture> stream(
+        HttpRequest req,
+        FacebookUser user,
+        Track track,
+        ChannelHandlerContext ctx,
+        HttpResponse res
+    ) {
         UUID uuid = track.getUuid();
         String audioType = audioType(req);
         long fileLength = length(uuid, audioType);
 
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
         if (rangeHeader == null || rangeHeader.length() <= 0) {
-            return writeLength(ctx, res, fileLength);
+            return Optional.of(writeLength(ctx, res, fileLength));
         }
-        return writePartial(ctx, uuid, audioType, fileLength, res, rangeHeader)
-            .addListener(new ProgressListener(uuid));
+        return Optional.of(writePartial(ctx, uuid, audioType, fileLength, res, rangeHeader));
     }
 
     private long length(UUID uuid, String type) {

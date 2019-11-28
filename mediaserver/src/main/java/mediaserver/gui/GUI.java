@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Media;
+import mediaserver.externals.FacebookUser;
 import mediaserver.files.Album;
 import mediaserver.files.Artist;
 import mediaserver.files.CategoryPath;
@@ -14,6 +15,7 @@ import mediaserver.util.IO;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class GUI extends Nettish {
@@ -52,13 +54,17 @@ public class GUI extends Nettish {
         String uriPath = uriPath(uri);
 
         if ("album".equals(unslashed(uriPath))) {
-            return pars.apply(QPar.ALBUM).flatMap(media::getAlbum)
+            return pars.apply(QPar.ALBUM)
+                .flatMap(media::getAlbum)
                 .map(album ->
                     albumTemplate(req, media, album, pars))
+                .or(() ->
+                    indexTemplate(req, media, uriPath, pars))
                 .orElseGet(() ->
-                    indexTemplate(req, media, uriPath, pars));
+                    template("res/nope.html"));
         }
-        return indexTemplate(req, media, uriPath, pars);
+        return indexTemplate(req, media, uriPath, pars).orElseGet(() ->
+            template("res/nope.html"));
     }
 
     private String unslashed(String uriPath) {
@@ -68,16 +74,28 @@ public class GUI extends Nettish {
             : uriPath.toLowerCase();
     }
 
-    private Template indexTemplate(HttpRequest req, Media media, String uriPath, QPars pars) {
+    private Optional<Template> indexTemplate(
+        HttpRequest req,
+        Media media,
+        String uriPath,
+        QPars pars
+    ) {
 
         CategoryPath categoryPath = getCategoryPath(uriPath);
+        if (!media.getCategories().contains(categoryPath)) {
+            return Optional.empty();
+        }
         Artist artist =
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
         Series series =
             pars.apply(QPar.SERIES).flatMap(media::getSeries).orElse(null);
-        return initTemplate(req, "res/index.html")
-            .add(QPar.MEDIA, media.subLibrary(categoryPath, artist, series))
-            .add(QPar.ARTIST, artist);
+        Media submedia = media.subLibrary(categoryPath, artist, series);
+        if (submedia.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(initTemplate(req, "res/index.html")
+            .add(QPar.MEDIA, submedia)
+            .add(QPar.ARTIST, artist));
     }
 
     private Template albumTemplate(HttpRequest req, Media media, Album album, QPars pars) {
@@ -93,7 +111,7 @@ public class GUI extends Nettish {
 
     private Template initTemplate(HttpRequest req, String source) {
 
-        return template(source).add(QPar.USER, sessions.activeUser(req).orElse(null));
+        return template(source).add(QPar.USER, sessions.activeUser(req).map(FacebookUser::getName).orElse(null));
     }
 
     private static Path path(String uri) {

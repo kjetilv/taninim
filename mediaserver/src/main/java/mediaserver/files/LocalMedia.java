@@ -61,6 +61,12 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
+    public boolean isEmpty() {
+
+        return albums.isEmpty();
+    }
+
+    @Override
     public Media subLibrary(CategoryPath categoryPath, Artist artist, Series series) {
 
         if (categoryPath == null && artist == null && series == null) {

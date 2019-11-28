@@ -22,6 +22,8 @@ public class AlbumContext implements Serializable {
 
     private final Collection<String> series;
 
+    private final Collection<Video> videos;
+
     private final Credits credits;
 
     private final List<TrackContext> trackContexts;
@@ -30,10 +32,18 @@ public class AlbumContext implements Serializable {
 
     public AlbumContext(Album album) {
 
-        this(album, null, null, null, null, null);
+        this(album, null, null, null, null, null, null);
     }
 
-    public AlbumContext(Album album, Year year, URI discogPage, URI discogCover, String notes, Collection<String> series) {
+    public AlbumContext(
+        Album album,
+        Year year,
+        URI discogPage,
+        URI discogCover,
+        String notes,
+        Collection<String> series,
+        Collection<Video> videos
+    ) {
 
         this(
             Objects.requireNonNull(album, "album"),
@@ -42,6 +52,7 @@ public class AlbumContext implements Serializable {
             discogCover,
             notes,
             series,
+            videos,
             null,
             null);
     }
@@ -53,6 +64,7 @@ public class AlbumContext implements Serializable {
         URI discogCover,
         String notes,
         Collection<String> series,
+        Collection<Video> videos,
         Credits credits,
         List<TrackContext> trackContexts
     ) {
@@ -63,6 +75,7 @@ public class AlbumContext implements Serializable {
         this.discogCover = discogCover;
         this.notes = notes == null || notes.isBlank() ? null : notes.trim();
         this.series = series == null || series.isEmpty() ? Collections.emptyList() : List.copyOf(series);
+        this.videos = videos == null || videos.isEmpty() ? Collections.emptyList() : List.copyOf(videos);
         this.credits = credits == null ? new Credits() : credits;
         this.trackContexts = trackContexts == null || trackContexts.isEmpty()
             ? Collections.emptyList()
@@ -87,6 +100,11 @@ public class AlbumContext implements Serializable {
     public Album getAlbum() {
 
         return album;
+    }
+
+    public Collection<Video> getVideos() {
+
+        return videos;
     }
 
     public Collection<String> getSeries() {
@@ -124,6 +142,7 @@ public class AlbumContext implements Serializable {
             discogCover,
             notes,
             series,
+            videos,
             credits.credit(name, uri, type),
             trackContexts);
     }
@@ -143,6 +162,7 @@ public class AlbumContext implements Serializable {
             discogCover,
             albumContext.notes == null ? notes : albumContext.notes,
             albumContext.series.isEmpty() ? series : albumContext.series,
+            albumContext.videos.isEmpty() ? videos : albumContext.videos,
             credits.append(albumContext.getCredits()),
             albumContext.getTrackContexts());
     }
@@ -156,6 +176,7 @@ public class AlbumContext implements Serializable {
             discogCover,
             notes,
             series,
+            videos,
             credits,
             trackContexts);
     }

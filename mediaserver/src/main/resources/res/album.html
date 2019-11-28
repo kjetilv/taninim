@@ -33,9 +33,9 @@
 </DIV>
 
 <DIV align="center">
-<H1>
-    <A HREF="/">taninim</A>
-</H1>
+    <H1>
+        <A HREF="/">taninim</A>
+    </H1>
     <HR>
 </DIV>
 
@@ -68,14 +68,9 @@
 </H3>
 
 <DIV>
-    <P> Spilletid: {album.prettyDuration}</P>
+    <P>Spilletid {album.prettyDuration}{if(album.context.year)}. Kom i {album.context.year.value}.{endif}
+    </P>
 </DIV>
-
-{if(album.context.year)}
-<DIV>
-    <P>Sluppet i {album.context.year.value}</P>
-</DIV>
-{endif}
 
 {if(user)}
 {if(playTrack)}
@@ -99,10 +94,9 @@
     <OL>
         {albumPart.tracks:{track |
         <LI>
-
+            {if(user)}<A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>{endif}
             {track.name}
             {track.prettyDuration}
-            {if(user)}<A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶</A>{endif}
             {if(track.otherArtists)}
             <UL>
                 {track.otherArtists:{otherArtist|
@@ -147,7 +141,7 @@
 <DIV>
     {if(album.context.additionalTrackContext)}
 
-    <H3>Spordetaljer</H3>
+    <H3>Spormengder</H3>
 
     <UL>
         {album.context.trackContexts:{trackContext |
@@ -195,7 +189,27 @@
         {endif}
 </DIV>
 
-<DIV style="float:right"><!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
+{if(album.context.videos)}
+<H3>Videoer</H3>
+<DIV>
+    {album.context.videos:{video|
+    <DIV style="float: left; padding: 20px">
+        <DIV align="center">
+            <iframe width="280" height="157"
+                    src="{video.uri}"
+                    allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+
+            </iframe>
+        </DIV>
+        <DIV>
+            <EM>{video.title}</EM>
+        </DIV>
+    </DIV>
+    }}
+    {endif}
+</DIV>
+
+<DIV style="clear: both; float:right"><!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
     <fb:login-button scope="public_profile" onlogin="checkLoginState();">
     </fb:login-button>
 </DIV>

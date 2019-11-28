@@ -18,6 +18,8 @@ public class DiscogReleaseDigest {
 
     private List<DiscogImage> images;
 
+    private List<DiscogVideo> videos;
+
     private List<DiscogArtistDigest> artists;
 
     private List<DiscogArtistDigest> extraartists;
@@ -64,6 +66,16 @@ public class DiscogReleaseDigest {
     public void setImages(List<DiscogImage> images) {
 
         this.images = images;
+    }
+
+    public List<DiscogVideo> getVideos() {
+
+        return videos;
+    }
+
+    public void setVideos(List<DiscogVideo> videos) {
+
+        this.videos = videos;
     }
 
     public List<DiscogSeriesDigest> getSeries() {

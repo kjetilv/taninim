@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import mediaserver.Media;
+import mediaserver.externals.FacebookUser;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
@@ -50,7 +51,9 @@ public abstract class AbstractStreamer extends Nettish {
         return activeUserByCookie(req).map(user ->
             getMediaTrack(resource(path)).map(track -> {
                 HttpResponse response = response(req);
-                stream(req, track, ctx, response);
+                stream(req, user, track, ctx, response)
+                    .ifPresent(cf ->
+                        cf.addListener(progressListener(user, track)));
                 return respondStream(req, ctx, response);
             }).orElseGet(() ->
                 respond(ctx, path, NOT_FOUND)))
@@ -58,7 +61,7 @@ public abstract class AbstractStreamer extends Nettish {
                 teapot(req, ctx));
     }
 
-    public Optional<String> activeUserByCookie(FullHttpRequest req) {
+    public Optional<FacebookUser> activeUserByCookie(FullHttpRequest req) {
 
         return authCookie(req).flatMap(sessions::activeUser);
     }
@@ -95,8 +98,9 @@ public abstract class AbstractStreamer extends Nettish {
         }
     }
 
-    protected abstract ChannelFuture stream(
+    protected abstract Optional<ChannelFuture> stream(
         HttpRequest req,
+        FacebookUser user,
         Track track,
         ChannelHandlerContext ctx,
         HttpResponse res
@@ -131,6 +135,12 @@ public abstract class AbstractStreamer extends Nettish {
 
         HttpUtil.setContentLength(response, fileLength);
         return ctx.write(response);
+    }
+
+    protected static ProgressListener progressListener(FacebookUser user, Track track) {
+
+        return new ProgressListener(
+            user + ": " + track.getArtist().getName() + ": " + track.getName() + " [" + track.getAlbum() + "]");
     }
 
     private static String contentType(HttpRequest req) {

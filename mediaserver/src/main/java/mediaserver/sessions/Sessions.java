@@ -52,17 +52,12 @@ public class Sessions {
                 ids.get().dev().map(FacebookUser::new));
     }
 
-    public Optional<String> activeUser(UUID uuid) {
+    public Optional<FacebookUser> activeUser(UUID uuid) {
 
         return session(uuid)
-            .map(this::name)
+            .map(Session::getFacebookUser)
             .or(() ->
-                ids.get().dev());
-    }
-
-    private String name(Session session) {
-
-        return session.getFacebookUser().getName();
+                ids.get().dev().map(dev -> new FacebookUser(dev, dev)));
     }
 
     private Optional<Session> session(UUID id) {

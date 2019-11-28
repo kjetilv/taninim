@@ -45,6 +45,7 @@ public interface Media {
     Duration getDuration();
 
     default String getPrettyDuration() {
+
         return IO.pretty(getDuration());
     }
 
@@ -72,6 +73,7 @@ public interface Media {
     Collection<Artist> getTrackCreditedArtists();
 
     default Collection<Album> getSevenRandomAlbums() {
+
         return getRandomAlbums(SE7EN);
     }
 
@@ -154,7 +156,9 @@ public interface Media {
                             URI.create(release.getUri()),
                             cover(release).orElse(null),
                             release.getNotes(),
-                            series(release)),
+                            series(release),
+                            videos(release)
+                        ),
                         (ctx, dad) ->
                             ctx.credit(
                                 dad.getName(),
@@ -178,6 +182,25 @@ public interface Media {
                     .collect(Collectors.toList());
                 return media.withAlbumContext(album.getUuid(), context.withTrackContexts(trackContexts));
             }).orElse(media);
+    }
+
+    static List<Video> videos(DiscogReleaseDigest release) {
+
+        return Optional.ofNullable(release.getVideos()).stream().flatMap(Collection::stream)
+            .flatMap(discogVideo ->
+                video(discogVideo)
+            ).collect(Collectors.toList());
+    }
+
+    static Stream<Video> video(DiscogVideo discogVideo) {
+
+        try {
+            return Stream.of(
+                new Video(discogVideo.getTitle(), discogVideo.getDescription(), discogVideo.getUri()));
+        } catch (Exception e) {
+            log.warn("Bad video: {}", discogVideo, e);
+            return Stream.empty();
+        }
     }
 
     static Optional<URI> cover(DiscogReleaseDigest release) {
@@ -232,4 +255,6 @@ public interface Media {
 
         return new LocalMedia(null);
     }
+
+    boolean isEmpty();
 }

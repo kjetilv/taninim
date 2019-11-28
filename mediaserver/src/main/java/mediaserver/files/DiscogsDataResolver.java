@@ -55,27 +55,25 @@ public class DiscogsDataResolver {
         return connections.stream()
             .filter(meta ->
                 match(album, meta))
-            .map(connection ->
-                digest(
-                    connection,
-                    resourcesDirectory.resolve(
-                        Paths.get(connection.getType(), connection.getId() + ".json")),
-                    resourcesDirectory.resolve(
-                        Paths.get(connection.getType(), connection.getId() + "-raw.json"))))
+            .map(connection -> digest(
+                connection,
+                pathTo(connection, ".json"),
+                pathTo(connection, "-raw.json")))
             .flatMap(Optional::stream)
             .findFirst();
     }
 
-    public boolean match(Album album, DiscogConnection meta) {
+    private Path pathTo(DiscogConnection connection, String suffix) {
 
-        return meta.isUp() && meta.getAlbum().equals(album);
+        return resourcesDirectory.resolve(
+            Paths.get(connection.getType(), connection.getId() + suffix));
     }
 
-    public Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
+    private Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
 
         return withRetry(3, retry -> {
             try {
-                if (Files.isRegularFile(local) && Files.isRegularFile(raw) && fresh(raw)) {
+                if (regularFile(local) && regularFile(raw) && fresh(raw)) {
                     return updateAndReadLocalFile(raw, local);
                 }
                 try {
@@ -91,11 +89,11 @@ public class DiscogsDataResolver {
         });
     }
 
-    public boolean fresh(Path raw) {
+    private boolean fresh(Path raw) {
 
         try {
             return Duration.between(
-                Files.getLastModifiedTime(raw).toInstant(),
+                modifiedTime(raw),
                 Instant.now()
             ).minus(refreshTime).isNegative();
         } catch (IOException e) {
@@ -104,12 +102,18 @@ public class DiscogsDataResolver {
         }
     }
 
-    public <T> Optional<T> withRetry(int retries, IntFunction<Optional<T>> fun) {
+    @SuppressWarnings("SameParameterValue")
+    private static <T> Optional<T> withRetry(int retries, IntFunction<Optional<T>> fun) {
 
         return IntStream.range(0, retries).mapToObj(fun).flatMap(Optional::stream).findFirst();
     }
 
-    public Optional<DiscogReleaseDigest> fetchAndWriteLocalFile(
+    private static boolean match(Album album, DiscogConnection meta) {
+
+        return meta.isUp() && meta.getAlbum().equals(album);
+    }
+
+    private static Optional<DiscogReleaseDigest> fetchAndWriteLocalFile(
         URI uri,
         Path localDigestPath,
         Path localRawPath
@@ -122,12 +126,12 @@ public class DiscogsDataResolver {
         return Optional.of(digest);
     }
 
-    public Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path local) {
+    private static Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path local) {
 
         Map<String, ?> rawData = IO.readData(raw);
         DiscogReleaseDigest digest = readRelease(rawData);
         try {
-            if (Files.getLastModifiedTime(local).toInstant().isBefore(Files.getLastModifiedTime(raw).toInstant())) {
+            if (modifiedTime(raw).isAfter(modifiedTime(local))) {
                 IO.writeStream(local, digest, writeRelease(DiscogReleaseDigest.class));
             }
         } catch (IOException e) {
@@ -137,7 +141,7 @@ public class DiscogsDataResolver {
         return Optional.of(digest);
     }
 
-    public DiscogReleaseDigest readRelease(Map<String, ?> rawData) {
+    private static DiscogReleaseDigest readRelease(Map<String, ?> rawData) {
 
         try {
             return IO.OM.readerFor(DiscogReleaseDigest.class).readValue(
@@ -147,7 +151,7 @@ public class DiscogsDataResolver {
         }
     }
 
-    public <T> BiConsumer<T, OutputStream> writeRelease(Class<T> type) {
+    private static <T> BiConsumer<T, OutputStream> writeRelease(Class<T> type) {
 
         return (data, os) -> {
             try {
@@ -156,5 +160,15 @@ public class DiscogsDataResolver {
                 throw new IllegalStateException("Failed to read", e);
             }
         };
+    }
+
+    private static boolean regularFile(Path local) {
+
+        return Files.isRegularFile(local);
+    }
+
+    private static Instant modifiedTime(Path local) throws IOException {
+
+        return Files.getLastModifiedTime(local).toInstant();
     }
 }

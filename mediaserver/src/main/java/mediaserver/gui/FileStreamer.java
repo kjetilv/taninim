@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Media;
+import mediaserver.externals.FacebookUser;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class FileStreamer extends AbstractStreamer {
@@ -25,7 +27,13 @@ public final class FileStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected ChannelFuture stream(HttpRequest req, Track track, ChannelHandlerContext ctx, HttpResponse res) {
+    protected Optional<ChannelFuture> stream(
+        HttpRequest req,
+        FacebookUser user,
+        Track track,
+        ChannelHandlerContext ctx,
+        HttpResponse res
+    ) {
 
         File file = isFlac(req) ? track.getFile() : track.getCompressedFile();
         RandomAccessFile randomAccessFile = randomAccess(file);
@@ -33,16 +41,9 @@ public final class FileStreamer extends AbstractStreamer {
 
         String rangeHeader = req.headers().get(HttpHeaderNames.RANGE);
         if (rangeHeader == null || rangeHeader.length() == 0) {
-            return writeLength(ctx, res, fileLength);
+            return Optional.of(writeLength(ctx, res, fileLength));
         }
-        return writeRange(res, fileLength, ctx, randomAccessFile, rangeHeader.trim())
-            .addListener(progressListener(track));
-    }
-
-    private static ProgressListener progressListener(Track track) {
-
-        return new ProgressListener(
-            track.getArtist().getName() + ": " + track.getName() + " [" + track.getAlbum() + "]");
+        return Optional.of(writeRange(res, fileLength, ctx, randomAccessFile, rangeHeader.trim()));
     }
 
     private static RandomAccessFile randomAccess(File file) {
