@@ -53,8 +53,8 @@ class AbstractNameHashable
     }
 
     @Override
-    protected final Object toStringBody() {
+    protected StringBuilder withStringBody(StringBuilder sb) {
 
-        return name;
+        return sb.append(name);
     }
 }

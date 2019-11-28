@@ -44,18 +44,18 @@ public class Playlists extends Nettish {
         if (resource.startsWith(ALBUM)) {
             return albumPlaylist(uuid(resource, ALBUM_PREAMBLE)).map(
                 template ->
-                    respond(ctx, path, response(req, null, AUDIO_MPEGURL, template.bytes(), null)))
+                    respond(ctx, response(req, null, AUDIO_MPEGURL, template.bytes(), null)))
                 .orElseGet(() ->
-                    respond(ctx, path, BAD_REQUEST));
+                    respond(ctx, BAD_REQUEST));
         }
         if (resource.startsWith(ARTIST)) {
             return artistPlaylist(uuid(resource, ARTIST_PREAMBLE)).map(
                 template ->
-                    respond(ctx, path, response(req, null, AUDIO_MPEGURL, template.bytes(), null)))
+                    respond(ctx, response(req, null, AUDIO_MPEGURL, template.bytes(), null)))
                 .orElseGet(() ->
-                    respond(ctx, path, BAD_REQUEST));
+                    respond(ctx, BAD_REQUEST));
         }
-        return respond(ctx, path, BAD_REQUEST);
+        return respond(ctx, BAD_REQUEST);
     }
 
     private UUID uuid(String path, int preamble) {
@@ -84,15 +84,13 @@ public class Playlists extends Nettish {
         return template("playlist.m3u")
             .add(QPar.PLAYLIST, new Playlist(album))
             .add(QPar.ARTIST, album.getArtist())
-            .add(QPar.ALBUM, album)
-            .add(QPar.HOST, resolve(""));
+            .add(QPar.ALBUM, album);
     }
 
     private Template playlist(Artist artist, Collection<Track> tracks) {
 
         return template("playlist.m3u")
             .add(QPar.ARTIST, artist)
-            .add(QPar.HOST, resolve(""))
             .add(QPar.PLAYLIST, new Playlist(tracks));
     }
 }

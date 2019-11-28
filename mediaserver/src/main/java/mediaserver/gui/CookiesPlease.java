@@ -19,6 +19,6 @@ public class CookiesPlease extends Nettish {
     @Override
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        return respond(ctx, path, okCookieResponse(req, path));
+        return respond(ctx, okCookieResponse(req, path));
     }
 }

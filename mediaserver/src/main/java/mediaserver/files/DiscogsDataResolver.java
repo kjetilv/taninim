@@ -119,7 +119,7 @@ public class DiscogsDataResolver {
         Path localRawPath
     ) {
 
-        Map<String, ?> rawData = IO.readData(uri, AUTHORIZATION);
+        Map<String, ?> rawData = IO.downloadJson(uri, AUTHORIZATION);
         DiscogReleaseDigest digest = readRelease(rawData);
         IO.writeStream(localDigestPath, digest, writeRelease(DiscogReleaseDigest.class));
         IO.writeStream(localRawPath, rawData, writeRelease(Map.class));

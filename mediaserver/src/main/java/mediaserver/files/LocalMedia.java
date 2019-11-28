@@ -289,9 +289,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
-    protected Object toStringBody() {
+    protected StringBuilder withStringBody(StringBuilder sb) {
 
-        return albums.size() + " albums";
+        return sb.append(albums.size()).append(" albums");
     }
 
     private Collection<Artist> collectArtists(Function<Album, Collection<Artist>> getAllArtists) {

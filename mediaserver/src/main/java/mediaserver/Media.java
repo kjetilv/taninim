@@ -242,7 +242,7 @@ public interface Media {
     static iTunesLibrary iTunesLibrary(Path libraryPath) {
 
         try {
-            Map<String, ?> plist = IO.readStream(libraryPath, new IOSMapParser()::convert);
+            Map<String, ?> plist = IO.readFromStream(libraryPath, new IOSMapParser()::convert);
             return IO.OM.readerFor(iTunesLibrary.class)
                 .readValue(IO.OM.writerFor(Map.class)
                     .writeValueAsBytes(plist));

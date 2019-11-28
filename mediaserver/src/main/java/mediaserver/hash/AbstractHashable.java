@@ -38,7 +38,10 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -55,23 +58,37 @@ public abstract class AbstractHashable
 
     @Override
     public final UUID getUuid() {
+
         return hash.updateAndGet(v ->
             v == null
                 ? uuid()
                 : v);
     }
 
+    public String build() {
+
+        return withStringContents(
+            withStringIdentifier(
+                new StringBuilder(getClass().getSimpleName())
+                    .append('['))
+                .append("<")
+        ).append(">]").toString();
+    }
+
     protected static void hash(Consumer<byte[]> hash, byte[]... justBytes) {
+
         for (byte[] justByte : justBytes) {
             hash.accept(justByte);
         }
     }
 
     protected static void hash(Consumer<byte[]> hash, String... strings) {
+
         hashStrings(hash, Arrays.asList(strings));
     }
 
     protected static void hash(Consumer<byte[]> hash, Integer... values) {
+
         ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES * values.length);
         for (Integer value : values) {
             if (value != null) {
@@ -82,6 +99,7 @@ public abstract class AbstractHashable
     }
 
     protected static void hash(Consumer<byte[]> h, Collection<? extends Hashable> hasheds) {
+
         for (Hashable hashable : hasheds) {
             if (hashable != null) {
                 hashable.hashTo(h);
@@ -89,22 +107,23 @@ public abstract class AbstractHashable
         }
     }
 
-    protected Object toStringBody() {
-        return null;
-    }
+    protected abstract StringBuilder withStringBody(StringBuilder sb);
 
-    private Object toStringIdentifier() {
+    private StringBuilder withStringIdentifier(StringBuilder sb) {
+
         String hash = getUuid().toString();
-        return hash.substring(0, hash.indexOf("-"));
+        return sb.append(hash, 0, hash.indexOf("-"));
     }
 
     private UUID uuid() {
+
         MessageDigest md5 = md5();
         hashTo(md5::update);
         return UUID.nameUUIDFromBytes(md5.digest());
     }
 
     private static MessageDigest md5() {
+
         try {
             return MessageDigest.getInstance(HASH);
         } catch (Exception e) {
@@ -113,40 +132,40 @@ public abstract class AbstractHashable
     }
 
     private static void hashStrings(Consumer<byte[]> hash, Collection<String> strings) {
+
         strings.stream()
             .filter(Objects::nonNull)
             .forEach(s ->
                 hash.accept(s.getBytes(StandardCharsets.UTF_8)));
     }
 
-    private String toStringContents() {
-        Object body = toStringBody();
-        if (body == null) {
-            return "";
+    private StringBuilder withStringContents(StringBuilder sb) {
+
+        int length = sb.length();
+        StringBuilder sb2 = sb.append(' ');
+        StringBuilder sb3 = withStringBody(sb2);
+        if (sb3.length() == sb2.length()) {
+            return sb2.delete(length, length + 1);
         }
-        String string = body.toString().trim();
-        if (string.isBlank()) {
-            return "";
-        }
-        return ' ' + string;
+        return sb2;
     }
 
     @Override
     public final int hashCode() {
+
         return getUuid().hashCode();
     }
 
     @Override
     public final boolean equals(Object obj) {
+
         return obj == this || obj != null && obj.getClass() == getClass()
             && ((Hashed) obj).getUuid().equals(getUuid());
     }
 
     @Override
     public final String toString() {
-        return toString.updateAndGet(v ->
-            v == null
-                ? getClass().getSimpleName() + '[' + toStringIdentifier() + toStringContents() + ']'
-                : v);
+
+        return toString.updateAndGet(v -> v == null ? build() : v);
     }
 }

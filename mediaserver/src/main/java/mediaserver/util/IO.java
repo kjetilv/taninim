@@ -14,10 +14,14 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static mediaserver.util.Sourced.Type.JAR;
+import static mediaserver.util.Sourced.Type.SOURCES;
 
 public final class IO {
 
@@ -27,6 +31,8 @@ public final class IO {
     private final boolean dev;
 
     private static final String GRADLE_OUT = "out/production";
+
+    private static final Map<String, String> cache = new ConcurrentHashMap<>();
 
     public IO(boolean dev) {
 
@@ -58,32 +64,33 @@ public final class IO {
 
     public static Map<String, ?> readData(Path path) {
 
-        return readStream(path, readMapFrom(path));
+        return readFromStream(path, readMapFrom(path));
     }
 
-    public static Map<String, ?> readData(URI uri, Consumer<BiConsumer<String, String>> headers) {
+    public static Map<String, ?> downloadJson(URI uri, Consumer<BiConsumer<String, String>> headers) {
 
-        return tryReadStream(uri, headers, readMapFrom(uri));
+        return tryDownload(uri, headers, readMapFrom(uri));
     }
 
     public static Map<String, String> readResource(String resource) {
 
-        return Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource))
+        return Optional.ofNullable(readClasspath(resource))
             .map(res ->
                 readMapFrom(resource).apply(res))
             .map(map ->
                 map.entrySet().stream().collect(Collectors.toMap(
                     Map.Entry::getKey,
                     e -> e.getValue().toString(),
-                    (s1, s2) ->
-                        s1,
+                    (s1, s2) -> {
+                        throw new IllegalStateException("No combine:" + s1 + "/" + s2);
+                    },
                     LinkedHashMap::new
                 )))
             .orElseThrow(() ->
                 new IllegalArgumentException("No resource found @ " + resource));
     }
 
-    public static <T> T readStream(Path path, Function<InputStream, T> receptor) {
+    public static <T> T readFromStream(Path path, Function<InputStream, T> receptor) {
 
         try (InputStream fos = new BufferedInputStream(new FileInputStream(path.toFile()))) {
             return receptor.apply(fos);
@@ -92,13 +99,14 @@ public final class IO {
         }
     }
 
-    public Optional<String> read(String resource) {
+    public Sourced<String> read(String resource) {
 
         return readBytes(resource)
-            .map(bytes -> new String(bytes, StandardCharsets.UTF_8));
+            .map(bytes ->
+                new String(bytes, StandardCharsets.UTF_8));
     }
 
-    public Optional<byte[]> readBytes(String resource) {
+    public Sourced<byte[]> readBytes(String resource) {
 
         return readStream(resource)
             .map(stream -> {
@@ -111,19 +119,10 @@ public final class IO {
             });
     }
 
-    public static <T> T readJson(Class<T> type, String input) {
+    public static <T> T readObject(Class<T> type, String input) {
 
         try {
             return OM.readerFor(type).readValue(input);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to read " + type, e);
-        }
-    }
-
-    public static <T> T readJson(Class<T> type, byte[] bytes) {
-
-        try {
-            return OM.readerFor(type).readValue(bytes);
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to read " + type, e);
         }
@@ -164,7 +163,7 @@ public final class IO {
             dur.toMinutesPart() > 1 ? "er" : "");
     }
 
-    private static <T> T tryReadStream(
+    private static <T> T tryDownload(
         URI uri,
         Consumer<BiConsumer<String, String>> headers,
         Function<InputStream, T> receptor
@@ -213,24 +212,39 @@ public final class IO {
         return is -> readMap(source, is);
     }
 
-    private Optional<InputStream> readStream(String resource) {
+    private Sourced<InputStream> readStream(String resource) {
+
+        return url(resource).filter(this::isInSources)
+            .map(sourceUrl ->
+                Sourced.from(SOURCES, readSources(resource, sourceUrl)))
+            .orElseGet(() ->
+                Sourced.from(JAR, readClasspath(resource)));
+    }
+
+    private static InputStream readClasspath(String resource) {
+
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+    }
+
+    private InputStream readSources(String resource, URL url) {
+
+        return this.fromSourceEnvironment(url).orElseThrow(() ->
+            new IllegalArgumentException("No such resource: " + resource));
+    }
+
+    private Optional<URL> url(String resource) {
 
         Optional<URL> url = Optional.ofNullable(
             Thread.currentThread().getContextClassLoader().getResource(resource));
         if (url.isEmpty()) {
             throw new IllegalArgumentException("No such resource: " + resource);
         }
-        if (dev && url.filter(this::existsAsSource).isPresent()) {
-            return url.map(this::fromSourceEnvironment).orElseThrow(() ->
-                new IllegalArgumentException(
-                    "No such resource: " + resource));
-        }
-        return Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource));
+        return url;
     }
 
-    private boolean existsAsSource(URL u) {
+    private boolean isInSources(URL url) {
 
-        return u.getFile().contains(GRADLE_OUT);
+        return url.getFile().contains(GRADLE_OUT);
     }
 
     private Optional<InputStream> fromSourceEnvironment(URL url) {

@@ -48,7 +48,7 @@ public class FbAuth extends Nettish {
 
         return sessions.activeUser(req)
             .map(user ->
-                respond(ctx, path, HttpResponseStatus.OK))
+                respond(ctx, HttpResponseStatus.OK))
             .orElseGet(() ->
                 facebookUser(req)
                     .map(facebookUser ->
@@ -60,20 +60,19 @@ public class FbAuth extends Nettish {
     private HttpResponse login(HttpRequest req, String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
         return ids.get().authorized(facebookUser)
-            ? resolveAuthorizedSession(req, path, ctx, facebookUser)
+            ? resolveAuthorizedSession(req, ctx, facebookUser)
             : unprocessed(path, ctx, facebookUser);
     }
 
     private HttpResponse resolveAuthorizedSession(
         HttpRequest req,
-        String path,
         ChannelHandlerContext ctx,
         FacebookUser facebookUser
     ) {
 
         Session session = sessions.sessionUp(facebookUser);
         HttpResponse response = helloCookieResponse(req, session, cookie(session));
-        return respond(ctx, path, response);
+        return respond(ctx, response);
     }
 
     private Optional<FacebookUser> facebookUser(FullHttpRequest req) {
@@ -83,7 +82,7 @@ public class FbAuth extends Nettish {
                 content.toString(StandardCharsets.UTF_8))
             .map(json -> {
                 String input = req.content().toString(StandardCharsets.UTF_8);
-                FacebookAuthResponse authResponse = IO.readJson(FacebookAuthResponse.class, input);
+                FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, input);
                 FacebookClient fc = facebookClient(authResponse);
                 User user = fc.fetchObject(authResponse.getUserID(), User.class);
                 return new FacebookUser(user.getName(), user.getId());
@@ -103,6 +102,6 @@ public class FbAuth extends Nettish {
     private static HttpResponse unprocessed(String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
         log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
-        return respond(ctx, path, HttpResponseStatus.UNPROCESSABLE_ENTITY);
+        return respond(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);
     }
 }

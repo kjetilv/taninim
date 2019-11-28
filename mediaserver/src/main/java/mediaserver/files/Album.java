@@ -209,11 +209,11 @@ public class Album extends AbstractHashable
     }
 
     @Override
-    public String toStringBody() {
+    protected StringBuilder withStringBody(StringBuilder sb) {
 
-        return categoryPath.getPathString() +
-            ": " + artist + "/" + name +
-            " [" + tracks.size() + "]";
+        return sb.append(categoryPath.getPath())
+            .append(": ").append(artist).append("/").append(name)
+            .append(" [").append(tracks.size()).append("]");
     }
 
     public boolean hasTracksBy(Artist artist) {

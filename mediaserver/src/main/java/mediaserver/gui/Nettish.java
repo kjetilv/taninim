@@ -13,7 +13,6 @@ import mediaserver.sessions.Session;
 import mediaserver.util.IO;
 import mediaserver.util.URLs;
 
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
@@ -29,9 +28,9 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public abstract class Nettish {
 
-    private final IO io;
-
     private final List<String> prefix;
+
+    private final WebCache<String, String> cache;
 
     protected static final Consumer<BiConsumer<CharSequence, CharSequence>> IMMUTABLE =
         headers ->
@@ -41,8 +40,9 @@ public abstract class Nettish {
 
     Nettish(IO io, String... prefix) {
 
-        this.io = io;
+        Objects.requireNonNull(io, "io");
         this.prefix = List.of(prefix);
+        this.cache = new WebCache<>(io::read);
     }
 
     public boolean shouldHandle(String path) {
@@ -58,12 +58,12 @@ public abstract class Nettish {
 
     public static HttpResponse redirect(ChannelHandlerContext ctx, String value) {
 
-        return respond(ctx, value, redirect(value));
+        return respond(ctx, redirect(value));
     }
 
-    public static HttpResponse respond(ChannelHandlerContext ctx, String path, HttpResponseStatus status) {
+    public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        return respond(ctx, path, response(null, status, (String)null, null, null));
+        return respond(ctx, response(null, status, (String) null, null, null));
     }
 
     public static Optional<UUID> authCookie(HttpRequest req) {
@@ -83,7 +83,7 @@ public abstract class Nettish {
 
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        return respond(ctx, path, BAD_REQUEST);
+        return respond(ctx, BAD_REQUEST);
     }
 
     String resource(String path) {
@@ -93,26 +93,19 @@ public abstract class Nettish {
 
     Template template(String resource) {
 
-        return new Template(io, resource);
+        return cache.get(resource)
+            .map(source ->
+                new Template(resource, source))
+            .orElseThrow(() ->
+                new IllegalArgumentException("No such template resource: " + resource));
     }
 
-    Optional<byte[]> readBytes(String resource) {
-
-        return io.readBytes(resource);
-    }
-
-    URL resolve(String path) {
-
-        return io.resolve(path);
-    }
-
-    static HttpResponse respond(ChannelHandlerContext ctx, String path, HttpResponse response) {
+    static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
 
         try {
-            ctx.writeAndFlush(response)
-                .addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to respond to " + path + ": " + response, e);
+            throw new IllegalStateException("Response failed: " + response, e);
         }
         return response;
     }
@@ -134,6 +127,7 @@ public abstract class Nettish {
         byte[] content,
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
+
         return response(
             req, status, contentType == null ? null : contentType.toString(), content, moreHeaders);
     }

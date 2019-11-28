@@ -123,16 +123,16 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
                     artist(path) == "masada" && album(path).contains("50th birthday")
         },
 
-        Paths.get("Masada", "More Masada", "10. Anniversary") to { path ->
+        Paths.get("Masada", "Various", "10. Anniversary") to { path ->
             artist(path) == "masada" && album(path).contains("book 1 vol. ") ||
                     album(path).contains("masada 10. anniversary")
         },
 
-        Paths.get("Masada", "More Masada", "Live") to { path ->
+        Paths.get("Masada", "Various", "Live") to { path ->
             artist(path).contains("masada") && album(path).contains(" live ")
         },
 
-        Paths.get("Masada", "More Masada") to albumContains("Sanhedrin"),
+        Paths.get("Masada", "Various") to albumContains("Sanhedrin"),
 
         Paths.get("Masada", "Various") to artistIs("electric masada"),
 

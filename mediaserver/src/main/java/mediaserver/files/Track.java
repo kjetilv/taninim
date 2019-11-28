@@ -198,9 +198,12 @@ public class Track extends AbstractHashable
     }
 
     @Override
-    protected Object toStringBody() {
+    protected StringBuilder withStringBody(StringBuilder sb) {
 
-        return artist + "/" + album + " " + trackNo + ": " + name;
+        return sb.append(artist)
+            .append("/").append(album)
+            .append(" ").append(trackNo)
+            .append(". ").append(name);
     }
 
     private Integer part(String name) {

@@ -114,9 +114,9 @@ public class CategoryPath extends AbstractHashable
     }
 
     @Override
-    public String toStringBody() {
+    protected StringBuilder withStringBody(StringBuilder sb) {
 
-        return String.join("/", path);
+        return sb.append(String.join("/", path));
     }
 
     public static Stream<CategoryPath> subPaths(CategoryPath categoryPath) {

@@ -24,14 +24,14 @@ public class FbUnauth extends Nettish {
 
         return sessions.closeSession(req)
             .map(closed ->
-                logout(req, closed, path, ctx))
+                logout(req, closed, ctx))
             .orElseGet(() ->
                 super.handle(req, path, ctx));
     }
 
-    private static HttpResponse logout(HttpRequest req, Session session, String path, ChannelHandlerContext ctx) {
+    private static HttpResponse logout(HttpRequest req, Session session, ChannelHandlerContext ctx) {
 
-        return respond(ctx, path, logoutCoookieResponse(req, session));
+        return respond(ctx, logoutCoookieResponse(req, session));
     }
 
     private static HttpResponse logoutCoookieResponse(HttpRequest req, Session session) {

@@ -56,7 +56,7 @@ public abstract class AbstractStreamer extends Nettish {
                         cf.addListener(progressListener(user, track)));
                 return respondStream(req, ctx, response);
             }).orElseGet(() ->
-                respond(ctx, path, NOT_FOUND)))
+                respond(ctx, NOT_FOUND)))
             .orElseGet(() ->
                 teapot(req, ctx));
     }
@@ -118,7 +118,7 @@ public abstract class AbstractStreamer extends Nettish {
 
     protected HttpResponse teapot(HttpRequest req, ChannelHandlerContext ctx) {
 
-        return respond(ctx, req.uri(), HttpResponseStatus.valueOf(418, "I'm a teapot"));
+        return respond(ctx, HttpResponseStatus.valueOf(418, "I'm Kettle"));
     }
 
     protected HttpResponse respondStream(HttpRequest req, ChannelHandlerContext ctx, HttpResponse response) {
@@ -139,8 +139,7 @@ public abstract class AbstractStreamer extends Nettish {
 
     protected static ProgressListener progressListener(FacebookUser user, Track track) {
 
-        return new ProgressListener(
-            user + ": " + track.getArtist().getName() + ": " + track.getName() + " [" + track.getAlbum() + "]");
+        return new ProgressListener(String.format("%s %s", user, track));
     }
 
     private static String contentType(HttpRequest req) {

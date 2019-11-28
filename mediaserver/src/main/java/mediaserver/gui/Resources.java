@@ -2,54 +2,48 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.util.IO;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-
 public class Resources extends Nettish {
 
-    private final Map<String, Optional<HttpResponse>> cache = new ConcurrentHashMap<>();
+    private final WebCache<String, byte[]> cache;
 
-    private static final String FAVICON_ICO = "/res/favicon.ico";
+    private static final String FAVICON_ICO = "/favicon.ico";
 
     public Resources(IO io) {
+
         super(io, "/res", FAVICON_ICO);
+        cache = new WebCache<>(io::readBytes);
     }
 
     @Override
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+
         try {
-            String resource = path.startsWith(FAVICON_ICO)
+            String resource = "res/" + (path.startsWith(FAVICON_ICO)
                 ? path.substring(0, FAVICON_ICO.length())
-                : resource(path);
-            return cache.computeIfAbsent(resource, read(req))
+                : resource(path));
+            return cache.get(resource)
+                .map(bytes ->
+                    response(req, null, contentType(path), bytes, IMMUTABLE))
                 .map(response -> {
                     try {
-                        return respond(ctx, path, response);
+                        return respond(ctx, response);
                     } catch (Exception e) {
                         throw new IllegalStateException("Failed to respond to " + path, e);
                     }
                 })
                 .orElseGet(() ->
-                    respond(ctx, path, HttpResponseStatus.BAD_REQUEST));
+                    respond(ctx, HttpResponseStatus.BAD_REQUEST));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + path, e);
         }
     }
 
-    private Function<String, Optional<HttpResponse>> read(HttpRequest req) {
-        return path ->
-            readBytes("res/" + path.substring(1)).map(bytes ->
-                response(req, null, contentType(path), bytes, IMMUTABLE));
-    }
-
     private static String contentType(String path) {
+
         return path.endsWith(".css") ? "text/css"
             : path.endsWith(".js") ? "text/javascript"
             : path.endsWith(".ico") ? "image/x-icon"

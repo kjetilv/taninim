@@ -37,8 +37,8 @@ public class FacebookUser extends AbstractHashable {
     }
 
     @Override
-    protected Object toStringBody() {
+    protected StringBuilder withStringBody(StringBuilder sb) {
 
-        return name + ":" + id;
+        return sb.append(name).append(":").append(id);
     }
 }

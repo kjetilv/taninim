@@ -21,8 +21,6 @@ public enum QPar {
 
     PLAY_TRACKS("playTracks"),
 
-    HOST,
-
     USER;
 
     private final String name;
