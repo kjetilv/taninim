@@ -8,16 +8,15 @@ import mediaserver.Media;
 import mediaserver.externals.FacebookUser;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.IO;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public class NullStreamer extends AbstractStreamer {
 
-    public NullStreamer(IO io, Supplier<Media> media, Sessions sessions) {
+    public NullStreamer(Supplier<Media> media, Sessions sessions) {
 
-        super(io, media, sessions);
+        super(media, sessions);
     }
 
     @Override
@@ -25,9 +24,10 @@ public class NullStreamer extends AbstractStreamer {
         HttpRequest req,
         FacebookUser user,
         Track track,
-        ChannelHandlerContext ctx
-        , HttpResponse res
+        ChannelHandlerContext ctx,
+        HttpResponse res
     ) {
+
         teapot(req, ctx);
         return Optional.empty();
     }

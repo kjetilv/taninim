@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static mediaserver.gui.Nettish.respond;
 
 class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
@@ -75,7 +76,7 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                             get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress), cause));
         } finally {
             if (ctx.channel().isActive()) {
-                Nettish.respond(ctx, INTERNAL_SERVER_ERROR);
+                respond(ctx, INTERNAL_SERVER_ERROR);
             }
         }
     }
@@ -104,15 +105,12 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private HttpResponse response(ChannelHandlerContext ctx, FullHttpRequest req) {
 
-        if (req.decoderResult().isSuccess()) {
-            String uri = req.uri();
-            if (uri.isEmpty()) {
-                return Nettish.respond(ctx, FORBIDDEN);
-            }
-            String path = URLDecoder.decode(uri, StandardCharsets.UTF_8);
-            return handlePath(req, path, ctx);
+        String uri = req.uri();
+        if (uri.isEmpty()) {
+            return respond(ctx, FORBIDDEN);
         }
-        return Nettish.respond(ctx, BAD_REQUEST);
+        String path = URLDecoder.decode(uri, StandardCharsets.UTF_8);
+        return handlePath(req, path, ctx);
     }
 
     private static Supplier<HttpResponse> reset(ChannelHandlerContext ctx) {
@@ -148,7 +146,7 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                     reset(ctx));
         } catch (Exception e) {
             log.error("Failed: {}", req, e);
-            return Nettish.respond(ctx, INTERNAL_SERVER_ERROR);
+            return respond(ctx, INTERNAL_SERVER_ERROR);
         }
     }
 }

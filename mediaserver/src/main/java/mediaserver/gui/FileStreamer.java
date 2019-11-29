@@ -21,9 +21,9 @@ import java.util.function.Supplier;
 
 public final class FileStreamer extends AbstractStreamer {
 
-    public FileStreamer(IO io, Supplier<Media> media, Sessions sessions) {
+    public FileStreamer(Supplier<Media> media, Sessions sessions) {
 
-        super(io, media, sessions);
+        super(media, sessions);
     }
 
     @Override

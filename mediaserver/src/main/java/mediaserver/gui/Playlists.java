@@ -31,9 +31,9 @@ public class Playlists extends Nettish {
 
     private static final String AUDIO_MPEGURL = "audio/mpegurl";
 
-    public Playlists(IO io, Supplier<Media> media) {
+    public Playlists(Supplier<Media> media) {
 
-        super(io, "/playlist");
+        super("/playlist");
         this.media = media;
     }
 

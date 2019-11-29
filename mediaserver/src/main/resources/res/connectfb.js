@@ -15,7 +15,7 @@ function checkLoginState() {
 }
 
 async function handleConnected(authResponse) {
-    let response = await postData('/auth', authResponse);
+    postData('/auth', authResponse);
     if (response.status === 200) {
         if (document.getElementById('user').innerText === "stranger") {
             location.reload()

@@ -12,17 +12,17 @@ public class Resources extends Nettish {
 
     private static final String FAVICON_ICO = "/favicon.ico";
 
-    public Resources(IO io) {
+    public Resources() {
 
-        super(io, "/res", FAVICON_ICO);
-        cache = new WebCache<>(io::readBytes);
+        super("/res", FAVICON_ICO);
+        this.cache = new WebCache<>(IO::readBytes);
     }
 
     @Override
     public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         try {
-            String resource = "res/" + (path.startsWith(FAVICON_ICO)
+            String resource = "res" + (path.startsWith(FAVICON_ICO)
                 ? path.substring(0, FAVICON_ICO.length())
                 : resource(path));
             return cache.get(resource)

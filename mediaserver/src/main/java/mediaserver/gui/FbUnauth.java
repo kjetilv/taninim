@@ -12,9 +12,9 @@ public class FbUnauth extends Nettish {
 
     private final Sessions sessions;
 
-    public FbUnauth(IO io, Sessions sessions) {
+    public FbUnauth(Sessions sessions) {
 
-        super(io, "/unauth");
+        super("/unauth");
 
         this.sessions = sessions;
     }
@@ -24,18 +24,13 @@ public class FbUnauth extends Nettish {
 
         return sessions.closeSession(req)
             .map(closed ->
-                logout(req, closed, ctx))
+                respond(ctx, logoutCoookieResponse(req, closed)))
             .orElseGet(() ->
                 super.handle(req, path, ctx));
     }
 
-    private static HttpResponse logout(HttpRequest req, Session session, ChannelHandlerContext ctx) {
-
-        return respond(ctx, logoutCoookieResponse(req, session));
-    }
-
     private static HttpResponse logoutCoookieResponse(HttpRequest req, Session session) {
 
-        return helloCookieResponse(req, session, cookie(null));
+        return authCookieResponse(req, session, newAuthCookie(null));
     }
 }

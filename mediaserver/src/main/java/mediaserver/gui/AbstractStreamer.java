@@ -8,7 +8,6 @@ import mediaserver.Media;
 import mediaserver.externals.FacebookUser;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.IO;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -38,9 +37,9 @@ public abstract class AbstractStreamer extends Nettish {
 
     private static final int BYTES_PREAMBLE = (HttpHeaderValues.BYTES + "=").length();
 
-    AbstractStreamer(IO io, Supplier<Media> media, Sessions sessions) {
+    AbstractStreamer(Supplier<Media> media, Sessions sessions) {
 
-        super(io, "/audio");
+        super("/audio");
         this.media = media;
         this.sessions = sessions;
     }
@@ -61,7 +60,7 @@ public abstract class AbstractStreamer extends Nettish {
                 teapot(req, ctx));
     }
 
-    public Optional<FacebookUser> activeUserByCookie(FullHttpRequest req) {
+    Optional<FacebookUser> activeUserByCookie(FullHttpRequest req) {
 
         return authCookie(req).flatMap(sessions::activeUser);
     }

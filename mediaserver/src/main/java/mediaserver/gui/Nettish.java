@@ -6,6 +6,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.util.AsciiString;
@@ -38,11 +39,10 @@ public abstract class Nettish {
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
 
-    Nettish(IO io, String... prefix) {
+    Nettish(String... prefix) {
 
-        Objects.requireNonNull(io, "io");
         this.prefix = List.of(prefix);
-        this.cache = new WebCache<>(io::read);
+        this.cache = new WebCache<>(IO::read);
     }
 
     public boolean shouldHandle(String path) {
@@ -75,7 +75,7 @@ public abstract class Nettish {
             .stream()
             .flatMap(Collection::stream)
             .filter(cookie ->
-                cookie.name().equalsIgnoreCase(GUI.TANINIM_ID))
+                cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
             .map(Cookie::value)
             .map(UUID::fromString)
             .findFirst();
@@ -174,43 +174,36 @@ public abstract class Nettish {
 
     protected static HttpResponse okCookieResponse(HttpRequest req, String cookieCookie) {
 
-        return response(req, OK, APPLICATION_JSON, setCookie(cookieCookie));
+        return response(req, OK, APPLICATION_JSON, null, setCookie(cookieCookie));
     }
 
-    protected static HttpResponse helloCookieResponse(HttpRequest req, Session session, String cookie) {
+    protected static HttpResponse authCookieResponse(HttpRequest req, Session session, String cookie) {
 
         return response(req, OK, APPLICATION_JSON, helloContent(session), setCookie(cookie));
     }
 
-    protected static String cookie(Session session) {
+    protected static String newAuthCookie(Session session) {
 
-        Cookie cookie = new io.netty.handler.codec.http.cookie.DefaultCookie(
-            GUI.TANINIM_ID, session == null ? "" : session.getCookie().toString());
+        Cookie cookie = new DefaultCookie(GUI.ID_COOKIE, session == null ? "" : session.getCookie().toString());
         cookie.setMaxAge(COOKIE_TIME);
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
-    protected static String cookieCookie() {
+    protected static String newCookieCookie() {
 
-        Cookie cookie = new io.netty.handler.codec.http.cookie.DefaultCookie(GUI.COOKIES_OK, "gimmeCookies");
+        Cookie cookie = new DefaultCookie(GUI.COOKIE_COOKIE, "cakes");
         cookie.setMaxAge(Long.MAX_VALUE);
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
     private static byte[] helloContent(Session session) {
 
-        return jsonString(session.getFacebookUser().getName()).getBytes(StandardCharsets.UTF_8);
+        return String.format("\"%s\"", session.getFacebookUser().getName()).getBytes(StandardCharsets.UTF_8);
     }
 
     private static Consumer<BiConsumer<CharSequence, CharSequence>> setCookie(String cookie) {
 
-        return headers ->
-            headers.accept(SET_COOKIE, cookie);
-    }
-
-    private static String jsonString(String name1) {
-
-        return "\"" + name1 + "\"";
+        return headers -> headers.accept(SET_COOKIE, cookie);
     }
 
     private static DefaultFullHttpResponse redirect(String value) {

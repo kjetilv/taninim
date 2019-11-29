@@ -11,9 +11,9 @@ public class CookiesPlease extends Nettish {
 
     private static final Logger log = LoggerFactory.getLogger(CookiesPlease.class);
 
-    public CookiesPlease(IO io) {
+    public CookiesPlease() {
 
-        super(io, "/cookiesplease");
+        super("/cookiesplease");
     }
 
     @Override

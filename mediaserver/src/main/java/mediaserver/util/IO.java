@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +13,6 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -28,25 +26,7 @@ public final class IO {
     public static final ObjectMapper OM = new ObjectMapper()
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-    private final boolean dev;
-
     private static final String GRADLE_OUT = "out/production";
-
-    private static final Map<String, String> cache = new ConcurrentHashMap<>();
-
-    public IO(boolean dev) {
-
-        this.dev = dev;
-    }
-
-    public URL resolve(String path) {
-
-        try {
-            return URI.create((dev ? "http://localhost:8080" : "https://tanin.im") + path).toURL();
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("Failed to resolve " + path, e);
-        }
-    }
 
     public static <T> void writeStream(Path path, T output, BiConsumer<T, OutputStream> receptor) {
 
@@ -99,14 +79,14 @@ public final class IO {
         }
     }
 
-    public Sourced<String> read(String resource) {
+    public static Sourced<String> read(String resource) {
 
         return readBytes(resource)
             .map(bytes ->
                 new String(bytes, StandardCharsets.UTF_8));
     }
 
-    public Sourced<byte[]> readBytes(String resource) {
+    public static Sourced<byte[]> readBytes(String resource) {
 
         return readStream(resource)
             .map(stream -> {
@@ -163,6 +143,11 @@ public final class IO {
             dur.toMinutesPart() > 1 ? "er" : "");
     }
 
+    public static String getProperty(String property) {
+
+        return System.getProperty(property, System.getenv(property));
+    }
+
     private static <T> T tryDownload(
         URI uri,
         Consumer<BiConsumer<String, String>> headers,
@@ -212,9 +197,9 @@ public final class IO {
         return is -> readMap(source, is);
     }
 
-    private Sourced<InputStream> readStream(String resource) {
+    private static Sourced<InputStream> readStream(String resource) {
 
-        return url(resource).filter(this::isInSources)
+        return url(resource).filter(IO::isInSources)
             .map(sourceUrl ->
                 Sourced.from(SOURCES, readSources(resource, sourceUrl)))
             .orElseGet(() ->
@@ -226,13 +211,13 @@ public final class IO {
         return Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
     }
 
-    private InputStream readSources(String resource, URL url) {
+    private static InputStream readSources(String resource, URL url) {
 
-        return this.fromSourceEnvironment(url).orElseThrow(() ->
+        return fromSourceEnvironment(url).orElseThrow(() ->
             new IllegalArgumentException("No such resource: " + resource));
     }
 
-    private Optional<URL> url(String resource) {
+    private static Optional<URL> url(String resource) {
 
         Optional<URL> url = Optional.ofNullable(
             Thread.currentThread().getContextClassLoader().getResource(resource));
@@ -242,12 +227,12 @@ public final class IO {
         return url;
     }
 
-    private boolean isInSources(URL url) {
+    private static boolean isInSources(URL url) {
 
         return url.getFile().contains(GRADLE_OUT);
     }
 
-    private Optional<InputStream> fromSourceEnvironment(URL url) {
+    private static Optional<InputStream> fromSourceEnvironment(URL url) {
 
         return Optional.of(url)
             .map(URL::getFile)

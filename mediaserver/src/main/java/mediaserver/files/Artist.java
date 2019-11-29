@@ -21,21 +21,24 @@ public class Artist extends AbstractNameHashable {
 
     public Collection<Artist> getCompositeArtists() {
 
-        return split(getName(), "&")
-            .flatMap(split -> split(split, ", and "))
-            .flatMap(split -> split(split, " and "))
-            .flatMap(split -> split(split, ","))
-            .flatMap(split -> split(split, "/"))
+        return s(getName(), "&")
+            .flatMap(s -> s(s, ", And "))
+            .flatMap(s -> s(s, ", and "))
+            .flatMap(s -> s(s, " and "))
+            .flatMap(s -> s(s, " And "))
+            .flatMap(s -> s(s, ","))
+            .flatMap(s -> s(s, "/"))
             .map(Artist::get)
             .collect(Collectors.toList());
     }
 
-    private Stream<String> split(String name, String rex) {
+    private Stream<String> s(String name, String rex) {
 
-        return (name.contains(rex) ? Arrays.stream(name.split(rex)) : Stream.of(name))
+        Stream<String> stringStream = name.contains(rex)
+            ? Arrays.stream(name.split(rex))
+            : Stream.of(name);
+        return stringStream
             .filter(s ->
-                !s.isBlank())
-            .map(String::trim);
+                !s.isBlank()).map(String::trim);
     }
-
 }

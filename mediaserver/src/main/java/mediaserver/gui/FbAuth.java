@@ -31,13 +31,12 @@ public class FbAuth extends Nettish {
     private final Supplier<Ids> ids;
 
     public FbAuth(
-        IO io,
         Sessions sessions,
         Supplier<char[]> appSecret,
         Supplier<Ids> ids
     ) {
 
-        super(io, "/auth");
+        super("/auth");
         this.sessions = sessions;
         this.appSecret = appSecret;
         this.ids = ids;
@@ -71,7 +70,7 @@ public class FbAuth extends Nettish {
     ) {
 
         Session session = sessions.sessionUp(facebookUser);
-        HttpResponse response = helloCookieResponse(req, session, cookie(session));
+        HttpResponse response = authCookieResponse(req, session, newAuthCookie(session));
         return respond(ctx, response);
     }
 

@@ -1,6 +1,5 @@
 package mediaserver.files;
 
-import mediaserver.Main;
 import mediaserver.externals.DiscogReleaseDigest;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ public class DiscogsDataResolver {
 
     private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
 
-    private static final String SECRET = Main.getProperty("dSec");
+    private static final String SECRET = IO.getProperty("dSec");
 
     private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
         headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);

@@ -17,9 +17,9 @@ import java.util.function.Supplier;
 
 public class GUI extends Nettish {
 
-    public static final String TANINIM_ID = "taninim-id";
+    public static final String ID_COOKIE = "taninim-id";
 
-    public static final String COOKIES_OK = "cookies-ok";
+    public static final String COOKIE_COOKIE = "taninim-cookies-ok";
 
     public static final String ALBUM = "album";
 
@@ -29,9 +29,9 @@ public class GUI extends Nettish {
 
     private static final String TEXT_HTML = "text/html";
 
-    public GUI(IO io, Supplier<Media> media, Sessions sessions) {
+    public GUI(Supplier<Media> media, Sessions sessions) {
 
-        super(io, "/");
+        super("/");
         this.media = media;
         this.sessions = sessions;
     }

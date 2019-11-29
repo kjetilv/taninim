@@ -54,8 +54,6 @@ public class Main {
 
     private static final String FB_SEC = "fbSec";
 
-    private static final String D_SEC = "dSec";
-
     private static final Duration REFRESH_TIME = Duration.ofMinutes(5);
 
     public static void main(String[] args) {
@@ -83,9 +81,7 @@ public class Main {
             .get(() ->
                 refreshIds(local, ssl, dev));
 
-        IO io = new IO(dev);
-
-        Supplier<Router> routerProvider = routerSupplier(media, ids, io, neuter, local);
+        Supplier<Router> routerProvider = routerSupplier(media, ids, neuter, local);
 
         ChannelInitializer<SocketChannel> handler =
             new ServerInitializer(routerProvider, ssl ? sslContext() : null);
@@ -95,14 +91,25 @@ public class Main {
 
         ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
 
-        int port = ssl ? LOCALPORT_SSL
-            : dev ? LOCALPORT
-            : CLOUD_PORT;
-
-        start(bootstrap, port, listenGroup, workGroup);
+        try {
+            Channel ch = bootstrap.bind(ssl ? LOCALPORT_SSL
+                : dev ? LOCALPORT
+                : CLOUD_PORT).sync().channel();
+            log.info("Bound to port {}", ssl ? LOCALPORT_SSL
+                : dev ? LOCALPORT
+                : CLOUD_PORT);
+            ch.closeFuture().sync();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted", e);
+        } finally {
+            listenGroup.shutdownGracefully();
+            workGroup.shutdownGracefully();
+        }
     }
 
     public static Ids refreshIds(boolean local, boolean ssl, boolean dev) {
+
         Map<String, ?> sources = local
             ? IO.readResource("ids.json")
             : CloudMedia.ids();
@@ -147,11 +154,6 @@ public class Main {
         return Boolean.getBoolean(flag) || Optional.ofNullable(System.getenv(flag)).filter("true"::equals).isPresent();
     }
 
-    public static String getProperty(String property) {
-
-        return System.getProperty(property, System.getenv(property));
-    }
-
     public static boolean local(String[] args) {
 
         return args.length > 2 &&
@@ -179,12 +181,17 @@ public class Main {
 
     public static Path libraryPath(String[] args) {
 
-        return new File(args[1]).toPath();
+        return pathArg(1, args);
     }
 
     public static Path resourcesPath(String[] args) {
 
         return new File(args[2]).toPath();
+    }
+
+    private static Path pathArg(int i, String[] args) {
+
+        return new File(args[i]).toPath();
     }
 
     private static SslContext sslContext() {
@@ -209,30 +216,23 @@ public class Main {
     private static Supplier<Router> routerSupplier(
         Supplier<Media> media,
         Supplier<Ids> ids,
-        IO io,
         boolean neuter,
         boolean local
     ) {
 
         Supplier<char[]> secretProvider = () ->
-            getProperty(FB_SEC).toCharArray();
+            IO.getProperty(FB_SEC).toCharArray();
         Sessions sessions =
             new Sessions(ids, Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
-        return () ->
-            new Router(
-                streamer(io, media, sessions, neuter, local),
-                new FbUnauth(io, sessions),
-                new FbAuth(io, sessions, secretProvider, ids),
-                new Playlists(io, media),
-                new Resources(io),
-                new GUI(io, media, sessions));
-    }
-
-    private static Nettish streamer(IO io, Supplier<Media> media, Sessions sessions, boolean neuter, boolean local) {
-
-        return neuter ? new NullStreamer(io, media, sessions)
-            : local ? new FileStreamer(io, media, sessions)
-            : new S3Streamer(io, media, sessions);
+        return () -> new Router(
+            neuter ? new NullStreamer(media, sessions)
+                : local ? new FileStreamer(media, sessions)
+                : new S3Streamer(media, sessions),
+            new FbUnauth(sessions),
+            new FbAuth(sessions, secretProvider, ids),
+            new Playlists(media),
+            new Resources(),
+            new GUI(media, sessions));
     }
 
     private static ServerBootstrap bootstrap(
@@ -246,25 +246,5 @@ public class Main {
             .channel(NioServerSocketChannel.class)
             .handler(new LoggingHandler(LogLevel.DEBUG))
             .childHandler(handler);
-    }
-
-    private static void start(
-        ServerBootstrap bootstrap,
-        int port,
-        EventLoopGroup listenGroup,
-        EventLoopGroup workGroup
-    ) {
-
-        try {
-            Channel ch = bootstrap.bind(port).sync().channel();
-            log.info("Bound to port {}", port);
-            ch.closeFuture().sync();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.warn("Interrupted", e);
-        } finally {
-            listenGroup.shutdownGracefully();
-            workGroup.shutdownGracefully();
-        }
     }
 }

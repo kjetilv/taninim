@@ -23,9 +23,9 @@ import java.util.function.Supplier;
 
 public final class S3Streamer extends AbstractStreamer {
 
-    public S3Streamer(IO io, Supplier<Media> media, Sessions sessions) {
+    public S3Streamer(Supplier<Media> media, Sessions sessions) {
 
-        super(io, media, sessions);
+        super(media, sessions);
     }
 
     @Override
