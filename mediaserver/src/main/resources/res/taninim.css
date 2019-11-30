@@ -1,0 +1,22 @@
+body {
+    background: #CCDDEE;
+    color: F0FFF0;
+}
+
+a {
+    color: #002A00;
+    text-decoration: none;
+}
+
+a:visited {
+    background-color: lightgrey;
+}
+
+a:hover, a:active {
+    background-color: #F0FFF0;
+}
+
+hr {
+    margin: 0;
+    border: 3px solid #A0C0C0;
+}
