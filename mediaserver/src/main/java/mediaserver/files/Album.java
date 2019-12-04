@@ -107,12 +107,14 @@ public class Album extends AbstractHashable
     }
 
     public Duration getDuration() {
+
         return getTracks().stream().map(Track::getDuration).reduce(
             Duration.ZERO,
             Duration::plus);
     }
 
     public String getPrettyDuration() {
+
         return IO.pretty(getDuration());
     }
 
@@ -178,12 +180,15 @@ public class Album extends AbstractHashable
         if (artist.equals(getArtist())) {
             return tracks;
         }
-        return IntStream.range(0, context.getTrackContexts().size()).filter(position -> {
-            Track track = tracks.get(position);
-            return track.getOtherArtists().stream().anyMatch(artist::equals)
-                || context.getTrackContexts().get(position).getCredits().getCredits().stream()
-                .anyMatch(credit -> credit.getArtist().equals(artist));
-        }).mapToObj(tracks::get)
+        List<TrackContext> trackContexts = context.getTrackContexts();
+        return IntStream.range(0, trackContexts.size()).filter(position ->
+            Stream.of(
+                tracks.get(position).getArtists().stream(),
+                tracks.get(position).getOtherArtists().stream(),
+                this.context.getTrackContexts().get(position).getCredits().getCredits().stream().map(Credit::getArtist))
+                .flatMap(s -> s)
+                .anyMatch(artist::equals))
+            .mapToObj(tracks::get)
             .collect(Collectors.toList());
     }
 
@@ -208,14 +213,6 @@ public class Album extends AbstractHashable
         hash(h, tracks);
     }
 
-    @Override
-    protected StringBuilder withStringBody(StringBuilder sb) {
-
-        return sb.append(categoryPath.getPath())
-            .append(": ").append(artist).append("/").append(name)
-            .append(" [").append(tracks.size()).append("]");
-    }
-
     public boolean hasTracksBy(Artist artist) {
 
         return tracks.stream()
@@ -234,13 +231,41 @@ public class Album extends AbstractHashable
             part,
             tracks,
             categoryPath,
-            albumContext
-        );
+            albumContext);
     }
 
     public boolean features(Artist artist) {
 
         return getAllArtists().contains(artist);
+    }
+
+    public Optional<Track> getTrack(Integer trackNo) {
+        if (trackNo <= tracks.size()) {
+            return tracks.stream()
+                .filter(track ->
+                    trackNo.equals(track.getTrackNo()))
+                .findFirst();
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Track> getTrack(Integer disc, Integer trackNo) {
+
+        if (disc <= parts) {
+            return tracks.stream()
+                .filter(track ->
+                    track.getPart().equals(disc) && trackNo.equals(track.getTrackNo()))
+                .findFirst();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    protected StringBuilder withStringBody(StringBuilder sb) {
+
+        return sb.append(categoryPath.getPath())
+            .append(": ").append(artist).append("/").append(name)
+            .append(" [").append(tracks.size()).append("]");
     }
 
     private List<Artist> resolveArtists(boolean all) {

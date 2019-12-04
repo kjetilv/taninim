@@ -1,5 +1,5 @@
 body {
-    background: #D0E0E0;
+    background: #C4C8D8;
     color: #204020;
 }
 
@@ -13,16 +13,17 @@ a:visited {
 }
 
 a:hover, a:active {
-    background-color: #D0F0D0;
+    background-color: #C0E0E0;
+    color: #204020;
 }
 
 hr {
     margin: 0;
-    border: 3px solid #A0C0C0;
+    border: 3px solid #80A0A0;
 }
 
 h1 {
-    color: #004000;
+    color: #408040;
 }
 
 h2 {

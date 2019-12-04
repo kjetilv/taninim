@@ -131,7 +131,7 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     private HttpResponse handlePath(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         if (HttpUtil.is100ContinueExpected(req)) {
-            DefaultFullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
+            HttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
             ctx.write(res);
             return res;
         }

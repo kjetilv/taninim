@@ -10,7 +10,6 @@ import mediaserver.Media;
 import mediaserver.externals.FacebookUser;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.IO;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,7 +18,7 @@ import java.io.RandomAccessFile;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public final class FileStreamer extends AbstractStreamer {
+public final class FileStreamer extends Streamer {
 
     public FileStreamer(Supplier<Media> media, Sessions sessions) {
 

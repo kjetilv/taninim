@@ -33,10 +33,6 @@ public abstract class Nettish {
 
     private final WebCache<String, String> cache;
 
-    protected static final Consumer<BiConsumer<CharSequence, CharSequence>> IMMUTABLE =
-        headers ->
-            headers.accept(CACHE_CONTROL, "immutable");
-
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
 
     Nettish(String... prefix) {
@@ -108,16 +104,6 @@ public abstract class Nettish {
             throw new IllegalStateException("Response failed: " + response, e);
         }
         return response;
-    }
-
-    static HttpResponse response(
-        HttpRequest req,
-        HttpResponseStatus status,
-        AsciiString contentType,
-        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
-    ) {
-
-        return response(req, status, contentType, null, moreHeaders);
     }
 
     static HttpResponse response(
@@ -206,7 +192,7 @@ public abstract class Nettish {
         return headers -> headers.accept(SET_COOKIE, cookie);
     }
 
-    private static DefaultFullHttpResponse redirect(String value) {
+    private static HttpResponse redirect(String value) {
 
         return new DefaultFullHttpResponse(
             HTTP_1_1,

@@ -13,7 +13,6 @@ import mediaserver.Media;
 import mediaserver.externals.FacebookUser;
 import mediaserver.files.Track;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.IO;
 import mediaserver.util.S3;
 
 import java.io.InputStream;
@@ -21,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public final class S3Streamer extends AbstractStreamer {
+public final class S3Streamer extends Streamer {
 
     public S3Streamer(Supplier<Media> media, Sessions sessions) {
 

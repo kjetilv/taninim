@@ -84,7 +84,7 @@ public class Main {
         Supplier<Router> routerProvider = routerSupplier(media, ids, neuter, local);
 
         ChannelInitializer<SocketChannel> handler =
-            new ServerInitializer(routerProvider, ssl ? sslContext() : null);
+            new ServerInitializer(routerProvider, ssl ? sslContext(dev || local) : null);
 
         EventLoopGroup listenGroup = new NioEventLoopGroup(1);
         EventLoopGroup workGroup = new NioEventLoopGroup(4);
@@ -176,7 +176,7 @@ public class Main {
 
     public static Path mediaFile(String[] args) {
 
-        return new File(args[0]).toPath();
+        return pathArg(0, args);
     }
 
     public static Path libraryPath(String[] args) {
@@ -186,7 +186,7 @@ public class Main {
 
     public static Path resourcesPath(String[] args) {
 
-        return new File(args[2]).toPath();
+        return pathArg(2, args);
     }
 
     private static Path pathArg(int i, String[] args) {
@@ -194,7 +194,33 @@ public class Main {
         return new File(args[i]).toPath();
     }
 
-    private static SslContext sslContext() {
+    private static SslContext sslContext(boolean devOrLocal) {
+
+        if (devOrLocal) {
+            SelfSignedCertificate ssc = selfSignedCertificate();
+            log.info("Faux self-signed: {}/{}", ssc.certificate(), ssc.key());
+            SslContext sslContext = selfSignedSsl(ssc);
+            log.info("Faux SSL: {}", sslContext);
+            return sslContext;
+        }
+        throw new IllegalStateException("Attempted use self-signed certificate in non-dev-like mode`");
+    }
+
+    private static SslContext selfSignedSsl(SelfSignedCertificate ssc) {
+
+        SslContext sslContext;
+        try {
+            sslContext = SslContextBuilder.forServer(
+                ssc.certificate(),
+                ssc.privateKey()
+            ).build();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to setup SSL context", e);
+        }
+        return sslContext;
+    }
+
+    private static SelfSignedCertificate selfSignedCertificate() {
 
         SelfSignedCertificate ssc;
         try {
@@ -202,15 +228,7 @@ public class Main {
         } catch (CertificateException e) {
             throw new IllegalStateException("Unexpected ssc error", e);
         }
-
-        try {
-            return SslContextBuilder.forServer(
-                ssc.certificate(),
-                ssc.privateKey()
-            ).build();
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to setup SSL context", e);
-        }
+        return ssc;
     }
 
     private static Supplier<Router> routerSupplier(
@@ -220,19 +238,22 @@ public class Main {
         boolean local
     ) {
 
-        Supplier<char[]> secretProvider = () ->
-            IO.getProperty(FB_SEC).toCharArray();
-        Sessions sessions =
-            new Sessions(ids, Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
-        return () -> new Router(
-            neuter ? new NullStreamer(media, sessions)
-                : local ? new FileStreamer(media, sessions)
-                : new S3Streamer(media, sessions),
-            new FbUnauth(sessions),
-            new FbAuth(sessions, secretProvider, ids),
-            new Playlists(media),
-            new Resources(),
-            new GUI(media, sessions));
+        Supplier<char[]> secretProvider = () -> IO.getProperty(FB_SEC).toCharArray();
+        Sessions sessions = new Sessions(ids, Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
+
+        Streamer streamer = neuter ? new NullStreamer(media, sessions)
+            : local ? new FileStreamer(media, sessions)
+            : new S3Streamer(media, sessions);
+
+        return () ->
+            new Router(
+                new Debug(),
+                streamer,
+                new FbUnauth(sessions),
+                new FbAuth(sessions, secretProvider, ids),
+                new Playlists(media),
+                new Resources(),
+                new GUI(media, sessions));
     }
 
     private static ServerBootstrap bootstrap(

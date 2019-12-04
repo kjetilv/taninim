@@ -84,10 +84,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             : album -> album.getSeries().contains(series);
         return new LocalMedia(
             sub,
-            stream(true)
-                .filter(categorized)
-                .filter(forArtist)
-                .filter(inSeries),
+            stream(true).filter(categorized.and(forArtist).and(inSeries)),
             albumContexts);
     }
 
@@ -212,14 +209,16 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
-    public Collection<Track> getTracksBy(Artist artist) {
+    public Collection<Track> getTracksFeaturing(Artist artist) {
 
         Objects.requireNonNull(artist, "artist");
         return albumStream(true)
             .map(Album::getTracks)
             .flatMap(Collection::stream)
             .filter(track ->
-                artist.equals(track.getArtist()) || track.getOtherArtists().stream().anyMatch(artist::equals))
+                artist.equals(track.getArtist()) ||
+                    track.getArtists().stream().anyMatch(artist::equals) ||
+                    track.getOtherArtists().stream().anyMatch(artist::equals))
             .collect(Collectors.toList());
     }
 

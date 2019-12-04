@@ -8,7 +8,6 @@ import mediaserver.Media;
 import mediaserver.externals.FacebookUser;
 import mediaserver.files.*;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.IO;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

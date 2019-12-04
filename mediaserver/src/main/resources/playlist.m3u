@@ -4,6 +4,6 @@
 
 #EXTALB: {track.album}
 #EXTART: {track.artist.name}
-#EXTINF:{track.seconds};{track.name}
-{host}/audio/{track.uuid}.m4a
+#EXTINF:{track.seconds};{track.prettyTrackNo} {track.name}
+{protocol}://{host}/audio/{track.uuid}.m4a
 }}

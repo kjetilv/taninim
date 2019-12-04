@@ -23,6 +23,21 @@ public interface Media {
 
     int SE7EN = 7;
 
+    default Media subLibrary(CategoryPath categoryPath) {
+
+        return subLibrary(categoryPath, null, null);
+    }
+
+    default Media subLibrary(Series series) {
+
+        return subLibrary(null, null, series);
+    }
+
+    default Media subLibrary(Artist artist) {
+
+        return subLibrary(null, artist, null);
+    }
+
     Media subLibrary(CategoryPath categoryPath, Artist artist, Series series);
 
     Media withAlbumContext(UUID albumId, AlbumContext albumContext);
@@ -101,7 +116,7 @@ public interface Media {
         return getTracks(true);
     }
 
-    Collection<Track> getTracksBy(Artist artist);
+    Collection<Track> getTracksFeaturing(Artist artist);
 
     Collection<Track> getTracks(boolean recurse);
 
@@ -146,6 +161,7 @@ public interface Media {
 
         return (media, album) ->
             discogsData.getDiscogRelease(album).map(release -> {
+
                 AlbumContext context = Stream.of(release.getArtists(), release.getExtraartists())
                     .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
@@ -176,10 +192,22 @@ public interface Media {
                         return new TrackContext(
                             track.getPosition(),
                             track.getTitle(),
-                            trackCredits
-                        );
+                            trackCredits);
                     })
                     .collect(Collectors.toList());
+                boolean simpleContexts =  true || album.getTracks().size() ==
+                    trackContexts.stream().filter(TrackContext::isTrack).count();
+                List<TrackContext> applicableTrackContexts = simpleContexts
+                    ? trackContexts.stream().map(trackContext -> trackContext.getTrackNo()
+                    .flatMap(trackNo ->
+                        trackContext.getDisc()
+                            .map(disc ->
+                                album.getTrack(disc, trackNo))
+                            .orElseGet(() ->
+                                album.getTrack(trackNo)))
+                    .map(trackContext::withTrack)
+                    .orElse(trackContext)).collect(Collectors.toList())
+                    : trackContexts;
                 return media.withAlbumContext(album.getUuid(), context.withTrackContexts(trackContexts));
             }).orElse(media);
     }
@@ -187,9 +215,8 @@ public interface Media {
     static List<Video> videos(DiscogReleaseDigest release) {
 
         return Optional.ofNullable(release.getVideos()).stream().flatMap(Collection::stream)
-            .flatMap(discogVideo ->
-                video(discogVideo)
-            ).collect(Collectors.toList());
+            .flatMap(Media::video)
+            .collect(Collectors.toList());
     }
 
     static Stream<Video> video(DiscogVideo discogVideo) {

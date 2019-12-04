@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -37,6 +38,8 @@ public class DiscogsDataResolver {
     private final Collection<DiscogConnection> connections;
 
     private final Duration refreshTime;
+
+    private final AtomicBoolean discogsTired = new AtomicBoolean();
 
     public DiscogsDataResolver(
         Path resourcesDirectory,
@@ -72,13 +75,14 @@ public class DiscogsDataResolver {
 
         return withRetry(3, retry -> {
             try {
-                if (regularFile(local) && regularFile(raw) && fresh(raw)) {
+                if (regularFile(local) && regularFile(raw) && fresh(raw) || discogsTired.get()) {
                     return updateAndReadLocalFile(raw, local);
                 }
                 try {
                     return fetchAndWriteLocalFile(connection.getUri(), local, raw);
                 } catch (Exception e) {
                     log.warn("Discog read problem for {}/{}, continuing...", local, raw, e);
+                    discogsTired.set(true);
                     return updateAndReadLocalFile(raw, local);
                 }
             } catch (Exception e) {

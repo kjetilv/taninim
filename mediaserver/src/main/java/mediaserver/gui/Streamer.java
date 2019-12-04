@@ -19,7 +19,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public abstract class AbstractStreamer extends Nettish {
+public abstract class Streamer extends Nettish {
 
     protected static final String FLAC = "flac";
 
@@ -37,7 +37,7 @@ public abstract class AbstractStreamer extends Nettish {
 
     private static final int BYTES_PREAMBLE = (HttpHeaderValues.BYTES + "=").length();
 
-    AbstractStreamer(Supplier<Media> media, Sessions sessions) {
+    Streamer(Supplier<Media> media, Sessions sessions) {
 
         super("/audio");
         this.media = media;

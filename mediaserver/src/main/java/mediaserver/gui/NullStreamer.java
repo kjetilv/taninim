@@ -12,7 +12,7 @@ import mediaserver.sessions.Sessions;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class NullStreamer extends AbstractStreamer {
+public class NullStreamer extends Streamer {
 
     public NullStreamer(Supplier<Media> media, Sessions sessions) {
 

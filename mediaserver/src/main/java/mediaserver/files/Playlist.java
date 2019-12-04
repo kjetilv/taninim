@@ -16,7 +16,7 @@ public class Playlist extends AbstractHashable {
 
     public Playlist(Album album) {
 
-        this(album.getArtist() + ": " + album.getName(), album.getTracks());
+        this(album.getArtist().getName() + ": " + album.getName(), album.getTracks());
     }
 
     public Playlist(Collection<Track> tracks) {

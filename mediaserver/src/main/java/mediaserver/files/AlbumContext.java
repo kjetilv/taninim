@@ -1,5 +1,7 @@
 package mediaserver.files;
 
+import mediaserver.util.Pairs;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.time.Year;
@@ -7,6 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AlbumContext implements Serializable {
 
@@ -27,6 +31,8 @@ public class AlbumContext implements Serializable {
     private final Credits credits;
 
     private final List<TrackContext> trackContexts;
+
+    private final List<TrackGroup> trackGroups;
 
     private static final long serialVersionUID = 873700442732183661L;
 
@@ -80,6 +86,24 @@ public class AlbumContext implements Serializable {
         this.trackContexts = trackContexts == null || trackContexts.isEmpty()
             ? Collections.emptyList()
             : List.copyOf(trackContexts);
+        List<Integer> headings = IntStream.range(0, this.trackContexts.size())
+            .filter(i ->
+                trackContexts.get(i).isHeading())
+            .boxed()
+            .collect(Collectors.toList());
+        if (headings.isEmpty()) {
+            this.trackGroups =
+                Collections.singletonList(new TrackGroup("Disc", this.trackContexts));
+        } else {
+            this.trackGroups =
+                Pairs.pairs(headings, this.trackContexts.size()).stream()
+                    .map(pair ->
+                        new TrackGroup(
+                            this.trackContexts.get(pair.getT1()).getHeading().orElseGet(() ->
+                                "Tracks " + pair.getT1() + "-" + (pair.getT2() - 1)),
+                            this.trackContexts.subList(pair.getT1() + 1, pair.getT2())))
+                    .collect(Collectors.toList());
+        }
     }
 
     public Credits getCredits() {
@@ -117,6 +141,13 @@ public class AlbumContext implements Serializable {
         return trackContexts;
     }
 
+    @SuppressWarnings("unused")
+    public List<TrackGroup> getTrackGroups() {
+
+        return trackGroups;
+    }
+
+    @SuppressWarnings("unused")
     public boolean isAdditionalTrackContext() {
 
         return !trackContexts.stream().allMatch(trackContext ->
@@ -128,6 +159,7 @@ public class AlbumContext implements Serializable {
         return discogCover;
     }
 
+    @SuppressWarnings("unused")
     public URI getDiscogPage() {
 
         return discogPage;

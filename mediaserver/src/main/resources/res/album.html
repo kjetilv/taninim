@@ -93,9 +93,10 @@
 
     {album.albumParts:{albumPart |
     <p>{if(albumPart.part)}Plate {albumPart.part}:{endif}
-    <OL>
+    <UL>
         {albumPart.tracks:{track |
         <LI>
+            [{track.trackNo}]
             {if(user)}<A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶{endif}
             {track.name}
             {track.prettyDuration}
@@ -112,7 +113,7 @@
             {endif}
         </LI>
         }}
-    </OL>
+    </UL>
     }}
 </DIV>
 
@@ -148,26 +149,31 @@
 
     <H3>Spormengder</H3>
 
+    {album.context.trackGroups:{trackGroup |
+    <H4>{trackGroup.name}</H4>
+    {trackGroup.trackContexts:{trackContext |
     <UL>
-        {album.context.trackContexts:{trackContext |
-        <LI>{trackContext.position} {trackContext.title}
+        <LI>{trackContext.prettyTrackNo} {trackContext.title}
             <UL>
                 {trackContext.credits.artistCredits:{credit |
-                <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
-                    [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>{if(user)}
-                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
-                    {endif}]
+                <LI>{if(credit.sourceType)}{credit.sourceType}: {endif
+                    }[<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>{if(user)
+                    } &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>{
+                    endif}]
                 </LI>
                 }}
             </UL>
             <UL>
                 {trackContext.credits.otherCredits:{credit |
-                <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}{credit.name}</LI>
+                <LI>{
+                    if(credit.sourceType)}{credit.sourceType}: {endif}{credit.name}
+                </LI>
                 }}
             </UL>
         </LI>
-        }}
     </UL>
+    }}
+    }}
     {endif}
 </DIV>
 
@@ -175,11 +181,9 @@
     {if(album.additionalArtists)}
     <H3>Medvirkende</H3>
 
-    {album.artists:{artist|
-    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>{if(user)}
-        &nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>
-        {endif}]</SPAN>
-    }}
+    {album.artists:{artist|[<A HREF="/?artist={artist.uuid}">{artist.name}</A>{if(user)
+    }&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>{
+    endif}]}}
     {endif}
 </DIV>
 

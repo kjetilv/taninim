@@ -27,7 +27,7 @@ public class Resources extends Nettish {
                 : resource(path));
             return cache.get(resource)
                 .map(bytes ->
-                    response(req, null, contentType(path), bytes, IMMUTABLE))
+                    response(req, null, contentType(path), bytes, null))
                 .map(response -> {
                     try {
                         return respond(ctx, response);
