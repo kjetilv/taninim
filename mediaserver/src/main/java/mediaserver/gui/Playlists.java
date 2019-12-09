@@ -125,13 +125,13 @@ public class Playlists extends Nettish {
 
     private Template playlist(Album album) {
 
-        return template("playlist.m3u")
+        return template("res/playlist.m3u")
             .add(QPar.PLAYLIST, new Playlist(album));
     }
 
     private Template playlist(Collection<Album> albums) {
 
-        return template("playlist.m3u")
+        return template("res/playlist.m3u")
             .add(QPar.PLAYLIST, new Playlist(
                 albums.size() + " albums",
                 albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList())));
@@ -139,7 +139,7 @@ public class Playlists extends Nettish {
 
     private Template playlist(Artist artist, Collection<Track> tracks) {
 
-        return template("playlist.m3u")
+        return template("res/playlist.m3u")
             .add(QPar.PLAYLIST, new Playlist(artist.getName(), tracks));
     }
 }

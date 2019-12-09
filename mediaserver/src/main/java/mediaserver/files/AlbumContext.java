@@ -1,14 +1,12 @@
 package mediaserver.files;
 
+import mediaserver.util.Pair;
 import mediaserver.util.Pairs;
 
 import java.io.Serializable;
 import java.net.URI;
 import java.time.Year;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -93,15 +91,19 @@ public class AlbumContext implements Serializable {
             .collect(Collectors.toList());
         if (headings.isEmpty()) {
             this.trackGroups =
-                Collections.singletonList(new TrackGroup("Disc", this.trackContexts));
+                Collections.singletonList(new TrackGroup("N/A", this.trackContexts));
         } else {
             this.trackGroups =
                 Pairs.pairs(headings, this.trackContexts.size()).stream()
-                    .map(pair ->
-                        new TrackGroup(
-                            this.trackContexts.get(pair.getT1()).getHeading().orElseGet(() ->
-                                "Tracks " + pair.getT1() + "-" + (pair.getT2() - 1)),
-                            this.trackContexts.subList(pair.getT1() + 1, pair.getT2())))
+                    .filter(pair ->
+                        pair.getT1() + 1 < pair.getT2())
+                    .map(pair -> {
+                        Collection<TrackContext> headingEntries = headingEntries(pair);
+                        List<TrackContext> trackEntries =
+                            this.trackContexts.subList(pair.getT1() + 1, pair.getT2());
+                        String name = name(headingEntries, pair);
+                        return new TrackGroup(name, trackEntries);
+                    })
                     .collect(Collectors.toList());
         }
     }
@@ -211,5 +213,28 @@ public class AlbumContext implements Serializable {
             videos,
             credits,
             trackContexts);
+    }
+
+    private String name(Collection<TrackContext> headingEntries, Pair<Integer> pair) {
+
+        if (headingEntries.isEmpty()) {
+            return "Tracks " + pair.getT1() + "-" + (pair.getT2() - 1);
+        }
+        return headingEntries.stream().map(TrackContext::getHeading).flatMap(Optional::stream).collect(
+            Collectors.joining(" / "));
+    }
+
+    private Collection<TrackContext> headingEntries(Pair<Integer> pair) {
+
+        List<TrackContext> headingEntries =
+            IntStream.range(0, pair.getT1())
+                .map(i ->
+                    pair.getT1() - i)
+                .takeWhile(i ->
+                    this.trackContexts.get(i).isHeading())
+                .mapToObj(this.trackContexts::get)
+                .collect(Collectors.toCollection(ArrayList::new));
+        Collections.reverse(headingEntries);
+        return headingEntries;
     }
 }

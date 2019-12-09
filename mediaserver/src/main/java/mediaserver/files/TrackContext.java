@@ -35,7 +35,12 @@ public class TrackContext implements Serializable {
 
     public TrackContext withTrack(Track track) {
 
-        return new TrackContext(track, position, title, credits);
+        String name = track.getName().toLowerCase().replaceAll("\\s+", "");
+        String title = this.title.toLowerCase().replaceAll("\\s+", "");
+        if (!(name.equalsIgnoreCase(title) || name.contains(title) || title.contains(name))) {
+            log.debug("{} /= {}", track, this.title);
+        }
+        return new TrackContext(track, position, this.title, credits);
     }
 
     public Track getTrack() {

@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,6 +51,11 @@ public class DiscogsDataResolver {
         this.resourcesDirectory = resourcesDirectory;
         this.connections = connections;
         this.refreshTime = refreshTime;
+    }
+
+    public Collection<DiscogConnection> getConnections() {
+
+        return List.copyOf(connections);
     }
 
     public Optional<DiscogReleaseDigest> getDiscogRelease(Album album) {

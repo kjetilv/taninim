@@ -10,7 +10,7 @@ class Conversion(
 ) {
     fun convert(
             newSuffix: String? = null,
-            process: (Path, Path) -> Boolean
+            process: (Int, Int, Path, Path) -> Boolean
     ): Boolean {
         println("Validating inputs...")
         val unpaths = traverser.unpaths(included).map { it.parent.parent.fileName }.distinct().sorted()
@@ -33,9 +33,9 @@ class Conversion(
                 println("Not used: $it")
             }
         }
-        val conversions = paths.mapIndexed { _, path ->
+        val conversions = paths.mapIndexed { i, path ->
 //            println("Processing #$i/${paths.size}: ${path.toFile().absolutePath}")
-            process(path, mover.target(path, newSuffix))
+            process(i, paths.size, path, mover.target(path, newSuffix))
         }
         return conversions.all { it }
     }

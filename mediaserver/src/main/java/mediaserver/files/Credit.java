@@ -109,6 +109,8 @@ public class Credit implements Serializable {
 
         painting,
 
+        legal,
+
         liner_notes;
 
         boolean matches(String type) {

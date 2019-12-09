@@ -138,13 +138,17 @@ public interface Media {
 
         log.info("Scanning from {}", mediaPath);
         Media baseMedia = new LocalMedia(mediaPath);
-        log.info("Scanned: {}", baseMedia);
+        log.info("Scanned {} albums: {}", baseMedia.getAlbums().size(), baseMedia);
 
-        log.info("Reading from {}", libraryPath);
-
+        log.info("Reading iTunes library from {}", libraryPath);
         iTunesLibrary iTunesLibrary = iTunesLibrary(libraryPath);
+        log.info("Read {} entries", iTunesLibrary.getTracks().size());
+
+        log.info("Reading discogs data");
         Collection<DiscogConnection> metaConnections = metaConnections(baseMedia, iTunesLibrary);
         DiscogsDataResolver discogsData = new DiscogsDataResolver(resourcesPath, metaConnections, Duration.ofDays(7));
+        log.info("Retrieved {} discogs data", discogsData.getConnections().size());
+
         Media media = baseMedia.allAlbums().stream().reduce(baseMedia, addContextFrom(discogsData), noCombine());
         log.info("Returning {}", media);
         return media;
@@ -173,8 +177,7 @@ public interface Media {
                             cover(release).orElse(null),
                             release.getNotes(),
                             series(release),
-                            videos(release)
-                        ),
+                            videos(release)),
                         (ctx, dad) ->
                             ctx.credit(
                                 dad.getName(),
@@ -195,19 +198,15 @@ public interface Media {
                             trackCredits);
                     })
                     .collect(Collectors.toList());
-                boolean simpleContexts =  true || album.getTracks().size() ==
-                    trackContexts.stream().filter(TrackContext::isTrack).count();
-                List<TrackContext> applicableTrackContexts = simpleContexts
-                    ? trackContexts.stream().map(trackContext -> trackContext.getTrackNo()
-                    .flatMap(trackNo ->
+                List<TrackContext> applicableTrackContexts = trackContexts.stream().map(trackContext ->
+                    trackContext.getTrackNo().flatMap(trackNo ->
                         trackContext.getDisc()
                             .map(disc ->
                                 album.getTrack(disc, trackNo))
                             .orElseGet(() ->
                                 album.getTrack(trackNo)))
-                    .map(trackContext::withTrack)
-                    .orElse(trackContext)).collect(Collectors.toList())
-                    : trackContexts;
+                        .map(trackContext::withTrack)
+                        .orElse(trackContext)).collect(Collectors.toList());
                 return media.withAlbumContext(album.getUuid(), context.withTrackContexts(trackContexts));
             }).orElse(media);
     }

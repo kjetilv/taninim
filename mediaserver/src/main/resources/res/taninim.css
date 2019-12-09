@@ -1,10 +1,10 @@
 body {
-    background: #C4C8D8;
-    color: #204020;
+    background: #f7fafb;
+    color: #1a351a;
 }
 
 a {
-    color: #103010;
+    color: #223529;
     text-decoration: none;
 }
 
@@ -13,13 +13,13 @@ a:visited {
 }
 
 a:hover, a:active {
-    background-color: #C0E0E0;
-    color: #204020;
+    background-color: #d7ffe8;
+    color: #418141;
 }
 
 hr {
     margin: 0;
-    border: 3px solid #80A0A0;
+    border: 2px groove #b3dfdf;
 }
 
 h1 {

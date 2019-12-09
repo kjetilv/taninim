@@ -21,4 +21,8 @@ class Command(pwd: Path, vararg cmd: String) {
             } catch (e: Exception) {
                 throw IllegalStateException("Failed to convert")
             }
+
+    init {
+        println("  ${cmd.toList().joinToString(separator = " ")}")
+    }
 }

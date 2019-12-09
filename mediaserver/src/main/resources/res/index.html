@@ -33,7 +33,7 @@
     </svg>
 </DIV>
 
-<DIV align="center">
+<DIV style="text-align: center">
     <H1>
         <A HREF="/">taninim</A>
     </H1>
@@ -71,7 +71,7 @@
 
 <DIV>
     <P>
-        {length(media.tracks)} spor
+        {length(media.tracks)} spor, {length(media.albums)} plater
     <P>
         Spilletid {media.prettyDuration}
 </DIV>
@@ -100,7 +100,7 @@
     <UL>
         {media.albums:{album|
         <LI>
-            {if(user)}<A ALT="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
+            {if(user)}<A TITLE="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
         </LI>
         }}
@@ -108,7 +108,7 @@
 </DIV>
 
 <H3>Tilfeldige plater</H3>
-<DIV align="center">
+<DIV style="text-align: center">
     {media.sevenRandomAlbums:{album|
     <A HREF="/album?album={album.uuid}">
         <IMG TITLE="{album.name}" ALT="{album.name}" SRC="{album.context.discogCover}">

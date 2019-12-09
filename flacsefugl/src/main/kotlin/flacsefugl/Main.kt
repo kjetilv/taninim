@@ -1,7 +1,6 @@
 package flacsefugl
 
 import mediaserver.Media
-import java.lang.IllegalStateException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -28,6 +27,7 @@ fun main() {
                         album(path).contains("book beri") ||
                         album(path).contains("circle maker") ||
                         artist(path).contains("bar kokhba") ||
+                        artist(path).contains("locus solus") ||
                         artist(path).startsWith("naked city") ||
                         artist(path).startsWith("painkiller") ||
                         artist(path) == "makigami koichi" ||
@@ -49,14 +49,14 @@ fun main() {
             Traverser(rootDir),
             included)
 
-    flacConversion.convert("flac") { source, target ->
-        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
-        true
-    }
+//    flacConversion.convert("flac") { source, target ->
+//        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
+//        true
+//    }
 
-    flacConversion.convert("flac") { source, target ->
+    flacConversion.convert("flac") { no, total, source, target ->
+        println("$no/$total: ${source.parent.fileName}/${source.fileName}")
         if (Files.isRegularFile(target) && Files.size(target) > 0) {
-            println("Not converting, already done: $target")
             true
         } else {
             ffmpeg(source, target).await()
@@ -67,9 +67,9 @@ fun main() {
             Mover(rootDir, m4aDir, dists()),
             Traverser(rootDir),
             included)
-    m4aConversion.convert("m4a") { source, target ->
+    m4aConversion.convert("m4a") { no, total, source, target ->
+        println("$no/$total: ${source.parent.fileName}/${source.fileName}")
         if (Files.isRegularFile(target) && Files.size(target) > 0) {
-            println("Not converting, already done: $target")
             true
         } else {
             ffmpegM4a(source, target).await()
@@ -82,9 +82,7 @@ fun main() {
             path.toString().endsWith(".flac")
         }.forEach { path ->
             val walkFlac = walkDir.resolve(flacDir.relativize(path))
-            if (Files.exists(walkFlac) && Files.size(walkFlac) == Files.size(path)) {
-//                println("Already walkin: $path")
-            } else {
+            if (!Files.exists(walkFlac) || Files.size(walkFlac) != Files.size(path)) {
                 val dir = walkFlac.toFile().parentFile
                 if (dir.isDirectory || dir.mkdirs()) {
                     println("Now walkin: $path")
@@ -106,7 +104,11 @@ fun main() {
     println("Media: $media")
 }
 
-fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
+fun playlists(): List<Dist> = emptyList()
+//    ObjectMapper(YAMLFactory()).
+//}
+
+fun dists(): List<Dist> = playlists() + listOf<Pair<Path, (Path) -> Boolean>>(
 
         Paths.get("Masada", "Book of Angels") to albumContains("book of angels vol. "),
 
@@ -124,7 +126,7 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         },
 
         Paths.get("Masada", "Various", "10. Anniversary") to { path ->
-                    album(path).contains("masada 10. anniversary")
+            album(path).contains("masada 10. anniversary")
         },
 
         Paths.get("Masada", "Various", "Live") to { path ->
@@ -144,6 +146,8 @@ fun dists(): List<Dist> = listOf<Pair<Path, (Path) -> Boolean>>(
         Paths.get("The Hermetic Organ") to albumContains("Hermetic Organ"),
 
         Paths.get("John Zorn") to artistContains("John Zorn"),
+
+        Paths.get("John Zorn") to artistContains("Locus Solus"),
 
         Paths.get("John Zorn") to artistContains("Hemophiliac"),
 
@@ -188,15 +192,11 @@ private fun album(path: Path) = path.parent.fileName.toString().toLowerCase()
 
 private fun artist(path: Path) = path.parent.parent.fileName.toString().toLowerCase()
 
-private fun ffmpeg(source: Path, target: Path): Command =
-        Command(Paths.get("."),
-                "/opt/local/bin/ffmpeg", "-i", absOf(source), "-c:a", "flac", absOf(target)
-        )
+private fun ffmpeg(source: Path, target: Path): Command = Command(Paths.get("."),
+        "/opt/local/bin/ffmpeg", "-y", "-v", "warning", "-i", absOf(source), "-c:a", "flac", absOf(target))
 
-private fun ffmpegM4a(source: Path, target: Path): Command =
-        Command(Paths.get("."),
-                "/opt/local/bin/ffmpeg", "-i", absOf(source), "-c:a", "aac", "-b:a", "128k", absOf(target)
-        )
+private fun ffmpegM4a(source: Path, target: Path): Command = Command(Paths.get("."),
+        "/opt/local/bin/ffmpeg", "-y", "-v", "warning", "-i", absOf(source), "-c:a", "aac", "-b:a", "128k", absOf(target))
 
 
 private fun absOf(source: Path) = source.toFile().absolutePath

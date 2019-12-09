@@ -17,6 +17,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     testImplementation("junit:junit:4.12")
 }
