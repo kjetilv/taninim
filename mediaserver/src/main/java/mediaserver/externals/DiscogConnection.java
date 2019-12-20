@@ -1,4 +1,7 @@
-package mediaserver.files;
+package mediaserver.externals;
+
+import mediaserver.media.Album;
+import mediaserver.media.Artist;
 
 import java.net.URI;
 import java.util.Objects;

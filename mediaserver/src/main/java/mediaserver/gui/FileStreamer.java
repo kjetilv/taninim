@@ -6,9 +6,9 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.Media;
+import mediaserver.media.Media;
 import mediaserver.externals.FacebookUser;
-import mediaserver.files.Track;
+import mediaserver.media.Track;
 import mediaserver.sessions.Sessions;
 
 import java.io.File;

@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
+import mediaserver.http.Nettish;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
@@ -43,38 +44,41 @@ public class FbAuth extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         return sessions.activeUser(req)
             .map(user ->
                 respond(ctx, HttpResponseStatus.OK))
-            .orElseGet(() ->
-                facebookUser(req)
-                    .map(facebookUser ->
-                        login(req, path, ctx, facebookUser))
-                    .orElseGet(() ->
-                        super.handle(req, path, ctx)));
+            .or(() ->
+                lookupFacebookUser(req)
+                    .map(user ->
+                        login(req, ctx, user)));
     }
 
-    private HttpResponse login(HttpRequest req, String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
+    private HttpResponse login(HttpRequest req, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
-        return ids.get().authorized(facebookUser)
-            ? resolveAuthorizedSession(req, ctx, facebookUser)
-            : unprocessed(path, ctx, facebookUser);
+        return ids().isAuthorized(facebookUser)
+            ? authorizedSession(req, ctx, facebookUser)
+            : unprocessed(ctx, facebookUser);
     }
 
-    private HttpResponse resolveAuthorizedSession(
+    private Ids ids() {
+
+        return ids.get();
+    }
+
+    private HttpResponse authorizedSession(
         HttpRequest req,
         ChannelHandlerContext ctx,
-        FacebookUser facebookUser
+        FacebookUser authorizedUser
     ) {
 
-        Session session = sessions.sessionUp(facebookUser);
+        Session session = sessions.sessionUp(authorizedUser);
         HttpResponse response = authCookieResponse(req, session, newAuthCookie(session));
         return respond(ctx, response);
     }
 
-    private Optional<FacebookUser> facebookUser(FullHttpRequest req) {
+    private Optional<FacebookUser> lookupFacebookUser(FullHttpRequest req) {
 
         return Optional.of(req.content())
             .map(content ->
@@ -98,7 +102,7 @@ public class FbAuth extends Nettish {
             Version.LATEST);
     }
 
-    private static HttpResponse unprocessed(String path, ChannelHandlerContext ctx, FacebookUser facebookUser) {
+    private static HttpResponse unprocessed(ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
         log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
         return respond(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);

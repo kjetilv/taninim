@@ -1,7 +1,6 @@
-package mediaserver;
+package mediaserver.media;
 
 import mediaserver.externals.*;
-import mediaserver.files.*;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,20 +24,25 @@ public interface Media {
 
     default Media subLibrary(CategoryPath categoryPath) {
 
-        return subLibrary(categoryPath, null, null);
+        return subLibrary(categoryPath, null, null, null);
     }
 
     default Media subLibrary(Series series) {
 
-        return subLibrary(null, null, series);
+        return subLibrary(null, null, series, null);
     }
 
     default Media subLibrary(Artist artist) {
 
-        return subLibrary(null, artist, null);
+        return subLibrary(null, artist, null, null);
     }
 
-    Media subLibrary(CategoryPath categoryPath, Artist artist, Series series);
+    default Media subLibrary(Playlist playlist) {
+
+        return subLibrary(null, null, null, playlist);
+    }
+
+    Media subLibrary(CategoryPath categoryPath, Artist artist, Series series, Playlist playlist);
 
     Media withAlbumContext(UUID albumId, AlbumContext albumContext);
 
@@ -56,6 +60,10 @@ public interface Media {
     Collection<CategoryPath> getTopCategories();
 
     Collection<CategoryPath> getCategories();
+
+    Collection<Playlist> getPlaylists();
+
+    Optional<Playlist> getPlaylist(UUID uuid);
 
     Duration getDuration();
 
@@ -149,7 +157,8 @@ public interface Media {
         DiscogsDataResolver discogsData = new DiscogsDataResolver(resourcesPath, metaConnections, Duration.ofDays(7));
         log.info("Retrieved {} discogs data", discogsData.getConnections().size());
 
-        Media media = baseMedia.allAlbums().stream().reduce(baseMedia, addContextFrom(discogsData), noCombine());
+        Media media = baseMedia.allAlbums().stream()
+            .reduce(baseMedia, addContextFrom(discogsData), noCombine());
         log.info("Returning {}", media);
         return media;
     }
@@ -207,7 +216,8 @@ public interface Media {
                                 album.getTrack(trackNo)))
                         .map(trackContext::withTrack)
                         .orElse(trackContext)).collect(Collectors.toList());
-                return media.withAlbumContext(album.getUuid(), context.withTrackContexts(trackContexts));
+                return media.withAlbumContext(
+                    album.getUuid(), context.withTrackContexts(trackContexts));
             }).orElse(media);
     }
 

@@ -22,7 +22,7 @@ public class Ids {
         return dev ? Optional.of("dev") : Optional.empty();
     }
 
-    public boolean authorized(FacebookUser facebookUser) {
+    public boolean isAuthorized(FacebookUser facebookUser) {
 
         return sources.values().stream().anyMatch(id ->
             String.valueOf(id).equalsIgnoreCase(facebookUser.getId()));

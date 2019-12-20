@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.NotSslRecordException;
-import mediaserver.gui.Nettish;
+import mediaserver.http.Nettish;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +22,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static mediaserver.gui.Nettish.respond;
+import static mediaserver.http.Nettish.respond;
 
 class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
@@ -46,34 +44,21 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
 
         Instant start = Instant.now();
-        HttpResponse res;
-        try {
-            res = response(ctx, req);
-        } catch (Exception e) {
-            long ms = Duration.between(start, Instant.now()).toMillis();
-            throw new IllegalStateException(
-                "Failed to respond to " + req.uri() + " (" + ms + " ms)", e);
-        }
-        long ms = Duration.between(start, Instant.now()).toMillis();
-        if (ROUTED.add(req.uri())) {
-            log.info("{} -> {}/{} in {}ms",
-                req.uri(), res.status(), res.headers().get(HttpHeaderNames.CONTENT_LENGTH), ms);
-        }
+        HttpResponse response = response(ctx, req);
+        log(req, response, duration(start));
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 
         try {
-            Optional.of(cause)
-                .filter(ignorable(ctx))
-                .ifPresentOrElse(
-                    ignored ->
-                        log.info("{}->{}: {}",
-                            get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress), ignored.toString()),
-                    () ->
-                        log.error("Caught unknown error {}->{}",
-                            get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress), cause));
+            ignoredException(ctx, cause).ifPresentOrElse(
+                ignored ->
+                    log.info("{}->{}: {}",
+                        get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress), ignored.toString()),
+                () ->
+                    log.error("Caught unknown error {}->{}",
+                        get(ctx, Channel::remoteAddress), get(ctx, Channel::localAddress), cause));
         } finally {
             if (ctx.channel().isActive()) {
                 respond(ctx, INTERNAL_SERVER_ERROR);
@@ -81,42 +66,48 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    public Predicate<Throwable> ignorable(ChannelHandlerContext ctx) {
+    private void log(FullHttpRequest req, HttpResponse response, long ms) {
 
-        return e -> {
-            if (e instanceof SocketException && e.getMessage().equalsIgnoreCase("Connection reset")) {
-                return true;
-            }
-            boolean testing = ctx.channel().localAddress().toString().contains("0:0:0:0:0:0:0:1:8443");
-            for (Throwable t = e; t != null && t.getCause() != t; t = t.getCause()) {
-                if (e.getMessage().contains(SSLHandshakeException.class.getName()) &&
-                    testing
-                ) {
+        if (ROUTED.add(req.uri())) {
+            log.info("{} -> {}/{} in {}ms",
+                req.uri(), response.status(), response.headers().get(HttpHeaderNames.CONTENT_LENGTH), ms);
+        }
+    }
+
+    private long duration(Instant start) {
+
+        return Duration.between(start, Instant.now()).toMillis();
+    }
+
+    private Optional<Throwable> ignoredException(ChannelHandlerContext ctx, Throwable cause) {
+
+        return Optional.of(cause)
+            .filter(e -> {
+                if (e instanceof SocketException && e.getMessage().equalsIgnoreCase("Connection reset")) {
                     return true;
                 }
-                if (e.getMessage().contains(NotSslRecordException.class.getName()) &&
-                    testing) {
-                    return true;
+                boolean testing = ctx.channel().localAddress().toString().contains("0:0:0:0:0:0:0:1:8443");
+                for (Throwable t = e; t != null && t.getCause() != t; t = t.getCause()) {
+                    if ((is(SSLHandshakeException.class, e) || is(NotSslRecordException.class, e)) && testing) {
+                        return true;
+                    }
                 }
-            }
-            return false;
-        };
+                return false;
+            });
+    }
+
+    private boolean is(Class<?> sslHandshakeExceptionClass, Throwable e) {
+
+        return e.getMessage().contains(sslHandshakeExceptionClass.getName());
     }
 
     private HttpResponse response(ChannelHandlerContext ctx, FullHttpRequest req) {
-
         String uri = req.uri();
-        if (uri.isEmpty()) {
-            return respond(ctx, FORBIDDEN);
+        if (uri.isBlank()) {
+            return respond(ctx, BAD_REQUEST);
         }
         String path = URLDecoder.decode(uri, StandardCharsets.UTF_8);
-        return handlePath(req, path, ctx);
-    }
-
-    private static Supplier<HttpResponse> reset(ChannelHandlerContext ctx) {
-
-        return () ->
-            Nettish.redirect(ctx, "/");
+        return handlePath(req, path, ctx).orElseGet(() -> respond(ctx, BAD_REQUEST));
     }
 
     private String get(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {
@@ -128,25 +119,24 @@ class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             .orElse("?");
     }
 
-    private HttpResponse handlePath(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    private Optional<HttpResponse> handlePath(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         if (HttpUtil.is100ContinueExpected(req)) {
             HttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
             ctx.write(res);
-            return res;
+            return Optional.of(res);
         }
         try {
             return nettishes.stream()
-                .filter(nettish ->
-                    nettish.shouldHandle(path))
+                .filter(nettish -> nettish.shouldHandle(path))
+                .map(nettish -> nettish.handle(req, path, ctx))
+                .flatMap(Optional::stream)
                 .findFirst()
-                .map(nettish ->
-                    nettish.handle(req, path, ctx))
-                .orElseGet(
-                    reset(ctx));
+                .or(() ->
+                    Optional.of(respond(ctx, BAD_REQUEST)));
         } catch (Exception e) {
             log.error("Failed: {}", req, e);
-            return respond(ctx, INTERNAL_SERVER_ERROR);
+            return Optional.of(respond(ctx, INTERNAL_SERVER_ERROR));
         }
     }
 }

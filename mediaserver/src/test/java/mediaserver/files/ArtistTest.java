@@ -1,5 +1,6 @@
 package mediaserver.files;
 
+import mediaserver.media.Artist;
 import org.junit.Test;
 
 import java.util.Arrays;

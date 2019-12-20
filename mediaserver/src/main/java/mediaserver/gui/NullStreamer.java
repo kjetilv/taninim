@@ -4,9 +4,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.Media;
 import mediaserver.externals.FacebookUser;
-import mediaserver.files.Track;
+import mediaserver.media.Media;
+import mediaserver.media.Track;
 import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
@@ -27,8 +27,6 @@ public class NullStreamer extends Streamer {
         ChannelHandlerContext ctx,
         HttpResponse res
     ) {
-
-        teapot(req, ctx);
         return Optional.empty();
     }
 }

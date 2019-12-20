@@ -1,5 +1,6 @@
 package mediaserver.files;
 
+import mediaserver.media.CategoryPath;
 import org.junit.Test;
 
 import java.nio.file.Path;

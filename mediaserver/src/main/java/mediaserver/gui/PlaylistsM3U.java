@@ -5,11 +5,13 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.Media;
-import mediaserver.files.Album;
-import mediaserver.files.Artist;
-import mediaserver.files.Playlist;
-import mediaserver.files.Track;
+import mediaserver.http.Nettish;
+import mediaserver.http.QPar;
+import mediaserver.media.Media;
+import mediaserver.media.Album;
+import mediaserver.media.Artist;
+import mediaserver.media.PlaylistM3U;
+import mediaserver.media.Track;
 
 import java.net.URI;
 import java.util.Collection;
@@ -21,9 +23,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
-
-public class Playlists extends Nettish {
+public class PlaylistsM3U extends Nettish {
 
     public static final String LOCALHOST = "localhost";
 
@@ -33,21 +33,21 @@ public class Playlists extends Nettish {
 
     private final Map<String, Function<UUID, Optional<Template>>> providers =
         Map.of(
-            "/album/", this::albumPlaylist,
+            "/album/", this::albumSublibrary,
             "/artist/", this::artistPlaylist,
-            "/category/", this::categoryPlaylist,
-            "/series", this::seriesPlaylist);
+            "/category/", this::categorySublibrary,
+            "/series", this::seriesSublibrary);
 
     private static final String AUDIO_MPEGURL = "audio/mpegurl";
 
-    public Playlists(Supplier<Media> media) {
+    public PlaylistsM3U(Supplier<Media> media) {
 
         super("/playlist");
         this.media = media;
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         String resource = resource(path);
 
@@ -55,9 +55,7 @@ public class Playlists extends Nettish {
             .map(template ->
                 addProtocolAndHost(req, template))
             .map(template ->
-                respond(ctx, response(req, null, AUDIO_MPEGURL, template.bytes(), null)))
-            .orElseGet(() ->
-                respond(ctx, BAD_REQUEST));
+                respond(ctx, response(req, null, AUDIO_MPEGURL, template.bytes(), null)));
     }
 
     private Stream<Template> templates(String resource) {
@@ -86,13 +84,13 @@ public class Playlists extends Nettish {
         return UUID.fromString(path.substring(preamble));
     }
 
-    private Optional<Template> albumPlaylist(UUID albumUUID) {
+    private Optional<Template> albumSublibrary(UUID albumUUID) {
 
         Media med = this.media.get();
         return med.getAlbum(albumUUID).map(this::playlist);
     }
 
-    private Optional<Template> categoryPlaylist(UUID categoryUUID) {
+    private Optional<Template> categorySublibrary(UUID categoryUUID) {
 
         Media media = this.media.get();
         return media.getCategoryPath(categoryUUID)
@@ -102,7 +100,7 @@ public class Playlists extends Nettish {
             .map(this::playlist);
     }
 
-    private Optional<Template> seriesPlaylist(UUID seriesUUID) {
+    private Optional<Template> seriesSublibrary(UUID seriesUUID) {
 
         Media media = this.media.get();
         return media.getSeries(seriesUUID)
@@ -126,13 +124,13 @@ public class Playlists extends Nettish {
     private Template playlist(Album album) {
 
         return template("res/playlist.m3u")
-            .add(QPar.PLAYLIST, new Playlist(album));
+            .add(QPar.PLAYLIST, new PlaylistM3U(album));
     }
 
     private Template playlist(Collection<Album> albums) {
 
         return template("res/playlist.m3u")
-            .add(QPar.PLAYLIST, new Playlist(
+            .add(QPar.PLAYLIST, new PlaylistM3U(
                 albums.size() + " albums",
                 albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList())));
     }
@@ -140,6 +138,6 @@ public class Playlists extends Nettish {
     private Template playlist(Artist artist, Collection<Track> tracks) {
 
         return template("res/playlist.m3u")
-            .add(QPar.PLAYLIST, new Playlist(artist.getName(), tracks));
+            .add(QPar.PLAYLIST, new PlaylistM3U(artist.getName(), tracks));
     }
 }

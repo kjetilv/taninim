@@ -4,9 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.Media;
+import mediaserver.http.Nettish;
+import mediaserver.http.QPar;
+import mediaserver.http.QPars;
+import mediaserver.media.*;
 import mediaserver.externals.FacebookUser;
-import mediaserver.files.*;
 import mediaserver.sessions.Sessions;
 
 import java.nio.file.Path;
@@ -36,16 +38,14 @@ public class GUI extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         return template(req, resource(path), media.get())
             .map(Template::bytes)
             .map(bytes ->
                 response(req, null, TEXT_HTML, bytes, null))
             .map(response ->
-                respond(ctx, response))
-            .orElseGet(() ->
-                super.handle(req, path, ctx));
+                respond(ctx, response));
     }
 
     private Optional<Template> template(HttpRequest req, String uri, Media media) {
@@ -83,10 +83,14 @@ public class GUI extends Nettish {
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
         Series series =
             pars.apply(QPar.SERIES).flatMap(media::getSeries).orElse(null);
-        Media submedia = media.subLibrary(categoryPath, artist, series);
+        Playlist playlist =
+            pars.apply(QPar.PLAYLIST).flatMap(media::getPlaylist).orElse(null);
+
+        Media submedia = media.subLibrary(categoryPath, artist, series, playlist);
         if (submedia.isEmpty()) {
             return Optional.empty();
         }
+
         return Optional.of(initTemplate(req, "res/index.html")
             .add(QPar.MEDIA, submedia)
             .add(QPar.ARTIST, artist));

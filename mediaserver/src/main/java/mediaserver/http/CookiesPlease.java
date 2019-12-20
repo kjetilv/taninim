@@ -1,11 +1,12 @@
-package mediaserver.gui;
+package mediaserver.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 public class CookiesPlease extends Nettish {
 
@@ -17,8 +18,8 @@ public class CookiesPlease extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
-        return respond(ctx, okCookieResponse(req, path));
+        return Optional.of(respond(ctx, okCookieResponse(req, path)));
     }
 }

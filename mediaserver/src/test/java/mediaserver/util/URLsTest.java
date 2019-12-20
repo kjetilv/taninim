@@ -1,6 +1,6 @@
 package mediaserver.util;
 
-import mediaserver.gui.QPar;
+import mediaserver.http.QPar;
 import org.junit.Test;
 
 import java.util.Map;

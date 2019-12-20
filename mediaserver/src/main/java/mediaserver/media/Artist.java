@@ -1,4 +1,6 @@
-package mediaserver.files;
+package mediaserver.media;
+
+import mediaserver.hash.AbstractNameHashable;
 
 import java.util.Arrays;
 import java.util.Collection;

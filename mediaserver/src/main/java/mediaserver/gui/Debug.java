@@ -3,8 +3,11 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import mediaserver.http.Nettish;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 public class Debug extends Nettish {
 
@@ -16,8 +19,8 @@ public class Debug extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
-        log.info("Request recieved @ {}: {}", path, req);
-        return super.handle(req, path, ctx);
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+        log.info("Request receieved @ {}: {}", path, req);
+        return Optional.empty();
     }
 }

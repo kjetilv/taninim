@@ -1,6 +1,4 @@
-package mediaserver.files;
-
-import mediaserver.hash.AbstractHashable;
+package mediaserver.hash;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -10,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-class AbstractNameHashable
+public class AbstractNameHashable
     extends AbstractHashable
     implements Comparable<AbstractNameHashable>, Serializable {
 
@@ -20,7 +18,7 @@ class AbstractNameHashable
 
     private static final long serialVersionUID = 6776617816992974873L;
 
-    AbstractNameHashable(String name) {
+    protected AbstractNameHashable(String name) {
 
         this.name = Objects.requireNonNull(name, "name");
     }
@@ -43,7 +41,7 @@ class AbstractNameHashable
     }
 
     @SuppressWarnings("unchecked")
-    static <H extends AbstractNameHashable> H get(Function<String, H> ctor, String name) {
+    public static <H extends AbstractNameHashable> H get(Function<String, H> ctor, String name) {
 
         return (H) HASHABLES.computeIfAbsent(
             ctor.apply(

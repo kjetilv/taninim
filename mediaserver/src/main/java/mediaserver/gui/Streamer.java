@@ -4,9 +4,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import mediaserver.Media;
 import mediaserver.externals.FacebookUser;
-import mediaserver.files.Track;
+import mediaserver.http.Nettish;
+import mediaserver.media.Media;
+import mediaserver.media.Track;
 import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
@@ -45,7 +46,7 @@ public abstract class Streamer extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         return activeUserByCookie(req).map(user ->
             getMediaTrack(resource(path)).map(track -> {
@@ -55,9 +56,7 @@ public abstract class Streamer extends Nettish {
                         cf.addListener(progressListener(user, track)));
                 return respondStream(req, ctx, response);
             }).orElseGet(() ->
-                respond(ctx, NOT_FOUND)))
-            .orElseGet(() ->
-                teapot(req, ctx));
+                respond(ctx, NOT_FOUND)));
     }
 
     Optional<FacebookUser> activeUserByCookie(FullHttpRequest req) {
@@ -113,11 +112,6 @@ public abstract class Streamer extends Nettish {
     protected static boolean isFlac(HttpRequest req) {
 
         return req.uri().endsWith("." + FLAC);
-    }
-
-    protected HttpResponse teapot(HttpRequest req, ChannelHandlerContext ctx) {
-
-        return respond(ctx, HttpResponseStatus.valueOf(418, "I'm Kettle"));
     }
 
     protected HttpResponse respondStream(HttpRequest req, ChannelHandlerContext ctx, HttpResponse response) {

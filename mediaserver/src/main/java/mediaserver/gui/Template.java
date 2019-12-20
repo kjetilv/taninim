@@ -1,5 +1,6 @@
 package mediaserver.gui;
 
+import mediaserver.http.QPar;
 import mediaserver.util.MostlyOnce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

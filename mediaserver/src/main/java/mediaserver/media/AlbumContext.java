@@ -1,4 +1,4 @@
-package mediaserver.files;
+package mediaserver.media;
 
 import mediaserver.util.Pair;
 import mediaserver.util.Pairs;
@@ -227,7 +227,7 @@ public class AlbumContext implements Serializable {
     private Collection<TrackContext> headingEntries(Pair<Integer> pair) {
 
         List<TrackContext> headingEntries =
-            IntStream.range(0, pair.getT1())
+            IntStream.range(0, pair.getT1() + 1)
                 .map(i ->
                     pair.getT1() - i)
                 .takeWhile(i ->

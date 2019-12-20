@@ -1,6 +1,7 @@
 package flacsefugl
 
-import mediaserver.Media
+import mediaserver.media.CustomCategory
+import mediaserver.media.Media
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,6 +16,8 @@ fun main() {
             "file://${System.getProperty("user.home")}/FLAC/John%20Zorn"))
     val m4aDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/M4A/John%20Zorn"))
+    val walkmanConnectDir = Paths.get(URI.create(
+            "file:///Volumes/WALKMAN"))
     val walkDir = Paths.get(URI.create(
             "file:///Volumes/WALKMAN/MUSIC/John%20Zorn"))
     val included: (Path) -> Boolean = { path: Path ->
@@ -27,6 +30,8 @@ fun main() {
                         album(path).contains("book beri") ||
                         album(path).contains("circle maker") ||
                         artist(path).contains("bar kokhba") ||
+                        artist(path).contains("trigger") ||
+                        artist(path).contains("mesinai") ||
                         artist(path).contains("locus solus") ||
                         artist(path).startsWith("naked city") ||
                         artist(path).startsWith("painkiller") ||
@@ -40,23 +45,24 @@ fun main() {
                         artist(path).contains("bill frisell") ||
                         artist(path).contains("ratkje") ||
                         artist(path).contains("fred frith") ||
-                        album(path).contains("great jewish music")
+                        album(path).contains("great jewish music") ||
+                        album(path).contains("spirou")
                 )
     }
 
     val flacConversion = Conversion(
-            Mover(rootDir, flacDir, dists()),
+            Mover(rootDir, flacDir, noDists()),
             Traverser(rootDir),
             included)
 
-//    flacConversion.convert("flac") { source, target ->
-//        println("${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
-//        true
-//    }
+    flacConversion.convert("flac") { no, total, source, target ->
+        println("$no/$total: ${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
+        true
+    }
 
     flacConversion.convert("flac") { no, total, source, target ->
         println("$no/$total: ${source.parent.fileName}/${source.fileName}")
-        if (Files.isRegularFile(target) && Files.size(target) > 0) {
+        if (Files.isRegularFile(target) && Files.size(target) > 0 && !changed(source, target)) {
             true
         } else {
             ffmpeg(source, target).await()
@@ -64,31 +70,33 @@ fun main() {
     }
 
     val m4aConversion = Conversion(
-            Mover(rootDir, m4aDir, dists()),
+            Mover(rootDir, m4aDir, noDists()),
             Traverser(rootDir),
             included)
     m4aConversion.convert("m4a") { no, total, source, target ->
         println("$no/$total: ${source.parent.fileName}/${source.fileName}")
-        if (Files.isRegularFile(target) && Files.size(target) > 0) {
+        if (Files.isRegularFile(target) && Files.size(target) > 0 && !changed(source, target)) {
             true
         } else {
             ffmpegM4a(source, target).await()
         }
     }
 
-    if (Files.isDirectory(walkDir)) {
+    if (Files.isDirectory(walkmanConnectDir)) {
         println("Copying to walkman @ $walkDir")
+        Files.createDirectories(walkDir)
         Traverser(flacDir).paths { path ->
             path.toString().endsWith(".flac")
         }.forEach { path ->
             val walkFlac = walkDir.resolve(flacDir.relativize(path))
-            if (!Files.exists(walkFlac) || Files.size(walkFlac) != Files.size(path)) {
+            if (!Files.exists(walkFlac) || Files.size(walkFlac) != Files.size(path)
+                    || changed(walkFlac, path)) {
                 val dir = walkFlac.toFile().parentFile
                 if (dir.isDirectory || dir.mkdirs()) {
                     println("Now walkin: $path")
                     Files.copy(path, walkFlac, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING)
                 } else {
-                    throw IllegalStateException("Bad target: " + dir)
+                    throw IllegalStateException("Bad target: $dir")
                 }
             }
         }
@@ -99,14 +107,21 @@ fun main() {
     val media = Media.local(
             Path.of(System.getProperty("user.home"), "FLAC"),
             Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml"),
-            Path.of("mediaserver", "src", "main", "resources"));
+            Path.of("mediaserver", "src", "main", "resources"))
 
     println("Media: $media")
+
+//    media.playlists.
 }
 
-fun playlists(): List<Dist> = emptyList()
-//    ObjectMapper(YAMLFactory()).
-//}
+private fun changed(source: Path, target: Path): Boolean =
+        Files.getLastModifiedTime(source).toInstant().isAfter(
+                Files.getLastModifiedTime(target).toInstant())
+
+fun playlists(): List<Dist> =
+        CustomCategory.categories("categories.yaml").map { AlbumsDist(it) }
+
+fun noDists(): List<Dist> = emptyList()
 
 fun dists(): List<Dist> = playlists() + listOf<Pair<Path, (Path) -> Boolean>>(
 
@@ -141,9 +156,7 @@ fun dists(): List<Dist> = playlists() + listOf<Pair<Path, (Path) -> Boolean>>(
 
         Paths.get("Hardcore miniatures", "Naked City") to artistIs("Naked City"),
 
-        Paths.get("Cobra") to albumContains("Cobra"),
-
-        Paths.get("The Hermetic Organ") to albumContains("Hermetic Organ"),
+        Paths.get("Hardcore miniatures", "Naked City") to albumContains("Spy vs. Spy"),
 
         Paths.get("John Zorn") to artistContains("John Zorn"),
 

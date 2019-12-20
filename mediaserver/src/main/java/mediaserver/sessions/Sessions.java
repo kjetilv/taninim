@@ -2,7 +2,8 @@ package mediaserver.sessions;
 
 import io.netty.handler.codec.http.HttpRequest;
 import mediaserver.externals.FacebookUser;
-import mediaserver.gui.Nettish;
+import mediaserver.http.Nettish;
+import mediaserver.util.MostlyOnce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class Sessions {
 
     public Session sessionUp(FacebookUser user) {
 
-        return sessions.compute(user, this::resolve);
+        return sessions.compute(user, this::resolveSession);
     }
 
     public Optional<Session> closeSession(HttpRequest req) {
@@ -73,22 +74,16 @@ public class Sessions {
         return Nettish.authCookie(req).flatMap(this::session);
     }
 
-    private Session resolve(FacebookUser facebookUser, Session oldSession) {
+    private Session resolveSession(FacebookUser facebookUser, Session oldSession) {
 
-        Instant time = now();
-        if (refreshable(oldSession, time)) {
-            Session session = new Session(facebookUser, UUID.randomUUID(), cutoff(time));
-            log.info("{}: New session {}, previous: {}",
-                facebookUser, session, oldSession);
+        Supplier<Instant> currentTime = MostlyOnce.get(this::now);
+        if (oldSession == null || oldSession.timedout(currentTime.get())) {
+            Session session = new Session(facebookUser, UUID.randomUUID(), cutoff(currentTime.get()));
+            log.info("{}: New session {}, previous: {}", facebookUser, session, oldSession);
             return session;
         }
         log.info("{} reused session: {}", facebookUser, oldSession);
         return oldSession;
-    }
-
-    private boolean refreshable(Session oldSession, Instant time) {
-
-        return oldSession == null || oldSession.timedout(time);
     }
 
     private Instant now() {

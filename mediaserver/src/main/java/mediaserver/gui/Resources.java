@@ -3,8 +3,10 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import mediaserver.http.Nettish;
 import mediaserver.util.IO;
+
+import java.util.Optional;
 
 public class Resources extends Nettish {
 
@@ -19,7 +21,7 @@ public class Resources extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         try {
             String resource = "res" + (path.startsWith(FAVICON_ICO)
@@ -34,9 +36,7 @@ public class Resources extends Nettish {
                     } catch (Exception e) {
                         throw new IllegalStateException("Failed to respond to " + path, e);
                     }
-                })
-                .orElseGet(() ->
-                    respond(ctx, HttpResponseStatus.BAD_REQUEST));
+                });
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + path, e);
         }

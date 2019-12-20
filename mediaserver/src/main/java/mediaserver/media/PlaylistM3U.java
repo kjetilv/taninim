@@ -1,4 +1,4 @@
-package mediaserver.files;
+package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
 
@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Playlist extends AbstractHashable {
+public class PlaylistM3U extends AbstractHashable {
 
     private final String name;
 
@@ -14,17 +14,17 @@ public class Playlist extends AbstractHashable {
 
     private static final long serialVersionUID = -6198219291681770060L;
 
-    public Playlist(Album album) {
+    public PlaylistM3U(Album album) {
 
         this(album.getArtist().getName() + ": " + album.getName(), album.getTracks());
     }
 
-    public Playlist(Collection<Track> tracks) {
+    public PlaylistM3U(Collection<Track> tracks) {
 
         this(null, tracks);
     }
 
-    public Playlist(String name, Collection<Track> tracks) {
+    public PlaylistM3U(String name, Collection<Track> tracks) {
 
         this.name = name;
         this.tracks = List.copyOf(tracks);

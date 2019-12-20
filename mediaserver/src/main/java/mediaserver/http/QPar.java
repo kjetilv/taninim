@@ -1,4 +1,4 @@
-package mediaserver.gui;
+package mediaserver.http;
 
 import java.util.Arrays;
 import java.util.Optional;

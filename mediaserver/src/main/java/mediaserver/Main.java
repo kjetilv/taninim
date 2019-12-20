@@ -13,6 +13,10 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
+import mediaserver.http.Bouncer;
+import mediaserver.http.Gatekeeper;
+import mediaserver.media.CloudMedia;
+import mediaserver.media.Media;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
@@ -248,12 +252,14 @@ public class Main {
         return () ->
             new Router(
                 new Debug(),
+                new Gatekeeper(sessions),
                 streamer,
                 new FbUnauth(sessions),
                 new FbAuth(sessions, secretProvider, ids),
-                new Playlists(media),
+                new PlaylistsM3U(media),
                 new Resources(),
-                new GUI(media, sessions));
+                new GUI(media, sessions),
+                new Bouncer());
     }
 
     private static ServerBootstrap bootstrap(

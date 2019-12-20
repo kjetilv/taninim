@@ -1,6 +1,5 @@
-package mediaserver.files;
+package mediaserver.media;
 
-import mediaserver.Media;
 import mediaserver.hash.AbstractHashable;
 
 import java.io.File;
@@ -18,6 +17,9 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
     public static final Random RND = new Random();
 
+    public static final Collection<CustomCategory> CUSTOM_CATEGORIES =
+        CustomCategory.categories("playlists.yaml");
+
     private final CategoryPath categoryPath;
 
     private final Collection<Album> albums;
@@ -30,12 +32,18 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
 
     private static final long serialVersionUID = -7165763549356996140L;
 
+    private Collection<Playlist> playlists;
+
     public LocalMedia(Path root) {
 
         this(null, getAlbums(root, root), null);
     }
 
-    private LocalMedia(CategoryPath categoryPath, Stream<Album> albums, Map<Album, AlbumContext> albumContexts) {
+    private LocalMedia(
+        CategoryPath categoryPath,
+        Stream<Album> albums,
+        Map<Album, AlbumContext> albumContexts
+    ) {
 
         this.categoryPath = categoryPath == null
             ? new CategoryPath()
@@ -58,20 +66,20 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList());
+        this.playlists = CUSTOM_CATEGORIES.stream()
+            .map(customCategory ->
+                albumStream(true)
+                    .filter(customCategory::contains)
+                    .reduce(
+                        new Playlist(customCategory.getPath().toString()),
+                        Playlist::add,
+                        Playlist::add))
+            .collect(Collectors.toList());
     }
 
     @Override
-    public boolean isEmpty() {
+    public Media subLibrary(CategoryPath categoryPath, Artist artist, Series series, Playlist playlist) {
 
-        return albums.isEmpty();
-    }
-
-    @Override
-    public Media subLibrary(CategoryPath categoryPath, Artist artist, Series series) {
-
-        if (categoryPath == null && artist == null && series == null) {
-            return this;
-        }
         CategoryPath sub = categoryPath == null
             ? this.categoryPath
             : this.categoryPath.sub(categoryPath);
@@ -82,9 +90,13 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
         Predicate<Album> inSeries = series == null
             ? album -> true
             : album -> album.getSeries().contains(series);
+        Predicate<Album> inPlaylist = playlist == null
+            ? album -> true
+            : playlist::contains;
+
         return new LocalMedia(
             sub,
-            stream(true).filter(categorized.and(forArtist).and(inSeries)),
+            stream(true).filter(categorized.and(forArtist).and(inSeries).and(inPlaylist)),
             albumContexts);
     }
 
@@ -92,6 +104,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     public Media withAlbumContext(UUID albumId, AlbumContext albumContext) {
 
         return getAlbum(albumId).map(album -> {
+
             Map<Album, AlbumContext> copy = new HashMap<>(albumContexts);
             AlbumContext expandedContext = copy.computeIfAbsent(album, AlbumContext::new)
                 .append(albumContext);
@@ -99,7 +112,8 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             copy.put(expanded, expandedContext);
             return new LocalMedia(
                 categoryPath,
-                albums.stream().map(a -> a.equals(album) ? expanded : a),
+                albums.stream().map(a ->
+                    a.equals(album) ? expanded : a),
                 copy);
         }).orElseThrow(() ->
             new IllegalArgumentException("Unknown album: " + albumId));
@@ -149,6 +163,18 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             .distinct()
             .sorted()
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Playlist> getPlaylists() {
+
+        return playlists;
+    }
+
+    @Override
+    public Optional<Playlist> getPlaylist(UUID uuid) {
+
+        return playlists.stream().filter(playlist -> playlist.getUuid().equals(uuid)).findFirst();
     }
 
     @Override
@@ -282,6 +308,12 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
     }
 
     @Override
+    public boolean isEmpty() {
+
+        return albums.isEmpty();
+    }
+
+    @Override
     public void hashTo(Consumer<byte[]> h) {
 
         hash(h, getAlbums(true));
@@ -342,9 +374,7 @@ public class LocalMedia extends AbstractHashable implements Media, Serializable 
             album(root, path).stream(),
             subDirs(path.toFile())
                 .flatMap(subDir ->
-                    getAlbums(
-                        root,
-                        path.resolve(subDir.getName()))));
+                    getAlbums(root, path.resolve(subDir.getName()))));
     }
 
     private static Optional<Album> album(Path root, Path path) {

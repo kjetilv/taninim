@@ -1,4 +1,6 @@
-package mediaserver.files;
+package mediaserver.media;
+
+import mediaserver.hash.AbstractNameHashable;
 
 public class Series extends AbstractNameHashable {
 

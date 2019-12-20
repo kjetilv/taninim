@@ -45,50 +45,62 @@
 </DIV>
 
 <DIV STYLE="float:right">
-
     <H2>
         Serier
     </H2>
 
     <UL>
         {media.series:{series|
-        <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
+        <LI><A HREF="?series={series.uuid}">{series.name}</A></LI>
         }}
     </UL>
 </DIV>
 
-{if(artist)}
-<H2>{artist.name}{if(user)}
-    <A TITLE="Playlist" HREF="/playlist/artist/{artist.uuid}">⏬</A>
-    {endif}
-</H2>
-{else}
-<H2>Kategori: {if(media.categoryPath.root)}Alle{else}{media.categoryPath.pathString}{endif}{if(user)}
-    <A TITLE="Playlist" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A>
-    {endif}
-</H2>
-{endif}
+<DIV STYLE="float:right">
 
-<DIV>
-    <P>
-        {length(media.tracks)} spor, {length(media.albums)} plater
-    <P>
-        Spilletid {media.prettyDuration}
-</DIV>
+    <H2>
+        Spillelister
+    </H2>
 
-<DIV>
-    {if(media.subCategories)}
-    <H3>Underkategorier</H3>
     <UL>
-        {media.topCategories:{cat|
-        <LI>
-            <A HREF="/{cat.pathString}">📁 {cat.pathString}</A>
-        </LI>
+        {media.playlists:{playlist|
+        <LI><A HREF="/?playlist={playlist.uuid}">{playlist.name}</A></LI>
         }}
     </UL>
-    {endif}
 </DIV>
 
+<DIV>
+    {if(artist)}
+    <H2>{artist.name}{if(user)}
+        <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A>
+        {endif}
+    </H2>
+    {else}
+    <H2>Kategori: {if(media.categoryPath.root)}Alle{else}{media.categoryPath.pathString}{endif}{if(user)}
+        <A TITLE="M3U" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A>
+        {endif}
+    </H2>
+    {endif}
+    <DIV>
+        {if(media.subCategories)}
+        <H3>Underkategorier</H3>
+        <UL>
+            {media.topCategories:{cat|
+            <LI>
+                <A HREF="/{cat.pathString}">📁 {cat.pathString}</A>
+            </LI>
+            }}
+        </UL>
+        {endif}
+    </DIV>
+
+    <DIV>
+        <P>
+            {length(media.tracks)} spor, {length(media.albums)} plater
+        <P>
+            Spilletid {media.prettyDuration}
+    </DIV>
+</DIV>
 <DIV>
     <HR>
 </DIV>
@@ -100,7 +112,7 @@
     <UL>
         {media.albums:{album|
         <LI>
-            {if(user)}<A TITLE="Playlist" HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
+            {if(user)}<A TITLE="M3U" HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
         </LI>
         }}
@@ -136,7 +148,7 @@
 </DIV>
 
 <SCRIPT>
-    checkLoginState();
+    fbLogin();
 </SCRIPT>
 
 </BODY>

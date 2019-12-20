@@ -1,4 +1,4 @@
-function checkLoginState() {
+function fbLogin() {
     FB.getLoginStatus(function (statusResponse) {
         if (statusResponse.status === 'connected') {
             handleConnected(statusResponse.authResponse);
@@ -15,7 +15,7 @@ function checkLoginState() {
 }
 
 async function handleConnected(authResponse) {
-    postData('/auth', authResponse);
+    let response = postData('/auth', authResponse);
     if (response.status === 200) {
         if (document.getElementById('user').innerText === "stranger") {
             location.reload()

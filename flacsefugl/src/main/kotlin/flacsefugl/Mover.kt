@@ -34,8 +34,10 @@ class Mover(
                 it.value
             }
 
-    private fun targetFound(file: Path, newSuffix: String?) =
-            withSuffix(targetPath.resolve(disted(file)), newSuffix)
+    private fun targetFound(file: Path, newSuffix: String?): Path {
+        val disted = disted(file)
+        return withSuffix(targetPath.resolve(disted), newSuffix)
+    }
 
     private fun disted(path: Path): Path {
         val paths = dists.withIndex().filter {

@@ -1,11 +1,10 @@
-package mediaserver;
+package mediaserver.media;
 
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.minio.Result;
 import io.minio.messages.DeleteError;
 import io.minio.messages.Item;
-import mediaserver.files.Track;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
 import org.slf4j.Logger;
@@ -195,7 +194,7 @@ public class CloudMedia {
         });
     }
 
-    static Media download() {
+    public static Media download() {
 
         InputStream inputStream = S3.get().map(s3 -> {
             try {
@@ -211,7 +210,7 @@ public class CloudMedia {
         return media;
     }
 
-    static Map<String, ?> ids() {
+    public static Map<String, ?> ids() {
 
         InputStream inputStream = S3.get().map(s3 -> {
             try {

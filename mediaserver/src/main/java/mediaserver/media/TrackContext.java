@@ -1,4 +1,4 @@
-package mediaserver.files;
+package mediaserver.media;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

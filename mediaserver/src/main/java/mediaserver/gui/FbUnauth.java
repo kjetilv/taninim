@@ -4,9 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import mediaserver.http.Nettish;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.IO;
+
+import java.util.Optional;
 
 public class FbUnauth extends Nettish {
 
@@ -20,13 +22,11 @@ public class FbUnauth extends Nettish {
     }
 
     @Override
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
 
         return sessions.closeSession(req)
             .map(closed ->
-                respond(ctx, logoutCoookieResponse(req, closed)))
-            .orElseGet(() ->
-                super.handle(req, path, ctx));
+                respond(ctx, logoutCoookieResponse(req, closed)));
     }
 
     private static HttpResponse logoutCoookieResponse(HttpRequest req, Session session) {

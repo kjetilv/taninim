@@ -1,4 +1,4 @@
-package mediaserver.files;
+package mediaserver.media;
 
 import java.io.Serializable;
 import java.net.URI;

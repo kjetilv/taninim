@@ -1,4 +1,4 @@
-package mediaserver.gui;
+package mediaserver.http;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -9,7 +9,9 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.netty.util.AsciiString;
+import mediaserver.gui.GUI;
+import mediaserver.gui.Template;
+import mediaserver.gui.WebCache;
 import mediaserver.sessions.Session;
 import mediaserver.util.IO;
 import mediaserver.util.URLs;
@@ -21,9 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
-import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -35,7 +35,7 @@ public abstract class Nettish {
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
 
-    Nettish(String... prefix) {
+    protected Nettish(String... prefix) {
 
         this.prefix = List.of(prefix);
         this.cache = new WebCache<>(IO::read);
@@ -59,7 +59,7 @@ public abstract class Nettish {
 
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        return respond(ctx, response(null, status, (String) null, null, null));
+        return respond(ctx, response(null, status, null, null, null));
     }
 
     public static Optional<UUID> authCookie(HttpRequest req) {
@@ -77,17 +77,17 @@ public abstract class Nettish {
             .findFirst();
     }
 
-    public HttpResponse handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public abstract Optional<HttpResponse> handle(
+        FullHttpRequest req,
+        String path,
+        ChannelHandlerContext ctx);
 
-        return respond(ctx, BAD_REQUEST);
-    }
-
-    String resource(String path) {
+    protected String resource(String path) {
 
         return path.substring(getPrefix(path).length());
     }
 
-    Template template(String resource) {
+    protected Template template(String resource) {
 
         return cache.get(resource)
             .map(source ->
@@ -96,7 +96,7 @@ public abstract class Nettish {
                 new IllegalArgumentException("No such template resource: " + resource));
     }
 
-    static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
+    protected static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
 
         try {
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -106,19 +106,17 @@ public abstract class Nettish {
         return response;
     }
 
-    static HttpResponse response(
+    protected static HttpResponse ok(
         HttpRequest req,
-        HttpResponseStatus status,
-        AsciiString contentType,
         byte[] content,
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
         return response(
-            req, status, contentType == null ? null : contentType.toString(), content, moreHeaders);
+            req, HttpResponseStatus.OK, HttpHeaderValues.APPLICATION_JSON.toString(), content, moreHeaders);
     }
 
-    static HttpResponse response(
+    protected static HttpResponse response(
         HttpRequest req,
         HttpResponseStatus status,
         String contentType,
@@ -160,12 +158,12 @@ public abstract class Nettish {
 
     protected static HttpResponse okCookieResponse(HttpRequest req, String cookieCookie) {
 
-        return response(req, OK, APPLICATION_JSON, null, setCookie(cookieCookie));
+        return ok(req, null, setCookie(cookieCookie));
     }
 
     protected static HttpResponse authCookieResponse(HttpRequest req, Session session, String cookie) {
 
-        return response(req, OK, APPLICATION_JSON, helloContent(session), setCookie(cookie));
+        return ok(req, helloContent(session), setCookie(cookie));
     }
 
     protected static String newAuthCookie(Session session) {
