@@ -8,14 +8,6 @@
 </HEAD>
 
 <BODY>
-<SCRIPT SRC="/res/facebook.js">
-</SCRIPT>
-<DIV id="fb-root"></DIV>
-<SCRIPT async defer crossorigin="anonymous"
-        src="https://connect.facebook.net/nn_NO/sdk.js#xfbml=1&version=v5.0&appId=398404340829160&autoLogAppEvents=1">
-</SCRIPT>
-<SCRIPT SRC="/res/connectfb.js">
-</SCRIPT>
 
 <DIV STYLE="float: right">
     <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -32,16 +24,24 @@
         </g>
     </svg>
 </DIV>
-
+<DIV>
 <DIV style="text-align: center">
     <H1>
         <A HREF="/">taninim</A>
     </H1>
-    <HR>
 </DIV>
 
-<DIV>
-    <P>Hei, {if(user)}{user.name}{else}fremmede{endif}</P>
+<DIV style="clear:both">
+    <P>Hei, {if(user)}{user.name}{else}fremmede{endif}
+    {if(artist)}
+    <H2>{artist.name}{if(user)}
+        <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A>
+        {endif}
+    </H2>
+    {endif}
+
+    {length(media.tracks)} spor, {length(media.albums)} plater.
+    Spilletid {media.prettyDuration}
 </DIV>
 
 <DIV STYLE="float:right">
@@ -69,41 +69,9 @@
     </UL>
 </DIV>
 
-<DIV>
-    {if(artist)}
-    <H2>{artist.name}{if(user)}
-        <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A>
-        {endif}
-    </H2>
-    {else}
-    <H2>Kategori: {if(media.categoryPath.root)}Alle{else}{media.categoryPath.pathString}{endif}{if(user)}
-        <A TITLE="M3U" HREF="/playlist/category/{media.categoryPath.uuid}">⏬</A>
-        {endif}
-    </H2>
-    {endif}
-    <DIV>
-        {if(media.subCategories)}
-        <H3>Underkategorier</H3>
-        <UL>
-            {media.topCategories:{cat|
-            <LI>
-                <A HREF="/{cat.pathString}">📁 {cat.pathString}</A>
-            </LI>
-            }}
-        </UL>
-        {endif}
-    </DIV>
+<HR>
+</DIV>
 
-    <DIV>
-        <P>
-            {length(media.tracks)} spor, {length(media.albums)} plater
-        <P>
-            Spilletid {media.prettyDuration}
-    </DIV>
-</DIV>
-<DIV>
-    <HR>
-</DIV>
 <DIV STYLE="clear: both">
     <H3>
         Plater [{length(media.albums)}]
@@ -127,7 +95,6 @@
     </A>
     }}
 </DIV>
-
 <DIV STYLE="clear: both">
     <HR>
 </DIV>
@@ -141,15 +108,6 @@
     <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
     }}
 </DIV>
-
-<DIV style="float:right"><!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
-    <fb:login-button scope="public_profile" onlogin="checkLoginState();">
-    </fb:login-button>
-</DIV>
-
-<SCRIPT>
-    fbLogin();
-</SCRIPT>
 
 </BODY>
 

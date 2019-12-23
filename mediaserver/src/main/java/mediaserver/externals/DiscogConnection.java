@@ -7,7 +7,7 @@ import java.net.URI;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class DiscogConnection {
+public final class DiscogConnection {
 
     private final Artist artist;
 

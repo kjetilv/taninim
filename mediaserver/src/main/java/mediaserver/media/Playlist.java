@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Playlist extends AbstractNameHashable {
+public final class Playlist extends AbstractNameHashable {
 
     private final Map<Album, Collection<Track>> tracks;
 

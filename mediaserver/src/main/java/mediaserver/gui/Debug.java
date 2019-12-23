@@ -2,25 +2,26 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.http.Nettish;
+import mediaserver.http.Handling;
+import mediaserver.http.NettyHandler;
+import mediaserver.http.Prefix;
+import mediaserver.http.WebPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
-public class Debug extends Nettish {
+public final class Debug extends NettyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(Debug.class);
 
     public Debug() {
 
-        super("/debug");
+        super(Prefix.DEBUG);
     }
 
     @Override
-    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
-        log.info("Request receieved @ {}: {}", path, req);
-        return Optional.empty();
+    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
+
+        log.info("Request receieved @ {}: {}", webPath, req);
+        return Handling.pass();
     }
 }

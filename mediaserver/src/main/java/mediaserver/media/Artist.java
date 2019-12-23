@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Artist extends AbstractNameHashable {
+public final class Artist extends AbstractNameHashable {
 
     private static final long serialVersionUID = -6584400668175206925L;
 

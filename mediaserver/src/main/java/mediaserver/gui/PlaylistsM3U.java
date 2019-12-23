@@ -4,14 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.http.Nettish;
+import mediaserver.http.Handling;
+import mediaserver.http.Prefix;
 import mediaserver.http.QPar;
-import mediaserver.media.Media;
-import mediaserver.media.Album;
-import mediaserver.media.Artist;
-import mediaserver.media.PlaylistM3U;
-import mediaserver.media.Track;
+import mediaserver.http.WebPath;
+import mediaserver.media.*;
 
 import java.net.URI;
 import java.util.Collection;
@@ -23,7 +20,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PlaylistsM3U extends Nettish {
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
+
+public final class PlaylistsM3U extends TemplateEnabled {
 
     public static final String LOCALHOST = "localhost";
 
@@ -34,28 +33,30 @@ public class PlaylistsM3U extends Nettish {
     private final Map<String, Function<UUID, Optional<Template>>> providers =
         Map.of(
             "/album/", this::albumSublibrary,
+            "/playlist/", this::playlistSublibrary,
             "/artist/", this::artistPlaylist,
-            "/category/", this::categorySublibrary,
             "/series", this::seriesSublibrary);
 
     private static final String AUDIO_MPEGURL = "audio/mpegurl";
 
-    public PlaylistsM3U(Supplier<Media> media) {
+    public PlaylistsM3U(Supplier<Media> media, Templater templater) {
 
-        super("/playlist");
+        super(templater, Prefix.PLAYLIST);
         this.media = media;
     }
 
     @Override
-    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
 
-        String resource = resource(path);
+        String resource = resource(webPath);
 
         return templates(resource).findFirst()
             .map(template ->
                 addProtocolAndHost(req, template))
             .map(template ->
-                respond(ctx, response(req, null, AUDIO_MPEGURL, template.bytes(), null)));
+                respond(ctx, response(req, null, AUDIO_MPEGURL, template.bytes(), null)))
+            .orElseGet(() ->
+                respond(ctx, NOT_FOUND));
     }
 
     private Stream<Template> templates(String resource) {
@@ -90,20 +91,20 @@ public class PlaylistsM3U extends Nettish {
         return med.getAlbum(albumUUID).map(this::playlist);
     }
 
-    private Optional<Template> categorySublibrary(UUID categoryUUID) {
+    private Optional<Template> seriesSublibrary(UUID seriesUUID) {
 
         Media media = this.media.get();
-        return media.getCategoryPath(categoryUUID)
+        return media.getSeries(seriesUUID)
             .map(media::subLibrary)
             .map(subMedia ->
                 subMedia.getAlbums(true))
             .map(this::playlist);
     }
 
-    private Optional<Template> seriesSublibrary(UUID seriesUUID) {
+    private Optional<Template> playlistSublibrary(UUID playlistUUID) {
 
         Media media = this.media.get();
-        return media.getSeries(seriesUUID)
+        return media.getPlaylist(playlistUUID)
             .map(media::subLibrary)
             .map(subMedia ->
                 subMedia.getAlbums(true))

@@ -56,12 +56,16 @@ fun main() {
             included)
 
     flacConversion.convert("flac") { no, total, source, target ->
-        println("$no/$total: ${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
+        if (no % 100 == 0) {
+            println("$no/$total: ${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
+        }
         true
     }
 
     flacConversion.convert("flac") { no, total, source, target ->
-        println("$no/$total: ${source.parent.fileName}/${source.fileName}")
+        if (no % 100 == 0) {
+            println("$no/$total: ${source.parent.fileName}/${source.fileName}")
+        }
         if (Files.isRegularFile(target) && Files.size(target) > 0 && !changed(source, target)) {
             true
         } else {
@@ -74,7 +78,9 @@ fun main() {
             Traverser(rootDir),
             included)
     m4aConversion.convert("m4a") { no, total, source, target ->
-        println("$no/$total: ${source.parent.fileName}/${source.fileName}")
+        if (no % 100 == 0) {
+            println("$no/$total: ${source.parent.fileName}/${source.fileName}")
+        }
         if (Files.isRegularFile(target) && Files.size(target) > 0 && !changed(source, target)) {
             true
         } else {

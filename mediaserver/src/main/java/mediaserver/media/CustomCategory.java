@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CustomCategory {
+public final class CustomCategory {
 
     public static final ObjectReader YAML_READER =
         new ObjectMapper(new YAMLFactory()).readerFor(Map.class);
@@ -43,11 +43,25 @@ public class CustomCategory {
 
     public static Collection<CustomCategory> categories(String resource) {
 
-        return IO.read(resource).unpack()
-            .map(value ->
+        List<CustomCategory> customCategories = IO.read(resource)
+            .unpack(value ->
                 customCategories(null, readMap(resource, value))
                     .collect(Collectors.toList()))
             .orElseGet(Collections::emptyList);
+        Collection<Path> umbrellaPaths =
+            customCategories.stream()
+                .flatMap(customCategory ->
+                    getSuperpaths(customCategory.getPath()))
+                .collect(Collectors.toList());
+//        Map<CustomCategory, Collection<CustomCategory>> subs = umbrellaPaths.stream()
+//            .collect(Collectors.toMap(
+//                Function.identity(),
+//                path ->
+//                    customCategories.stream()
+//                        .filter(customCategory ->
+//                            customCategory.isIn(path))
+//                        .collect(Collectors.toList())));
+        return customCategories;
     }
 
     public Path getPath() {
@@ -76,6 +90,18 @@ public class CustomCategory {
                 getPath());
         }
         throw new IllegalArgumentException("Not a sub-category of " + this + ": " + sub);
+    }
+
+    private boolean isIn(Path path) {
+
+        return this.path.startsWith(path);
+    }
+
+    private static Stream<Path> getSuperpaths(Path path) {
+
+        return path.getParent() == null
+            ? Stream.empty()
+            : Stream.concat(Stream.of(path.getParent()), getSuperpaths(path.getParent()));
     }
 
     private static Map<?, ?> readMap(String resource, String value) {

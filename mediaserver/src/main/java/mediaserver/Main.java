@@ -1,20 +1,13 @@
 package mediaserver;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
-import mediaserver.http.Bouncer;
+import mediaserver.http.Fail;
 import mediaserver.http.Gatekeeper;
+import mediaserver.http.NettyHandler;
+import mediaserver.http.WebCache;
 import mediaserver.media.CloudMedia;
 import mediaserver.media.Media;
 import mediaserver.sessions.Ids;
@@ -40,87 +33,100 @@ import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class Main {
+public final class Main {
+
+    private static final OnceEvery ONCE_EVERY = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
+
+    private static final Duration SESSION_LENGTH = Duration.ofDays(1);
+
+    private static final Clock CET = Clock.system(ZoneId.of("CET"));
+
+    private static final String RES = "res";
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-
-    private static final int LOCALPORT = 1080;
-
-    private static final int LOCALPORT_SSL = 1443;
-
-    private static final int CLOUD_PORT = 80;
-
-    private static final String DEV_FLAG = "dev";
-
-    private static final String LIVE_FLAG = "live";
-
-    private static final String SSL_FLAG = "ssl";
 
     private static final String FB_SEC = "fbSec";
 
     private static final Duration REFRESH_TIME = Duration.ofMinutes(5);
 
+    private static final boolean DEV = isTrue("dev");
+
+    private static final boolean LIVE = isTrue("live");
+
+    private static final boolean NEUTER = !(LIVE || DEV);
+
+    private static final boolean PRETEND_SSL = isTrue("ssl");
+
+    private static final String FAVICON_ICO = RES + "/favicon.ico";
+
+    private static final int PORT = PRETEND_SSL ? 1443
+        : DEV ? 1080
+        : 80;
+
     public static void main(String[] args) {
 
-        boolean dev = dev();
-        boolean live = live();
-        boolean neuter = !(live || dev);
         boolean local = local(args);
-        boolean ssl = ssl();
 
         log.info(
             "Running in {}{} mode, streaming {}abled",
             local ? "local" : "cloud",
-            dev ? " dev" : "",
-            neuter ? "dis" : "en");
+            DEV ? " dev" : "",
+            NEUTER ? "dis" : "en");
 
-        OnceEvery onceEvery = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
+        SslContext mockSslContext = PRETEND_SSL && (DEV || local) ? mockSslContext() : null;
 
-        Supplier<Media> media = onceEvery.interval(REFRESH_TIME)
+        Supplier<Ids> ids = idsSupplier(args, local);
+        Supplier<Media> media = mediaSupplier(args, local);
+        Sessions sessions =
+            new Sessions(ids, SESSION_LENGTH, CET, DEV && !PRETEND_SSL);
+
+        WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
+        Templater templater = new Templater();
+
+        Supplier<Router> routerProvider = () ->
+            new Router(
+                new Debug(),
+                new Gatekeeper(sessions, templater),
+                new FbUnauth(sessions),
+                new FbAuth(sessions, ids, secretsProvider()),
+                new PlaylistsM3U(media, templater),
+                new Resources(RES, webCache),
+                new Login(templater),
+                new Favicon(webCache, FAVICON_ICO),
+                streamer(media, NEUTER, local, sessions),
+                new GUI(media, sessions, templater),
+                new Fail());
+
+        log.info("Binding to port {}", PORT);
+
+        new NettyRun(4, 1).run(routerProvider, PORT, mockSslContext);
+    }
+
+    private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
+
+        return ONCE_EVERY.interval(REFRESH_TIME)
             .when(shouldRefresh(local, args))
             .get(() ->
                 retrieveMedia(local, args));
-        Supplier<Ids> ids = onceEvery.interval(REFRESH_TIME)
-            .when(shouldRefresh(local, args))
-            .get(() ->
-                refreshIds(local, ssl, dev));
-
-        Supplier<Router> routerProvider = routerSupplier(media, ids, neuter, local);
-
-        ChannelInitializer<SocketChannel> handler =
-            new ServerInitializer(routerProvider, ssl ? sslContext(dev || local) : null);
-
-        EventLoopGroup listenGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workGroup = new NioEventLoopGroup(4);
-
-        ServerBootstrap bootstrap = bootstrap(listenGroup, workGroup, handler);
-
-        try {
-            Channel ch = bootstrap.bind(ssl ? LOCALPORT_SSL
-                : dev ? LOCALPORT
-                : CLOUD_PORT).sync().channel();
-            log.info("Bound to port {}", ssl ? LOCALPORT_SSL
-                : dev ? LOCALPORT
-                : CLOUD_PORT);
-            ch.closeFuture().sync();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.warn("Interrupted", e);
-        } finally {
-            listenGroup.shutdownGracefully();
-            workGroup.shutdownGracefully();
-        }
     }
 
-    public static Ids refreshIds(boolean local, boolean ssl, boolean dev) {
+    private static Supplier<Ids> idsSupplier(String[] args, boolean local) {
+
+        return ONCE_EVERY.interval(REFRESH_TIME)
+            .when(shouldRefresh(local, args))
+            .get(() ->
+                refreshIds(local));
+    }
+
+    private static Ids refreshIds(boolean local) {
 
         Map<String, ?> sources = local
             ? IO.readResource("ids.json")
             : CloudMedia.ids();
-        return new Ids(sources, dev && !ssl);
+        return new Ids(sources);
     }
 
-    public static BooleanSupplier shouldRefresh(boolean local, String[] args) {
+    private static BooleanSupplier shouldRefresh(boolean local, String[] args) {
 
         Supplier<Optional<Instant>> updater = local
             ? () -> lastMediaUpdate(args)
@@ -128,7 +134,7 @@ public class Main {
         return new UpdateDetector(updater);
     }
 
-    public static Optional<Instant> lastMediaUpdate(String[] args) {
+    private static Optional<Instant> lastMediaUpdate(String[] args) {
 
         try {
             return Optional.of(Files.getLastModifiedTime(mediaFile(args)).toInstant());
@@ -138,27 +144,13 @@ public class Main {
         }
     }
 
-    public static boolean dev() {
+    private static boolean isTrue(String flag) {
 
-        return isTrue(DEV_FLAG);
+        return Boolean.getBoolean(flag) ||
+            Optional.ofNullable(System.getenv(flag)).filter("true"::equals).isPresent();
     }
 
-    public static boolean live() {
-
-        return isTrue(LIVE_FLAG);
-    }
-
-    public static boolean ssl() {
-
-        return isTrue(SSL_FLAG);
-    }
-
-    public static boolean isTrue(String flag) {
-
-        return Boolean.getBoolean(flag) || Optional.ofNullable(System.getenv(flag)).filter("true"::equals).isPresent();
-    }
-
-    public static boolean local(String[] args) {
+    private static boolean local(String[] args) {
 
         return args.length > 2 &&
             new File(args[0]).isDirectory() &&
@@ -166,7 +158,7 @@ public class Main {
             new File(args[2]).isDirectory();
     }
 
-    public static Media retrieveMedia(boolean local, String[] args) {
+    private static Media retrieveMedia(boolean local, String[] args) {
 
         try {
             return local
@@ -178,17 +170,17 @@ public class Main {
         }
     }
 
-    public static Path mediaFile(String[] args) {
+    private static Path mediaFile(String[] args) {
 
         return pathArg(0, args);
     }
 
-    public static Path libraryPath(String[] args) {
+    private static Path libraryPath(String[] args) {
 
         return pathArg(1, args);
     }
 
-    public static Path resourcesPath(String[] args) {
+    private static Path resourcesPath(String[] args) {
 
         return pathArg(2, args);
     }
@@ -198,16 +190,13 @@ public class Main {
         return new File(args[i]).toPath();
     }
 
-    private static SslContext sslContext(boolean devOrLocal) {
+    private static SslContext mockSslContext() {
 
-        if (devOrLocal) {
-            SelfSignedCertificate ssc = selfSignedCertificate();
-            log.info("Faux self-signed: {}/{}", ssc.certificate(), ssc.key());
-            SslContext sslContext = selfSignedSsl(ssc);
-            log.info("Faux SSL: {}", sslContext);
-            return sslContext;
-        }
-        throw new IllegalStateException("Attempted use self-signed certificate in non-dev-like mode`");
+        SelfSignedCertificate ssc = selfSignedCertificate();
+        log.info("Faux self-signed: {}/{}", ssc.certificate(), ssc.key());
+        SslContext sslContext = selfSignedSsl(ssc);
+        log.info("Faux SSL: {}", sslContext);
+        return sslContext;
     }
 
     private static SslContext selfSignedSsl(SelfSignedCertificate ssc) {
@@ -235,43 +224,15 @@ public class Main {
         return ssc;
     }
 
-    private static Supplier<Router> routerSupplier(
-        Supplier<Media> media,
-        Supplier<Ids> ids,
-        boolean neuter,
-        boolean local
-    ) {
+    private static Supplier<char[]> secretsProvider() {
 
-        Supplier<char[]> secretProvider = () -> IO.getProperty(FB_SEC).toCharArray();
-        Sessions sessions = new Sessions(ids, Duration.ofDays(1), Clock.system(ZoneId.of("CET")));
-
-        Streamer streamer = neuter ? new NullStreamer(media, sessions)
-            : local ? new FileStreamer(media, sessions)
-            : new S3Streamer(media, sessions);
-
-        return () ->
-            new Router(
-                new Debug(),
-                new Gatekeeper(sessions),
-                streamer,
-                new FbUnauth(sessions),
-                new FbAuth(sessions, secretProvider, ids),
-                new PlaylistsM3U(media),
-                new Resources(),
-                new GUI(media, sessions),
-                new Bouncer());
+        return () -> IO.getProperty(FB_SEC).toCharArray();
     }
 
-    private static ServerBootstrap bootstrap(
-        EventLoopGroup listenGroup,
-        EventLoopGroup workGroup,
-        ChannelInitializer<SocketChannel> handler
-    ) {
+    private static NettyHandler streamer(Supplier<Media> media, boolean neuter, boolean local, Sessions sessions) {
 
-        return new ServerBootstrap()
-            .group(listenGroup, workGroup)
-            .channel(NioServerSocketChannel.class)
-            .handler(new LoggingHandler(LogLevel.DEBUG))
-            .childHandler(handler);
+        return neuter ? new NullStreamer(media, sessions)
+            : local ? new FileStreamer(media, sessions)
+            : new S3Streamer(media, sessions);
     }
 }

@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.util.List;
 
-public class DiscogTrackDigest {
+public final class DiscogTrackDigest {
 
     private List<DiscogArtistDigest> extraartists;
 

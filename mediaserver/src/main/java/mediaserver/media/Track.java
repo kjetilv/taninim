@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
-public class Track extends AbstractHashable
+public final class Track extends AbstractHashable
     implements Comparable<Track>, Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(Track.class);

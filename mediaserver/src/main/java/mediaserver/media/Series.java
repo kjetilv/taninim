@@ -2,7 +2,7 @@ package mediaserver.media;
 
 import mediaserver.hash.AbstractNameHashable;
 
-public class Series extends AbstractNameHashable {
+public final class Series extends AbstractNameHashable {
 
     private static final long serialVersionUID = 8396940978009264692L;
 

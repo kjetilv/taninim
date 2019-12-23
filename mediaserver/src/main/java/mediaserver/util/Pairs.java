@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Pairs {
+public final class Pairs {
 
     public static <T> Collection<Pair<T>> pairs(Collection<T> t, T end) {
 

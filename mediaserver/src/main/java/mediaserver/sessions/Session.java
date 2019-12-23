@@ -5,7 +5,7 @@ import mediaserver.externals.FacebookUser;
 import java.time.Instant;
 import java.util.UUID;
 
-public class Session {
+public final class Session {
 
     private final Instant cutoff;
 

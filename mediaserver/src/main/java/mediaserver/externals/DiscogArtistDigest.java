@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.net.URI;
 
-public class DiscogArtistDigest {
+public final class DiscogArtistDigest {
 
     public Long id;
 

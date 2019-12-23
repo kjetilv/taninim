@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Credits implements Serializable {
+public final class Credits implements Serializable {
 
     private final Collection<Credit> credits;
 

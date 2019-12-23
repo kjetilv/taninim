@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class AlbumContext implements Serializable {
+public final class AlbumContext implements Serializable {
 
     private final Album album;
 

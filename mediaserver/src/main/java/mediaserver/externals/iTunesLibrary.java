@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.util.Map;
 
-public class iTunesLibrary {
+public final class iTunesLibrary {
 
     public Map<String, iTunesTrack> Tracks;
 

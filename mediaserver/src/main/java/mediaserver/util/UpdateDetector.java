@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class UpdateDetector implements BooleanSupplier {
+public final class UpdateDetector implements BooleanSupplier {
 
     private final AtomicReference<Instant> lastUpdate = new AtomicReference<>();
 

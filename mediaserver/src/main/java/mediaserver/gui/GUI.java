@@ -3,82 +3,69 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.http.Nettish;
-import mediaserver.http.QPar;
-import mediaserver.http.QPars;
+import mediaserver.http.*;
 import mediaserver.media.*;
-import mediaserver.externals.FacebookUser;
 import mediaserver.sessions.Sessions;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class GUI extends Nettish {
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
+
+public final class GUI extends TemplateEnabled {
 
     public static final String ID_COOKIE = "taninim-id";
 
     public static final String COOKIE_COOKIE = "taninim-cookies-ok";
 
-    public static final String ALBUM = "album";
-
     private final Supplier<Media> media;
 
     private final Sessions sessions;
 
-    private static final String TEXT_HTML = "text/html";
+    public GUI(Supplier<Media> media, Sessions sessions, Templater templater) {
 
-    public GUI(Supplier<Media> media, Sessions sessions) {
-
-        super("/");
+        super(templater, Prefix.INDEX);
         this.media = media;
         this.sessions = sessions;
     }
 
     @Override
-    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
 
-        return template(req, resource(path), media.get())
-            .map(Template::bytes)
-            .map(bytes ->
-                response(req, null, TEXT_HTML, bytes, null))
-            .map(response ->
-                respond(ctx, response));
+        return template(req, webPath, media.get())
+            .map(template ->
+                respond(req, ctx, template))
+            .orElseGet(() ->
+                respond(ctx, NOT_FOUND));
     }
 
-    private Optional<Template> template(HttpRequest req, String uri, Media media) {
+    private Optional<Template> template(HttpRequest req, WebPath webPath, Media media) {
 
-        QPars pars = qpars(uri);
-        String uriPath = uriPath(uri);
+        QPars pars = webPath.qpars();
 
-        if (ALBUM.equals(unslashed(uriPath))) {
+        if (webPath.hasPrefix(LOGIN)) {
+            return Optional.of(login());
+        }
+
+        if (webPath.hasPrefix(ALBUM)) {
             return pars.apply(QPar.ALBUM)
                 .flatMap(media::getAlbum)
                 .map(album ->
-                    albumTemplate(req, media, album, pars))
+                    album(req, media, album, pars))
                 .or(() ->
-                    indexTemplate(req, media, uriPath, pars));
+                    indexTemplate(req, media, pars));
         }
-        return indexTemplate(req, media, uriPath, pars);
+
+        return indexTemplate(req, media, pars);
     }
 
-    private String unslashed(String uriPath) {
+    private Template withUser(Template response, HttpRequest req) {
 
-        return uriPath.startsWith("/") ? unslashed(uriPath.substring(1))
-            : uriPath.endsWith("/") ? unslashed(uriPath.substring(0, uriPath.length() - 1))
-            : uriPath.toLowerCase();
+        return response.add(QPar.USER, sessions.activeUser(req));
     }
 
-    private Optional<Template> indexTemplate(
-        HttpRequest req,
-        Media media,
-        String uriPath,
-        QPars pars
-    ) {
+    private Optional<Template> indexTemplate(HttpRequest req, Media media, QPars pars) {
 
-        CategoryPath categoryPath = getCategoryPath(uriPath);
         Artist artist =
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
         Series series =
@@ -86,45 +73,23 @@ public class GUI extends Nettish {
         Playlist playlist =
             pars.apply(QPar.PLAYLIST).flatMap(media::getPlaylist).orElse(null);
 
-        Media submedia = media.subLibrary(categoryPath, artist, series, playlist);
+        Media submedia = media.subLibrary(null, artist, series, playlist);
         if (submedia.isEmpty()) {
             return Optional.empty();
         }
 
-        return Optional.of(initTemplate(req, "res/index.html")
+        return Optional.of(withUser(index(), req)
             .add(QPar.MEDIA, submedia)
             .add(QPar.ARTIST, artist));
     }
 
-    private Template albumTemplate(HttpRequest req, Media media, Album album, QPars pars) {
+    private Template album(HttpRequest req, Media media, Album album, QPars pars) {
 
         Optional<Track> track = pars.apply(QPar.TRACK).flatMap(media::getTrack);
-        return initTemplate(req, "res/album.html")
+        return withUser(album(), req)
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAY_TRACK, track.orElse(null))
             .add(QPar.PLAY_TRACKS, album.getTracks());
-    }
-
-    private Template initTemplate(HttpRequest req, String resource) {
-
-        Optional<FacebookUser> userName = sessions.activeUser(req);
-        return template(resource)
-            .add(QPar.USER, userName.orElse(null));
-    }
-
-    private static Path path(String uri) {
-
-        String[] split = uri.split("/");
-        String[] tail = new String[split.length - 1];
-        System.arraycopy(split, 1, tail, 0, tail.length);
-        return Paths.get(split[0], tail);
-    }
-
-    private static CategoryPath getCategoryPath(String uriPath) {
-
-        return uriPath == null || uriPath.isBlank()
-            ? CategoryPath.ROOT
-            : new CategoryPath(path(uriPath));
     }
 }

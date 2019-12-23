@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-public class TrackGroup implements Serializable {
+public final class TrackGroup implements Serializable {
 
     private final String name;
 

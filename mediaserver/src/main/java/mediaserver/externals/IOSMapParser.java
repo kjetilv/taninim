@@ -17,7 +17,7 @@ import static org.xmlpull.v1.XmlPullParser.*;
 /**
  * This class parses an iOS plist with a dict element into a hashmap.
  */
-public class IOSMapParser {
+public final class IOSMapParser {
 
     private static final String KEY = "key";
 

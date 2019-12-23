@@ -1,6 +1,6 @@
 package mediaserver.externals;
 
-public class iTunesTrack {
+public final class iTunesTrack {
 
     public String Artist;
 

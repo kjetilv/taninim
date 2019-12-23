@@ -9,7 +9,10 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
-import mediaserver.http.Nettish;
+import mediaserver.http.Handling;
+import mediaserver.http.NettyHandler;
+import mediaserver.http.Prefix;
+import mediaserver.http.WebPath;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
@@ -21,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class FbAuth extends Nettish {
+public final class FbAuth extends NettyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(FbAuth.class);
 
@@ -31,35 +34,32 @@ public class FbAuth extends Nettish {
 
     private final Supplier<Ids> ids;
 
-    public FbAuth(
-        Sessions sessions,
-        Supplier<char[]> appSecret,
-        Supplier<Ids> ids
-    ) {
+    public FbAuth(Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret) {
 
-        super("/auth");
+        super(Prefix.AUTH);
         this.sessions = sessions;
         this.appSecret = appSecret;
         this.ids = ids;
     }
 
     @Override
-    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
 
         return sessions.activeUser(req)
             .map(user ->
                 respond(ctx, HttpResponseStatus.OK))
-            .or(() ->
+            .orElseGet(() ->
                 lookupFacebookUser(req)
                     .map(user ->
-                        login(req, ctx, user)));
+                        login(req, ctx, user))
+                    .orElseGet(Handling::pass));
     }
 
-    private HttpResponse login(HttpRequest req, ChannelHandlerContext ctx, FacebookUser facebookUser) {
+    private Handling login(HttpRequest req, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
         return ids().isAuthorized(facebookUser)
             ? authorizedSession(req, ctx, facebookUser)
-            : unprocessed(ctx, facebookUser);
+            : trespasser(ctx, facebookUser);
     }
 
     private Ids ids() {
@@ -67,14 +67,14 @@ public class FbAuth extends Nettish {
         return ids.get();
     }
 
-    private HttpResponse authorizedSession(
+    private Handling authorizedSession(
         HttpRequest req,
         ChannelHandlerContext ctx,
         FacebookUser authorizedUser
     ) {
 
-        Session session = sessions.sessionUp(authorizedUser);
-        HttpResponse response = authCookieResponse(req, session, newAuthCookie(session));
+        Session session = sessions.establish(authorizedUser);
+        HttpResponse response = authCookieResponse(req, session, authCookie(session));
         return respond(ctx, response);
     }
 
@@ -102,7 +102,7 @@ public class FbAuth extends Nettish {
             Version.LATEST);
     }
 
-    private static HttpResponse unprocessed(ChannelHandlerContext ctx, FacebookUser facebookUser) {
+    private static Handling trespasser(ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
         log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
         return respond(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);

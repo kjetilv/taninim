@@ -1,9 +1,10 @@
 package mediaserver.util;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class Sourced<T> {
+public final class Sourced<T> {
 
     private final Type source;
 
@@ -18,8 +19,8 @@ public class Sourced<T> {
     }
 
     private Sourced(Type source, T object) {
-        this.source = source;
-        this.object = object;
+        this.source = Objects.requireNonNull(source, "source");
+        this.object = Objects.requireNonNull(object, "object");
     }
 
     public <R> Sourced<R> map(Function<T, R> trans) {
@@ -34,6 +35,11 @@ public class Sourced<T> {
     public Optional<T> unpack() {
 
         return Optional.ofNullable(object);
+    }
+
+    public <R> Optional<R> unpack(Function<T, R> map) {
+
+        return Optional.ofNullable(object).map(map);
     }
 
     public enum Type {

@@ -1,6 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.IO;
 
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class CategoryPath extends AbstractHashable
+public final class CategoryPath extends AbstractHashable
     implements Comparable<CategoryPath>, Serializable {
 
     public static final CategoryPath ROOT = new CategoryPath(Collections.emptyList());
@@ -67,17 +68,17 @@ public class CategoryPath extends AbstractHashable
 
     public String getPathString() {
 
-        return isRoot() ? "/" : String.join("/", path);
+        return isRoot() ? IO.ROOT : String.join("/", path);
     }
 
     public String getLastPathString() {
 
-        return isRoot() ? "/" : path.get(path.size() - 1);
+        return isRoot() ? IO.ROOT : path.get(path.size() - 1);
     }
 
     public String getFirstPathString() {
 
-        return isRoot() ? "/" : path.get(0);
+        return isRoot() ? IO.ROOT : path.get(0);
     }
 
     public List<String> getPath() {
@@ -88,7 +89,8 @@ public class CategoryPath extends AbstractHashable
     @Override
     public int compareTo(CategoryPath categoryPath) {
 
-        return String.join("/", path).compareTo(String.join("/", categoryPath.getPath()));
+        return String.join("/", path)
+            .compareTo(String.join("/", categoryPath.getPath()));
     }
 
     public CategoryPath toTop() {

@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.net.URI;
 
-public class DiscogVideo {
+public final class DiscogVideo {
 
     private String description;
 

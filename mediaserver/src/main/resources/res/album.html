@@ -8,14 +8,6 @@
     <TITLE>taninim: {album.uuid}</TITLE>
 </HEAD>
 <BODY>
-<SCRIPT SRC="/res/facebook.js">
-</SCRIPT>
-<DIV id="fb-root"></DIV>
-<SCRIPT async defer crossorigin="anonymous"
-        src="https://connect.facebook.net/nn_NO/sdk.js#xfbml=1&version=v5.0&appId=398404340829160&autoLogAppEvents=1">
-</SCRIPT>
-<SCRIPT SRC="/res/connectfb.js">
-</SCRIPT>
 
 <DIV STYLE="float: right">
     <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -217,15 +209,6 @@
     }}
     {endif}
 </DIV>
-
-<DIV style="clear: both; float:right"><!--suppress XmlUnboundNsPrefix, HtmlUnknownTag -->
-    <fb:login-button scope="public_profile" onlogin="checkLoginState();">
-    </fb:login-button>
-</DIV>
-
-<SCRIPT>
-    checkLoginState();
-</SCRIPT>
 
 </BODY>
 

@@ -1,6 +1,6 @@
 package mediaserver.gui;
 
-class PartialRequestInfo {
+final class PartialRequestInfo {
 
     private final long startOffset;
 

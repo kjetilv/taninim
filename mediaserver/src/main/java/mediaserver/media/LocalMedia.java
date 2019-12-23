@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class LocalMedia extends AbstractHashable implements Media, Serializable {
+public final class LocalMedia extends AbstractHashable implements Media, Serializable {
 
     public static final Random RND = new Random();
 

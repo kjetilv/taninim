@@ -5,7 +5,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import mediaserver.externals.FacebookUser;
-import mediaserver.http.Nettish;
+import mediaserver.http.Handling;
+import mediaserver.http.NettyHandler;
+import mediaserver.http.Prefix;
+import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.Sessions;
@@ -16,11 +19,12 @@ import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public abstract class Streamer extends Nettish {
+public abstract class Streamer extends NettyHandler {
+
+    public static final String AUDIO = "audio";
 
     protected static final String FLAC = "flac";
 
@@ -28,9 +32,9 @@ public abstract class Streamer extends Nettish {
 
     protected static final String M4A = "m4a";
 
-    protected static final String AUDIO_FLAC = "audio/" + FLAC;
+    protected static final String AUDIO_FLAC = AUDIO + "/" + FLAC;
 
-    protected static final String AUDIO_AAC = "audio/" + AAC;
+    protected static final String AUDIO_AAC = AUDIO + "/" + AAC;
 
     protected final Supplier<Media> media;
 
@@ -40,28 +44,34 @@ public abstract class Streamer extends Nettish {
 
     Streamer(Supplier<Media> media, Sessions sessions) {
 
-        super("/audio");
+        super(Prefix.AUDIO);
         this.media = media;
         this.sessions = sessions;
     }
 
     @Override
-    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
 
-        return activeUserByCookie(req).map(user ->
-            getMediaTrack(resource(path)).map(track -> {
-                HttpResponse response = response(req);
-                stream(req, user, track, ctx, response)
-                    .ifPresent(cf ->
-                        cf.addListener(progressListener(user, track)));
-                return respondStream(req, ctx, response);
-            }).orElseGet(() ->
-                respond(ctx, NOT_FOUND)));
+        return activeUserByCookie(req)
+            .map(user ->
+                getMediaTrack(resource(webPath))
+                    .map(track -> {
+                        HttpResponse response = response(req);
+                        stream(req, user, track, ctx, response)
+                            .ifPresent(cf ->
+                                cf.addListener(progressListener(user, track)));
+                        return respondStream(req, ctx, response);
+                    })
+                    .orElseGet(() ->
+                        respond(ctx, NOT_FOUND)))
+            .orElseGet(() ->
+                respond(ctx, UNAUTHORIZED));
     }
 
     Optional<FacebookUser> activeUserByCookie(FullHttpRequest req) {
 
-        return authCookie(req).flatMap(sessions::activeUser);
+        return authenticationId(req)
+            .flatMap(sessions::activeUser);
     }
 
     static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {
@@ -114,14 +124,14 @@ public abstract class Streamer extends Nettish {
         return req.uri().endsWith("." + FLAC);
     }
 
-    protected HttpResponse respondStream(HttpRequest req, ChannelHandlerContext ctx, HttpResponse response) {
+    protected Handling respondStream(HttpRequest req, ChannelHandlerContext ctx, HttpResponse response) {
 
         ChannelFuture lastContentFuture =
             ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
         if (!HttpUtil.isKeepAlive(req)) {
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
-        return response;
+        return Handling.sentResponse(response);
     }
 
     protected ChannelFuture writeLength(ChannelHandlerContext ctx, HttpResponse response, long fileLength) {

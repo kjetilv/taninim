@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public class PlaylistEntry {
+public final class PlaylistEntry {
 
     private final Collection<String> spec;
 

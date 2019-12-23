@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.Optional;
 
-public class TrackContext implements Serializable {
+public final class TrackContext implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(TrackContext.class);
 

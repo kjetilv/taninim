@@ -2,28 +2,39 @@ package mediaserver.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
+import mediaserver.gui.TemplateEnabled;
+import mediaserver.gui.Templater;
 import mediaserver.sessions.Sessions;
 
-import java.util.Optional;
+import static mediaserver.http.Handling.pass;
 
-public class Gatekeeper extends Nettish {
+public final class Gatekeeper extends TemplateEnabled {
 
     private final Sessions sessions;
 
-    public Gatekeeper(Sessions sessions) {
+    public Gatekeeper(Sessions sessions, Templater templater) {
 
-        super("/");
+        super(templater, Prefix.INDEX);
         this.sessions = sessions;
     }
 
     @Override
-    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Handling handleRequest(
+        FullHttpRequest req,
+        WebPath webPath,
+        ChannelHandlerContext ctx
+    ) {
 
-        return sessions.activeUser(req)
-            .map(user ->
-                Optional.<HttpResponse>empty())
-            .orElseGet(() ->
-                Optional.of(redirect(ctx, "/login")));
+        if (webPath.hasPrefix(LOGIN)) {
+            return pass();
+        }
+        if (webPath.isAuthenticated()) {
+            return sessions.activeUser(req)
+                .map(user ->
+                    pass())
+                .orElseGet(() ->
+                    redirect(ctx, LOGIN.getPref()));
+        }
+        return pass();
     }
 }

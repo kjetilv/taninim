@@ -11,58 +11,77 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import mediaserver.gui.GUI;
 import mediaserver.gui.Template;
-import mediaserver.gui.WebCache;
 import mediaserver.sessions.Session;
 import mediaserver.util.IO;
 import mediaserver.util.URLs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public abstract class Nettish {
+public abstract class NettyHandler {
 
-    private final List<String> prefix;
+    private static final Logger log = LoggerFactory.getLogger(NettyHandler.class);
+
+    private final Prefix handled;
 
     private final WebCache<String, String> cache;
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
 
-    protected Nettish(String... prefix) {
+    protected NettyHandler(Prefix handled) {
 
-        this.prefix = List.of(prefix);
+        this.handled = handled;
         this.cache = new WebCache<>(IO::read);
     }
 
-    public boolean shouldHandle(String path) {
+    public boolean couldHandle(WebPath webPath) {
 
-        return matching(path).isPresent();
+        return handled == null || webPath.hasPrefix(handled);
     }
 
-    public String getPrefix(String path) {
+    public Handling handle(
+        FullHttpRequest req,
+        WebPath webPath,
+        ChannelHandlerContext ctx
+    ) {
 
-        return matching(path).orElseThrow(() ->
-            new IllegalArgumentException("Unsupported: " + path + " != " + prefix));
+        Handling handling = handleRequest(req, webPath, ctx);
+        log(req, handling);
+        return handling;
     }
 
-    public static HttpResponse redirect(ChannelHandlerContext ctx, String value) {
+    private void log(FullHttpRequest req, Handling handling) {
+
+        if (handling.isPass()) {
+            log.debug("Skipped by {}: {}", this, req.uri());
+        } else {
+            log.debug("Handled by {}: {} => {}", this, req.uri(), handling.getSentResponse().status());
+        }
+    }
+
+    public static Handling redirect(ChannelHandlerContext ctx, String value) {
 
         return respond(ctx, redirect(value));
     }
 
-    public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    public static Handling respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         return respond(ctx, response(null, status, null, null, null));
     }
 
-    public static Optional<UUID> authCookie(HttpRequest req) {
+    public static Optional<UUID> authenticationId(HttpRequest req) {
 
         return Optional.of(req.headers())
             .map(headers ->
@@ -77,14 +96,15 @@ public abstract class Nettish {
             .findFirst();
     }
 
-    public abstract Optional<HttpResponse> handle(
+    protected abstract Handling handleRequest(
         FullHttpRequest req,
-        String path,
-        ChannelHandlerContext ctx);
+        WebPath webPath,
+        ChannelHandlerContext ctx
+    );
 
-    protected String resource(String path) {
+    protected String resource(WebPath path) {
 
-        return path.substring(getPrefix(path).length());
+        return path.getUri();
     }
 
     protected Template template(String resource) {
@@ -96,14 +116,14 @@ public abstract class Nettish {
                 new IllegalArgumentException("No such template resource: " + resource));
     }
 
-    protected static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
+    protected static Handling respond(ChannelHandlerContext ctx, HttpResponse response) {
 
         try {
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+            return Handling.sentResponse(response);
         } catch (Exception e) {
             throw new IllegalStateException("Response failed: " + response, e);
         }
-        return response;
     }
 
     protected static HttpResponse ok(
@@ -112,8 +132,7 @@ public abstract class Nettish {
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
-        return response(
-            req, HttpResponseStatus.OK, HttpHeaderValues.APPLICATION_JSON.toString(), content, moreHeaders);
+        return response(req, OK, APPLICATION_JSON.toString(), content, moreHeaders);
     }
 
     protected static HttpResponse response(
@@ -166,10 +185,17 @@ public abstract class Nettish {
         return ok(req, helloContent(session), setCookie(cookie));
     }
 
-    protected static String newAuthCookie(Session session) {
+    protected static String authCookie(Session session) {
 
-        Cookie cookie = new DefaultCookie(GUI.ID_COOKIE, session == null ? "" : session.getCookie().toString());
+        Cookie cookie = new DefaultCookie(GUI.ID_COOKIE, session.getCookie().toString());
         cookie.setMaxAge(COOKIE_TIME);
+        return ServerCookieEncoder.STRICT.encode(cookie);
+    }
+
+    protected static String unauthCookie() {
+
+        Cookie cookie = new DefaultCookie(GUI.ID_COOKIE, "");
+        cookie.setMaxAge(0);
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
@@ -178,6 +204,31 @@ public abstract class Nettish {
         Cookie cookie = new DefaultCookie(GUI.COOKIE_COOKIE, "cakes");
         cookie.setMaxAge(Long.MAX_VALUE);
         return ServerCookieEncoder.STRICT.encode(cookie);
+    }
+
+    protected Handling respondBytes(
+        FullHttpRequest req,
+        WebPath webPath,
+        ChannelHandlerContext ctx,
+        byte[] bytes) {
+
+        try {
+            HttpResponse response =
+                response(req, null, webPath.contentType(), bytes, null);
+            return respond(ctx, response);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to respond to " + webPath, e);
+        }
+    }
+
+    protected Function<byte[], Handling> respondBytes(
+        FullHttpRequest req,
+        WebPath webPath,
+        ChannelHandlerContext ctx
+    ) {
+
+        return bytes ->
+            respondBytes(req, webPath, ctx, bytes);
     }
 
     private static byte[] helloContent(Session session) {
@@ -198,11 +249,6 @@ public abstract class Nettish {
             Unpooled.EMPTY_BUFFER,
             new DefaultHttpHeaders().set(LOCATION, value),
             EmptyHttpHeaders.INSTANCE);
-    }
-
-    private Optional<String> matching(String path) {
-
-        return prefix.stream().filter(path::startsWith).findFirst();
     }
 
     private static Map<QPar, String> params(String uri, int queryIndex) {

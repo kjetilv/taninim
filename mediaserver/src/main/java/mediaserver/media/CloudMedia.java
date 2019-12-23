@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CloudMedia {
+public final class CloudMedia {
 
     private static final Logger log = LoggerFactory.getLogger(CloudMedia.class);
 

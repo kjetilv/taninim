@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class PlaylistM3U extends AbstractHashable {
+public final class PlaylistM3U extends AbstractHashable {
 
     private final String name;
 

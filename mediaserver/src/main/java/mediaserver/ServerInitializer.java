@@ -9,7 +9,7 @@ import io.netty.handler.ssl.SslContext;
 
 import java.util.function.Supplier;
 
-class ServerInitializer extends ChannelInitializer<SocketChannel> {
+final class ServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final Supplier<Router> routerProvider;
 

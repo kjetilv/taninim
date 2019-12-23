@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.util.List;
 
-public class DiscogReleaseDigest {
+public final class DiscogReleaseDigest {
 
     private String artist;
 

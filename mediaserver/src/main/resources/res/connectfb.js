@@ -5,7 +5,7 @@ function fbLogin() {
         } else {
             FB.login(function (loginResponse) {
                 if (loginResponse.status === 'connected') {
-                    handleConnected(loginResponse.authResponse);
+                    handleConnected(loginResponse.authResponse, true);
                 } else {
                     alert("Login failed!")
                 }
@@ -14,13 +14,12 @@ function fbLogin() {
     });
 }
 
-async function handleConnected(authResponse) {
-    let response = postData('/auth', authResponse);
-    if (response.status === 200) {
-        if (document.getElementById('user').innerText === "stranger") {
-            location.reload()
+async function handleConnected(authResponse, redirect) {
+    postData('/auth', authResponse).then(res => {
+        if (res.status === 200) {
+            window.location.href = '/'
         }
-    }
+    })
 }
 
 async function postData(url = '', data = {}) {

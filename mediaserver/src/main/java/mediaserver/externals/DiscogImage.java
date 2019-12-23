@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import java.net.URI;
 
-public class DiscogImage {
+public final class DiscogImage {
 
     private URI uri150;
 

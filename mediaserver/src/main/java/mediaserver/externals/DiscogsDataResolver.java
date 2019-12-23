@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
-public class DiscogsDataResolver {
+public final class DiscogsDataResolver {
 
     private static final Logger log = LoggerFactory.getLogger(DiscogsDataResolver.class);
 

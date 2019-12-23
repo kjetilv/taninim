@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class Album extends AbstractHashable
+public final class Album extends AbstractHashable
     implements Comparable<Album>, Serializable {
 
     private final Artist artist;

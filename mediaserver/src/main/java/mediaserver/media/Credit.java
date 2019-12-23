@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class Credit implements Serializable {
+public final class Credit implements Serializable {
 
     private final URI uri;
 

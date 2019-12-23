@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class QPars implements Function<QPar, Optional<UUID>> {
+public final class QPars implements Function<QPar, Optional<UUID>> {
 
     private static final Logger log = LoggerFactory.getLogger(QPars.class);
 

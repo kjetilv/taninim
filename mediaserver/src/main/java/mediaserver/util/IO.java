@@ -26,6 +26,8 @@ public final class IO {
     public static final ObjectMapper OM = new ObjectMapper()
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
+    public static final String ROOT = "/";
+
     private static final String GRADLE_OUT = "out/production";
 
     public static <T> void writeStream(Path path, T output, BiConsumer<T, OutputStream> receptor) {
@@ -148,6 +150,16 @@ public final class IO {
         return System.getProperty(property, System.getenv(property));
     }
 
+    private static String stripTail(String uriPath) {
+
+        return uriPath.substring(0, uriPath.length() - 1);
+    }
+
+    private static String stripHead(String uriPath) {
+
+        return uriPath.substring(1);
+    }
+
     private static <T> T tryDownload(
         URI uri,
         Consumer<BiConsumer<String, String>> headers,
@@ -199,7 +211,8 @@ public final class IO {
 
     private static Sourced<InputStream> readStream(String resource) {
 
-        return url(resource).filter(IO::isInSources)
+        return url(resource)
+            .filter(IO::isInSources)
             .map(sourceUrl ->
                 Sourced.from(SOURCES, readSources(resource, sourceUrl)))
             .orElseGet(() ->

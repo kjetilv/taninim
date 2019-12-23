@@ -1,7 +1,7 @@
 package mediaserver.externals;
 
 @SuppressWarnings("unused")
-public class FacebookAuthResponse {
+public final class FacebookAuthResponse {
 
     private String userID;
 

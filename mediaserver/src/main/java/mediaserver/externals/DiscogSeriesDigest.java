@@ -1,6 +1,6 @@
 package mediaserver.externals;
 
-public class DiscogSeriesDigest {
+public final class DiscogSeriesDigest {
 
     private String name;
 

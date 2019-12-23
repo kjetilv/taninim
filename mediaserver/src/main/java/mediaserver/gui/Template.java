@@ -13,10 +13,11 @@ import org.stringtemplate.v4.misc.STMessage;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Supplier;
 
-public class Template {
+public final class Template {
 
     private static final Logger log = LoggerFactory.getLogger(Template.class);
 
@@ -44,6 +45,11 @@ public class Template {
     public byte[] bytes() {
 
         return this.bytes.get();
+    }
+
+    Template add(QPar param, Optional<?> value) {
+
+        return add(param, value.orElse(null));
     }
 
     Template add(QPar param, Object value) {

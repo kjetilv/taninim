@@ -2,51 +2,29 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.http.Nettish;
-import mediaserver.util.IO;
+import mediaserver.http.*;
 
-import java.util.Optional;
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
-public class Resources extends Nettish {
+public final class Resources extends NettyHandler {
+
+    private final String resourcePrefix;
 
     private final WebCache<String, byte[]> cache;
 
-    private static final String FAVICON_ICO = "/favicon.ico";
+    public Resources(String resourcePrefix, WebCache<String, byte[]> cache) {
 
-    public Resources() {
-
-        super("/res", FAVICON_ICO);
-        this.cache = new WebCache<>(IO::readBytes);
+        super(Prefix.RES);
+        this.resourcePrefix = resourcePrefix;
+        this.cache = cache;
     }
 
     @Override
-    public Optional<HttpResponse> handle(FullHttpRequest req, String path, ChannelHandlerContext ctx) {
+    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
 
-        try {
-            String resource = "res" + (path.startsWith(FAVICON_ICO)
-                ? path.substring(0, FAVICON_ICO.length())
-                : resource(path));
-            return cache.get(resource)
-                .map(bytes ->
-                    response(req, null, contentType(path), bytes, null))
-                .map(response -> {
-                    try {
-                        return respond(ctx, response);
-                    } catch (Exception e) {
-                        throw new IllegalStateException("Failed to respond to " + path, e);
-                    }
-                });
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to respond to " + path, e);
-        }
-    }
-
-    private static String contentType(String path) {
-
-        return path.endsWith(".css") ? "text/css"
-            : path.endsWith(".js") ? "text/javascript"
-            : path.endsWith(".ico") ? "image/x-icon"
-            : "text/plain";
+        return cache.get(resourcePrefix + webPath.getPath())
+            .map(respondBytes(req, webPath, ctx))
+            .orElseGet(() ->
+                respond(ctx, NOT_FOUND));
     }
 }
