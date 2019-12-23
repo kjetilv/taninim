@@ -33,7 +33,7 @@ public final class Gatekeeper extends TemplateEnabled {
                 .map(user ->
                     pass())
                 .orElseGet(() ->
-                    redirect(ctx, LOGIN.getPref()));
+                    respond(ctx, redirectResponse(LOGIN.getPref(), null)));
         }
         return pass();
     }

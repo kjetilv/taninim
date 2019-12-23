@@ -247,6 +247,12 @@ public final class CloudMedia {
             new File(resources).toPath());
         File mediaFile = serialize(media);
         S3.get().ifPresent(s3 -> {
+
+            System.out.println("Refreshing media");
+            uploadMedia(mediaFile, s3);
+            System.out.println("Refreshing ids");
+            uploadIds(s3);
+
             Map<String, Long> remoteSizes = remoteFiles(s3);
             localFiles(root, ".flac").forEach(localFile -> {
                 uploadMissingRemote(
@@ -267,10 +273,6 @@ public final class CloudMedia {
 //            if (!removables.isEmpty()) {
 //                removeRedundantRemotes(s3, removableM4as);
 //            }
-            System.out.println("Refreshing media");
-            uploadMedia(mediaFile, s3);
-            System.out.println("Refreshing ids");
-            uploadIds(s3);
         });
 
     }

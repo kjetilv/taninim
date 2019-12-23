@@ -26,10 +26,13 @@ import java.util.function.Function;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
+import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public abstract class NettyHandler {
+
+    public static final HttpVersion HTTP = HTTP_1_1;
 
     private static final Logger log = LoggerFactory.getLogger(NettyHandler.class);
 
@@ -61,20 +64,6 @@ public abstract class NettyHandler {
         return handling;
     }
 
-    private void log(FullHttpRequest req, Handling handling) {
-
-        if (handling.isPass()) {
-            log.debug("Skipped by {}: {}", this, req.uri());
-        } else {
-            log.debug("Handled by {}: {} => {}", this, req.uri(), handling.getSentResponse().status());
-        }
-    }
-
-    public static Handling redirect(ChannelHandlerContext ctx, String value) {
-
-        return respond(ctx, redirect(value));
-    }
-
     public static Handling respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         return respond(ctx, response(null, status, null, null, null));
@@ -93,6 +82,16 @@ public abstract class NettyHandler {
             .map(Cookie::value)
             .map(UUID::fromString)
             .findFirst();
+    }
+
+    public static Handling respond(ChannelHandlerContext ctx, HttpResponse response) {
+
+        try {
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+            return Handling.sentResponse(response);
+        } catch (Exception e) {
+            throw new IllegalStateException("Response failed: " + response, e);
+        }
     }
 
     protected abstract Handling handleRequest(
@@ -115,16 +114,6 @@ public abstract class NettyHandler {
                 new IllegalArgumentException("No such template resource: " + resource));
     }
 
-    protected static Handling respond(ChannelHandlerContext ctx, HttpResponse response) {
-
-        try {
-            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-            return Handling.sentResponse(response);
-        } catch (Exception e) {
-            throw new IllegalStateException("Response failed: " + response, e);
-        }
-    }
-
     protected static HttpResponse ok(
         HttpRequest req,
         byte[] content,
@@ -132,6 +121,23 @@ public abstract class NettyHandler {
     ) {
 
         return response(req, OK, APPLICATION_JSON.toString(), content, moreHeaders);
+    }
+
+    protected static HttpResponse redirectResponse(
+        String location,
+        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
+    ) {
+
+        HttpHeaders headers = new DefaultHttpHeaders();
+        if (moreHeaders != null) {
+            moreHeaders.accept(headers::set);
+        }
+        return new DefaultFullHttpResponse(
+            HTTP,
+            HttpResponseStatus.FOUND,
+            Unpooled.EMPTY_BUFFER,
+            headers.set(LOCATION, location),
+            EmptyHttpHeaders.INSTANCE);
     }
 
     protected static HttpResponse response(
@@ -160,7 +166,11 @@ public abstract class NettyHandler {
             : Unpooled.wrappedBuffer(content);
 
         return new DefaultFullHttpResponse(
-            HTTP_1_1, status == null ? OK : status, body, headers, EmptyHttpHeaders.INSTANCE);
+            HTTP,
+            status == null ? OK : status,
+            body,
+            headers,
+            EmptyHttpHeaders.INSTANCE);
     }
 
     protected static HttpResponse okCookieResponse(HttpRequest req, String cookieCookie) {
@@ -171,6 +181,11 @@ public abstract class NettyHandler {
     protected static HttpResponse authCookieResponse(HttpRequest req, Session session, String cookie) {
 
         return ok(req, helloContent(session), setCookie(cookie));
+    }
+
+    protected static HttpResponse unauthCookieResponse(HttpRequest req, String cookie) {
+
+        return redirectResponse("/", setCookie(cookie));
     }
 
     protected static String authCookie(Session session) {
@@ -198,7 +213,8 @@ public abstract class NettyHandler {
         FullHttpRequest req,
         WebPath webPath,
         ChannelHandlerContext ctx,
-        byte[] bytes) {
+        byte[] bytes
+    ) {
 
         try {
             HttpResponse response =
@@ -219,6 +235,15 @@ public abstract class NettyHandler {
             respondBytes(req, webPath, ctx, bytes);
     }
 
+    private void log(FullHttpRequest req, Handling handling) {
+
+        if (handling.isPass()) {
+            log.debug("Skipped by {}: {}", this, req.uri());
+        } else {
+            log.debug("Handled by {}: {} => {}", this, req.uri(), handling.getSentResponse().status());
+        }
+    }
+
     private static byte[] helloContent(Session session) {
 
         return String.format("\"%s\"", session.getFacebookUser().getName()).getBytes(StandardCharsets.UTF_8);
@@ -228,15 +253,4 @@ public abstract class NettyHandler {
 
         return headers -> headers.accept(SET_COOKIE, cookie);
     }
-
-    private static HttpResponse redirect(String value) {
-
-        return new DefaultFullHttpResponse(
-            HTTP_1_1,
-            HttpResponseStatus.FOUND,
-            Unpooled.EMPTY_BUFFER,
-            new DefaultHttpHeaders().set(LOCATION, value),
-            EmptyHttpHeaders.INSTANCE);
-    }
-
 }

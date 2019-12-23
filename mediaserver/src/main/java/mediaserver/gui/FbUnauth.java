@@ -25,7 +25,7 @@ public final class FbUnauth extends NettyHandler {
 
         return sessions.close(req)
             .map(closed ->
-                respond(ctx, authCookieResponse(req, closed, unauthCookie())))
+                respond(ctx, unauthCookieResponse(req, unauthCookie())))
             .orElseGet(() ->
                 respond(ctx, OK));
     }

@@ -57,14 +57,9 @@ public final class FbAuth extends NettyHandler {
 
     private Handling login(HttpRequest req, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
-        return ids().isAuthorized(facebookUser)
+        return ids.get().isAuthorized(facebookUser)
             ? authorizedSession(req, ctx, facebookUser)
             : trespasser(ctx, facebookUser);
-    }
-
-    private Ids ids() {
-
-        return ids.get();
     }
 
     private Handling authorizedSession(

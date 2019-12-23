@@ -3,7 +3,6 @@ package mediaserver.sessions;
 import io.netty.handler.codec.http.HttpRequest;
 import mediaserver.externals.FacebookUser;
 import mediaserver.http.NettyHandler;
-import mediaserver.util.MostlyOnce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 public final class Sessions {
 
@@ -23,18 +21,18 @@ public final class Sessions {
 
     private final Map<FacebookUser, Session> sessions = new ConcurrentHashMap<>();
 
-    private final Supplier<Ids> ids;
-
     private final Duration sessionLength;
+
+    private final Duration inactivityMax;
 
     private final Clock clock;
 
     private final boolean dev;
 
-    public Sessions(Supplier<Ids> ids, Duration sessionLength, Clock clock, boolean dev) {
+    public Sessions(Duration sessionLength, Duration inactivityMax, Clock clock, boolean dev) {
 
-        this.ids = ids;
         this.sessionLength = sessionLength;
+        this.inactivityMax = inactivityMax;
         this.clock = clock;
         this.dev = dev;
         if (this.dev) {
@@ -44,7 +42,18 @@ public final class Sessions {
 
     public Session establish(FacebookUser user) {
 
-        return sessions.compute(user, this::resolveSession);
+        return sessions.compute(user, (facebookUser, oldSession) -> {
+
+            Instant currentTime = this.now();
+            if (oldSession == null || oldSession.expiredAt(currentTime)) {
+                Session session = new Session(
+                    facebookUser, UUID.randomUUID(), currentTime, cutoff(currentTime), inactivityMax);
+                log.info("{}: New session {}, previous: {}", facebookUser, session, oldSession);
+                return session;
+            }
+            log.info("{} reused session: {}", facebookUser, oldSession);
+            return oldSession.accessedAt(currentTime);
+        });
     }
 
     public Optional<FacebookUser> activeUser(HttpRequest req) {
@@ -77,18 +86,6 @@ public final class Sessions {
             return Optional.of(devUser);
         }
         return Optional.empty();
-    }
-
-    private Session resolveSession(FacebookUser facebookUser, Session oldSession) {
-
-        Supplier<Instant> currentTime = MostlyOnce.get(this::now);
-        if (oldSession == null || oldSession.timedout(currentTime.get())) {
-            Session session = new Session(facebookUser, UUID.randomUUID(), cutoff(currentTime.get()));
-            log.info("{}: New session {}, previous: {}", facebookUser, session, oldSession);
-            return session;
-        }
-        log.info("{} reused session: {}", facebookUser, oldSession);
-        return oldSession;
     }
 
     private Instant now() {

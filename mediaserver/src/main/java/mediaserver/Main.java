@@ -39,6 +39,8 @@ public final class Main {
 
     private static final Duration SESSION_LENGTH = Duration.ofDays(1);
 
+    private static final Duration INACTIVITY_MAX = Duration.ofHours(1);
+
     private static final Clock CET = Clock.system(ZoneId.of("CET"));
 
     private static final String RES = "res";
@@ -78,7 +80,7 @@ public final class Main {
         Supplier<Ids> ids = idsSupplier(args, local);
         Supplier<Media> media = mediaSupplier(args, local);
         Sessions sessions =
-            new Sessions(ids, SESSION_LENGTH, CET, DEV && !PRETEND_SSL);
+            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, CET, DEV && !PRETEND_SSL);
 
         WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
         Templater templater = new Templater();
@@ -87,13 +89,13 @@ public final class Main {
             new Router(
                 new Debug(),
                 new Gatekeeper(sessions, templater),
+                new Login(templater),
                 new FbUnauth(sessions),
                 new FbAuth(sessions, ids, secretsProvider()),
                 new PlaylistsM3U(media, templater),
                 new Resources(RES, webCache),
-                new Login(templater),
                 new Favicon(webCache, FAVICON_ICO),
-                streamer(media, NEUTER, local, sessions),
+                streamer(media, local, sessions),
                 new GUI(media, sessions, templater),
                 new Fail());
 
@@ -229,9 +231,9 @@ public final class Main {
         return () -> IO.getProperty(FB_SEC).toCharArray();
     }
 
-    private static NettyHandler streamer(Supplier<Media> media, boolean neuter, boolean local, Sessions sessions) {
+    private static NettyHandler streamer(Supplier<Media> media, boolean local, Sessions sessions) {
 
-        return neuter ? new NullStreamer(media, sessions)
+        return Main.NEUTER ? new NullStreamer(media, sessions)
             : local ? new FileStreamer(media, sessions)
             : new S3Streamer(media, sessions);
     }
