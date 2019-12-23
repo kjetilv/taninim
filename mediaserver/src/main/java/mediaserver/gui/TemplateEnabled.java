@@ -22,7 +22,7 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     private static final String TEXT_HTML = "text/html";
 
-    protected TemplateEnabled(Templater templater, Prefix prefix) {
+    protected TemplateEnabled(Templater templater, Prefix... prefix) {
 
         super(prefix);
         this.templater = templater;

@@ -14,7 +14,7 @@ public final class Gatekeeper extends TemplateEnabled {
 
     public Gatekeeper(Sessions sessions, Templater templater) {
 
-        super(templater, Prefix.INDEX);
+        super(templater);
         this.sessions = sessions;
     }
 

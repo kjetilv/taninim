@@ -13,7 +13,6 @@ import mediaserver.gui.GUI;
 import mediaserver.gui.Template;
 import mediaserver.sessions.Session;
 import mediaserver.util.IO;
-import mediaserver.util.URLs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,21 +33,21 @@ public abstract class NettyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(NettyHandler.class);
 
-    private final Prefix handled;
+    private final Collection<Prefix> handled;
 
     private final WebCache<String, String> cache;
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
 
-    protected NettyHandler(Prefix handled) {
+    protected NettyHandler(Prefix... handled) {
 
-        this.handled = handled;
+        this.handled = new HashSet<>(Arrays.asList(handled));
         this.cache = new WebCache<>(IO::read);
     }
 
     public boolean couldHandle(WebPath webPath) {
 
-        return handled == null || webPath.hasPrefix(handled);
+        return handled.isEmpty() || handled.stream().anyMatch(webPath::hasPrefix);
     }
 
     public Handling handle(
@@ -164,17 +163,6 @@ public abstract class NettyHandler {
             HTTP_1_1, status == null ? OK : status, body, headers, EmptyHttpHeaders.INSTANCE);
     }
 
-    protected static QPars qpars(String uri) {
-
-        return new QPars(params(uri, uri.indexOf("?")));
-    }
-
-    protected String uriPath(String uri) {
-
-        int queryIndex = uri.indexOf("?");
-        return queryIndex < 0 ? uri : uri.substring(0, queryIndex);
-    }
-
     protected static HttpResponse okCookieResponse(HttpRequest req, String cookieCookie) {
 
         return ok(req, null, setCookie(cookieCookie));
@@ -251,10 +239,4 @@ public abstract class NettyHandler {
             EmptyHttpHeaders.INSTANCE);
     }
 
-    private static Map<QPar, String> params(String uri, int queryIndex) {
-
-        return queryIndex < 0
-            ? Collections.emptyMap()
-            : URLs.queryParams(uri.substring(queryIndex + 1));
-    }
 }

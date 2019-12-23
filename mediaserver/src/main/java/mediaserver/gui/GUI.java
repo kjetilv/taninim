@@ -24,7 +24,7 @@ public final class GUI extends TemplateEnabled {
 
     public GUI(Supplier<Media> media, Sessions sessions, Templater templater) {
 
-        super(templater, Prefix.INDEX);
+        super(templater, Prefix.INDEX, Prefix.ALBUM);
         this.media = media;
         this.sessions = sessions;
     }
