@@ -3,7 +3,10 @@ package mediaserver;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.ssl.NotSslRecordException;
 import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
@@ -70,8 +73,8 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         HttpResponse response = handling.getSentResponse();
         if (ROUTED.add(req.uri())) {
-            log.info("{} -> {}/{} in {}ms",
-                req.uri(), response.status(), response.headers().get(HttpHeaderNames.CONTENT_LENGTH), ms);
+            log.info("{} -> {} in {}ms",
+                req.uri(), response.status(), ms);
         }
     }
 
@@ -121,7 +124,8 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                     handler.couldHandle(webPath))
                 .map(handler ->
                     handler.handle(req, webPath, ctx))
-                .filter(Handling::isDone)
+                .filter(
+                    Handling::isDone)
                 .findFirst()
                 .orElseGet(() ->
                     respond(ctx, INTERNAL_SERVER_ERROR));

@@ -26,7 +26,6 @@ import java.util.function.Function;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
-import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -60,7 +59,11 @@ public abstract class NettyHandler {
     ) {
 
         Handling handling = handleRequest(req, webPath, ctx);
-        log(req, handling);
+        if (handling.isPass()) {
+            log.debug("Skipped by {}: {}", this, req.uri());
+        } else {
+            log.debug("Handled by {}: {} => {}", this, req.uri(), handling.getSentResponse().status());
+        }
         return handling;
     }
 
@@ -121,6 +124,11 @@ public abstract class NettyHandler {
     ) {
 
         return response(req, OK, APPLICATION_JSON.toString(), content, moreHeaders);
+    }
+
+    protected static HttpResponse redirectResponse(String location) {
+
+        return redirectResponse(location, null);
     }
 
     protected static HttpResponse redirectResponse(
@@ -233,15 +241,6 @@ public abstract class NettyHandler {
 
         return bytes ->
             respondBytes(req, webPath, ctx, bytes);
-    }
-
-    private void log(FullHttpRequest req, Handling handling) {
-
-        if (handling.isPass()) {
-            log.debug("Skipped by {}: {}", this, req.uri());
-        } else {
-            log.debug("Handled by {}: {} => {}", this, req.uri(), handling.getSentResponse().status());
-        }
     }
 
     private static byte[] helloContent(Session session) {

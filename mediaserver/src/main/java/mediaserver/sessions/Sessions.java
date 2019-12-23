@@ -97,4 +97,10 @@ public final class Sessions {
 
         return time.plus(sessionLength);
     }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + sessions.keySet() + "]";
+    }
 }
