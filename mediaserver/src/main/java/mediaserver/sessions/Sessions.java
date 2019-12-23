@@ -1,19 +1,21 @@
 package mediaserver.sessions;
 
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import mediaserver.externals.FacebookUser;
-import mediaserver.http.NettyHandler;
+import mediaserver.gui.GUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+
+import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
 
 public final class Sessions {
 
@@ -58,24 +60,37 @@ public final class Sessions {
 
     public Optional<FacebookUser> activeUser(HttpRequest req) {
 
-        return NettyHandler.authenticationId(req)
-            .flatMap(this::activeUser)
+        return cookies(req)
+            .filter(cookie ->
+                cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
+            .map(cookie ->
+                UUID.fromString(cookie.value()))
+            .findFirst()
+            .flatMap(this::userFor)
             .or(this::devUser);
     }
 
-    public Optional<Session> close(HttpRequest req) {
-
-        return activeUser(req).map(sessions::remove);
-    }
-
-    public Optional<FacebookUser> activeUser(UUID uuid) {
+    private Optional<FacebookUser> userFor(UUID uuid) {
 
         return sessions.values().stream()
             .filter(session ->
                 Objects.equals(uuid, session.getCookie()))
             .findFirst()
-            .map(Session::getFacebookUser)
-            .or(this::devUser);
+            .map(Session::getFacebookUser);
+    }
+
+    private Stream<Cookie> cookies(HttpRequest req) {
+
+        return Optional.of(req.headers())
+            .map(headers -> headers.get(COOKIE))
+            .map(ServerCookieDecoder.STRICT::decode)
+            .stream()
+            .flatMap(Collection::stream);
+    }
+
+    public Optional<Session> close(HttpRequest req) {
+
+        return activeUser(req).map(sessions::remove);
     }
 
     private Optional<FacebookUser> devUser() {

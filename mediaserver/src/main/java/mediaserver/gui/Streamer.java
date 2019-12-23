@@ -52,7 +52,7 @@ public abstract class Streamer extends NettyHandler {
     @Override
     public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
 
-        return activeUserByCookie(req)
+        return sessions.activeUser(req)
             .map(user ->
                 getMediaTrack(resource(webPath))
                     .map(track -> {
@@ -66,12 +66,6 @@ public abstract class Streamer extends NettyHandler {
                         respond(ctx, NOT_FOUND)))
             .orElseGet(() ->
                 respond(ctx, UNAUTHORIZED));
-    }
-
-    Optional<FacebookUser> activeUserByCookie(FullHttpRequest req) {
-
-        return authenticationId(req)
-            .flatMap(sessions::activeUser);
     }
 
     static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {

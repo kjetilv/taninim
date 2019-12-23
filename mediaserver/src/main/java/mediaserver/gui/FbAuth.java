@@ -57,20 +57,15 @@ public final class FbAuth extends NettyHandler {
 
     private Handling login(HttpRequest req, ChannelHandlerContext ctx, FacebookUser facebookUser) {
 
-        return ids.get().isAuthorized(facebookUser)
-            ? authorizedSession(req, ctx, facebookUser)
-            : trespasser(ctx, facebookUser);
-    }
+        if (ids.get().isAuthorized(facebookUser)) {
 
-    private Handling authorizedSession(
-        HttpRequest req,
-        ChannelHandlerContext ctx,
-        FacebookUser authorizedUser
-    ) {
+            Session session = sessions.establish(facebookUser);
+            HttpResponse response = authCookieResponse(req, session, authCookie(session));
+            return respond(ctx, response);
+        }
 
-        Session session = sessions.establish(authorizedUser);
-        HttpResponse response = authCookieResponse(req, session, authCookie(session));
-        return respond(ctx, response);
+        log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
+        return respond(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);
     }
 
     private Optional<FacebookUser> lookupFacebookUser(FullHttpRequest req) {
@@ -95,11 +90,5 @@ public final class FbAuth extends NettyHandler {
             new DefaultWebRequestor(),
             new DefaultJsonMapper(),
             Version.LATEST);
-    }
-
-    private static Handling trespasser(ChannelHandlerContext ctx, FacebookUser facebookUser) {
-
-        log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
-        return respond(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);
     }
 }

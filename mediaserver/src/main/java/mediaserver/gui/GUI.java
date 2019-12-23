@@ -53,18 +53,13 @@ public final class GUI extends TemplateEnabled {
                 .map(album ->
                     album(req, media, album, pars))
                 .or(() ->
-                    indexTemplate(req, media, pars));
+                    index(req, media, pars));
         }
 
-        return indexTemplate(req, media, pars);
+        return index(req, media, pars);
     }
 
-    private Template withUser(Template response, HttpRequest req) {
-
-        return response.add(QPar.USER, sessions.activeUser(req));
-    }
-
-    private Optional<Template> indexTemplate(HttpRequest req, Media media, QPars pars) {
+    private Optional<Template> index(HttpRequest req, Media media, QPars pars) {
 
         Artist artist =
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
@@ -78,7 +73,8 @@ public final class GUI extends TemplateEnabled {
             return Optional.empty();
         }
 
-        return Optional.of(withUser(index(), req)
+        return Optional.of(index()
+            .add(QPar.USER, sessions.activeUser(req))
             .add(QPar.MEDIA, submedia)
             .add(QPar.ARTIST, artist));
     }
@@ -86,7 +82,9 @@ public final class GUI extends TemplateEnabled {
     private Template album(HttpRequest req, Media media, Album album, QPars pars) {
 
         Optional<Track> track = pars.apply(QPar.TRACK).flatMap(media::getTrack);
-        return withUser(album(), req)
+
+        return album()
+            .add(QPar.USER, sessions.activeUser(req))
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAY_TRACK, track.orElse(null))

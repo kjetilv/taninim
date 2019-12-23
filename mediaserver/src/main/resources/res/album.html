@@ -31,8 +31,12 @@
     <HR>
 </DIV>
 
+<DIV style="float: right">
+    <A HREF="/unauth">Logg ut!</A>
+</DIV>
+
 <DIV>
-    <P>Hei, {user.name}</P>
+    <P>Hei, {user.name}!</P>
 </DIV>
 
 <DIV STYLE="float: right">
@@ -56,7 +60,7 @@
 <H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
 
 <H3>{album.artist.name}: <EM>{album.name}</EM>
-    {if(user)}<A HREF="/playlist/album/{album.uuid}">⏬</A>{endif}
+    <A HREF="/playlist/album/{album.uuid}">⏬</A>
 </H3>
 
 <DIV>

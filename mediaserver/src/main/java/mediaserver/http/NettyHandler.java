@@ -7,7 +7,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import mediaserver.gui.GUI;
 import mediaserver.gui.Template;
@@ -18,7 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -70,21 +71,6 @@ public abstract class NettyHandler {
     public static Handling respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         return respond(ctx, response(null, status, null, null, null));
-    }
-
-    public static Optional<UUID> authenticationId(HttpRequest req) {
-
-        return Optional.of(req.headers())
-            .map(headers ->
-                headers.get(COOKIE))
-            .map(ServerCookieDecoder.STRICT::decode)
-            .stream()
-            .flatMap(Collection::stream)
-            .filter(cookie ->
-                cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
-            .map(Cookie::value)
-            .map(UUID::fromString)
-            .findFirst();
     }
 
     public static Handling respond(ChannelHandlerContext ctx, HttpResponse response) {
@@ -193,7 +179,7 @@ public abstract class NettyHandler {
 
     protected static HttpResponse unauthCookieResponse(HttpRequest req, String cookie) {
 
-        return redirectResponse("/", setCookie(cookie));
+        return redirectResponse(Prefix.LOGIN.getPref(), setCookie(cookie));
     }
 
     protected static String authCookie(Session session) {
