@@ -71,12 +71,11 @@ public final class CustomCategory {
 
     public boolean contains(Album album) {
 
-        return entries.stream().anyMatch(entry -> entry.albumMatch(album));
+        return entries.stream().anyMatch(entry -> entry.match(album));
     }
 
     public boolean isCovered(Path path) {
-
-        return containsAlbum(path.getParent().getFileName().toString());
+        return entries.stream().anyMatch(entry -> entry.match(path));
     }
 
     public CustomCategory and(CustomCategory sub) {
@@ -111,11 +110,6 @@ public final class CustomCategory {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to read " + resource, e);
         }
-    }
-
-    private boolean containsAlbum(String name) {
-
-        return entries.stream().anyMatch(entry -> entry.albumMatch(name));
     }
 
     private static Stream<CustomCategory> customCategories(Path prefix, Map<?, ?> map) {

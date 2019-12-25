@@ -18,6 +18,8 @@ fun main() {
 //    val targetDir = Paths.get(".")
     val flacDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/FLAC/John%20Zorn"))
+    val flac2Dir = Paths.get(URI.create(
+            "file://${System.getProperty("user.home")}/FLAC2/John%20Zorn"))
     val m4aDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/M4A/John%20Zorn"))
     val walkmanConnectDir = Paths.get(URI.create(
@@ -52,6 +54,16 @@ fun main() {
                         album(path).contains("great jewish music") ||
                         album(path).contains("spirou")
                 )
+    }
+
+    val dirStruct = Conversion(
+            Mover(rootDir, flac2Dir, playlists()),
+            Traverser(rootDir),
+            included)
+
+    dirStruct.convert("flac") { no: Int, total: Int, source: Path, target: Path ->
+        println(target)
+        true;
     }
 
     val flacConversion = Conversion(
@@ -95,15 +107,17 @@ fun main() {
     if (Files.isDirectory(walkmanConnectDir)) {
         println("Copying to walkman @ $walkDir")
         Files.createDirectories(walkDir)
+        val mover = Mover(flacDir, walkDir, playlists())
         Traverser(flacDir).paths { path ->
             path.toString().endsWith(".flac")
         }.forEach { path ->
             val walkFlac = walkDir.resolve(flacDir.relativize(path))
-            if (!Files.exists(walkFlac) || Files.size(walkFlac) != Files.size(path)
-                    || changed(walkFlac, path)) {
+//                    mover.target(path)
+//            println("Move: $path => ${mover.target(path)}")
+            if (!Files.exists(walkFlac) || Files.size(walkFlac) != Files.size(path) || changed(walkFlac, path)) {
                 val dir = walkFlac.toFile().parentFile
                 if (dir.isDirectory || dir.mkdirs()) {
-                    println("Now walkin: $path")
+                    println("Now walkin: $walkFlac")
                     Files.copy(path, walkFlac, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING)
                 } else {
                     throw IllegalStateException("Bad target: $dir")
@@ -122,8 +136,7 @@ fun main() {
     println("Media: $media")
 
     if (Files.isDirectory(walkmanConnectDir)) {
-        val source = IO.read("playlist.m3u8").unpack().orElseThrow {
-            ->
+        val source = IO.read("playlist.m3u8").unpack().orElseThrow { ->
             IllegalStateException("No source @ playlist.m3u8")
         }
         val sourceDir = Path.of(System.getProperty("user.home"), "FLAC")
@@ -141,8 +154,6 @@ fun main() {
     } else {
         println("Walkman not connected for playlists @ $walkmanConnectDir")
     }
-
-//    media.playlists.
 }
 
 private fun changed(source: Path, target: Path): Boolean =
@@ -153,66 +164,6 @@ fun playlists(): List<Dist> =
         CustomCategory.categories("categories.yaml").map { AlbumsDist(it) }
 
 fun noDists(): List<Dist> = emptyList()
-
-fun dists(): List<Dist> = playlists() + listOf<Pair<Path, (Path) -> Boolean>>(
-
-        Paths.get("Masada", "Book of Angels") to albumContains("book of angels vol. "),
-
-        Paths.get("Masada", "The Book Beri'ah") to albumContains("book beri'ah vol. "),
-
-        Paths.get("Masada", "Masada Book 1") to { path ->
-            artist(path) == "masada" && album(path).contains("book 1 vol. ")
-        },
-
-        Paths.get("Masada", "Various") to { path ->
-            album(path).contains("circle maker") ||
-                    artist(path).contains("bar kokhba") ||
-                    artist(path) == "masada string trio" ||
-                    artist(path) == "masada" && album(path).contains("50th birthday")
-        },
-
-        Paths.get("Masada", "Various", "10. Anniversary") to { path ->
-            album(path).contains("masada 10. anniversary")
-        },
-
-        Paths.get("Masada", "Various", "Live") to { path ->
-            artist(path).contains("masada") && album(path).contains(" live ")
-        },
-
-        Paths.get("Masada", "Various") to albumContains("Sanhedrin"),
-
-        Paths.get("Masada", "Various") to artistIs("electric masada"),
-
-        Paths.get("Hardcore miniatures", "Painkiller") to artistContains("painkiller"),
-
-        Paths.get("Hardcore miniatures", "Naked City") to artistIs("Naked City"),
-
-        Paths.get("Hardcore miniatures", "Naked City") to albumContains("Spy vs. Spy"),
-
-        Paths.get("John Zorn") to artistContains("John Zorn"),
-
-        Paths.get("John Zorn") to artistContains("Locus Solus"),
-
-        Paths.get("John Zorn") to artistContains("Hemophiliac"),
-
-        Paths.get("On Tzadik") to { path ->
-            artist(path) == "makigami koichi" ||
-                    artist(path) == "derek bailey" ||
-                    album(path).contains("great jewish music") ||
-                    artist(path) == "fred frith" ||
-                    artist(path) == "evan parker" ||
-                    artist(path).contains("bret higgins") ||
-                    artist(path).contains("ratkje") ||
-                    artist(path) == "ruins" ||
-                    artist(path).contains("ruins") && artist(path).contains("derek")
-        },
-
-        Paths.get("Various") to { _ ->
-            true
-        }
-).map {
-    SubdirDist(it.first, it.second)
-}
 
 private fun artistContains(name: String): (Path) -> Boolean {
     return { path ->
