@@ -2,10 +2,8 @@ package mediaserver.media;
 
 import mediaserver.hash.AbstractNameHashable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class Playlist extends AbstractNameHashable {
 
@@ -22,12 +20,12 @@ public final class Playlist extends AbstractNameHashable {
 
         super(name);
         this.tracks = tracks == null || tracks.isEmpty() ? Collections.emptyMap()
-            : Map.copyOf(tracks);
+            : new LinkedHashMap<>(tracks);
     }
 
     public Playlist add(Playlist playlist) {
 
-        HashMap<Album, Collection<Track>> map = new HashMap<>(tracks);
+        Map<Album, Collection<Track>> map = new LinkedHashMap<>(tracks);
         playlist.tracks.keySet().forEach(album ->
             map.put(album, album.getTracks()));
         return new Playlist(getName(), map);
@@ -35,9 +33,17 @@ public final class Playlist extends AbstractNameHashable {
 
     public Playlist add(Album album) {
 
-        HashMap<Album, Collection<Track>> map = new HashMap<>(tracks);
+        Map<Album, Collection<Track>> map = new LinkedHashMap<>(tracks);
         map.put(album, album.getTracks());
         return new Playlist(getName(), map);
+    }
+
+    public Collection<Track> getTracks() {
+        return tracks.values().stream()
+            .flatMap(albumTracks ->
+                albumTracks.stream()
+                    .sorted(Comparator.comparing(Track::getTrackNo)))
+            .collect(Collectors.toList());
     }
 
     public boolean contains(Album album) {

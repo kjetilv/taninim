@@ -2,15 +2,19 @@ package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
 
-import java.util.Collection;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class PlaylistM3U extends AbstractHashable {
 
     private final String name;
 
     private final List<Track> tracks;
+
+    private final Map<Path, Track> locatedTracks;
 
     private static final long serialVersionUID = -6198219291681770060L;
 
@@ -19,15 +23,28 @@ public final class PlaylistM3U extends AbstractHashable {
         this(album.getArtist().getName() + ": " + album.getName(), album.getTracks());
     }
 
-    public PlaylistM3U(Collection<Track> tracks) {
+    public PlaylistM3U(String name, Collection<Track> tracks) {
 
-        this(null, tracks);
+        this(name, Objects.requireNonNull(tracks, "tracks"), tracks.stream().collect(Collectors.toMap(
+            track -> track.getFile().toPath(),
+            track -> track,
+            (track1, track2) -> {
+                throw new IllegalStateException(track1 + " / " + track2);
+            },
+            LinkedHashMap::new
+        )));
     }
 
-    public PlaylistM3U(String name, Collection<Track> tracks) {
+    public PlaylistM3U(String name, Collection<Track> tracks, Map<Path, Track> locatedTracks) {
 
         this.name = name;
         this.tracks = List.copyOf(tracks);
+        this.locatedTracks = new LinkedHashMap<>(locatedTracks);
+    }
+
+    public PlaylistM3U move(Path from) {
+
+        return new PlaylistM3U(name, tracks, relocate(from, locatedTracks));
     }
 
     public String getName() {
@@ -38,6 +55,19 @@ public final class PlaylistM3U extends AbstractHashable {
     public List<Track> getTracks() {
 
         return tracks;
+    }
+
+    @SuppressWarnings("unused")
+    public Collection<Entry<String, Track>> getLocatedTracks() {
+
+        return locatedTracks.entrySet().stream().collect(Collectors.toMap(
+            e -> e.getKey().toString(),
+            Entry::getValue,
+            (track1, track2) -> {
+                throw new IllegalArgumentException(track1 + " / " + track2);
+            },
+            LinkedHashMap::new
+        )).entrySet();
     }
 
     @Override
@@ -51,5 +81,16 @@ public final class PlaylistM3U extends AbstractHashable {
     protected StringBuilder withStringBody(StringBuilder sb) {
 
         return sb.append(name).append(" [").append(tracks.size()).append("]");
+    }
+
+    private Map<Path, Track> relocate(Path from, Map<Path, Track> locatedTracks) {
+
+        return locatedTracks.entrySet().stream().collect(Collectors.toMap(
+            e -> from.relativize(e.getKey()),
+            Entry::getValue,
+            (track1, track2) -> {
+                throw new IllegalArgumentException(track1 + " / " + track2);
+            },
+            LinkedHashMap::new));
     }
 }

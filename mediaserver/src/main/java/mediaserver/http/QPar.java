@@ -25,7 +25,7 @@ public enum QPar {
 
     HOST,
 
-    PROTOCOL;
+    PROTOCOL, STREAMLEASE;
 
     private final String name;
 

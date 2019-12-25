@@ -1,0 +1,9 @@
+#EXTM3U
+#PLAYLIST: {playlist.name}
+{playlist.locatedTracks:{track|
+
+#EXTALB: {track.value.album}
+#EXTART: {track.value.artist.name}
+#EXTINF:{track.value.seconds};{track.value.prettyTrackNo} {track.value.name}
+{track.key}
+}}

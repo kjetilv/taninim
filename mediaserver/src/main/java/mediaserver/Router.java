@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.ssl.NotSslRecordException;
 import mediaserver.http.Handling;
@@ -19,18 +18,17 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static mediaserver.http.NettyHandler.respond;
+import static mediaserver.http.Netty.respond;
 
 final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private static final DefaultFullHttpResponse TO_BE_CONTINUED = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
 
     private static final Logger log = LoggerFactory.getLogger(Router.class);
 
@@ -39,16 +37,33 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final Collection<NettyHandler> handlers;
 
     Router(NettyHandler... handlers) {
+        this(Arrays.asList(handlers));
+    }
 
-        this.handlers = Arrays.asList(handlers);
+    Router(Collection<NettyHandler> handlers) {
+
+        this.handlers = List.copyOf(handlers);
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
 
-        Instant start = Instant.now();
-        Handling response = response(ctx, req);
-        log(req, response, duration(start));
+        if (HttpUtil.is100ContinueExpected(req)) {
+            respond(ctx, TO_BE_CONTINUED);
+        }
+        handle(ctx, req, handler(ctx));
+    }
+
+    private Function<WebPath, Optional<Handling>> handler(ChannelHandlerContext ctx) {
+
+        return webPath ->
+            handlers.stream()
+                .filter(handler ->
+                    handler.couldHandle(webPath))
+                .map(handler ->
+                    handler.handleRequest(webPath, ctx))
+                .filter(Handling::isHandled)
+                .findFirst();
     }
 
     @Override
@@ -69,16 +84,48 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private void log(FullHttpRequest req, Handling handling, long ms) {
+    private static void handle(
+        ChannelHandlerContext ctx,
+        FullHttpRequest req,
+        Function<WebPath, Optional<Handling>> handler
+    ) {
 
-        HttpResponse response = handling.getSentResponse();
-        if (ROUTED.add(req.uri())) {
-            log.info("{} -> {} in {}ms",
-                req.uri(), response.status(), ms);
+        Instant start = Instant.now();
+        try {
+            WebPath.from(req)
+                .flatMap(handler)
+                .ifPresentOrElse(
+                    handling ->
+                        reportHandled(handling, req, start),
+                    () -> {
+                        logError(req, null, durationSince(start));
+                        respond(ctx, BAD_REQUEST);
+                    });
+        } catch (Exception e) {
+            logError(req, e, durationSince(start));
+            respond(ctx, INTERNAL_SERVER_ERROR);
         }
     }
 
-    private long duration(Instant start) {
+    private static void reportHandled(Handling handling, FullHttpRequest req, Instant start) {
+
+        log(req, handling, durationSince(start));
+    }
+
+    private static void logError(FullHttpRequest req, Exception e, long ms) {
+
+        log.error("Failed [{}ms]: {}", ms, req, e);
+    }
+
+    private static void log(FullHttpRequest req, Handling response, long ms) {
+
+        if (ROUTED.add(req.uri())) {
+            log.info("{} -> {} in {}ms",
+                req.uri(), response.getSentResponse().status(), ms);
+        }
+    }
+
+    private static long durationSince(Instant start) {
 
         return Duration.between(start, Instant.now()).toMillis();
     }
@@ -107,34 +154,6 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         return e.getMessage().contains(sslHandshakeExceptionClass.getName());
     }
 
-    private Handling response(ChannelHandlerContext ctx, FullHttpRequest req) {
-
-        if (HttpUtil.is100ContinueExpected(req)) {
-            return toBeContinued(ctx);
-        }
-        String uri = req.uri();
-        if (uri == null || uri.isBlank()) {
-            return respond(ctx, BAD_REQUEST);
-        }
-        WebPath webPath = WebPath.build(uri);
-
-        try {
-            return handlers.stream()
-                .filter(handler ->
-                    handler.couldHandle(webPath))
-                .map(handler ->
-                    handler.handle(req, webPath, ctx))
-                .filter(
-                    Handling::isDone)
-                .findFirst()
-                .orElseGet(() ->
-                    respond(ctx, INTERNAL_SERVER_ERROR));
-        } catch (Exception e) {
-            log.error("Failed: {}", req, e);
-            return respond(ctx, INTERNAL_SERVER_ERROR);
-        }
-    }
-
     private String addr(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {
 
         return Optional.of(ctx)
@@ -142,12 +161,5 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             .map(remoteAddress)
             .map(Objects::toString)
             .orElse("?");
-    }
-
-    private static Handling toBeContinued(ChannelHandlerContext ctx) {
-
-        HttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
-        ctx.write(res);
-        return Handling.sentResponse(res);
     }
 }

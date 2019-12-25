@@ -1,9 +1,9 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.http.*;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
 public final class Favicon extends NettyHandler {
 
@@ -19,11 +19,12 @@ public final class Favicon extends NettyHandler {
     }
 
     @Override
-    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
         return webCache.get(resource)
-            .map(respondBytes(req, webPath, ctx))
+            .map(bytes ->
+                handle(webPath, ctx, bytes))
             .orElseGet(() ->
-                respond(ctx, HttpResponseStatus.SERVICE_UNAVAILABLE));
+                handle(ctx, NOT_FOUND));
     }
 }

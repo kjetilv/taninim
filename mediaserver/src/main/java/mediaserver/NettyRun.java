@@ -30,8 +30,11 @@ final class NettyRun {
         listenGroup = new NioEventLoopGroup(listen);
     }
 
-    void run(Supplier<Router> routerProvider, int port, SslContext sslContext) {
-
+    void run(
+        Supplier<Router> routerProvider,
+        @SuppressWarnings("SameParameterValue") int port,
+        SslContext sslContext
+    ) {
         try {
             ChannelInitializer<SocketChannel> handler =
                 new ServerInitializer(routerProvider, sslContext);

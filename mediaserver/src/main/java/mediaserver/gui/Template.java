@@ -47,17 +47,17 @@ public final class Template {
         return this.bytes.get();
     }
 
-    Template add(QPar param, Optional<?> value) {
+    public Template add(QPar param, Optional<?> value) {
 
         return add(param, value.orElse(null));
     }
 
-    Template add(QPar param, Object value) {
+    public Template add(QPar param, Object value) {
 
         return add(param.getName(), value);
     }
 
-    Template add(String name, Object value) {
+    public Template add(String name, Object value) {
 
         if (value != null) {
             st.add(name, value);

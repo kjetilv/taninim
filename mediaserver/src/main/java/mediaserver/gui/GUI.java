@@ -1,8 +1,6 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
 import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.Sessions;
@@ -30,18 +28,18 @@ public final class GUI extends TemplateEnabled {
     }
 
     @Override
-    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return template(req, webPath, media.get())
+        return template(webPath, media.get())
             .map(template ->
-                respond(req, ctx, template))
+                respond(webPath, ctx, template))
             .orElseGet(() ->
-                respond(ctx, NOT_FOUND));
+                handle(ctx, NOT_FOUND));
     }
 
-    private Optional<Template> template(HttpRequest req, WebPath webPath, Media media) {
+    private Optional<Template> template(WebPath webPath, Media media) {
 
-        QPars pars = webPath.qpars();
+        QPars pars = webPath.getQueryParameters();
 
         if (webPath.hasPrefix(LOGIN)) {
             return Optional.of(login());
@@ -51,15 +49,15 @@ public final class GUI extends TemplateEnabled {
             return pars.apply(QPar.ALBUM)
                 .flatMap(media::getAlbum)
                 .map(album ->
-                    album(req, media, album, pars))
+                    album(webPath, media, album, pars))
                 .or(() ->
-                    index(req, media, pars));
+                    index(webPath, media, pars));
         }
 
-        return index(req, media, pars);
+        return index(webPath, media, pars);
     }
 
-    private Optional<Template> index(HttpRequest req, Media media, QPars pars) {
+    private Optional<Template> index(WebPath webPath, Media media, QPars pars) {
 
         Artist artist =
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
@@ -73,18 +71,18 @@ public final class GUI extends TemplateEnabled {
             return Optional.empty();
         }
 
-        return Optional.of(index()
-            .add(QPar.USER, sessions.activeUser(req))
+        return Optional.of(indexTemplate()
+            .add(QPar.USER, sessions.activeUser(webPath))
             .add(QPar.MEDIA, submedia)
             .add(QPar.ARTIST, artist));
     }
 
-    private Template album(HttpRequest req, Media media, Album album, QPars pars) {
+    private Template album(WebPath webPath, Media media, Album album, QPars pars) {
 
         Optional<Track> track = pars.apply(QPar.TRACK).flatMap(media::getTrack);
 
-        return album()
-            .add(QPar.USER, sessions.activeUser(req))
+        return albumTemplate()
+            .add(QPar.USER, sessions.activeUser(webPath))
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAY_TRACK, track.orElse(null))

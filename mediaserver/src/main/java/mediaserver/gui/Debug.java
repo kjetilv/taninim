@@ -1,7 +1,6 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
 import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
 import mediaserver.http.Prefix;
@@ -19,9 +18,9 @@ public final class Debug extends NettyHandler {
     }
 
     @Override
-    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        log.info("Request receieved @ {}: {}", webPath, req);
-        return Handling.pass();
+        log.info("Request receieved @ {}: {}", webPath, webPath.getReq());
+        return pass();
     }
 }

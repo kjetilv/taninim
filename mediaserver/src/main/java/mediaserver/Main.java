@@ -27,6 +27,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -37,11 +38,13 @@ public final class Main {
 
     private static final OnceEvery ONCE_EVERY = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
-    private static final Duration SESSION_LENGTH = Duration.ofDays(1);
+    private static final Duration SESSION_LENGTH = duration("sessionLength", Duration.ofDays(1));
 
-    private static final Duration INACTIVITY_MAX = Duration.ofHours(1);
+    private static final Duration INACTIVITY_MAX = duration("inactivityMax", Duration.ofHours(1));
 
-    private static final Clock CET = Clock.system(ZoneId.of("CET"));
+    private static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(5));
+
+    private static final Clock CET = Clock.system(ZoneId.of(setting("timeZone").orElse("CET")));
 
     private static final String RES = "res";
 
@@ -49,59 +52,63 @@ public final class Main {
 
     private static final String FB_SEC = "fbSec";
 
-    private static final Duration REFRESH_TIME = Duration.ofMinutes(5);
-
-    private static final boolean DEV = isTrue("dev");
+    private static final boolean DEV_LOGIN = isTrue("dev");
 
     private static final boolean LIVE = isTrue("live");
 
-    private static final boolean NEUTER = !(LIVE || DEV);
+    private static final boolean NEUTER = !(LIVE || DEV_LOGIN);
 
     private static final boolean PRETEND_SSL = isTrue("ssl");
 
     private static final String FAVICON_ICO = RES + "/favicon.ico";
 
     private static final int PORT = PRETEND_SSL ? 1443
-        : DEV ? 1080
+        : DEV_LOGIN ? 1080
         : 80;
 
     public static void main(String[] args) {
 
         boolean local = local(args);
+        boolean devLogin = DEV_LOGIN && local;
+        boolean noStream = NEUTER;
 
         log.info(
-            "Running in {}{} mode, streaming {}abled",
-            local ? "local" : "cloud",
-            DEV ? " dev" : "",
-            NEUTER ? "dis" : "en");
+            "Running in {}{}, streaming {}abled",
+            local ? "local mode" : "the cloud",
+            devLogin ? " with dev login" : "",
+            noStream ? "dis" : "en");
 
-        SslContext mockSslContext = PRETEND_SSL && (DEV || local) ? mockSslContext() : null;
+        SslContext mockSslContext = PRETEND_SSL && devLogin ? mockSslContext() : null;
 
         Supplier<Ids> ids = idsSupplier(args, local);
         Supplier<Media> media = mediaSupplier(args, local);
         Sessions sessions =
-            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, CET, DEV && !PRETEND_SSL);
-
+            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, CET, devLogin);
         WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
         Templater templater = new Templater();
 
-        Supplier<Router> routerProvider = () ->
+        Streamer streamer = noStream
+            ? new NullStreamer()
+            : streamer(local, media, sessions);
+
+        Supplier<Router> router = () ->
             new Router(
+                streamer,
                 new Debug(),
                 new Gatekeeper(sessions, templater),
-                new Login(templater),
                 new FbUnauth(sessions),
                 new FbAuth(sessions, ids, secretsProvider()),
-                new PlaylistsM3U(media, templater),
                 new Resources(RES, webCache),
                 new Favicon(webCache, FAVICON_ICO),
-                streamer(media, local, sessions),
+                new Login(templater),
+                new PlaylistsM3U(media, templater, !(devLogin || local)),
                 new GUI(media, sessions, templater),
                 new Fail());
 
         log.info("Binding to port {}", PORT);
 
-        new NettyRun(4, 1).run(routerProvider, PORT, mockSslContext);
+        new NettyRun(4, 1)
+            .run(router, PORT, mockSslContext);
     }
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
@@ -144,6 +151,18 @@ public final class Main {
             log.warn("Failed to check modified time of {}", mediaFile(args));
             return Optional.empty();
         }
+    }
+
+    private static Duration duration(String setting, Duration defaultDuration) {
+
+        return setting(setting)
+            .map(Duration::parse)
+            .orElse(defaultDuration);
+    }
+
+    private static Optional<String> setting(String setting) {
+
+        return Optional.ofNullable(System.getProperty(setting, System.getenv(setting)));
     }
 
     private static boolean isTrue(String flag) {
@@ -231,10 +250,10 @@ public final class Main {
         return () -> IO.getProperty(FB_SEC).toCharArray();
     }
 
-    private static NettyHandler streamer(Supplier<Media> media, boolean local, Sessions sessions) {
+    private static Streamer streamer(boolean local, Supplier<Media> media, Sessions sessions) {
 
-        return Main.NEUTER ? new NullStreamer(media, sessions)
-            : local ? new FileStreamer(media, sessions)
+        return local
+            ? new FileStreamer(media, sessions)
             : new S3Streamer(media, sessions);
     }
 }

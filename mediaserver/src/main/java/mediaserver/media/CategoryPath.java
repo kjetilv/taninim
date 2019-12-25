@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 public final class CategoryPath extends AbstractHashable
     implements Comparable<CategoryPath>, Serializable {
 
-    public static final CategoryPath ROOT = new CategoryPath(Collections.emptyList());
-
     private final List<String> path;
 
     private static final long serialVersionUID = -9183177927504274533L;

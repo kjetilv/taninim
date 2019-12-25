@@ -1,7 +1,11 @@
 package flacsefugl
 
+import mediaserver.gui.Template
+import mediaserver.http.QPar
 import mediaserver.media.CustomCategory
 import mediaserver.media.Media
+import mediaserver.media.PlaylistM3U
+import mediaserver.util.IO
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -107,7 +111,7 @@ fun main() {
             }
         }
     } else {
-        println("Walkman not connected @ $walkDir")
+        println("Walkman not connected for files @ $walkmanConnectDir")
     }
 
     val media = Media.local(
@@ -116,6 +120,27 @@ fun main() {
             Path.of("mediaserver", "src", "main", "resources"))
 
     println("Media: $media")
+
+    if (Files.isDirectory(walkmanConnectDir)) {
+        val source = IO.read("playlist.m3u8").unpack().orElseThrow {
+            ->
+            IllegalStateException("No source @ playlist.m3u8")
+        }
+        val sourceDir = Path.of(System.getProperty("user.home"), "FLAC")
+        val musicDir = walkmanConnectDir.resolve("MUSIC")
+        media.playlists.forEach { playlist ->
+            val playlistM3U = PlaylistM3U(playlist.name, playlist.tracks).move(sourceDir)
+            val template = Template(playlist.name, source)
+            val bytes = template.add(QPar.PLAYLIST, playlistM3U).bytes()
+            val replacedName =
+                    playlist.name.replace('/', ' ') + ".M3U8"
+            val target = musicDir.resolve(replacedName)
+            Files.write(target, bytes);
+            println("Playlist: ${playlist.name}: $target")
+        }
+    } else {
+        println("Walkman not connected for playlists @ $walkmanConnectDir")
+    }
 
 //    media.playlists.
 }

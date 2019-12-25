@@ -1,10 +1,7 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import mediaserver.http.Handling;
-import mediaserver.http.NettyHandler;
-import mediaserver.http.Prefix;
+import mediaserver.http.*;
 
 public abstract class TemplateEnabled extends NettyHandler {
 
@@ -33,18 +30,18 @@ public abstract class TemplateEnabled extends NettyHandler {
         return templater.template(LOGIN_PAGE);
     }
 
-    protected Template index() {
+    protected Template indexTemplate() {
 
         return templater.template(INDEX_PAGE);
     }
 
-    protected Template album() {
+    protected Template albumTemplate() {
 
         return templater.template(ALBUM_PAGE);
     }
 
-    protected Handling respond(FullHttpRequest req, ChannelHandlerContext ctx, Template t) {
+    protected Handling respond(WebPath webPath, ChannelHandlerContext ctx, Template template) {
 
-        return respond(ctx, response(req, null, TEXT_HTML, t.bytes(), null));
+        return handle(ctx, Netty.response(webPath, TEXT_HTML, template.bytes()));
     }
 }

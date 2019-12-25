@@ -1,14 +1,11 @@
 package mediaserver.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
 import mediaserver.gui.TemplateEnabled;
 import mediaserver.gui.Templater;
 import mediaserver.sessions.Sessions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static mediaserver.http.Handling.pass;
 
 public final class Gatekeeper extends TemplateEnabled {
 
@@ -24,7 +21,6 @@ public final class Gatekeeper extends TemplateEnabled {
 
     @Override
     public Handling handleRequest(
-        FullHttpRequest req,
         WebPath webPath,
         ChannelHandlerContext ctx
     ) {
@@ -33,19 +29,16 @@ public final class Gatekeeper extends TemplateEnabled {
             return pass();
         }
 
-        if (webPath.isAuthenticated()) {
-            return sessions.activeUser(req)
+        if (webPath.requiresAuthentication()) {
+            return sessions.activeUser(webPath)
                 .map(user -> pass())
-                .orElseGet(() -> redirect(webPath, ctx));
+                .orElseGet(() -> {
+                    log.info("Redirecting {} to login", webPath);
+                    return handle(ctx, Netty.redirectResponse(LOGIN.getPref()));
+                });
         }
 
         return pass();
-    }
-
-    private Handling redirect(WebPath webPath, ChannelHandlerContext ctx) {
-
-        log.info("Redirecting {} to login", webPath);
-        return respond(ctx, redirectResponse(LOGIN.getPref()));
     }
 
     @Override

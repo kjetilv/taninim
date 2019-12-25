@@ -11,7 +11,8 @@ public final class PlaylistEntry {
 
     public PlaylistEntry(String spec) {
 
-        this.spec = Arrays.asList(Objects.requireNonNull(spec, "spec").split("\\s+&&\\s+"));
+        this.spec = Arrays.asList(Objects.requireNonNull(spec, "spec")
+            .split("\\s+&&\\s+"));
     }
 
     public boolean albumMatch(Album album) {
@@ -34,10 +35,12 @@ public final class PlaylistEntry {
         return match(name, this::isTrack);
     }
 
-    private boolean match(String name, Predicate<String> isAlbum) {
+    private boolean match(String name, Predicate<String> type) {
 
-        return spec.stream().filter(isAlbum).anyMatch(part ->
-            name.toLowerCase().contains(part.toLowerCase()));
+        return spec.stream()
+            .filter(type)
+            .anyMatch(part ->
+                name.toLowerCase().contains(part.toLowerCase()));
     }
 
     private boolean isArtist(String part) {

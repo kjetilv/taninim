@@ -3,16 +3,11 @@ package mediaserver.gui;
 import com.restfb.*;
 import com.restfb.types.User;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
-import mediaserver.http.Handling;
-import mediaserver.http.NettyHandler;
-import mediaserver.http.Prefix;
-import mediaserver.http.WebPath;
+import mediaserver.http.*;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
@@ -20,8 +15,8 @@ import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class FbAuth extends NettyHandler {
@@ -43,41 +38,38 @@ public final class FbAuth extends NettyHandler {
     }
 
     @Override
-    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return sessions.activeUser(req)
+        return sessions.activeUser(webPath)
             .map(user ->
-                respond(ctx, HttpResponseStatus.OK))
+                handle(ctx, HttpResponseStatus.OK))
             .orElseGet(() ->
-                lookupFacebookUser(req)
-                    .map(user ->
-                        login(req, ctx, user))
-                    .orElseGet(Handling::pass));
+                lookupFacebookUser(webPath)
+                    .map(login(webPath, ctx))
+                    .orElseGet(this::pass));
     }
 
-    private Handling login(HttpRequest req, ChannelHandlerContext ctx, FacebookUser facebookUser) {
+    private Function<FacebookUser, Handling> login(WebPath webPath, ChannelHandlerContext ctx) {
 
-        if (ids.get().isAuthorized(facebookUser)) {
-
-            Session session = sessions.establish(facebookUser);
-            HttpResponse response = authCookieResponse(req, session, authCookie(session));
-            return respond(ctx, response);
-        }
-
-        log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
-        return respond(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);
+        return user -> {
+            if (ids.get().isAuthorized(user)) {
+                Session session = sessions.establish(user);
+                HttpResponse response =
+                    Netty.authCookieResponse(webPath, Netty.authCookie(session));
+                return handle(ctx, response);
+            }
+            log.warn("Unknown user attempted login: {}/{}", user.getName(), user.getId());
+            return handle(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);
+        };
     }
 
-    private Optional<FacebookUser> lookupFacebookUser(FullHttpRequest req) {
+    private Optional<FacebookUser> lookupFacebookUser(WebPath webPath) {
 
-        return Optional.of(req.content())
-            .map(content ->
-                content.toString(StandardCharsets.UTF_8))
+        return webPath.getContent()
             .map(json -> {
-                String input = req.content().toString(StandardCharsets.UTF_8);
-                FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, input);
-                FacebookClient fc = facebookClient(authResponse);
-                User user = fc.fetchObject(authResponse.getUserID(), User.class);
+                FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
+                User user = facebookClient(authResponse)
+                    .fetchObject(authResponse.getUserID(), User.class);
                 return new FacebookUser(user.getName(), user.getId());
             });
     }

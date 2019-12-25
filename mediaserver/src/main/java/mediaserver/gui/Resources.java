@@ -1,7 +1,6 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
 import mediaserver.http.*;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
@@ -20,11 +19,12 @@ public final class Resources extends NettyHandler {
     }
 
     @Override
-    public Handling handleRequest(FullHttpRequest req, WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
         return cache.get(resourcePrefix + webPath.getPath())
-            .map(respondBytes(req, webPath, ctx))
+            .map(bytes ->
+                handle(webPath, ctx, bytes))
             .orElseGet(() ->
-                respond(ctx, NOT_FOUND));
+                handle(ctx, NOT_FOUND));
     }
 }

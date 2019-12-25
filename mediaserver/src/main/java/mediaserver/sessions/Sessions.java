@@ -1,10 +1,7 @@
 package mediaserver.sessions;
 
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import mediaserver.externals.FacebookUser;
-import mediaserver.gui.GUI;
+import mediaserver.http.WebPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +10,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
-
-import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
 
 public final class Sessions {
 
@@ -29,16 +23,16 @@ public final class Sessions {
 
     private final Clock clock;
 
-    private final boolean dev;
+    private final boolean devLogin;
 
-    public Sessions(Duration sessionLength, Duration inactivityMax, Clock clock, boolean dev) {
+    public Sessions(Duration sessionLength, Duration inactivityMax, Clock clock, boolean devLogin) {
 
         this.sessionLength = sessionLength;
         this.inactivityMax = inactivityMax;
         this.clock = clock;
-        this.dev = dev;
-        if (this.dev) {
-            log.warn("{} started in dev mode", this);
+        this.devLogin = devLogin;
+        if (this.devLogin) {
+            log.warn("{} will allow login as dev", this);
         }
     }
 
@@ -58,14 +52,9 @@ public final class Sessions {
         });
     }
 
-    public Optional<FacebookUser> activeUser(HttpRequest req) {
+    public Optional<FacebookUser> activeUser(WebPath webPath) {
 
-        return cookies(req)
-            .filter(cookie ->
-                cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
-            .map(cookie ->
-                UUID.fromString(cookie.value()))
-            .findFirst()
+        return webPath.getAuthentication()
             .flatMap(this::userFor)
             .or(this::devUser);
     }
@@ -79,23 +68,14 @@ public final class Sessions {
             .map(Session::getFacebookUser);
     }
 
-    private Stream<Cookie> cookies(HttpRequest req) {
+    public Optional<Session> close(WebPath webPath) {
 
-        return Optional.of(req.headers())
-            .map(headers -> headers.get(COOKIE))
-            .map(ServerCookieDecoder.STRICT::decode)
-            .stream()
-            .flatMap(Collection::stream);
-    }
-
-    public Optional<Session> close(HttpRequest req) {
-
-        return activeUser(req).map(sessions::remove);
+        return activeUser(webPath).map(sessions::remove);
     }
 
     private Optional<FacebookUser> devUser() {
 
-        if (dev) {
+        if (devLogin) {
             FacebookUser devUser = new FacebookUser("dev", "dev");
             log.warn("Returning dev user: {}", devUser);
             return Optional.of(devUser);

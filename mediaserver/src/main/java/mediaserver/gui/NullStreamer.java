@@ -2,26 +2,23 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.externals.FacebookUser;
-import mediaserver.media.Media;
+import mediaserver.http.WebPath;
 import mediaserver.media.Track;
-import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public final class NullStreamer extends Streamer {
 
-    public NullStreamer(Supplier<Media> media, Sessions sessions) {
+    public NullStreamer() {
 
-        super(media, sessions);
+        super(null, null);
     }
 
     @Override
     protected Optional<ChannelFuture> stream(
-        HttpRequest req,
+        WebPath webPath,
         FacebookUser user,
         Track track,
         ChannelHandlerContext ctx,
