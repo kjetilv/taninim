@@ -15,9 +15,10 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
 
     private static final int KILO = 1_000;
 
-    private static final int MEGA = 1_000_000;
+    private static final int MEGA = KILO * KILO;
 
     ProgressListener(Object source) {
+
         this.source = source;
     }
 
@@ -40,6 +41,7 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
 
     @Override
     public void operationComplete(ChannelProgressiveFuture future) {
-        log.info("{} OK {}", future.channel(), source);
+
+        log.info("{} OK {}", future, source);
     }
 }
