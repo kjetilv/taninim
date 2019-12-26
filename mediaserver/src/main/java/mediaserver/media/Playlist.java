@@ -4,6 +4,7 @@ import mediaserver.hash.AbstractNameHashable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Playlist extends AbstractNameHashable {
 
@@ -39,6 +40,7 @@ public final class Playlist extends AbstractNameHashable {
     }
 
     public Collection<Track> getTracks() {
+
         return tracks.values().stream()
             .flatMap(albumTracks ->
                 albumTracks.stream()
@@ -54,5 +56,40 @@ public final class Playlist extends AbstractNameHashable {
     public boolean isEmpty() {
 
         return tracks.isEmpty();
+    }
+
+    public static Collection<Playlist> playlistsWith(Album... albums) {
+
+        return playlistsWith(Arrays.asList(albums));
+    }
+
+    public static Collection<Playlist> playlistsWith(Stream<Album> albums) {
+
+        return playlistsWith(albums.collect(Collectors.toList()));
+    }
+
+    public static Collection<Playlist> playlistsWith(Collection<Album> albums) {
+
+        return CustomCategory.ALL.stream()
+            .map(customCategory ->
+                toPlaylistWith(customCategory, albums))
+            .filter(playlist ->
+                !playlist.isEmpty())
+            .collect(Collectors.toList());
+    }
+
+    private static Playlist toPlaylistWith(CustomCategory customCategory, Collection<Album> albums) {
+
+        return albums.stream()
+            .filter(customCategory::contains)
+            .reduce(
+                playlist(customCategory),
+                Playlist::add,
+                Playlist::add);
+    }
+
+    private static Playlist playlist(CustomCategory customCategory) {
+
+        return new Playlist(customCategory.getPath().toString());
     }
 }

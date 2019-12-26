@@ -30,7 +30,7 @@ public final class Gatekeeper extends TemplateEnabled {
         }
 
         if (webPath.requiresAuthentication()) {
-            return sessions.activeUser(webPath)
+            return sessions.activeSession(webPath)
                 .map(user -> pass())
                 .orElseGet(() -> {
                     log.info("Redirecting {} to login", webPath);

@@ -3,13 +3,12 @@ package mediaserver.media;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class PlaylistEntry {
-
-    private final Collection<Matcher> spec;
 
     private final Collection<Matcher> artistSpecs;
 
@@ -19,40 +18,66 @@ public final class PlaylistEntry {
 
     public PlaylistEntry(String spec) {
 
-        this.spec = Arrays.stream(Objects.requireNonNull(spec, "spec").split("\\s+&&\\s+"))
-            .map(Matcher::new)
-            .collect(Collectors.toList());
-        this.artistSpecs = this.spec.stream().filter(m -> m.getType() == MatchType.ARTIST).collect(Collectors.toList());
-        this.albumSpecs = this.spec.stream().filter(m -> m.getType() == MatchType.ALBUM).collect(Collectors.toList());
-        this.trackSpecs = this.spec.stream().filter(m -> m.getType() == MatchType.TRACK).collect(Collectors.toList());
+        Collection<Matcher> specs = Arrays.stream(Objects.requireNonNull(spec, "spec")
+            .split("\\s+&&\\s+")
+        ).map(Matcher::new).collect(Collectors.toList());
+        this.artistSpecs = specs(specs, MatchType.ARTIST);
+        this.albumSpecs = specs(specs, MatchType.ALBUM);
+        this.trackSpecs = specs(specs, MatchType.TRACK);
     }
 
     public boolean match(Album album) {
+
         return artistMatch(album.getArtist().getName()) && albumMatch(album.getName());
     }
 
     public boolean match(Path path) {
+        return artistMatch(artist(path)) &&
+            albumMatch(album(path)) &&
+            trackMatch(track(path));
+    }
 
-        String artist = path.getParent().getParent().getFileName().toString();
-        String album = path.getParent().getFileName().toString();
-        String track = path.getFileName().toString();
+    private static String track(Path path) {
 
-        return artistMatch(artist) && albumMatch(album) && trackMatch(track);
+        return path.getFileName().toString();
+    }
+
+    private static String album(Path path) {
+
+        return path.getParent().getFileName().toString();
+    }
+
+    private static String artist(Path path) {
+
+        return path.getParent().getParent().getFileName().toString();
+    }
+
+    private static List<Matcher> specs(Collection<Matcher> spec, MatchType artist) {
+
+        return spec.stream()
+            .filter(m ->
+                m.getType() == artist)
+            .collect(Collectors.toList());
     }
 
     private boolean trackMatch(String track) {
 
-        return trackSpecs.isEmpty() || trackSpecs.stream().allMatch(m -> m.test(track));
+        return match(track, trackSpecs);
     }
 
     private boolean albumMatch(String album) {
 
-        return albumSpecs.isEmpty() || albumSpecs.stream().allMatch(m -> m.test(album));
+        return match(album, this.albumSpecs);
     }
 
     private boolean artistMatch(String artist) {
 
-        return artistSpecs.isEmpty() || artistSpecs.stream().allMatch(m -> m.test(artist));
+        return match(artist, artistSpecs);
+    }
+
+    private static boolean match(String album, Collection<Matcher> albumSpecs) {
+
+        return albumSpecs.isEmpty() || albumSpecs.stream().allMatch(m -> m.test(album));
     }
 
     enum MatchType {

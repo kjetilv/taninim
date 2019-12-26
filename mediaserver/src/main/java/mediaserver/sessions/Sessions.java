@@ -8,8 +8,12 @@ import org.slf4j.LoggerFactory;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public final class Sessions {
 
@@ -25,6 +29,8 @@ public final class Sessions {
 
     private final boolean devLogin;
 
+    private static final FacebookUser DEV_USER = new FacebookUser("dev", "dev");
+
     public Sessions(Duration sessionLength, Duration inactivityMax, Clock clock, boolean devLogin) {
 
         this.sessionLength = sessionLength;
@@ -38,47 +44,66 @@ public final class Sessions {
 
     public Session establish(FacebookUser user) {
 
-        return sessions.compute(user, (facebookUser, oldSession) -> {
+        return sessions.compute(user, (__, oldSession) -> {
 
-            Instant currentTime = this.now();
-            if (oldSession == null || oldSession.expiredAt(currentTime)) {
-                Session session = new Session(
-                    facebookUser, UUID.randomUUID(), currentTime, cutoff(currentTime), inactivityMax);
-                log.info("{}: New session {}, previous: {}", facebookUser, session, oldSession);
-                return session;
+            Instant time = this.now();
+            if (activeAt(time, oldSession)) {
+                log.info("Active: {}", oldSession);
+                return oldSession.accessedAt(time);
             }
-            log.info("{} reused session: {}", facebookUser, oldSession);
-            return oldSession.accessedAt(currentTime);
+            Session newSession = newSessionAt(time, user);
+            log.info("Created: {} <= {}", newSession, oldSession);
+            return newSession;
         });
     }
 
-    public Optional<FacebookUser> activeUser(WebPath webPath) {
+    public Optional<Session> activeSession(WebPath webPath) {
 
         return webPath.getAuthentication()
-            .flatMap(this::userFor)
-            .or(this::devUser);
-    }
-
-    private Optional<FacebookUser> userFor(UUID uuid) {
-
-        return sessions.values().stream()
-            .filter(session ->
-                Objects.equals(uuid, session.getCookie()))
-            .findFirst()
-            .map(Session::getFacebookUser);
+            .flatMap(this::sessionFor)
+            .or(this::devSession);
     }
 
     public Optional<Session> close(WebPath webPath) {
 
-        return activeUser(webPath).map(sessions::remove);
+        return activeSession(webPath).map(Session::getFacebookUser).map(sessions::remove);
     }
 
-    private Optional<FacebookUser> devUser() {
+    private boolean activeAt(Instant currentTime, Session oldSession) {
+
+        return oldSession != null && !oldSession.expiredAt(currentTime);
+    }
+
+    private Session newSessionAt(Instant currentTime, FacebookUser facebookUser) {
+
+        UUID cookie = UUID.randomUUID();
+        return new Session(
+            facebookUser,
+            cookie,
+            currentTime,
+            currentTime.plus(sessionLength),
+            inactivityMax);
+    }
+
+    private Optional<Session> sessionFor(UUID uuid) {
+
+        return sessions.values().stream()
+            .filter(withCookie(uuid))
+            .findFirst();
+    }
+
+    private Predicate<Session> withCookie(UUID uuid) {
+
+        return session ->
+            Objects.equals(session.getCookie(), uuid);
+    }
+
+    private Optional<Session> devSession() {
 
         if (devLogin) {
-            FacebookUser devUser = new FacebookUser("dev", "dev");
-            log.warn("Returning dev user: {}", devUser);
-            return Optional.of(devUser);
+            Session session = newSessionAt(clock.instant(), DEV_USER);
+            log.warn("Established dev session: {}", session);
+            return Optional.of(session);
         }
         return Optional.empty();
     }
@@ -86,11 +111,6 @@ public final class Sessions {
     private Instant now() {
 
         return clock.instant();
-    }
-
-    private Instant cutoff(Instant time) {
-
-        return time.plus(sessionLength);
     }
 
     @Override

@@ -77,7 +77,16 @@ public final class WebPath {
 
     public String getPath() {
 
-        return path;
+        return getPath(false);
+    }
+
+    public String getPath(boolean unslash) {
+
+        String p = path;
+        while (unslash && p.startsWith("/")) {
+            p = p.substring(1);
+        }
+        return p;
     }
 
     public String getUri() {
@@ -91,6 +100,7 @@ public final class WebPath {
     }
 
     public String header(AsciiString header) {
+
         return header(header.toString());
     }
 
@@ -105,6 +115,11 @@ public final class WebPath {
     public String getContentType() {
 
         return contentType.get();
+    }
+
+    public Optional<UUID> get(QPar queryParameter) {
+
+        return getQueryParameters().apply(queryParameter);
     }
 
     public QPars getQueryParameters() {
@@ -166,7 +181,7 @@ public final class WebPath {
             : URLs.queryParams(uri.substring(queryIndex + 1));
     }
 
-    private static Optional<UUID> authentication(HttpRequest req) {
+    private Optional<UUID> authentication(HttpRequest req) {
 
         return Optional.of(req.headers())
             .map(headers ->
@@ -178,12 +193,13 @@ public final class WebPath {
                 cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
             .map(cookie ->
                 UUID.fromString(cookie.value()))
-            .findFirst();
+            .findFirst()
+            .or(() -> get(QPar.STREAMLEASE));
     }
 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + prefix.getPref() + (path.isBlank() ? "" : "/" + path) + "]";
+        return getClass().getSimpleName() + "[" + prefix.getPref() + path + "]";
     }
 }

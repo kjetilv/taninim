@@ -5,5 +5,5 @@
 #EXTALB: {track.album}
 #EXTART: {track.artist.name}
 #EXTINF:{track.seconds};{track.prettyTrackNo} {track.name}
-{protocol}://{host}/audio/{track.uuid}.m4a
+{protocol}://{host}/audio/{track.uuid}?streamlease={streamlease}
 }}

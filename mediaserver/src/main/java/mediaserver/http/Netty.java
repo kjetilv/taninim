@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
+import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -115,7 +116,7 @@ public final class Netty {
 
         HttpHeaders headers = new DefaultHttpHeaders();
         if (contentType != null) {
-            headers.set(CONTENT_TYPE, content);
+            headers.set(CONTENT_TYPE, contentType);
         } else if (webPath != null) {
             headers.set(CONTENT_TYPE, webPath.getContentType());
         }
@@ -150,11 +151,7 @@ public final class Netty {
             moreHeaders.accept(headers::set);
         }
         return new DefaultFullHttpResponse(
-            HTTP,
-            HttpResponseStatus.FOUND,
-            Unpooled.EMPTY_BUFFER,
-            headers.set(LOCATION, location),
-            EmptyHttpHeaders.INSTANCE);
+            HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, location), EmptyHttpHeaders.INSTANCE);
     }
 
     public static HttpResponse authCookieResponse(WebPath webPath, String cookie) {

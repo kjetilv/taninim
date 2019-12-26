@@ -1,4 +1,5 @@
 <!doctype html>
+<!--suppress HtmlUnknownTarget -->
 <HTML lang="no">
 <HEAD>
     <LINK REL="stylesheet" HREF="/res/taninim.css">
@@ -36,37 +37,36 @@
     <A HREF="/unauth">Logg ut!</A>
 </DIV>
 
-<DIV style="float:left">
-    <P>Hei, {user.name}!
-        {if(artist)}
-    <H3>{artist.name} <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A></H3>
-    {endif}
-
-    {length(media.tracks)} spor, {length(media.albums)} plater.
-    Spilletid {media.prettyDuration}.
+<DIV STYLE="float:right">
+    <H3> Serier </H3>
+    <UL>
+        {media.series:{series|
+        <LI><A HREF="?series={series.uuid}">{series.name}</A></LI>
+        }}
+    </UL>
+</DIV>
+<DIV STYLE="float:right">
+    <H3> Spillelister </H3>
+    <UL>
+        {media.playlists:{playlist|
+        <LI><A HREF="/?playlist={playlist.uuid}">{playlist.name}</A></LI>
+        }}
+    </UL>
 </DIV>
 
 <DIV style="clear:left">
-
-    <DIV STYLE="float:right">
-        <H3> Serier </H3>
-
-        <UL>
-            {media.series:{series|
-            <LI><A HREF="?series={series.uuid}">{series.name}</A></LI>
-            }}
-        </UL>
-    </DIV>
-
-    <DIV STYLE="float:right">
-        <H3> Spillelister </H3>
-        <UL>
-            {media.playlists:{playlist|
-            <LI><A HREF="/?playlist={playlist.uuid}">{playlist.name}</A></LI>
-            }}
-        </UL>
-    </DIV>
-
+    <P>Hei, {user.name}!</P>
+    {if(artist)}
+    <P>Artist: <STRONG>{artist.name}&nbsp;<A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A></STRONG></P>
+    {endif}
+    {if(series)}
+    <P>Serie: <STRONG>{series.name}&nbsp;<A TITLE="M3U" HREF="/playlist/series/{series.uuid}">⏬</A></STRONG></P>
+    {endif}
+    {if(playlist)}
+    <P>Spilleliste: <STRONG>{playlist.name}&nbsp;<A TITLE="M3U" HREF="/playlist/{playlist.uuid}">⏬</A></STRONG></P>
+    {endif}
+    <P>{length(media.albums)} plater, {length(media.tracks)} spor.</P>
+    <P> Spilletid {media.prettyDuration}.</P>
 </DIV>
 
 <DIV STYLE="clear: both">

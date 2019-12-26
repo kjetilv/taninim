@@ -6,7 +6,6 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.gui.*;
 import mediaserver.http.Fail;
 import mediaserver.http.Gatekeeper;
-import mediaserver.http.NettyHandler;
 import mediaserver.http.WebCache;
 import mediaserver.media.CloudMedia;
 import mediaserver.media.Media;
@@ -27,7 +26,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -71,6 +69,7 @@ public final class Main {
         boolean local = local(args);
         boolean devLogin = DEV_LOGIN && local;
         boolean noStream = NEUTER;
+        boolean sslPlaylists = PRETEND_SSL || !devLogin && !local;
 
         log.info(
             "Running in {}{}, streaming {}abled",
@@ -87,23 +86,22 @@ public final class Main {
         WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
         Templater templater = new Templater();
 
-        Streamer streamer = noStream
+        AbstractStreamer streamer = noStream
             ? new NullStreamer()
             : streamer(local, media, sessions);
 
-        Supplier<Router> router = () ->
-            new Router(
-                streamer,
-                new Debug(),
-                new Gatekeeper(sessions, templater),
-                new FbUnauth(sessions),
-                new FbAuth(sessions, ids, secretsProvider()),
-                new Resources(RES, webCache),
-                new Favicon(webCache, FAVICON_ICO),
-                new Login(templater),
-                new PlaylistsM3U(media, templater, !(devLogin || local)),
-                new GUI(media, sessions, templater),
-                new Fail());
+        Supplier<Router> router = () -> new Router(
+            streamer,
+            new Debug(),
+            new Gatekeeper(sessions, templater),
+            new FbUnauth(sessions),
+            new FbAuth(sessions, ids, secretsProvider()),
+            new Resources(RES, webCache),
+            new Favicon(webCache, FAVICON_ICO),
+            new Login(templater),
+            new M3UPlaylists(media, sessions, templater, sslPlaylists),
+            new GUI(media, sessions, templater),
+            new Fail());
 
         log.info("Binding to port {}", PORT);
 
@@ -250,7 +248,7 @@ public final class Main {
         return () -> IO.getProperty(FB_SEC).toCharArray();
     }
 
-    private static Streamer streamer(boolean local, Supplier<Media> media, Sessions sessions) {
+    private static AbstractStreamer streamer(boolean local, Supplier<Media> media, Sessions sessions) {
 
         return local
             ? new FileStreamer(media, sessions)

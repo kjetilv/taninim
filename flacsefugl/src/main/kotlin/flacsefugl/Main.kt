@@ -10,22 +10,23 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
+import java.nio.file.StandardCopyOption.COPY_ATTRIBUTES
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+import java.util.*
 
 fun main() {
     val rootDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/Music/iTunes/iTunes%20Media/Music/"))
-//    val targetDir = Paths.get(".")
     val flacDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/FLAC/John%20Zorn"))
-    val flac2Dir = Paths.get(URI.create(
-            "file://${System.getProperty("user.home")}/FLAC2/John%20Zorn"))
     val m4aDir = Paths.get(URI.create(
             "file://${System.getProperty("user.home")}/M4A/John%20Zorn"))
     val walkmanConnectDir = Paths.get(URI.create(
             "file:///Volumes/WALKMAN"))
-    val walkDir = Paths.get(URI.create(
-            "file:///Volumes/WALKMAN/MUSIC/John%20Zorn"))
+    val musicDir =
+            walkmanConnectDir.resolve("MUSIC")
+    val walkDir =
+            musicDir.resolve("John Zorn")
     val included: (Path) -> Boolean = { path: Path ->
         val name = path.toString().toLowerCase()
         name.endsWith(".m4a") && (
@@ -56,74 +57,43 @@ fun main() {
                 )
     }
 
-    val dirStruct = Conversion(
-            Mover(rootDir, flac2Dir, playlists()),
-            Traverser(rootDir),
-            included)
-
-    dirStruct.convert("flac") { no: Int, total: Int, source: Path, target: Path ->
-        println(target)
-        true;
-    }
-
     val flacConversion = Conversion(
             Mover(rootDir, flacDir, noDists()),
             Traverser(rootDir),
             included)
 
-    flacConversion.convert("flac") { no, total, source, target ->
-        if (no % 100 == 0) {
-            println("$no/$total: ${rootDir.relativize(source)} -> ${flacDir.relativize(target)}")
-        }
-        true
-    }
-
-    flacConversion.convert("flac") { no, total, source, target ->
-        if (no % 100 == 0) {
-            println("$no/$total: ${source.parent.fileName}/${source.fileName}")
-        }
-        if (Files.isRegularFile(target) && Files.size(target) > 0 && !changed(source, target)) {
-            true
-        } else {
+    val flacConversions = flacConversion.convert("flac") { no, total, source, target ->
+        if (shouldUpdate(target, source)) {
             ffmpeg(source, target).await()
         }
     }
+    removeLeftovers(flacConversions, flacDir)
 
-    val m4aConversion = Conversion(
+    val m4aCompression = Conversion(
             Mover(rootDir, m4aDir, noDists()),
             Traverser(rootDir),
             included)
-    m4aConversion.convert("m4a") { no, total, source, target ->
-        if (no % 100 == 0) {
-            println("$no/$total: ${source.parent.fileName}/${source.fileName}")
-        }
-        if (Files.isRegularFile(target) && Files.size(target) > 0 && !changed(source, target)) {
-            true
-        } else {
+
+    val compressions = m4aCompression.convert("m4a") { no, total, source, target ->
+        if (shouldUpdate(target, source)) {
             ffmpegM4a(source, target).await()
         }
     }
+    removeLeftovers(compressions, m4aDir)
 
     if (Files.isDirectory(walkmanConnectDir)) {
-        println("Copying to walkman @ $walkDir")
         Files.createDirectories(walkDir)
-        val mover = Mover(flacDir, walkDir, playlists())
-        Traverser(flacDir).paths { path ->
-            path.toString().endsWith(".flac")
-        }.forEach { path ->
-            val walkFlac = walkDir.resolve(flacDir.relativize(path))
-//                    mover.target(path)
-//            println("Move: $path => ${mover.target(path)}")
-            if (!Files.exists(walkFlac) || Files.size(walkFlac) != Files.size(path) || changed(walkFlac, path)) {
-                val dir = walkFlac.toFile().parentFile
-                if (dir.isDirectory || dir.mkdirs()) {
-                    println("Now walkin: $walkFlac")
-                    Files.copy(path, walkFlac, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING)
-                } else {
-                    throw IllegalStateException("Bad target: $dir")
+        println("Copying to walkman @ $walkDir")
+        val walkmanTransfer = Conversion(
+                Mover(flacDir, walkDir, playlists()),
+                Traverser(flacDir))
+        val transfers =
+                walkmanTransfer.convert() { no: Int, total: Int, source: Path, target: Path ->
+                    if (shouldUpdate(source, target)) {
+                        Files.copy(source, target, COPY_ATTRIBUTES, REPLACE_EXISTING)
+                    }
                 }
-            }
-        }
+        removeLeftovers(transfers, walkDir)
     } else {
         println("Walkman not connected for files @ $walkmanConnectDir")
     }
@@ -139,10 +109,12 @@ fun main() {
         val source = IO.read("playlist.m3u8").unpack().orElseThrow { ->
             IllegalStateException("No source @ playlist.m3u8")
         }
-        val sourceDir = Path.of(System.getProperty("user.home"), "FLAC")
-        val musicDir = walkmanConnectDir.resolve("MUSIC")
         media.playlists.forEach { playlist ->
-            val playlistM3U = PlaylistM3U(playlist.name, playlist.tracks).move(sourceDir)
+            val playlistM3U = PlaylistM3U(playlist.name, playlist.tracks)
+                    .move(musicDir) { track ->
+                        val mover = Mover(flacDir, walkDir, playlists())
+                        Optional.ofNullable(mover.target(track))
+                    }
             val template = Template(playlist.name, source)
             val bytes = template.add(QPar.PLAYLIST, playlistM3U).bytes()
             val replacedName =
@@ -156,32 +128,27 @@ fun main() {
     }
 }
 
+private fun removeLeftovers(conversions: List<Pair<Path, Path>>, targetDir: Path) {
+    val convertedTargets = conversions.map { it.second }
+    val leftoverTargets = Traverser(targetDir).paths().filter { target ->
+        !convertedTargets.contains(target)
+    }
+    leftoverTargets.forEach {
+        Files.delete(it)
+    }
+}
+
+private fun shouldUpdate(target: Path, source: Path) =
+        !Files.isRegularFile(target) || Files.size(target) <= 0 || changed(source, target)
+
+private fun playlists(): List<Dist> =
+        CustomCategory.categories("categories.yaml").map { AlbumsDist(it) }
+
+private fun noDists(): List<Dist> = emptyList()
+
 private fun changed(source: Path, target: Path): Boolean =
         Files.getLastModifiedTime(source).toInstant().isAfter(
                 Files.getLastModifiedTime(target).toInstant())
-
-fun playlists(): List<Dist> =
-        CustomCategory.categories("categories.yaml").map { AlbumsDist(it) }
-
-fun noDists(): List<Dist> = emptyList()
-
-private fun artistContains(name: String): (Path) -> Boolean {
-    return { path ->
-        artist(path).contains(name.toLowerCase())
-    }
-}
-
-private fun artistIs(name: String): (Path) -> Boolean {
-    return { path ->
-        artist(path) == name.toLowerCase()
-    }
-}
-
-private fun albumContains(name: String): (Path) -> Boolean {
-    return { path ->
-        album(path).contains(name.toLowerCase())
-    }
-}
 
 private fun album(path: Path) = path.parent.fileName.toString().toLowerCase()
 
@@ -192,7 +159,6 @@ private fun ffmpeg(source: Path, target: Path): Command = Command(Paths.get(".")
 
 private fun ffmpegM4a(source: Path, target: Path): Command = Command(Paths.get("."),
         "/opt/local/bin/ffmpeg", "-y", "-v", "warning", "-i", absOf(source), "-c:a", "aac", "-b:a", "128k", absOf(target))
-
 
 private fun absOf(source: Path) = source.toFile().absolutePath
 

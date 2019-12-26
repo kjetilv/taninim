@@ -40,11 +40,19 @@
 
 <DIV STYLE="float: right">
     {if(album.series)}
-    <H3>I serien...</H3>
+    <H3>I serie</H3>
 
     <UL>
         {album.series:{series|
         <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
+        }}
+    </UL>
+    {endif}
+    {if(playlists)}
+    <H3>I spilleliste</H3>
+    <UL>
+        {playlists:{playlist|
+        <LI><A HREF="/?playlist={playlist.uuid}">{playlist.name}</A></LI>
         }}
     </UL>
     {endif}

@@ -12,11 +12,6 @@ public final class FacebookUser extends AbstractHashable {
 
     private static final long serialVersionUID = 6897348983612649711L;
 
-    public FacebookUser(String name) {
-
-        this(name, name);
-    }
-
     public FacebookUser(String name, String id) {
 
         this.name = name;

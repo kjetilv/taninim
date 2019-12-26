@@ -12,7 +12,7 @@ class Traverser(
                 !selector.invoke(it)
             }
 
-    fun paths(selector: (Path) -> Boolean): List<Path> {
+    fun paths(selector: (Path) -> Boolean = { true }): List<Path> {
         val dir = root.toFile()
         if (!(dir.exists() && dir.isDirectory)) {
             throw IllegalStateException("Not a good root dir: $dir")

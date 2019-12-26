@@ -9,6 +9,8 @@ public enum QPar {
 
     PLAYLIST,
 
+    PLAYLISTS,
+
     ALBUM,
 
     ARTIST,
@@ -25,7 +27,9 @@ public enum QPar {
 
     HOST,
 
-    PROTOCOL, STREAMLEASE;
+    PROTOCOL,
+
+    STREAMLEASE;
 
     private final String name;
 

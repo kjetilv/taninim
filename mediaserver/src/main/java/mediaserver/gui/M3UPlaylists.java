@@ -1,8 +1,11 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.*;
 import mediaserver.media.*;
+import mediaserver.sessions.Session;
+import mediaserver.sessions.Sessions;
 
 import java.util.Collection;
 import java.util.Map;
@@ -13,41 +16,58 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
-public final class PlaylistsM3U extends TemplateEnabled {
+public final class M3UPlaylists extends TemplateEnabled {
 
     private final Supplier<Media> media;
+
+    private final Sessions sessions;
 
     private final boolean https;
 
     private final Map<String, Function<UUID, Optional<Template>>> providers =
         Map.of(
+            "/artist/", this::artistPlaylist,
             "/album/", this::albumSublibrary,
             "/playlist/", this::playlistSublibrary,
-            "/artist/", this::artistPlaylist,
-            "/series", this::seriesSublibrary);
+            "/series/", this::seriesSublibrary);
 
-    public PlaylistsM3U(Supplier<Media> media, Templater templater, boolean https) {
+    private static final String CONTENT_TYPE = "audio/x-mpegurl";
+
+    public M3UPlaylists(
+        Supplier<Media> media,
+        Sessions sessions,
+        Templater templater,
+        boolean https
+    ) {
 
         super(templater, Prefix.PLAYLIST);
         this.media = media;
+        this.sessions = sessions;
         this.https = https;
     }
 
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        String resource = resource(webPath);
-
-        return templates(resource).findFirst()
-            .map(template ->
-                addProtocolAndHost(webPath, template))
-            .map(template ->
-                handle(ctx, Netty.response(webPath, null, OK, template.bytes(), null)))
+        return sessions.activeSession(webPath)
+            .map(session ->
+                templates(webPath.getUri())
+                    .findFirst()
+                    .map(template ->
+                        instrumented(template, session, webPath))
+                    .map(template ->
+                        handle(ctx, response(webPath, template)))
+                    .orElseGet(() ->
+                        handle(ctx, NOT_FOUND)))
             .orElseGet(() ->
-                handle(ctx, NOT_FOUND));
+                handle(ctx, UNAUTHORIZED));
+    }
+
+    private HttpResponse response(WebPath webPath, Template template) {
+
+        return Netty.response(webPath, CONTENT_TYPE, OK, template.bytes());
     }
 
     private Stream<Template> templates(String resource) {
@@ -60,10 +80,11 @@ public final class PlaylistsM3U extends TemplateEnabled {
             .flatMap(Optional::stream);
     }
 
-    private Template addProtocolAndHost(WebPath req, Template template) {
+    private Template instrumented(Template template, Session session, WebPath webPath) {
 
         return template
-            .add(QPar.HOST, req.getHost())
+            .add(QPar.STREAMLEASE, session.getCookie())
+            .add(QPar.HOST, webPath.getHost())
             .add(QPar.PROTOCOL, https ? "https" : "http");
     }
 

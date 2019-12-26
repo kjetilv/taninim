@@ -4,7 +4,6 @@ import com.restfb.*;
 import com.restfb.types.User;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
 import mediaserver.http.*;
@@ -18,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public final class FbAuth extends NettyHandler {
 
@@ -40,9 +41,9 @@ public final class FbAuth extends NettyHandler {
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return sessions.activeUser(webPath)
+        return sessions.activeSession(webPath)
             .map(user ->
-                handle(ctx, HttpResponseStatus.OK))
+                handle(ctx, OK))
             .orElseGet(() ->
                 lookupFacebookUser(webPath)
                     .map(login(webPath, ctx))
@@ -59,7 +60,7 @@ public final class FbAuth extends NettyHandler {
                 return handle(ctx, response);
             }
             log.warn("Unknown user attempted login: {}/{}", user.getName(), user.getId());
-            return handle(ctx, HttpResponseStatus.UNPROCESSABLE_ENTITY);
+            return handle(ctx, BAD_REQUEST);
         };
     }
 

@@ -4,6 +4,7 @@ import mediaserver.externals.FacebookUser;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -11,7 +12,7 @@ public final class Session {
 
     private final Instant startTime;
 
-    private final Instant cutoff;
+    private final Instant sessionCutoff;
 
     private final Duration inactivityMax;
 
@@ -21,13 +22,19 @@ public final class Session {
 
     private final FacebookUser facebookUser;
 
-    public Session(FacebookUser facebookUser, UUID cookie, Instant startTime, Instant cutoff, Duration inactivityMax) {
+    public Session(
+        FacebookUser facebookUser,
+        UUID cookie,
+        Instant startTime,
+        Instant sessionCutoff,
+        Duration inactivityMax
+    ) {
 
         this.facebookUser = Objects.requireNonNull(facebookUser, "facebookUser");
         this.cookie = Objects.requireNonNull(cookie, "cookie");
         this.startTime = Objects.requireNonNull(startTime, "startTime");
         this.lastAccessed = this.startTime;
-        this.cutoff = Objects.requireNonNull(cutoff, "cutoff");
+        this.sessionCutoff = Objects.requireNonNull(sessionCutoff, "cutoff");
         this.inactivityMax = Objects.requireNonNull(inactivityMax, "inactivityMax");
     }
 
@@ -43,7 +50,7 @@ public final class Session {
 
     public boolean expiredAt(Instant currentTime) {
 
-        if (currentTime.isAfter(cutoff)) {
+        if (currentTime.isAfter(sessionCutoff)) {
             return true;
         }
         Duration inactivity = Duration.between(lastAccessed, currentTime);
@@ -59,7 +66,10 @@ public final class Session {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() +
-            "[[" + startTime + "] " + facebookUser + " -> " + cutoff + " / " + cookie + "]";
+        Instant inactiveCutoff = lastAccessed.plus(inactivityMax);
+        Duration timeLeft = Duration.between(startTime, sessionCutoff).truncatedTo(ChronoUnit.MINUTES);
+        return getClass().getSimpleName() + "[" + facebookUser +
+            " @ " + startTime.truncatedTo(ChronoUnit.MINUTES) +
+            ", -" + timeLeft + ", inactive: " + inactiveCutoff + "]";
     }
 }

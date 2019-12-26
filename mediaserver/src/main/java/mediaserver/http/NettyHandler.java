@@ -60,11 +60,6 @@ public abstract class NettyHandler {
         }
     }
 
-    protected String resource(WebPath path) {
-
-        return path.getUri();
-    }
-
     protected Template template(String resource) {
 
         return cache.get(resource)

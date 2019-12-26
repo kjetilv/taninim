@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class PlaylistM3U extends AbstractHashable {
@@ -42,9 +43,9 @@ public final class PlaylistM3U extends AbstractHashable {
         this.locatedTracks = new LinkedHashMap<>(locatedTracks);
     }
 
-    public PlaylistM3U move(Path from) {
+    public PlaylistM3U move(Path to, Function<Path, Optional<Path>> dist) {
 
-        return new PlaylistM3U(name, tracks, relocate(from, locatedTracks));
+        return new PlaylistM3U(name, tracks, relocate(to, dist, locatedTracks));
     }
 
     public String getName() {
@@ -83,14 +84,20 @@ public final class PlaylistM3U extends AbstractHashable {
         return sb.append(name).append(" [").append(tracks.size()).append("]");
     }
 
-    private Map<Path, Track> relocate(Path from, Map<Path, Track> locatedTracks) {
+    private Map<Path, Track> relocate(
+        Path to,
+        Function<Path, Optional<Path>> dist,
+        Map<Path, Track> locatedTracks
+    ) {
 
-        return locatedTracks.entrySet().stream().collect(Collectors.toMap(
-            e -> from.relativize(e.getKey()),
-            Entry::getValue,
-            (track1, track2) -> {
-                throw new IllegalArgumentException(track1 + " / " + track2);
-            },
-            LinkedHashMap::new));
+        return locatedTracks.entrySet().stream()
+            .collect(Collectors.toMap(
+                entry ->
+                    to.relativize(dist.apply(entry.getKey()).orElse(entry.getKey())),
+                Entry::getValue,
+                (track1, track2) -> {
+                    throw new IllegalArgumentException(track1 + " / " + track2);
+                },
+                LinkedHashMap::new));
     }
 }

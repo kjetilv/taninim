@@ -22,11 +22,6 @@ public interface Media {
 
     int SE7EN = 7;
 
-    default Media subLibrary(CategoryPath categoryPath) {
-
-        return subLibrary(categoryPath, null, null, null);
-    }
-
     default Media subLibrary(Series series) {
 
         return subLibrary(null, null, series, null);

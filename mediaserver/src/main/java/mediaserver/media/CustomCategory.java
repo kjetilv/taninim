@@ -17,6 +17,9 @@ public final class CustomCategory {
     public static final ObjectReader YAML_READER =
         new ObjectMapper(new YAMLFactory()).readerFor(Map.class);
 
+    public static final Collection<CustomCategory> ALL =
+        categories("playlists.yaml");
+
     private final Path path;
 
     private final Collection<PlaylistEntry> entries;
@@ -89,11 +92,6 @@ public final class CustomCategory {
                 getPath());
         }
         throw new IllegalArgumentException("Not a sub-category of " + this + ": " + sub);
-    }
-
-    private boolean isIn(Path path) {
-
-        return this.path.startsWith(path);
     }
 
     private static Stream<Path> getSuperpaths(Path path) {

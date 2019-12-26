@@ -6,13 +6,13 @@ import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
-import mediaserver.externals.FacebookUser;
 import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
 import mediaserver.http.Prefix;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
+import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
@@ -28,7 +28,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 
-public abstract class Streamer extends NettyHandler {
+public abstract class AbstractStreamer extends NettyHandler {
 
     protected final Supplier<Media> media;
 
@@ -36,7 +36,7 @@ public abstract class Streamer extends NettyHandler {
 
     private static final int BYTES_PREAMBLE = (BYTES + "=").length();
 
-    Streamer(Supplier<Media> media, Sessions sessions) {
+    AbstractStreamer(Supplier<Media> media, Sessions sessions) {
 
         super(Prefix.AUDIO);
         this.media = media;
@@ -46,10 +46,10 @@ public abstract class Streamer extends NettyHandler {
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return sessions.activeUser(webPath)
-            .map(user ->
-                getMediaTrack(resource(webPath))
-                    .map(trackStreamer(webPath, user, ctx))
+        return sessions.activeSession(webPath)
+            .map(session ->
+                getMediaTrack(webPath.getPath(true))
+                    .map(trackStreamer(webPath, session, ctx))
                     .orElseGet(() ->
                         handle(ctx, NOT_FOUND)))
             .orElseGet(() ->
@@ -79,7 +79,7 @@ public abstract class Streamer extends NettyHandler {
 
     protected abstract Optional<ChannelFuture> stream(
         WebPath webPath,
-        FacebookUser user,
+        Session user,
         Track track,
         ChannelHandlerContext ctx,
         HttpResponse res
@@ -100,14 +100,14 @@ public abstract class Streamer extends NettyHandler {
         return ctx.write(response);
     }
 
-    protected static ProgressListener progressListener(FacebookUser user, Track track) {
+    protected static ProgressListener progressListener(Session session, Track track) {
 
-        return new ProgressListener(String.format("%s %s", user, track));
+        return new ProgressListener(String.format("%s %s", session, track));
     }
 
     private Function<Track, Handling> trackStreamer(
         WebPath webPath,
-        FacebookUser user,
+        Session session,
         ChannelHandlerContext ctx
     ) {
 
@@ -119,9 +119,9 @@ public abstract class Streamer extends NettyHandler {
                 response.headers().set(CONNECTION, KEEP_ALIVE);
             }
             response.headers().add(ACCEPT_RANGES, BYTES);
-            stream(webPath, user, track, ctx, response)
+            stream(webPath, session, track, ctx, response)
                 .ifPresent(channelFuture ->
-                    channelFuture.addListener(progressListener(user, track)));
+                    channelFuture.addListener(progressListener(session, track)));
             ChannelFuture lastContentFuture =
                 ctx.writeAndFlush(EMPTY_LAST_CONTENT);
             if (!keepAlive) {
@@ -138,10 +138,18 @@ public abstract class Streamer extends NettyHandler {
     }
 
     private Optional<Track> getMediaTrack(String path) {
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(path);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ugyldig UUID: " + path, e);
+        }
+        return media.get().getTrack(uuid);
+    }
 
+    private String uuidFrom(String path) {
         int dotIndex = path.indexOf('.', 1);
-        String uuidString = path.substring(1, dotIndex);
-        return media.get().getTrack(UUID.fromString(uuidString));
+        return dotIndex < 0 ? path : path.substring(1, dotIndex);
     }
 
     @Override

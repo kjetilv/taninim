@@ -7,10 +7,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.externals.FacebookUser;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
+import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.S3;
 
@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 
-public final class S3Streamer extends Streamer {
+public final class S3Streamer extends AbstractStreamer {
 
     public S3Streamer(Supplier<Media> media, Sessions sessions) {
 
@@ -31,7 +31,7 @@ public final class S3Streamer extends Streamer {
     @Override
     protected Optional<ChannelFuture> stream(
         WebPath webPath,
-        FacebookUser user,
+        Session user,
         Track track,
         ChannelHandlerContext ctx,
         HttpResponse res

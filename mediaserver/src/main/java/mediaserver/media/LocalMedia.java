@@ -17,9 +17,6 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     public static final Random RND = new Random();
 
-    public static final Collection<CustomCategory> CUSTOM_CATEGORIES =
-        CustomCategory.categories("playlists.yaml");
-
     private final CategoryPath categoryPath;
 
     private final Collection<Album> albums;
@@ -66,15 +63,8 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList());
-        this.playlists = CUSTOM_CATEGORIES.stream()
-            .map(customCategory ->
-                albumStream(true)
-                    .filter(customCategory::contains)
-                    .reduce(
-                        new Playlist(customCategory.getPath().toString()),
-                        Playlist::add,
-                        Playlist::add))
-            .collect(Collectors.toList());
+        this.playlists =
+            Playlist.playlistsWith(albumStream(true));
     }
 
     @Override

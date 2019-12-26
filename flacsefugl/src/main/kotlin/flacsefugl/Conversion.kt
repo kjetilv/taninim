@@ -6,16 +6,16 @@ import java.nio.file.Path
 class Conversion(
         val mover: Mover,
         val traverser: Traverser,
-        val included: (Path) -> Boolean
+        val included: (Path) -> Boolean = { true }
 ) {
     fun convert(
             newSuffix: String? = null,
-            process: (Int, Int, Path, Path) -> Boolean
-    ): Boolean {
+            process: (Int, Int, Path, Path) -> Unit
+    ): List<Pair<Path, Path>> {
         println("Validating inputs...")
         val unpaths = traverser.unpaths(included).map { it.parent.parent.fileName }.distinct().sorted()
         println("${unpaths.size} artists ignored: ${unpaths}}")
-        val paths = traverser.paths(included)
+        val paths: List<Path> = traverser.paths(included)
         println("${paths.size} paths to convert")
         val missingDirs: Set<File> = paths.flatMap {
             verifyDirectories(it, newSuffix)
@@ -33,11 +33,15 @@ class Conversion(
                 println("Not used: $it")
             }
         }
-        val conversions = paths.mapIndexed { i, path ->
-//            println("Processing #$i/${paths.size}: ${path.toFile().absolutePath}")
-            process(i, paths.size, path, mover.target(path, newSuffix))
+        return paths.mapIndexed { i, source ->
+            //            println("Processing #$i/${paths.size}: ${path.toFile().absolutePath}")
+            val target = mover.target(source, newSuffix)
+            if (i % 100 == 0) {
+                println("$i/${paths.size}: ${source.parent.fileName}/${source.fileName}")
+            }
+            process(i, paths.size, source, target)
+            source.to(target)
         }
-        return conversions.all { it }
     }
 
     private fun created(toCreate: Set<File>) = toCreate.all { it.mkdirs() }

@@ -4,10 +4,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.externals.FacebookUser;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
+import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 
 import java.io.File;
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 
-public final class FileStreamer extends Streamer {
+public final class FileStreamer extends AbstractStreamer {
 
     public FileStreamer(Supplier<Media> media, Sessions sessions) {
 
@@ -27,7 +27,7 @@ public final class FileStreamer extends Streamer {
     @Override
     protected Optional<ChannelFuture> stream(
         WebPath webPath,
-        FacebookUser user,
+        Session user,
         Track track,
         ChannelHandlerContext ctx,
         HttpResponse res

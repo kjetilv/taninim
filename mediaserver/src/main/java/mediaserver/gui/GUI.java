@@ -3,6 +3,7 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 import mediaserver.media.*;
+import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
@@ -39,12 +40,11 @@ public final class GUI extends TemplateEnabled {
 
     private Optional<Template> template(WebPath webPath, Media media) {
 
-        QPars pars = webPath.getQueryParameters();
-
         if (webPath.hasPrefix(LOGIN)) {
             return Optional.of(login());
         }
 
+        QPars pars = webPath.getQueryParameters();
         if (webPath.hasPrefix(ALBUM)) {
             return pars.apply(QPar.ALBUM)
                 .flatMap(media::getAlbum)
@@ -72,19 +72,21 @@ public final class GUI extends TemplateEnabled {
         }
 
         return Optional.of(indexTemplate()
-            .add(QPar.USER, sessions.activeUser(webPath))
+            .add(QPar.USER, sessions.activeSession(webPath).map(Session::getFacebookUser))
             .add(QPar.MEDIA, submedia)
-            .add(QPar.ARTIST, artist));
+            .add(QPar.ARTIST, artist)
+            .add(QPar.SERIES, series)
+            .add(QPar.PLAYLIST, playlist));
     }
 
     private Template album(WebPath webPath, Media media, Album album, QPars pars) {
 
         Optional<Track> track = pars.apply(QPar.TRACK).flatMap(media::getTrack);
-
         return albumTemplate()
-            .add(QPar.USER, sessions.activeUser(webPath))
+            .add(QPar.USER, sessions.activeSession(webPath).map(Session::getFacebookUser))
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
+            .add(QPar.PLAYLISTS, Playlist.playlistsWith(album))
             .add(QPar.PLAY_TRACK, track.orElse(null))
             .add(QPar.PLAY_TRACKS, album.getTracks());
     }
