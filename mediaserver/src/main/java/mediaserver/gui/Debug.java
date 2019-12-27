@@ -20,7 +20,7 @@ public final class Debug extends NettyHandler {
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        log.info("Request receieved @ {}: {}", webPath, webPath.getReq());
+        log.info("Request receieved @ {}: {}", webPath, webPath.getRequest());
         return pass();
     }
 }

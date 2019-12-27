@@ -33,22 +33,23 @@ public final class S3Streamer extends AbstractStreamer {
         WebPath webPath,
         Session user,
         Track track,
-        ChannelHandlerContext ctx,
-        HttpResponse res
+        boolean lossless,
+        HttpResponse response,
+        ChannelHandlerContext ctx
     ) {
 
         UUID uuid = track.getUuid();
-        String audioType = webPath.isFlac() ? "flac" : "m4a";
+        String audioType = lossless ? "flac" : "m4a";
 
         long fileLength = length(uuid, audioType);
         String rangeHeader = webPath.header(RANGE);
         if (rangeHeader == null || rangeHeader.length() <= 0) {
             ChannelFuture fullFuture =
-                writeLength(ctx, res, fileLength);
+                writeLength(ctx, response, fileLength);
             return Optional.of(fullFuture);
         }
         ChannelFuture partialFuture =
-            writePartial(ctx, uuid, audioType, fileLength, res, rangeHeader);
+            writePartial(ctx, uuid, audioType, fileLength, response, rangeHeader);
         return Optional.of(partialFuture);
     }
 

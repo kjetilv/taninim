@@ -20,6 +20,10 @@ import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 
 public final class WebPath {
 
+    public static final String AUDIO_FLAC = "audio/flac";
+
+    public static final String AUDIO_AAC = "audio/aac";
+
     private final Prefix prefix;
 
     private final String path;
@@ -34,39 +38,31 @@ public final class WebPath {
 
     private final Supplier<Optional<String>> content;
 
-    private Supplier<String> contentType;
+    private Supplier<Optional<String>> contentType;
 
-    private final FullHttpRequest req;
+    private final FullHttpRequest request;
 
     private final Supplier<ConcurrentHashMap<String, Optional<String>>> headers =
         MostlyOnce.get(ConcurrentHashMap::new);
 
-    public WebPath(Prefix prefix, String uri, FullHttpRequest req) {
+    public WebPath(Prefix prefix, String uri, FullHttpRequest request) {
 
-        this.req = Objects.requireNonNull(req, "req");
+        this.request = Objects.requireNonNull(request, "req");
         this.prefix = Objects.requireNonNull(prefix, "prefix");
         this.uri = this.prefix.resolve(Objects.requireNonNull(uri, "uri"));
 
         int pathIndex = this.uri.indexOf("?");
         this.path = pathIndex > 0 ? this.uri.substring(0, pathIndex) : this.uri;
 
-        this.contentType = MostlyOnce.get(() ->
-            path.endsWith(".css") ? "text/css"
-                : path.endsWith(".js") ? "text/javascript"
-                : path.endsWith(".ico") ? "image/x-icon"
-                : path.endsWith(".flac") ? "audio/flac"
-                : path.endsWith("m4a") ? "audio/aac"
-                : "text/plain");
-        this.uuid = MostlyOnce.get(() ->
-            authentication(this.req));
-        this.qpars = MostlyOnce.get(() ->
-            new QPars(params(this.uri, this.uri.indexOf("?"))));
+        this.contentType = MostlyOnce.get(this::contentType);
+        this.uuid = MostlyOnce.get(() -> authentication(this.request));
+        this.qpars = MostlyOnce.get(() -> new QPars(params(this.uri, this.uri.indexOf("?"))));
         this.content = MostlyOnce.get(() ->
-            Optional.of(this.req.content())
+            Optional.of(this.request.content())
                 .map(content ->
                     content.toString(StandardCharsets.UTF_8)));
         this.host = MostlyOnce.get(() ->
-            Optional.ofNullable(this.req.headers().getAsString(HOST))
+            Optional.ofNullable(this.request.headers().getAsString(HOST))
                 .orElse("localhost"));
     }
 
@@ -108,11 +104,11 @@ public final class WebPath {
 
         return headers.get()
             .computeIfAbsent(header, __ ->
-                Optional.ofNullable(req.headers().getAsString(header)))
+                Optional.ofNullable(request.headers().getAsString(header)))
             .orElse(null);
     }
 
-    public String getContentType() {
+    public Optional<String> getContentType() {
 
         return contentType.get();
     }
@@ -147,9 +143,9 @@ public final class WebPath {
         return uuid.get();
     }
 
-    public FullHttpRequest getReq() {
+    public FullHttpRequest getRequest() {
 
-        return req;
+        return request;
     }
 
     public static Optional<WebPath> from(FullHttpRequest req) {
@@ -166,12 +162,22 @@ public final class WebPath {
 
     public boolean isKeepAlive() {
 
-        return HttpUtil.isKeepAlive(req);
+        return HttpUtil.isKeepAlive(request);
     }
 
     public boolean isFlac() {
 
-        return req.uri().endsWith(".flac");
+        return request.uri().endsWith(".flac");
+    }
+
+    private Optional<String> contentType() {
+
+        return Optional.ofNullable(path.endsWith(".css") ? "text/css"
+            : path.endsWith(".js") ? "text/javascript"
+            : path.endsWith(".ico") ? "image/x-icon"
+            : path.endsWith(".flac") ? AUDIO_FLAC
+            : path.endsWith(".m4a") ? AUDIO_AAC
+            : null);
     }
 
     private static Map<QPar, String> params(String uri, int queryIndex) {

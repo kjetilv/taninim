@@ -1,6 +1,7 @@
 package mediaserver.sessions;
 
 import mediaserver.externals.FacebookUser;
+import mediaserver.util.Print;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -63,13 +64,17 @@ public final class Session {
         return this;
     }
 
+    public boolean isPrivileged() {
+
+        return facebookUser.getId().equals("2787973921215833");
+    }
+
     @Override
     public String toString() {
 
-        Instant inactiveCutoff = lastAccessed.plus(inactivityMax);
-        Duration timeLeft = Duration.between(startTime, sessionCutoff).truncatedTo(ChronoUnit.MINUTES);
         return getClass().getSimpleName() + "[" + facebookUser +
-            " @ " + startTime.truncatedTo(ChronoUnit.MINUTES) +
-            ", -" + timeLeft + ", inactive: " + inactiveCutoff + "]";
+            " @ " + Print.aboutTime(startTime) +
+            ", -" + Duration.between(startTime, sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
+            "]";
     }
 }

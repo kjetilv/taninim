@@ -2,6 +2,7 @@ package mediaserver.media;
 
 import mediaserver.externals.*;
 import mediaserver.util.IO;
+import mediaserver.util.Print;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public interface Media {
 
     default String getPrettyDuration() {
 
-        return IO.pretty(getDuration());
+        return Print.pretty(getDuration());
     }
 
     default Collection<Artist> getAlbumArtists() {

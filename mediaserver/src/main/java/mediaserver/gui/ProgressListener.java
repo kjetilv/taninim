@@ -42,6 +42,6 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
     @Override
     public void operationComplete(ChannelProgressiveFuture future) {
 
-        log.info("{} OK {}", future, source);
+        log.info("{} {}", future, source);
     }
 }

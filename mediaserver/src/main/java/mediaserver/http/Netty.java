@@ -13,6 +13,7 @@ import mediaserver.sessions.Session;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -117,13 +118,14 @@ public final class Netty {
         HttpHeaders headers = new DefaultHttpHeaders();
         if (contentType != null) {
             headers.set(CONTENT_TYPE, contentType);
-        } else if (webPath != null) {
-            headers.set(CONTENT_TYPE, webPath.getContentType());
+        } else {
+            Optional.ofNullable(webPath).flatMap(WebPath::getContentType).ifPresent(type ->
+                headers.set(CONTENT_TYPE, type));
         }
         if (content != null) {
             headers.set(CONTENT_LENGTH, content.length);
         }
-        if (webPath != null && HttpUtil.isKeepAlive(webPath.getReq())) {
+        if (webPath != null && HttpUtil.isKeepAlive(webPath.getRequest())) {
             headers.set(CONNECTION, KEEP_ALIVE);
         }
         if (moreHeaders != null) {

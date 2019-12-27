@@ -60,13 +60,22 @@ public final class Sessions {
     public Optional<Session> activeSession(WebPath webPath) {
 
         return webPath.getAuthentication()
-            .flatMap(this::sessionFor)
+            .flatMap(uuid ->
+                sessions.values().stream()
+                    .filter(withCookie(uuid))
+                    .findFirst()
+                    .map(this::accessed))
             .or(this::devSession);
     }
 
     public Optional<Session> close(WebPath webPath) {
 
         return activeSession(webPath).map(Session::getFacebookUser).map(sessions::remove);
+    }
+
+    private Session accessed(Session session) {
+
+        return session.accessedAt(now());
     }
 
     private boolean activeAt(Instant currentTime, Session oldSession) {
@@ -83,13 +92,6 @@ public final class Sessions {
             currentTime,
             currentTime.plus(sessionLength),
             inactivityMax);
-    }
-
-    private Optional<Session> sessionFor(UUID uuid) {
-
-        return sessions.values().stream()
-            .filter(withCookie(uuid))
-            .findFirst();
     }
 
     private Predicate<Session> withCookie(UUID uuid) {

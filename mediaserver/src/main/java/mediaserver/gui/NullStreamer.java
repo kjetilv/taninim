@@ -21,8 +21,7 @@ public final class NullStreamer extends AbstractStreamer {
         WebPath webPath,
         Session user,
         Track track,
-        ChannelHandlerContext ctx,
-        HttpResponse res
+        boolean lossless, HttpResponse response, ChannelHandlerContext ctx
     ) {
         return Optional.empty();
     }

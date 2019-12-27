@@ -3,7 +3,6 @@ package mediaserver.gui;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import mediaserver.http.Handling;
@@ -81,14 +80,10 @@ public abstract class AbstractStreamer extends NettyHandler {
         WebPath webPath,
         Session user,
         Track track,
-        ChannelHandlerContext ctx,
-        HttpResponse res
+        boolean lossless,
+        HttpResponse response,
+        ChannelHandlerContext ctx
     );
-
-    protected static boolean isFlac(HttpRequest req) {
-
-        return req.uri().endsWith("." + "flac");
-    }
 
     protected ChannelFuture writeLength(
         ChannelHandlerContext ctx,
@@ -113,13 +108,16 @@ public abstract class AbstractStreamer extends NettyHandler {
 
         return track -> {
             HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-            response.headers().set(CONTENT_TYPE, webPath.getContentType());
+            boolean lossless = webPath.isFlac() && session.isPrivileged();
+            response.headers().set(CONTENT_TYPE, lossless
+                ? WebPath.AUDIO_FLAC
+                : WebPath.AUDIO_AAC);
             boolean keepAlive = webPath.isKeepAlive();
             if (keepAlive) {
                 response.headers().set(CONNECTION, KEEP_ALIVE);
             }
             response.headers().add(ACCEPT_RANGES, BYTES);
-            stream(webPath, session, track, ctx, response)
+            stream(webPath, session, track, lossless, response, ctx)
                 .ifPresent(channelFuture ->
                     channelFuture.addListener(progressListener(session, track)));
             ChannelFuture lastContentFuture =
@@ -138,18 +136,19 @@ public abstract class AbstractStreamer extends NettyHandler {
     }
 
     private Optional<Track> getMediaTrack(String path) {
-        UUID uuid;
+
+        return media.get().getTrack(pathUUID(path));
+    }
+
+    private UUID pathUUID(String path) {
+
         try {
-            uuid = UUID.fromString(path);
+            int typeIndex = path.indexOf('.', 1);
+            String uuidPart = typeIndex < 0 ? path : path.substring(0, typeIndex);
+            return UUID.fromString(uuidPart);
         } catch (Exception e) {
             throw new IllegalArgumentException("Ugyldig UUID: " + path, e);
         }
-        return media.get().getTrack(uuid);
-    }
-
-    private String uuidFrom(String path) {
-        int dotIndex = path.indexOf('.', 1);
-        return dotIndex < 0 ? path : path.substring(1, dotIndex);
     }
 
     @Override

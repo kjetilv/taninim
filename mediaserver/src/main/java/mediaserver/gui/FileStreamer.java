@@ -29,24 +29,23 @@ public final class FileStreamer extends AbstractStreamer {
         WebPath webPath,
         Session user,
         Track track,
-        ChannelHandlerContext ctx,
-        HttpResponse res
+        boolean lossless,
+        HttpResponse response,
+        ChannelHandlerContext ctx
     ) {
 
-        File file = webPath.isFlac()
-            ? track.getFile()
-            : track.getCompressedFile();
+        File file = lossless ? track.getFile() : track.getCompressedFile();
         RandomAccessFile randomAccessFile = randomAccess(file);
         long fileLength = length(randomAccessFile);
 
         String rangeHeader = webPath.header(RANGE);
         if (rangeHeader == null || rangeHeader.length() == 0) {
             ChannelFuture fullFuture =
-                writeLength(ctx, res, fileLength);
+                writeLength(ctx, response, fileLength);
             return Optional.of(fullFuture);
         }
         ChannelFuture partialFuture =
-            writePartial(res, fileLength, ctx, randomAccessFile, rangeHeader.trim());
+            writePartial(response, fileLength, ctx, randomAccessFile, rangeHeader.trim());
         return Optional.of(partialFuture);
     }
 

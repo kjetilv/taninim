@@ -1,7 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
-import mediaserver.util.IO;
+import mediaserver.util.Print;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -115,7 +115,7 @@ public final class Album extends AbstractHashable
 
     public String getPrettyDuration() {
 
-        return IO.pretty(getDuration());
+        return Print.pretty(getDuration());
     }
 
     @SuppressWarnings("NullableProblems")

@@ -34,15 +34,17 @@ import java.util.function.Supplier;
 
 public final class Main {
 
+    public static final ZoneId TIMEZONE = ZoneId.of(setting("timeZone").orElse("CET"));
+
+    public static final Clock CLOCK = Clock.system(TIMEZONE);
+
+    public static final Duration SESSION_LENGTH = duration("sessionLength", Duration.ofDays(1));
+
+    public static final Duration INACTIVITY_MAX = duration("inactivityMax", Duration.ofHours(1));
+
     private static final OnceEvery ONCE_EVERY = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
-    private static final Duration SESSION_LENGTH = duration("sessionLength", Duration.ofDays(1));
-
-    private static final Duration INACTIVITY_MAX = duration("inactivityMax", Duration.ofHours(1));
-
     private static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(5));
-
-    private static final Clock CET = Clock.system(ZoneId.of(setting("timeZone").orElse("CET")));
 
     private static final String RES = "res";
 
@@ -82,7 +84,7 @@ public final class Main {
         Supplier<Ids> ids = idsSupplier(args, local);
         Supplier<Media> media = mediaSupplier(args, local);
         Sessions sessions =
-            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, CET, devLogin);
+            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, CLOCK, devLogin);
         WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
         Templater templater = new Templater();
 

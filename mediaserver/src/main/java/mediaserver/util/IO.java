@@ -119,45 +119,9 @@ public final class IO {
         }
     }
 
-    public static String pretty(Duration dur) {
-
-        if (dur.minus(Duration.ofHours(1)).isNegative()) {
-            return String.format(
-                "%d:%02d",
-                dur.toMinutesPart(),
-                dur.toSecondsPart());
-        }
-        if (dur.minus(Duration.ofDays(1)).isNegative()) {
-            return String.format(
-                "%d time%s og %d minutt%s",
-                dur.toHoursPart(),
-                dur.toHoursPart() > 1 ? "r" : "",
-                dur.toMinutesPart(),
-                dur.toMinutesPart() > 1 ? "er" : "");
-        }
-        return String.format(
-            "%d dag%s, %d time%s og %d minutt%s",
-            dur.toDaysPart(),
-            dur.toDaysPart() > 1 ? "er" : "",
-            dur.toHoursPart(),
-            dur.toHoursPart() > 1 ? "r" : "",
-            dur.toMinutesPart(),
-            dur.toMinutesPart() > 1 ? "er" : "");
-    }
-
     public static String getProperty(String property) {
 
         return System.getProperty(property, System.getenv(property));
-    }
-
-    private static String stripTail(String uriPath) {
-
-        return uriPath.substring(0, uriPath.length() - 1);
-    }
-
-    private static String stripHead(String uriPath) {
-
-        return uriPath.substring(1);
     }
 
     private static <T> T tryDownload(
