@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -53,8 +52,7 @@ public final class M3UPlaylists extends TemplateEnabled {
 
         return sessions.activeSession(webPath)
             .map(session ->
-                templates(webPath.getUri())
-                    .findFirst()
+                template(webPath.getUri())
                     .map(template ->
                         instrumented(template, session, webPath))
                     .map(template ->
@@ -70,14 +68,20 @@ public final class M3UPlaylists extends TemplateEnabled {
         return Netty.response(webPath, CONTENT_TYPE, OK, template.bytes());
     }
 
-    private Stream<Template> templates(String resource) {
+    private Optional<Template> template(String resource) {
 
         return providers.entrySet().stream()
             .filter(e ->
                 resource.startsWith(e.getKey()))
             .map(e ->
-                e.getValue().apply(uuid(resource, e.getKey().length())))
-            .flatMap(Optional::stream);
+                provide(e.getKey(), e.getValue(), resource))
+            .flatMap(Optional::stream)
+            .findFirst();
+    }
+
+    private Optional<Template> provide(String heading, Function<UUID, Optional<Template>> provider, String resource) {
+
+        return provider.apply(uuid(resource, heading.length()));
     }
 
     private Template instrumented(Template template, Session session, WebPath webPath) {
@@ -132,13 +136,13 @@ public final class M3UPlaylists extends TemplateEnabled {
 
     private Template playlist(Album album) {
 
-        return template("res/playlist.m3u")
+        return readTemplate("res/playlist.m3u")
             .add(QPar.PLAYLIST, new PlaylistM3U(album));
     }
 
     private Template playlist(Collection<Album> albums) {
 
-        return template("res/playlist.m3u")
+        return readTemplate("res/playlist.m3u")
             .add(QPar.PLAYLIST, new PlaylistM3U(
                 albums.size() + " albums",
                 albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList())));
@@ -146,7 +150,7 @@ public final class M3UPlaylists extends TemplateEnabled {
 
     private Template playlist(Artist artist, Collection<Track> tracks) {
 
-        return template("res/playlist.m3u")
+        return readTemplate("res/playlist.m3u")
             .add(QPar.PLAYLIST, new PlaylistM3U(artist.getName(), tracks));
     }
 }

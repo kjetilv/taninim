@@ -1,6 +1,7 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
+import mediaserver.externals.FacebookUser;
 import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.Session;
@@ -72,7 +73,7 @@ public final class GUI extends TemplateEnabled {
         }
 
         return Optional.of(indexTemplate()
-            .add(QPar.USER, sessions.activeSession(webPath).map(Session::getFacebookUser))
+            .add(QPar.USER, user(webPath))
             .add(QPar.MEDIA, submedia)
             .add(QPar.ARTIST, artist)
             .add(QPar.SERIES, series)
@@ -83,11 +84,17 @@ public final class GUI extends TemplateEnabled {
 
         Optional<Track> track = pars.apply(QPar.TRACK).flatMap(media::getTrack);
         return albumTemplate()
-            .add(QPar.USER, sessions.activeSession(webPath).map(Session::getFacebookUser))
+            .add(QPar.USER, user(webPath))
             .add(QPar.MEDIA, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAYLISTS, Playlist.playlistsWith(album))
             .add(QPar.PLAY_TRACK, track.orElse(null))
             .add(QPar.PLAY_TRACKS, album.getTracks());
+    }
+
+    private FacebookUser user(WebPath webPath) {
+
+        return sessions.activeSession(webPath).map(Session::getFacebookUser)
+            .orElseThrow(() -> new IllegalStateException("No user: " + webPath));
     }
 }

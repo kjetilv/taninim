@@ -34,9 +34,8 @@ public abstract class NettyHandler {
         HttpResponseStatus status
     ) {
 
-        return handle(
-            ctx,
-            Netty.response(null, status, null, null));
+        HttpResponse response = Netty.response(null, status, null, null);
+        return handle(ctx, response);
     }
 
     public Handling handle(ChannelHandlerContext ctx, HttpResponse response) {
@@ -60,7 +59,7 @@ public abstract class NettyHandler {
         }
     }
 
-    protected Template template(String resource) {
+    protected Template readTemplate(String resource) {
 
         return cache.get(resource)
             .map(source ->

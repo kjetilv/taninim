@@ -86,23 +86,23 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static void handle(
         ChannelHandlerContext ctx,
-        FullHttpRequest req,
+        FullHttpRequest request,
         Function<WebPath, Optional<Handling>> handler
     ) {
 
         Instant start = Instant.now();
         try {
-            WebPath.from(req)
+            WebPath.from(request)
                 .flatMap(handler)
                 .ifPresentOrElse(
                     handling ->
-                        reportHandled(handling, req, start),
+                        reportHandled(handling, request, start),
                     () -> {
-                        logError(req, null, durationSince(start));
+                        logError(request, null, durationSince(start));
                         respond(ctx, BAD_REQUEST);
                     });
         } catch (Exception e) {
-            logError(req, e, durationSince(start));
+            logError(request, e, durationSince(start));
             respond(ctx, INTERNAL_SERVER_ERROR);
         }
     }

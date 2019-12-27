@@ -10,10 +10,9 @@ import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.misc.ErrorType;
 import org.stringtemplate.v4.misc.STMessage;
 
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Supplier;
 
@@ -25,31 +24,26 @@ public final class Template {
 
     private ST st;
 
-    private Supplier<String> result;
-
     private Supplier<byte[]> bytes;
 
     public Template(String name, String source) {
 
         this.name = name;
         this.st = new ST(source, '{', '}');
-        this.result = MostlyOnce.get(() -> {
-            StringWriter out = new StringWriter();
-            st.write(new NoIndentWriter(out), new LoggingErrorListener());
-            return out.getBuffer().toString();
+        this.bytes = MostlyOnce.get(() -> {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            try (Writer out = new OutputStreamWriter(bytes, StandardCharsets.UTF_8)) {
+                st.write(new NoIndentWriter(out), new LoggingErrorListener());
+            } catch (IOException e) {
+                throw new IllegalStateException(this + " failed to write template: " + st, e);
+            }
+            return bytes.toByteArray();
         });
-        this.bytes = MostlyOnce.get(() ->
-            result.get().getBytes(StandardCharsets.UTF_8));
     }
 
     public byte[] bytes() {
 
         return this.bytes.get();
-    }
-
-    public Template add(QPar param, Optional<?> value) {
-
-        return add(param, value.orElse(null));
     }
 
     public Template add(QPar param, Object value) {
