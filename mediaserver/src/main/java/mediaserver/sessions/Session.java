@@ -1,5 +1,6 @@
 package mediaserver.sessions;
 
+import mediaserver.Config;
 import mediaserver.externals.FacebookUser;
 import mediaserver.util.Print;
 
@@ -8,6 +9,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class Session {
 
@@ -22,6 +24,14 @@ public final class Session {
     private final UUID cookie;
 
     private final FacebookUser facebookUser;
+
+    private final AtomicLong bytesLeft = new AtomicLong(QUOTA);
+
+    private static final int K = 1_024;
+
+    private static final int M = K * K;
+
+    private static final int QUOTA = Config.MEGAS_PER_SESSION * K * K;
 
     public Session(
         FacebookUser facebookUser,
@@ -58,6 +68,12 @@ public final class Session {
         return inactivity.toSeconds() > inactivityMax.toSeconds();
     }
 
+    public Session streaming(long bytes) {
+
+        bytesLeft.updateAndGet(remaining -> remaining - bytes);
+        return this;
+    }
+
     public Session accessedAt(Instant currentTime) {
 
         lastAccessed = currentTime;
@@ -74,7 +90,20 @@ public final class Session {
 
         return getClass().getSimpleName() + "[" + facebookUser +
             " @ " + Print.aboutTime(startTime) +
-            ", -" + Duration.between(startTime, sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
+            " " + amount() + "/" + QUOTA / M + "mb" +
+            " -" + Duration.between(lastAccessed, sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
             "]";
+    }
+
+    private String amount() {
+
+        long left = QUOTA - bytesLeft.get();
+        if (left > M) {
+            return left / M + "mb";
+        }
+        if (left > K) {
+            return left / K + "kb";
+        }
+        return left + "b";
     }
 }

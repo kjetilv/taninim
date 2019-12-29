@@ -23,9 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -34,17 +32,9 @@ import java.util.function.Supplier;
 
 public final class Main {
 
-    public static final ZoneId TIMEZONE = ZoneId.of(setting("timeZone").orElse("CET"));
-
-    public static final Clock CLOCK = Clock.system(TIMEZONE);
-
-    public static final Duration SESSION_LENGTH = duration("sessionLength", Duration.ofDays(1));
-
-    public static final Duration INACTIVITY_MAX = duration("inactivityMax", Duration.ofHours(1));
+    public static final Clock CLOCK = Clock.system(Config.TIMEZONE);
 
     private static final OnceEvery ONCE_EVERY = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
-
-    private static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(5));
 
     private static final String RES = "res";
 
@@ -52,26 +42,14 @@ public final class Main {
 
     private static final String FB_SEC = "fbSec";
 
-    private static final boolean DEV_LOGIN = isTrue("dev");
-
-    private static final boolean LIVE = isTrue("live");
-
-    private static final boolean NEUTER = !(LIVE || DEV_LOGIN);
-
-    private static final boolean PRETEND_SSL = isTrue("ssl");
-
     private static final String FAVICON_ICO = RES + "/favicon.ico";
-
-    private static final int PORT = PRETEND_SSL ? 1443
-        : DEV_LOGIN ? 1080
-        : 80;
 
     public static void main(String[] args) {
 
         boolean local = local(args);
-        boolean devLogin = DEV_LOGIN && local;
-        boolean noStream = NEUTER;
-        boolean sslPlaylists = PRETEND_SSL || !devLogin && !local;
+        boolean devLogin = Config.DEV_LOGIN;
+        boolean noStream = Config.NEUTER;
+        boolean sslPlaylists = Config.PRETEND_SSL || !devLogin && !local;
 
         log.info(
             "Running in {}{}, streaming {}abled",
@@ -79,12 +57,12 @@ public final class Main {
             devLogin ? " with dev login" : "",
             noStream ? "dis" : "en");
 
-        SslContext mockSslContext = PRETEND_SSL && devLogin ? mockSslContext() : null;
+        SslContext mockSslContext = Config.PRETEND_SSL && devLogin ? mockSslContext() : null;
 
         Supplier<Ids> ids = idsSupplier(args, local);
         Supplier<Media> media = mediaSupplier(args, local);
         Sessions sessions =
-            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, CLOCK, devLogin);
+            new Sessions(Config.SESSION_LENGTH, Config.INACTIVITY_MAX, CLOCK, devLogin);
         WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
         Templater templater = new Templater();
 
@@ -105,15 +83,15 @@ public final class Main {
             new GUI(media, sessions, templater),
             new Fail());
 
-        log.info("Binding to port {}", PORT);
+        log.info("Binding to port {}", Config.PORT);
 
         new NettyRun(4, 1)
-            .run(router, PORT, mockSslContext);
+            .run(router, Config.PORT, mockSslContext);
     }
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
 
-        return ONCE_EVERY.interval(REFRESH_TIME)
+        return ONCE_EVERY.interval(Config.REFRESH_TIME)
             .when(shouldRefresh(local, args))
             .get(() ->
                 retrieveMedia(local, args));
@@ -121,7 +99,7 @@ public final class Main {
 
     private static Supplier<Ids> idsSupplier(String[] args, boolean local) {
 
-        return ONCE_EVERY.interval(REFRESH_TIME)
+        return ONCE_EVERY.interval(Config.REFRESH_TIME)
             .when(shouldRefresh(local, args))
             .get(() ->
                 refreshIds(local));
@@ -151,24 +129,6 @@ public final class Main {
             log.warn("Failed to check modified time of {}", mediaFile(args));
             return Optional.empty();
         }
-    }
-
-    private static Duration duration(String setting, Duration defaultDuration) {
-
-        return setting(setting)
-            .map(Duration::parse)
-            .orElse(defaultDuration);
-    }
-
-    private static Optional<String> setting(String setting) {
-
-        return Optional.ofNullable(System.getProperty(setting, System.getenv(setting)));
-    }
-
-    private static boolean isTrue(String flag) {
-
-        return Boolean.getBoolean(flag) ||
-            Optional.ofNullable(System.getenv(flag)).filter("true"::equals).isPresent();
     }
 
     private static boolean local(String[] args) {

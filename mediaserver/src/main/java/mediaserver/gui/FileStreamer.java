@@ -12,6 +12,7 @@ import mediaserver.sessions.Sessions;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -27,26 +28,30 @@ public final class FileStreamer extends AbstractStreamer {
     @Override
     protected Optional<ChannelFuture> stream(
         WebPath webPath,
-        Session user,
+        Session session,
         Track track,
         boolean lossless,
         HttpResponse response,
         ChannelHandlerContext ctx
     ) {
 
-        File file = lossless ? track.getFile() : track.getCompressedFile();
-        RandomAccessFile randomAccessFile = randomAccess(file);
-        long fileLength = length(randomAccessFile);
+        File sourceFile = lossless ? track.getFile() : track.getCompressedFile();
+        RandomAccessFile file = randomAccess(sourceFile);
+        long fileLength = length(file);
 
         String rangeHeader = webPath.header(RANGE);
         if (rangeHeader == null || rangeHeader.length() == 0) {
-            ChannelFuture fullFuture =
-                writeLength(ctx, response, fileLength);
-            return Optional.of(fullFuture);
+            return Optional.of(
+                writeLength(ctx, response, fileLength));
         }
-        ChannelFuture partialFuture =
-            writePartial(response, fileLength, ctx, randomAccessFile, rangeHeader.trim());
-        return Optional.of(partialFuture);
+
+        Chunk chunk = chunk(rangeHeader.trim(), fileLength);
+        FileChannel channel = file.getChannel();
+        DefaultFileRegion content = new DefaultFileRegion(
+            channel, chunk.getStartOffset(), chunk.getSize());
+
+        return Optional.of(
+            writeContent(session, ctx, chunk, response, content));
     }
 
     private static RandomAccessFile randomAccess(File file) {
@@ -56,22 +61,6 @@ public final class FileStreamer extends AbstractStreamer {
         } catch (Exception e) {
             throw new IllegalStateException("Expected to find file " + file, e);
         }
-    }
-
-    private static ChannelFuture writePartial(
-        HttpResponse response,
-        long length,
-        ChannelHandlerContext ctx,
-        RandomAccessFile file,
-        String rangeHeader
-    ) {
-
-        PartialRequestInfo pri = getPartialRequestInfo(rangeHeader, length);
-        updateHeaders(response, pri, length);
-        ctx.write(response);
-        return ctx.write(
-            new DefaultFileRegion(file.getChannel(), pri.getStartOffset(), pri.getChunkSize()),
-            ctx.newProgressivePromise());
     }
 
     private static long length(RandomAccessFile randomAccessFile) {

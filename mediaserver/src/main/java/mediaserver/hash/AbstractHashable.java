@@ -59,10 +59,7 @@ public abstract class AbstractHashable
     @Override
     public final UUID getUuid() {
 
-        return hash.updateAndGet(v ->
-            v == null
-                ? uuid()
-                : v);
+        return hash.updateAndGet(v -> v == null ? uuid() : v);
     }
 
     public String build() {

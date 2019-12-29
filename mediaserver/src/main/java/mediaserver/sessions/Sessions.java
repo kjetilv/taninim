@@ -44,15 +44,15 @@ public final class Sessions {
 
     public Session establish(FacebookUser user) {
 
-        return sessions.compute(user, (__, oldSession) -> {
+        return sessions.compute(user, (__, session) -> {
 
             Instant time = this.now();
-            if (activeAt(time, oldSession)) {
-                log.info("Active: {}", oldSession);
-                return oldSession.accessedAt(time);
+            if (isActiveAt(time, session)) {
+                log.info("Active: {}", session);
+                return session.accessedAt(time);
             }
             Session newSession = newSessionAt(time, user);
-            log.info("Created: {} <= {}", newSession, oldSession);
+            log.info("Created: {} <= {}", newSession, session);
             return newSession;
         });
     }
@@ -78,7 +78,7 @@ public final class Sessions {
         return session.accessedAt(now());
     }
 
-    private boolean activeAt(Instant currentTime, Session oldSession) {
+    private boolean isActiveAt(Instant currentTime, Session oldSession) {
 
         return oldSession != null && !oldSession.expiredAt(currentTime);
     }

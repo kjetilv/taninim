@@ -12,12 +12,12 @@ configure<JavaPluginConvention> {
 }
 
 dependencies {
-    implementation(platform("software.amazon.awssdk:bom:2.5.29"))
+    implementation(platform("software.amazon.awssdk:bom:2.10.41"))
     implementation("software.amazon.awssdk:s3")
 
     implementation("org.gagravarr", "vorbis-java-core", "0.8")
-    implementation("com.restfb", "restfb", "3.0.0-RC.2")
-    implementation("io.netty", "netty-all", "4.1.41.Final")
+    implementation("com.restfb", "restfb", "3.0.0")
+    implementation("io.netty", "netty-all", "4.1.44.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.antlr:ST4:4.2")
     implementation("io.minio:minio:6.0.11")

@@ -63,7 +63,7 @@ fun main() {
             included)
 
     val flacConversions = flacConversion.convert("flac") { no, total, source, target ->
-        if (shouldUpdate(target, source)) {
+        if (shouldUpdate(source, target)) {
             ffmpeg(source, target).await()
         }
     }
@@ -75,7 +75,7 @@ fun main() {
             included)
 
     val compressions = m4aCompression.convert("m4a") { no, total, source, target ->
-        if (shouldUpdate(target, source)) {
+        if (shouldUpdate(source, target)) {
             ffmpegM4a(source, target).await()
         }
     }
@@ -90,6 +90,7 @@ fun main() {
         val transfers =
                 walkmanTransfer.convert() { no: Int, total: Int, source: Path, target: Path ->
                     if (shouldUpdate(source, target)) {
+                        println("$source -> $target")
                         Files.copy(source, target, COPY_ATTRIBUTES, REPLACE_EXISTING)
                     }
                 }
@@ -130,15 +131,14 @@ fun main() {
 
 private fun removeLeftovers(conversions: List<Pair<Path, Path>>, targetDir: Path) {
     val convertedTargets = conversions.map { it.second }
-    val leftoverTargets = Traverser(targetDir).paths().filter { target ->
+    Traverser(targetDir).paths().filter { target ->
         !convertedTargets.contains(target)
-    }
-    leftoverTargets.forEach {
-        Files.delete(it)
+    }.forEach {
+        Files.deleteIfExists(it)
     }
 }
 
-private fun shouldUpdate(target: Path, source: Path) =
+private fun shouldUpdate(source: Path, target: Path) =
         !Files.isRegularFile(target) || Files.size(target) <= 0 || changed(source, target)
 
 private fun playlists(): List<Dist> =

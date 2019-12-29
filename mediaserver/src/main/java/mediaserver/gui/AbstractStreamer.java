@@ -2,9 +2,11 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.util.concurrent.GenericFutureListener;
 import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
 import mediaserver.http.Prefix;
@@ -16,7 +18,6 @@ import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
@@ -27,7 +28,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 
-public abstract class AbstractStreamer extends NettyHandler {
+public abstract class AbstractStreamer extends NettyHandler implements Streamer {
 
     protected final Supplier<Media> media;
 
@@ -48,29 +49,47 @@ public abstract class AbstractStreamer extends NettyHandler {
         return sessions.activeSession(webPath)
             .map(session ->
                 getMediaTrack(webPath.getPath(true))
-                    .map(trackStreamer(webPath, session, ctx))
+                    .map(track ->
+                        stream(webPath, session, track, ctx))
                     .orElseGet(() ->
                         handle(ctx, NOT_FOUND)))
             .orElseGet(() ->
                 handle(ctx, UNAUTHORIZED));
     }
 
-    static void updateHeaders(HttpResponse response, PartialRequestInfo pri, long length) {
+    @Override
+    public Handling stream(WebPath webPath, Session session, Track track, ChannelHandlerContext ctx) {
 
-        response.headers().add(
-            CONTENT_RANGE,
-            BYTES + " " + pri.getStartOffset() + "-" + pri.getEndOffset() + "/" + length);
-        HttpUtil.setContentLength(response, pri.getChunkSize());
-        response.setStatus(PARTIAL_CONTENT);
+        HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+        boolean lossless = webPath.isFlac() && session.isPrivileged();
+        response.headers().set(CONTENT_TYPE, lossless
+            ? WebPath.AUDIO_FLAC
+            : WebPath.AUDIO_AAC);
+        boolean keepAlive = webPath.isKeepAlive();
+        if (keepAlive) {
+            response.headers().set(CONNECTION, KEEP_ALIVE);
+        }
+        response.headers().add(ACCEPT_RANGES, BYTES);
+
+        stream(webPath, session, track, lossless, response, ctx)
+            .ifPresent(channelFuture ->
+                channelFuture.addListener(progressListener(session, track)));
+
+        ChannelFuture lastContentFuture = ctx.writeAndFlush(EMPTY_LAST_CONTENT);
+
+        if (!keepAlive) {
+            lastContentFuture.addListener(CLOSE);
+        }
+        return handled(response);
     }
 
-    protected static PartialRequestInfo getPartialRequestInfo(String rangeHeader, long length) {
+    protected static Chunk chunk(String rangeHeader, long fileLength) {
 
         try {
             long startOffset = Integer.parseInt(rangeHeader.substring(BYTES_PREAMBLE, rangeHeader.indexOf("-")));
-            long endOffset = endOffset(length, startOffset);
+            long endOffset = endOffset(fileLength, startOffset);
             long chunkSize = endOffset - startOffset + 1;
-            return new PartialRequestInfo(startOffset, endOffset, chunkSize);
+            return new Chunk(startOffset, endOffset, chunkSize, fileLength);
         } catch (Exception e) {
             throw new IllegalStateException("Invalid range header", e);
         }
@@ -95,38 +114,31 @@ public abstract class AbstractStreamer extends NettyHandler {
         return ctx.write(response);
     }
 
-    protected static ProgressListener progressListener(Session session, Track track) {
+    protected static GenericFutureListener<ChannelProgressiveFuture> progressListener(
+        Session session, Track track
+    ) {
 
         return new ProgressListener(String.format("%s %s", session, track));
     }
 
-    private Function<Track, Handling> trackStreamer(
-        WebPath webPath,
-        Session session,
-        ChannelHandlerContext ctx
+    protected ChannelFuture writeContent(
+        Session session, ChannelHandlerContext ctx,
+        Chunk chunk,
+        HttpResponse response,
+        Object content
     ) {
 
-        return track -> {
-            HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-            boolean lossless = webPath.isFlac() && session.isPrivileged();
-            response.headers().set(CONTENT_TYPE, lossless
-                ? WebPath.AUDIO_FLAC
-                : WebPath.AUDIO_AAC);
-            boolean keepAlive = webPath.isKeepAlive();
-            if (keepAlive) {
-                response.headers().set(CONNECTION, KEEP_ALIVE);
-            }
-            response.headers().add(ACCEPT_RANGES, BYTES);
-            stream(webPath, session, track, lossless, response, ctx)
-                .ifPresent(channelFuture ->
-                    channelFuture.addListener(progressListener(session, track)));
-            ChannelFuture lastContentFuture =
-                ctx.writeAndFlush(EMPTY_LAST_CONTENT);
-            if (!keepAlive) {
-                lastContentFuture.addListener(CLOSE);
-            }
-            return handle(ctx, response);
-        };
+        response.headers().add(
+            CONTENT_RANGE,
+            BYTES + " " + chunk.getStartOffset() + "-" + chunk.getEndOffset() + "/" + chunk.getTotalSize());
+        HttpUtil.setContentLength(response, chunk.getSize());
+        response.setStatus(PARTIAL_CONTENT);
+        try {
+            ctx.write(response);
+            return ctx.writeAndFlush(content, ctx.newProgressivePromise());
+        } finally {
+            session.streaming(chunk.getSize());
+        }
     }
 
     private static long endOffset(long fileLength, long startOffset) {

@@ -1,19 +1,25 @@
 package mediaserver.util;
 
-import mediaserver.Main;
+import mediaserver.Config;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public final class Print {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     Print() {
 
     }
 
     public static String aboutTime(Instant instant) {
-        return instant.atZone(Main.TIMEZONE).format(DateTimeFormatter.ISO_DATE_TIME);
+
+        return instant.atZone(Config.TIMEZONE)
+            .truncatedTo(ChronoUnit.MINUTES)
+            .format(DATE_TIME_FORMATTER);
     }
 
     public static String pretty(Duration dur) {

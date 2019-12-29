@@ -29,19 +29,19 @@ public abstract class NettyHandler {
         return handled.isEmpty() || handled.stream().anyMatch(webPath::hasPrefix);
     }
 
-    public Handling handle(
-        ChannelHandlerContext ctx,
-        HttpResponseStatus status
-    ) {
+    public Handling handle(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        HttpResponse response = Netty.response(null, status, null, null);
-        return handle(ctx, response);
+        return handle(ctx, Netty.response(null, status, null, null));
     }
 
     public Handling handle(ChannelHandlerContext ctx, HttpResponse response) {
 
-        HttpResponse sentResponse = Netty.respond(ctx, response);
-        return Handling.sentResponse(this, sentResponse);
+        return handled(Netty.respond(ctx, response));
+    }
+
+    public Handling handled(HttpResponse response) {
+
+        return Handling.sentResponse(this, response);
     }
 
     protected Handling handle(
