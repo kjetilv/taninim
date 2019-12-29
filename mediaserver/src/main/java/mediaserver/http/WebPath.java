@@ -11,6 +11,7 @@ import mediaserver.util.URLs;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -30,6 +31,8 @@ public final class WebPath {
 
     private final String uri;
 
+    private final Instant time;
+
     private final Supplier<String> host;
 
     private final Supplier<Optional<UUID>> uuid;
@@ -45,12 +48,12 @@ public final class WebPath {
     private final Supplier<ConcurrentHashMap<String, Optional<String>>> headers =
         MostlyOnce.get(ConcurrentHashMap::new);
 
-    public WebPath(Prefix prefix, String uri, FullHttpRequest request) {
+    public WebPath(Prefix prefix, String uri, FullHttpRequest request, Instant time) {
 
         this.request = Objects.requireNonNull(request, "req");
         this.prefix = Objects.requireNonNull(prefix, "prefix");
         this.uri = this.prefix.resolve(Objects.requireNonNull(uri, "uri"));
-
+        this.time = time;
         int pathIndex = this.uri.indexOf("?");
         this.path = pathIndex > 0 ? this.uri.substring(0, pathIndex) : this.uri;
 
@@ -83,6 +86,11 @@ public final class WebPath {
             p = p.substring(1);
         }
         return p;
+    }
+
+    public Instant getTime() {
+
+        return time;
     }
 
     public String getUri() {
@@ -148,7 +156,7 @@ public final class WebPath {
         return request;
     }
 
-    public static Optional<WebPath> from(FullHttpRequest req) {
+    public static Optional<WebPath> from(Instant start, FullHttpRequest req) {
 
         return Optional.of(req.uri())
             .filter(uri ->
@@ -156,7 +164,7 @@ public final class WebPath {
             .flatMap(uri -> {
                 String decoded = URLDecoder.decode(uri, StandardCharsets.UTF_8);
                 return Prefix.getFor(decoded).map(prefix ->
-                    new WebPath(prefix, decoded, req));
+                    new WebPath(prefix, decoded, req, start));
             });
     }
 

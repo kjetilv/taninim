@@ -22,24 +22,24 @@ public abstract class NettyHandler {
         this.cache = new WebCache<>(IO::read);
     }
 
-    public abstract Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx);
-
     public boolean couldHandle(WebPath webPath) {
 
         return handled.isEmpty() || handled.stream().anyMatch(webPath::hasPrefix);
     }
 
-    public Handling handle(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    public abstract Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx);
 
-        return handle(ctx, Netty.response(null, status, null, null));
+    protected Handling sendResponse(ChannelHandlerContext ctx, HttpResponseStatus status) {
+
+        return sendResponse(ctx, Netty.response(null, status, null, null));
     }
 
-    public Handling handle(ChannelHandlerContext ctx, HttpResponse response) {
+    protected Handling sendResponse(ChannelHandlerContext ctx, HttpResponse response) {
 
-        return handled(Netty.respond(ctx, response));
+        return sentResponse(Netty.respond(ctx, response));
     }
 
-    public Handling handled(HttpResponse response) {
+    protected Handling sentResponse(HttpResponse response) {
 
         return Handling.sentResponse(this, response);
     }
@@ -53,7 +53,7 @@ public abstract class NettyHandler {
         try {
             HttpResponse response =
                 Netty.response(webPath, bytes, null);
-            return handle(ctx, response);
+            return sendResponse(ctx, response);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + webPath, e);
         }

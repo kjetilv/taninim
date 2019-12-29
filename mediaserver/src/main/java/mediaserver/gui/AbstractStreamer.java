@@ -51,14 +51,17 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
                 getMediaTrack(webPath.getPath(true))
                     .map(track ->
                         stream(webPath, session, track, ctx))
+                    .map(
+                        this::sentResponse
+                    )
                     .orElseGet(() ->
-                        handle(ctx, NOT_FOUND)))
+                        sendResponse(ctx, NOT_FOUND)))
             .orElseGet(() ->
-                handle(ctx, UNAUTHORIZED));
+                sendResponse(ctx, UNAUTHORIZED));
     }
 
     @Override
-    public Handling stream(WebPath webPath, Session session, Track track, ChannelHandlerContext ctx) {
+    public HttpResponse stream(WebPath webPath, Session session, Track track, ChannelHandlerContext ctx) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         boolean lossless = webPath.isFlac() && session.isPrivileged();
@@ -71,16 +74,14 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
         }
         response.headers().add(ACCEPT_RANGES, BYTES);
 
-        stream(webPath, session, track, lossless, response, ctx)
-            .ifPresent(channelFuture ->
-                channelFuture.addListener(progressListener(session, track)));
+        streamFuture(webPath, session, track, lossless, response, ctx).ifPresent(future ->
+            future.addListener(progressListener(session, track)));
 
         ChannelFuture lastContentFuture = ctx.writeAndFlush(EMPTY_LAST_CONTENT);
-
         if (!keepAlive) {
             lastContentFuture.addListener(CLOSE);
         }
-        return handled(response);
+        return response;
     }
 
     protected static Chunk chunk(String rangeHeader, long fileLength) {
@@ -95,7 +96,7 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
         }
     }
 
-    protected abstract Optional<ChannelFuture> stream(
+    protected abstract Optional<ChannelFuture> streamFuture(
         WebPath webPath,
         Session user,
         Track track,

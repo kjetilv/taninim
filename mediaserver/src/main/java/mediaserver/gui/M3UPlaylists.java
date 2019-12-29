@@ -56,11 +56,11 @@ public final class M3UPlaylists extends TemplateEnabled {
                     .map(template ->
                         instrumented(template, session, webPath))
                     .map(template ->
-                        handle(ctx, response(webPath, template)))
+                        sendResponse(ctx, response(webPath, template)))
                     .orElseGet(() ->
-                        handle(ctx, NOT_FOUND)))
+                        sendResponse(ctx, NOT_FOUND)))
             .orElseGet(() ->
-                handle(ctx, UNAUTHORIZED));
+                sendResponse(ctx, UNAUTHORIZED));
     }
 
     private HttpResponse response(WebPath webPath, Template template) {

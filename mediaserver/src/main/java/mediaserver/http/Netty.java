@@ -35,12 +35,7 @@ public final class Netty {
 
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        return respond(ctx, response(status));
-    }
-
-    public static HttpResponse response(HttpResponseStatus status) {
-
-        return response(null, status, null, null);
+        return respond(ctx, response(null, status, null, null));
     }
 
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
@@ -52,11 +47,6 @@ public final class Netty {
         } catch (Exception e) {
             throw new IllegalStateException("Response failed: " + response, e);
         }
-    }
-
-    public static HttpResponse response(WebPath webPath, byte[] content) {
-
-        return response(webPath, content, null);
     }
 
     public static HttpResponse response(
@@ -76,16 +66,6 @@ public final class Netty {
     ) {
 
         return response(webPath, null, status, content, moreHeaders);
-    }
-
-    public static HttpResponse response(
-        WebPath webPath,
-        String contentType,
-        byte[] content,
-        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
-    ) {
-
-        return response(webPath, contentType, null, content, moreHeaders);
     }
 
     public static HttpResponse response(

@@ -26,7 +26,7 @@ public final class FileStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected Optional<ChannelFuture> stream(
+    protected Optional<ChannelFuture> streamFuture(
         WebPath webPath,
         Session session,
         Track track,
@@ -35,7 +35,9 @@ public final class FileStreamer extends AbstractStreamer {
         ChannelHandlerContext ctx
     ) {
 
-        File sourceFile = lossless ? track.getFile() : track.getCompressedFile();
+        File sourceFile = lossless
+            ? track.getFile()
+            : track.getCompressedFile();
         RandomAccessFile file = randomAccess(sourceFile);
         long fileLength = length(file);
 

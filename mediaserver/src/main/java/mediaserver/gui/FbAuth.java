@@ -18,7 +18,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 public final class FbAuth extends NettyHandler {
 
@@ -42,37 +43,52 @@ public final class FbAuth extends NettyHandler {
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
         return sessions.activeSession(webPath)
-            .map(user ->
-                handle(ctx, OK))
+            .map(session ->
+                sessionAlreadyExists(ctx, session))
             .orElseGet(() ->
-                lookupFacebookUser(webPath)
+                loginFacebookUser(webPath)
                     .map(login(webPath, ctx))
                     .orElseGet(this::pass));
+    }
+
+    private Handling sessionAlreadyExists(ChannelHandlerContext ctx, Session session) {
+
+        log.info("Redundant login, session exists: {}", session);
+        return sendResponse(ctx, OK);
     }
 
     private Function<FacebookUser, Handling> login(WebPath webPath, ChannelHandlerContext ctx) {
 
         return user -> {
             if (ids.get().isAuthorized(user)) {
-                Session session = sessions.establish(user);
+                Session session = sessions.establish(webPath, user);
                 HttpResponse response =
                     Netty.authCookieResponse(webPath, Netty.authCookie(session));
-                return handle(ctx, response);
+                return sendResponse(ctx, response);
             }
             log.warn("Unknown user attempted login: {}/{}", user.getName(), user.getId());
-            return handle(ctx, BAD_REQUEST);
+            return sendResponse(ctx, BAD_REQUEST);
         };
     }
 
-    private Optional<FacebookUser> lookupFacebookUser(WebPath webPath) {
+    private Optional<FacebookUser> loginFacebookUser(WebPath webPath) {
 
-        return webPath.getContent()
-            .map(json -> {
-                FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
-                User user = facebookClient(authResponse)
-                    .fetchObject(authResponse.getUserID(), User.class);
-                return new FacebookUser(user.getName(), user.getId());
-            });
+        return webPath.getContent().map(json -> {
+            FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
+            FacebookUser facebookUser = login(authResponse);
+            log.info("Logged in: {}", facebookUser);
+            return facebookUser;
+        });
+    }
+
+    private FacebookUser login(FacebookAuthResponse authResponse) {
+
+        try {
+            User user = facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class);
+            return new FacebookUser(user.getName(), user.getId());
+        } catch (Exception e) {
+            throw new IllegalStateException("Login failed for user: " + authResponse.getUserID(), e);
+        }
     }
 
     private FacebookClient facebookClient(FacebookAuthResponse authResponse) {

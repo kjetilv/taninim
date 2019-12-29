@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Year;
 import java.util.*;
@@ -150,7 +151,11 @@ public interface Media {
 
         log.info("Reading discogs data");
         Collection<DiscogConnection> metaConnections = metaConnections(baseMedia, iTunesLibrary);
-        DiscogsDataResolver discogsData = new DiscogsDataResolver(resourcesPath, metaConnections, Duration.ofDays(7));
+        DiscogsDataResolver discogsData = new DiscogsDataResolver(
+            resourcesPath,
+            metaConnections,
+            Duration.ofDays(14),
+            Clock.systemDefaultZone());
         log.info("Retrieved {} discogs data", discogsData.getConnections().size());
 
         Media media = baseMedia.allAlbums().stream()

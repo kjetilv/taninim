@@ -2,18 +2,17 @@ package mediaserver.sessions;
 
 import mediaserver.externals.FacebookUser;
 import mediaserver.http.WebPath;
+import mediaserver.util.Print;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Sessions {
 
@@ -25,34 +24,35 @@ public final class Sessions {
 
     private final Duration inactivityMax;
 
-    private final Clock clock;
+    private final long bytesQuota;
 
     private final boolean devLogin;
 
     private static final FacebookUser DEV_USER = new FacebookUser("dev", "dev");
 
-    public Sessions(Duration sessionLength, Duration inactivityMax, Clock clock, boolean devLogin) {
+    private static final Collection<Session.Status> OK_STATUS = Collections.singleton(Session.Status.OK);
+
+    public Sessions(Duration sessionLength, Duration inactivityMax, long bytesQuota, boolean devLogin) {
 
         this.sessionLength = sessionLength;
         this.inactivityMax = inactivityMax;
-        this.clock = clock;
+        this.bytesQuota = bytesQuota;
         this.devLogin = devLogin;
         if (this.devLogin) {
             log.warn("{} will allow login as dev", this);
         }
     }
 
-    public Session establish(FacebookUser user) {
+    public Session establish(WebPath webPath, FacebookUser user) {
 
         return sessions.compute(user, (__, session) -> {
 
-            Instant time = this.now();
-            if (isActiveAt(time, session)) {
-                log.info("Active: {}", session);
-                return session.accessedAt(time);
+            if (session != null && valid(webPath, session)) {
+                log.info("Session active: {}", session);
+                return session.accessedAt(webPath.getTime());
             }
-            Session newSession = newSessionAt(time, user);
-            log.info("Created: {} <= {}", newSession, session);
+            Session newSession = newSessionAt(webPath.getTime(), user);
+            log.info("Session created: {} <= {}", newSession, session);
             return newSession;
         });
     }
@@ -60,12 +60,21 @@ public final class Sessions {
     public Optional<Session> activeSession(WebPath webPath) {
 
         return webPath.getAuthentication()
-            .flatMap(uuid ->
-                sessions.values().stream()
+            .flatMap(uuid -> {
+                Collection<Session> sessions = this.sessions.values().stream()
                     .filter(withCookie(uuid))
+                    .collect(Collectors.toList());
+                if (sessions.size() > 1) {
+                    throw new IllegalStateException("Multiple sessions for " + uuid);
+                }
+
+                return sessions.stream()
                     .findFirst()
-                    .map(this::accessed))
-            .or(this::devSession);
+                    .filter(session ->
+                        valid(webPath, session));
+            })
+            .or(() ->
+                devSession(webPath));
     }
 
     public Optional<Session> close(WebPath webPath) {
@@ -73,14 +82,18 @@ public final class Sessions {
         return activeSession(webPath).map(Session::getFacebookUser).map(sessions::remove);
     }
 
-    private Session accessed(Session session) {
+    private boolean valid(WebPath webPath, Session session) {
 
-        return session.accessedAt(now());
-    }
-
-    private boolean isActiveAt(Instant currentTime, Session oldSession) {
-
-        return oldSession != null && !oldSession.expiredAt(currentTime);
+        Collection<Session.Status> statuses = Stream.of(
+            session.stillActive(webPath.getTime()),
+            session.withinQuota()
+        ).collect(Collectors.toUnmodifiableSet());
+        if (statuses.equals(OK_STATUS)) {
+            return true;
+        }
+        log.info("Session disabled for {}: {} {}", webPath, session, statuses.stream().map(Enum::name).collect(
+            Collectors.joining(", ")));
+        return false;
     }
 
     private Session newSessionAt(Instant currentTime, FacebookUser facebookUser) {
@@ -91,7 +104,8 @@ public final class Sessions {
             cookie,
             currentTime,
             currentTime.plus(sessionLength),
-            inactivityMax);
+            inactivityMax,
+            bytesQuota);
     }
 
     private Predicate<Session> withCookie(UUID uuid) {
@@ -100,24 +114,24 @@ public final class Sessions {
             Objects.equals(session.getCookie(), uuid);
     }
 
-    private Optional<Session> devSession() {
+    private Optional<Session> devSession(WebPath webPath) {
 
         if (devLogin) {
-            Session session = newSessionAt(clock.instant(), DEV_USER);
+            Session session = newSessionAt(webPath.getTime(), DEV_USER);
             log.warn("Established dev session: {}", session);
             return Optional.of(session);
         }
         return Optional.empty();
     }
 
-    private Instant now() {
-
-        return clock.instant();
-    }
-
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + sessions.keySet() + "]";
+        return getClass().getSimpleName() + "[" + sessions.keySet() +
+            " bytesQuota:" + Print.bytes(bytesQuota) +
+            " sessionLength:" + sessionLength +
+            " inactivityMax:" + inactivityMax +
+            " devLogin:" + devLogin +
+            "]";
     }
 }

@@ -1,6 +1,5 @@
 package mediaserver.sessions;
 
-import mediaserver.Config;
 import mediaserver.externals.FacebookUser;
 import mediaserver.util.Print;
 
@@ -10,41 +9,53 @@ import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class Session {
 
+    public enum Status {
+
+        OK,
+
+        SESSION_LENGTH_CUTOFF,
+
+        INACTIVITY_CUTOFF,
+
+        QUOTA_EXCEEDED
+    }
+
     private final Instant startTime;
+
+    private final long bytesQuota;
 
     private final Instant sessionCutoff;
 
     private final Duration inactivityMax;
 
-    private Instant lastAccessed;
-
     private final UUID cookie;
 
     private final FacebookUser facebookUser;
 
-    private final AtomicLong bytesLeft = new AtomicLong(QUOTA);
+    private final AtomicReference<Instant> lastAccessed = new AtomicReference<>();
 
-    private static final int K = 1_024;
+    private final AtomicLong bytesStreamed = new AtomicLong();
 
-    private static final int M = K * K;
-
-    private static final int QUOTA = Config.MEGAS_PER_SESSION * K * K;
+    private final AtomicReference<Status> status = new AtomicReference<>(Status.OK);
 
     public Session(
         FacebookUser facebookUser,
         UUID cookie,
         Instant startTime,
         Instant sessionCutoff,
-        Duration inactivityMax
+        Duration inactivityMax,
+        long bytesQuota
     ) {
 
         this.facebookUser = Objects.requireNonNull(facebookUser, "facebookUser");
         this.cookie = Objects.requireNonNull(cookie, "cookie");
         this.startTime = Objects.requireNonNull(startTime, "startTime");
-        this.lastAccessed = this.startTime;
+        this.bytesQuota = bytesQuota;
+        this.lastAccessed.set(this.startTime);
         this.sessionCutoff = Objects.requireNonNull(sessionCutoff, "cutoff");
         this.inactivityMax = Objects.requireNonNull(inactivityMax, "inactivityMax");
     }
@@ -59,24 +70,27 @@ public final class Session {
         return facebookUser;
     }
 
-    public boolean expiredAt(Instant currentTime) {
+    public Status stillActive(Instant currentTime) {
 
         if (currentTime.isAfter(sessionCutoff)) {
-            return true;
+            return Status.SESSION_LENGTH_CUTOFF;
         }
-        Duration inactivity = Duration.between(lastAccessed, currentTime);
-        return inactivity.toSeconds() > inactivityMax.toSeconds();
+        Duration inactivity = Duration.between(lastAccessed.get(), currentTime);
+        return inactivity.toSeconds() > inactivityMax.toSeconds()
+            ? Status.INACTIVITY_CUTOFF
+            : Status.OK;
+    }
+
+    public Status withinQuota() {
+
+        return bytesStreamed.get() < bytesQuota
+            ? Status.OK
+            : Status.QUOTA_EXCEEDED;
     }
 
     public Session streaming(long bytes) {
 
-        bytesLeft.updateAndGet(remaining -> remaining - bytes);
-        return this;
-    }
-
-    public Session accessedAt(Instant currentTime) {
-
-        lastAccessed = currentTime;
+        bytesStreamed.updateAndGet(remaining -> remaining - bytes);
         return this;
     }
 
@@ -85,25 +99,19 @@ public final class Session {
         return facebookUser.getId().equals("2787973921215833");
     }
 
+    public Session accessedAt(Instant currentTime) {
+
+        lastAccessed.set(currentTime);
+        return this;
+    }
+
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + facebookUser +
-            " @ " + Print.aboutTime(startTime) +
-            " " + amount() + "/" + QUOTA / M + "mb" +
-            " -" + Duration.between(lastAccessed, sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
+        return getClass().getSimpleName() + "[" + facebookUser + "/" + cookie +
+            "@" + Print.aboutTime(startTime) +
+            " s:" + Print.bytes(bytesStreamed.get()) + "/" + Print.bytes(bytesQuota) +
+            " t:" + Duration.between(lastAccessed.get(), sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
             "]";
-    }
-
-    private String amount() {
-
-        long left = QUOTA - bytesLeft.get();
-        if (left > M) {
-            return left / M + "mb";
-        }
-        if (left > K) {
-            return left / K + "kb";
-        }
-        return left + "b";
     }
 }

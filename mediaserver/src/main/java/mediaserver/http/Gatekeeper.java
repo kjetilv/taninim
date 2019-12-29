@@ -34,7 +34,7 @@ public final class Gatekeeper extends TemplateEnabled {
                 .map(user -> pass())
                 .orElseGet(() -> {
                     log.info("Redirecting {} to login", webPath);
-                    return handle(ctx, Netty.redirectResponse(LOGIN.getPref()));
+                    return sendResponse(ctx, Netty.redirectResponse(LOGIN.getPref()));
                 });
         }
 

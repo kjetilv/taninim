@@ -11,6 +11,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -40,17 +41,21 @@ public final class DiscogsDataResolver {
 
     private final Duration refreshTime;
 
+    private final Clock clock;
+
     private final AtomicBoolean discogsTired = new AtomicBoolean();
 
     public DiscogsDataResolver(
         Path resourcesDirectory,
         Collection<DiscogConnection> connections,
-        Duration refreshTime
+        Duration refreshTime,
+        Clock clock
     ) {
 
         this.resourcesDirectory = resourcesDirectory;
         this.connections = connections;
         this.refreshTime = refreshTime;
+        this.clock = clock;
     }
 
     public Collection<DiscogConnection> getConnections() {
@@ -103,7 +108,7 @@ public final class DiscogsDataResolver {
         try {
             return Duration.between(
                 modifiedTime(raw),
-                Instant.now()
+                clock.instant()
             ).minus(refreshTime).isNegative();
         } catch (IOException e) {
             log.warn("Could not assert age of {}", raw, e);

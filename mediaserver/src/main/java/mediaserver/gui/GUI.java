@@ -36,7 +36,7 @@ public final class GUI extends TemplateEnabled {
             .map(template ->
                 respond(webPath, ctx, template))
             .orElseGet(() ->
-                handle(ctx, NOT_FOUND));
+                sendResponse(ctx, NOT_FOUND));
     }
 
     private Optional<Template> template(WebPath webPath, Media media) {

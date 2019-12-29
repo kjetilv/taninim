@@ -10,7 +10,10 @@ import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.misc.ErrorType;
 import org.stringtemplate.v4.misc.STMessage;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -33,7 +36,7 @@ public final class Template {
         this.bytes = MostlyOnce.get(() -> {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             try (Writer out = new OutputStreamWriter(bytes, StandardCharsets.UTF_8)) {
-                st.write(new NoIndentWriter(out), new LoggingErrorListener());
+                st.write(new NoIndentWriter(out), new LoggingErrorListener(name));
             } catch (IOException e) {
                 throw new IllegalStateException(this + " failed to write template: " + st, e);
             }
@@ -61,36 +64,37 @@ public final class Template {
 
     private static class LoggingErrorListener implements STErrorListener {
 
-        private static Collection<Object> MISSING_PROPS = new ConcurrentSkipListSet<>();
+        private final String name;
+
+        public LoggingErrorListener(String name) {
+
+            this.name = name;
+        }
 
         @Override
         public void compileTimeError(STMessage msg) {
 
-            log.warn("Failed to compile: {}", msg, msg.cause);
+            log.warn("{}: Failed to compile: {}", name, msg, msg.cause);
         }
 
         @Override
         public void runTimeError(STMessage msg) {
 
-            if (msg.error == ErrorType.NO_SUCH_ATTRIBUTE) {
-                if (MISSING_PROPS.add(msg.arg)) {
-                    log.debug("Missing property: {}", msg, msg.cause);
-                }
-            } else {
-                log.warn("Failed at runtime: {}", msg, msg.cause);
+            if (msg.error != ErrorType.NO_SUCH_ATTRIBUTE) {
+                log.warn("{}: Failed at runtime: {}", name, msg, msg.cause);
             }
         }
 
         @Override
         public void IOError(STMessage msg) {
 
-            log.warn("Failed at I/O: {}", msg, msg.cause);
+            log.warn("{}: Failed at I/O: {}", name, msg, msg.cause);
         }
 
         @Override
         public void internalError(STMessage msg) {
 
-            log.error("Internal error: {}", msg, msg.cause);
+            log.error("{}: Internal error: {}", name, msg, msg.cause);
         }
     }
 

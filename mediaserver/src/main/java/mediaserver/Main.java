@@ -46,23 +46,31 @@ public final class Main {
 
     public static void main(String[] args) {
 
+        Sessions sessions = new Sessions(
+            Config.SESSION_LENGTH,
+            Config.INACTIVITY_MAX,
+            Config.BYTES_PER_SESSION,
+            Config.DEV_LOGIN);
+
         boolean local = local(args);
         boolean devLogin = Config.DEV_LOGIN;
         boolean noStream = Config.NEUTER;
         boolean sslPlaylists = Config.PRETEND_SSL || !devLogin && !local;
 
         log.info(
-            "Running in {}{}, streaming {}abled",
+            "{}: Running in {}, streaming {}abled",
+            sessions,
             local ? "local mode" : "the cloud",
-            devLogin ? " with dev login" : "",
             noStream ? "dis" : "en");
 
         SslContext mockSslContext = Config.PRETEND_SSL && devLogin ? mockSslContext() : null;
 
+        if (mockSslContext != null) {
+            log.warn("Mock SSL context: {}", mockSslContext);
+        }
+
         Supplier<Ids> ids = idsSupplier(args, local);
         Supplier<Media> media = mediaSupplier(args, local);
-        Sessions sessions =
-            new Sessions(Config.SESSION_LENGTH, Config.INACTIVITY_MAX, CLOCK, devLogin);
         WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
         Templater templater = new Templater();
 
@@ -70,7 +78,10 @@ public final class Main {
             ? new NullStreamer()
             : streamer(local, media, sessions);
 
+        log.info("Streamer: {}", streamer);
+
         Supplier<Router> router = () -> new Router(
+            CLOCK,
             streamer,
             new Debug(),
             new Gatekeeper(sessions, templater),

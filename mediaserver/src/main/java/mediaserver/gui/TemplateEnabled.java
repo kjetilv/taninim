@@ -42,6 +42,6 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     protected Handling respond(WebPath webPath, ChannelHandlerContext ctx, Template template) {
 
-        return handle(ctx, Netty.response(webPath, TEXT_HTML, template.bytes()));
+        return sendResponse(ctx, Netty.response(webPath, TEXT_HTML, template.bytes()));
     }
 }

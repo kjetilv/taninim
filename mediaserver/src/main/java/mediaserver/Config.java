@@ -14,6 +14,8 @@ public class Config {
 
     public static final int MEGAS_PER_SESSION = count("sessionMb", 97);
 
+    public static final int BYTES_PER_SESSION = MEGAS_PER_SESSION * 1024 * 1024;
+
     static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(5));
 
     static final boolean LIVE = isTrue("live");

@@ -17,7 +17,7 @@ public final class NullStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected Optional<ChannelFuture> stream(
+    protected Optional<ChannelFuture> streamFuture(
         WebPath webPath,
         Session user,
         Track track,

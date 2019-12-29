@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLHandshakeException;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -34,36 +35,42 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static final Collection<String> ROUTED = new ConcurrentSkipListSet<>();
 
+    private final Clock clock;
+
     private final Collection<NettyHandler> handlers;
 
-    Router(NettyHandler... handlers) {
-        this(Arrays.asList(handlers));
+    Router(Clock clock, NettyHandler... handlers) {
+
+        this(clock, Arrays.asList(handlers));
     }
 
-    Router(Collection<NettyHandler> handlers) {
+    Router(Clock clock, Collection<NettyHandler> handlers) {
 
+        this.clock = clock;
         this.handlers = List.copyOf(handlers);
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
+    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
 
-        if (HttpUtil.is100ContinueExpected(req)) {
+        if (HttpUtil.is100ContinueExpected(request)) {
             respond(ctx, TO_BE_CONTINUED);
         }
-        handle(ctx, req, handler(ctx));
-    }
-
-    private Function<WebPath, Optional<Handling>> handler(ChannelHandlerContext ctx) {
-
-        return webPath ->
-            handlers.stream()
-                .filter(handler ->
-                    handler.couldHandle(webPath))
-                .map(handler ->
-                    handler.handleRequest(webPath, ctx))
-                .filter(Handling::isHandled)
-                .findFirst();
+        Instant time = clock.instant();
+        try {
+            WebPath.from(time, request)
+                .flatMap(handler(ctx))
+                .ifPresentOrElse(
+                    handling ->
+                        log(request, handling, time),
+                    () -> {
+                        logError(request, null, time);
+                        respond(ctx, BAD_REQUEST);
+                    });
+        } catch (Exception e) {
+            logError(request, e, time);
+            respond(ctx, INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
@@ -84,50 +91,34 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private static void handle(
-        ChannelHandlerContext ctx,
-        FullHttpRequest request,
-        Function<WebPath, Optional<Handling>> handler
-    ) {
+    private Function<WebPath, Optional<Handling>> handler(ChannelHandlerContext ctx) {
 
-        Instant start = Instant.now();
-        try {
-            WebPath.from(request)
-                .flatMap(handler)
-                .ifPresentOrElse(
-                    handling ->
-                        reportHandled(handling, request, start),
-                    () -> {
-                        logError(request, null, durationSince(start));
-                        respond(ctx, BAD_REQUEST);
-                    });
-        } catch (Exception e) {
-            logError(request, e, durationSince(start));
-            respond(ctx, INTERNAL_SERVER_ERROR);
-        }
+        return webPath ->
+            handlers.stream()
+                .filter(handler ->
+                    handler.couldHandle(webPath))
+                .map(handler ->
+                    handler.handleRequest(webPath, ctx))
+                .filter(Handling::isHandled)
+                .findFirst();
     }
 
-    private static void reportHandled(Handling handling, FullHttpRequest req, Instant start) {
+    private void logError(FullHttpRequest req, Exception e, Instant time) {
 
-        log(req, handling, durationSince(start));
+        log.error("Failed [{}ms]: {}", durationSince(time), req, e);
     }
 
-    private static void logError(FullHttpRequest req, Exception e, long ms) {
-
-        log.error("Failed [{}ms]: {}", ms, req, e);
-    }
-
-    private static void log(FullHttpRequest req, Handling response, long ms) {
+    private void log(FullHttpRequest req, Handling response, Instant time) {
 
         if (ROUTED.add(req.uri())) {
             log.info("{} -> {} in {}ms",
-                req.uri(), response.getSentResponse().status(), ms);
+                req.uri(), response.getSentResponse().status(), durationSince(time));
         }
     }
 
-    private static long durationSince(Instant start) {
+    private long durationSince(Instant start) {
 
-        return Duration.between(start, Instant.now()).toMillis();
+        return Duration.between(start, clock.instant()).toMillis();
     }
 
     private Optional<Throwable> ignoredException(ChannelHandlerContext ctx, Throwable cause) {

@@ -28,7 +28,7 @@ public final class S3Streamer extends AbstractStreamer {
     }
 
     @Override
-    protected Optional<ChannelFuture> stream(
+    protected Optional<ChannelFuture> streamFuture(
         WebPath webPath,
         Session session,
         Track track,

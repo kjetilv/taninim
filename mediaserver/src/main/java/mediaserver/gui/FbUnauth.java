@@ -26,7 +26,7 @@ public final class FbUnauth extends NettyHandler {
                 log.info("Session logged out: {}", session),
             () ->
                 log.info("No session to log out"));
-        return handle(ctx, Netty.unauthCookieResponse(Netty.unauthCookie()));
+        return sendResponse(ctx, Netty.unauthCookieResponse(Netty.unauthCookie()));
     }
 
 }
