@@ -23,10 +23,12 @@ public final class FbUnauth extends NettyHandler {
 
         sessions.close(webPath).ifPresentOrElse(
             session ->
-                log.info("Session logged out: {}", session),
+                log.info("Session closed: {}", session),
             () ->
-                log.info("No session to log out"));
-        return sendResponse(ctx, Netty.unauthCookieResponse(Netty.unauthCookie()));
+                log.info("No session to close"));
+        return sendResponse(
+            ctx,
+            Netty.unauthCookieResponse(Netty.unauthCookie()));
     }
 
 }

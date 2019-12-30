@@ -71,7 +71,7 @@ public final class Main {
 
         Supplier<Ids> ids = idsSupplier(args, local);
         Supplier<Media> media = mediaSupplier(args, local);
-        WebCache<String, byte[]> webCache = new WebCache<>(IO::readBytes);
+
         Templater templater = new Templater();
 
         AbstractStreamer streamer = noStream
@@ -80,15 +80,17 @@ public final class Main {
 
         log.info("Streamer: {}", streamer);
 
-        Supplier<Router> router = () -> new Router(
+        WebCache<String, byte[]> resourceCache = new WebCache<>(IO::readBytes);
+
+        Router router = new Router(
             CLOCK,
             streamer,
             new Debug(),
             new Gatekeeper(sessions, templater),
             new FbUnauth(sessions),
             new FbAuth(sessions, ids, secretsProvider()),
-            new Resources(RES, webCache),
-            new Favicon(webCache, FAVICON_ICO),
+            new Resources(RES, resourceCache),
+            new Favicon(resourceCache, FAVICON_ICO),
             new Login(templater),
             new M3UPlaylists(media, sessions, templater, sslPlaylists),
             new GUI(media, sessions, templater),
@@ -96,8 +98,7 @@ public final class Main {
 
         log.info("Binding to port {}", Config.PORT);
 
-        new NettyRun(4, 1)
-            .run(router, Config.PORT, mockSslContext);
+        new NettyRunner(4, 1).run(router, Config.PORT, mockSslContext);
     }
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {

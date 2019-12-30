@@ -1,6 +1,7 @@
 package mediaserver;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -27,6 +28,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static mediaserver.http.Netty.respond;
 
+@ChannelHandler.Sharable
 final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static final DefaultFullHttpResponse TO_BE_CONTINUED = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
@@ -59,7 +61,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         Instant time = clock.instant();
         try {
             WebPath.from(time, request)
-                .flatMap(handler(ctx))
+                .flatMap(handling(ctx))
                 .ifPresentOrElse(
                     handling ->
                         log(request, handling, time),
@@ -91,7 +93,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private Function<WebPath, Optional<Handling>> handler(ChannelHandlerContext ctx) {
+    private Function<WebPath, Optional<Handling>> handling(ChannelHandlerContext ctx) {
 
         return webPath ->
             handlers.stream()

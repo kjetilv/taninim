@@ -14,30 +14,26 @@ import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Supplier;
+@SuppressWarnings("SameParameterValue")
+final class NettyRunner {
 
-final class NettyRun {
-
-    private static final Logger log = LoggerFactory.getLogger(NettyRun.class);
+    private static final Logger log = LoggerFactory.getLogger(NettyRunner.class);
 
     private final EventLoopGroup listenGroup;
 
     private final EventLoopGroup workGroup;
 
-    NettyRun(int work, int listen) {
+    NettyRunner(int work, int listen) {
 
         workGroup = new NioEventLoopGroup(work);
         listenGroup = new NioEventLoopGroup(listen);
     }
 
-    void run(
-        Supplier<Router> routerProvider,
-        @SuppressWarnings("SameParameterValue") int port,
-        SslContext sslContext
-    ) {
+    void run(Router router, int port, SslContext sslContext) {
+
         try {
             ChannelInitializer<SocketChannel> handler =
-                new ServerInitializer(routerProvider, sslContext);
+                new ServerInitializer(router, sslContext);
             ServerBootstrap bootstrap =
                 bootstrap(listenGroup, workGroup, handler);
             Channel ch =

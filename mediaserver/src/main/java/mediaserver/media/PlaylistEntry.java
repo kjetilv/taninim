@@ -32,6 +32,7 @@ public final class PlaylistEntry {
     }
 
     public boolean match(Path path) {
+
         return artistMatch(artist(path)) &&
             albumMatch(album(path)) &&
             trackMatch(track(path));
@@ -50,6 +51,16 @@ public final class PlaylistEntry {
     private static String artist(Path path) {
 
         return path.getParent().getParent().getFileName().toString();
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() +
+            "[art:" + artistSpecs +
+            " alb:" + albumSpecs +
+            " trl:" + trackSpecs +
+            "]";
     }
 
     private static List<Matcher> specs(Collection<Matcher> spec, MatchType artist) {
@@ -110,6 +121,12 @@ public final class PlaylistEntry {
         public MatchType getType() {
 
             return type;
+        }
+
+        @Override
+        public String toString() {
+
+            return getClass().getSimpleName() + "[" + type + " " + matchValue + "]";
         }
     }
 }

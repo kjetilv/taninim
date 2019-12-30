@@ -58,9 +58,9 @@ public final class M3UPlaylists extends TemplateEnabled {
                     .map(template ->
                         sendResponse(ctx, response(webPath, template)))
                     .orElseGet(() ->
-                        sendResponse(ctx, NOT_FOUND)))
+                        respondNotFound(ctx)))
             .orElseGet(() ->
-                sendResponse(ctx, UNAUTHORIZED));
+                respondUnauthorized(ctx));
     }
 
     private HttpResponse response(WebPath webPath, Template template) {
@@ -136,13 +136,13 @@ public final class M3UPlaylists extends TemplateEnabled {
 
     private Template playlist(Album album) {
 
-        return readTemplate("res/playlist.m3u")
+        return playlists()
             .add(QPar.PLAYLIST, new PlaylistM3U(album));
     }
 
     private Template playlist(Collection<Album> albums) {
 
-        return readTemplate("res/playlist.m3u")
+        return playlists()
             .add(QPar.PLAYLIST, new PlaylistM3U(
                 albums.size() + " albums",
                 albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList())));
@@ -150,7 +150,7 @@ public final class M3UPlaylists extends TemplateEnabled {
 
     private Template playlist(Artist artist, Collection<Track> tracks) {
 
-        return readTemplate("res/playlist.m3u")
+        return playlists()
             .add(QPar.PLAYLIST, new PlaylistM3U(artist.getName(), tracks));
     }
 }

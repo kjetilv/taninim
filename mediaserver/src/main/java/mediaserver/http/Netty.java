@@ -10,6 +10,8 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import mediaserver.gui.GUI;
 import mediaserver.sessions.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -24,6 +26,8 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public final class Netty {
+
+    private static final Logger log = LoggerFactory.getLogger(Netty.class);
 
     public static final HttpVersion HTTP = HTTP_1_1;
 

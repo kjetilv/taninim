@@ -19,10 +19,17 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     private static final String TEXT_HTML = "text/html";
 
+    public static final String PLAYLIST_M3U = "res/playlist.m3u";
+
     protected TemplateEnabled(Templater templater, Prefix... prefix) {
 
         super(prefix);
         this.templater = templater;
+    }
+
+    protected Template playlists() {
+
+        return templater.template(PLAYLIST_M3U);
     }
 
     protected Template login() {
@@ -40,7 +47,7 @@ public abstract class TemplateEnabled extends NettyHandler {
         return templater.template(ALBUM_PAGE);
     }
 
-    protected Handling respond(WebPath webPath, ChannelHandlerContext ctx, Template template) {
+    protected Handling respondHtml(WebPath webPath, ChannelHandlerContext ctx, Template template) {
 
         return sendResponse(ctx, Netty.response(webPath, TEXT_HTML, template.bytes()));
     }

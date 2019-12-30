@@ -3,23 +3,20 @@ package mediaserver.http;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import mediaserver.gui.Template;
-import mediaserver.util.IO;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
+
 public abstract class NettyHandler {
 
     private final Collection<Prefix> handled;
 
-    private final WebCache<String, String> cache;
-
     protected NettyHandler(Prefix... handled) {
 
         this.handled = new HashSet<>(Arrays.asList(handled));
-        this.cache = new WebCache<>(IO::read);
     }
 
     public boolean couldHandle(WebPath webPath) {
@@ -28,11 +25,6 @@ public abstract class NettyHandler {
     }
 
     public abstract Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx);
-
-    protected Handling sendResponse(ChannelHandlerContext ctx, HttpResponseStatus status) {
-
-        return sendResponse(ctx, Netty.response(null, status, null, null));
-    }
 
     protected Handling sendResponse(ChannelHandlerContext ctx, HttpResponse response) {
 
@@ -59,18 +51,38 @@ public abstract class NettyHandler {
         }
     }
 
-    protected Template readTemplate(String resource) {
-
-        return cache.get(resource)
-            .map(source ->
-                new Template(resource, source))
-            .orElseThrow(() ->
-                new IllegalArgumentException("No such template resource: " + resource));
-    }
-
     protected Handling pass() {
 
         return Handling.pass(this);
     }
 
+    protected Handling respondNotFound(ChannelHandlerContext ctx) {
+
+        return sendResponse(ctx, NOT_FOUND);
+    }
+
+    protected Handling respondUnauthorized(ChannelHandlerContext ctx) {
+
+        return sendResponse(ctx, UNAUTHORIZED);
+    }
+
+    protected Handling respondBadRequest(ChannelHandlerContext ctx) {
+
+        return sendResponse(ctx, BAD_REQUEST);
+    }
+
+    protected Handling respondUnavailable(ChannelHandlerContext ctx) {
+
+        return sendResponse(ctx, SERVICE_UNAVAILABLE);
+    }
+
+    protected Handling respondOK(ChannelHandlerContext ctx) {
+
+        return sendResponse(ctx, OK);
+    }
+
+    private Handling sendResponse(ChannelHandlerContext ctx, HttpResponseStatus status) {
+
+        return sendResponse(ctx, Netty.response(null, status, null, null));
+    }
 }

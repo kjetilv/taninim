@@ -55,9 +55,9 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
                         this::sentResponse
                     )
                     .orElseGet(() ->
-                        sendResponse(ctx, NOT_FOUND)))
+                        respondNotFound(ctx)))
             .orElseGet(() ->
-                sendResponse(ctx, UNAUTHORIZED));
+                respondUnauthorized(ctx));
     }
 
     @Override

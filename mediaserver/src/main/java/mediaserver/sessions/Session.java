@@ -1,6 +1,7 @@
 package mediaserver.sessions;
 
 import mediaserver.externals.FacebookUser;
+import mediaserver.http.WebPath;
 import mediaserver.util.Print;
 
 import java.time.Duration;
@@ -12,17 +13,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class Session {
-
-    public enum Status {
-
-        OK,
-
-        SESSION_LENGTH_CUTOFF,
-
-        INACTIVITY_CUTOFF,
-
-        QUOTA_EXCEEDED
-    }
 
     private final Instant startTime;
 
@@ -39,8 +29,6 @@ public final class Session {
     private final AtomicReference<Instant> lastAccessed = new AtomicReference<>();
 
     private final AtomicLong bytesStreamed = new AtomicLong();
-
-    private final AtomicReference<Status> status = new AtomicReference<>(Status.OK);
 
     public Session(
         FacebookUser facebookUser,
@@ -70,18 +58,23 @@ public final class Session {
         return facebookUser;
     }
 
-    public Status stillActive(Instant currentTime) {
+    public Status sessionStatus(WebPath webPath) {
 
-        if (currentTime.isAfter(sessionCutoff)) {
-            return Status.SESSION_LENGTH_CUTOFF;
-        }
-        Duration inactivity = Duration.between(lastAccessed.get(), currentTime);
+        return webPath.getTime().isAfter(sessionCutoff)
+            ? Status.SESSION_LENGTH_CUTOFF
+            : Status.OK;
+    }
+
+    public Status activityStatus(WebPath webPath) {
+
+        Duration inactivity =
+            Duration.between(lastAccessed.get(), webPath.getTime());
         return inactivity.toSeconds() > inactivityMax.toSeconds()
             ? Status.INACTIVITY_CUTOFF
             : Status.OK;
     }
 
-    public Status withinQuota() {
+    public Status quotaStatus() {
 
         return bytesStreamed.get() < bytesQuota
             ? Status.OK
@@ -90,19 +83,30 @@ public final class Session {
 
     public Session streaming(long bytes) {
 
-        bytesStreamed.updateAndGet(remaining -> remaining - bytes);
+        bytesStreamed.addAndGet(bytes);
         return this;
     }
 
     public boolean isPrivileged() {
 
-        return facebookUser.getId().equals("2787973921215833");
+        return false;//facebookUser.getId().equals("2787973921215833");
     }
 
-    public Session accessedAt(Instant currentTime) {
+    public Session accessedBy(WebPath webPath) {
 
-        lastAccessed.set(currentTime);
+        lastAccessed.set(webPath.getTime());
         return this;
+    }
+
+    public enum Status {
+
+        OK,
+
+        SESSION_LENGTH_CUTOFF,
+
+        INACTIVITY_CUTOFF,
+
+        QUOTA_EXCEEDED
     }
 
     @Override

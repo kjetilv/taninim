@@ -148,7 +148,7 @@ private fun noDists(): List<Dist> = emptyList()
 
 private fun changed(source: Path, target: Path): Boolean =
         Files.getLastModifiedTime(source).toInstant().isAfter(
-                Files.getLastModifiedTime(target).toInstant())
+                Files.getLastModifiedTime(target).toInstant().plusSeconds(5))
 
 private fun album(path: Path) = path.parent.fileName.toString().toLowerCase()
 

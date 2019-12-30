@@ -53,8 +53,8 @@ public final class FbAuth extends NettyHandler {
 
     private Handling sessionAlreadyExists(ChannelHandlerContext ctx, Session session) {
 
-        log.info("Redundant login, session exists: {}", session);
-        return sendResponse(ctx, OK);
+        log.info("Redundant login, session alrady exists: {}", session);
+        return respondOK(ctx);
     }
 
     private Function<FacebookUser, Handling> login(WebPath webPath, ChannelHandlerContext ctx) {
@@ -67,7 +67,7 @@ public final class FbAuth extends NettyHandler {
                 return sendResponse(ctx, response);
             }
             log.warn("Unknown user attempted login: {}/{}", user.getName(), user.getId());
-            return sendResponse(ctx, BAD_REQUEST);
+            return respondBadRequest(ctx);
         };
     }
 

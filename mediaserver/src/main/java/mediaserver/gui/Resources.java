@@ -25,6 +25,6 @@ public final class Resources extends NettyHandler {
             .map(bytes ->
                 handle(webPath, ctx, bytes))
             .orElseGet(() ->
-                sendResponse(ctx, NOT_FOUND));
+                respondNotFound(ctx));
     }
 }

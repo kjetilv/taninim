@@ -50,10 +50,11 @@ public final class WebPath {
 
     public WebPath(Prefix prefix, String uri, FullHttpRequest request, Instant time) {
 
-        this.request = Objects.requireNonNull(request, "req");
         this.prefix = Objects.requireNonNull(prefix, "prefix");
         this.uri = this.prefix.resolve(Objects.requireNonNull(uri, "uri"));
-        this.time = time;
+        this.request = Objects.requireNonNull(request, "req");
+        this.time = Objects.requireNonNull(time, "time");
+
         int pathIndex = this.uri.indexOf("?");
         this.path = pathIndex > 0 ? this.uri.substring(0, pathIndex) : this.uri;
 
@@ -156,15 +157,16 @@ public final class WebPath {
         return request;
     }
 
-    public static Optional<WebPath> from(Instant start, FullHttpRequest req) {
+    public static Optional<WebPath> from(Instant start, FullHttpRequest request) {
 
-        return Optional.of(req.uri())
+        return Optional.of(request)
+            .map(HttpRequest::uri)
             .filter(uri ->
                 !uri.isBlank())
             .flatMap(uri -> {
                 String decoded = URLDecoder.decode(uri, StandardCharsets.UTF_8);
                 return Prefix.getFor(decoded).map(prefix ->
-                    new WebPath(prefix, decoded, req, start));
+                    new WebPath(prefix, decoded, request, start));
             });
     }
 
@@ -183,8 +185,6 @@ public final class WebPath {
         return Optional.ofNullable(path.endsWith(".css") ? "text/css"
             : path.endsWith(".js") ? "text/javascript"
             : path.endsWith(".ico") ? "image/x-icon"
-            : path.endsWith(".flac") ? AUDIO_FLAC
-            : path.endsWith(".m4a") ? AUDIO_AAC
             : null);
     }
 

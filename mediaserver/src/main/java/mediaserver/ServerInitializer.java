@@ -7,17 +7,15 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
 
-import java.util.function.Supplier;
-
 final class ServerInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final Supplier<Router> routerProvider;
+    private final Router router;
 
     private final SslContext sslContext;
 
-    ServerInitializer(Supplier<Router> routerProvider, SslContext sslContext) {
+    ServerInitializer(Router router, SslContext sslContext) {
 
-        this.routerProvider = routerProvider;
+        this.router = router;
         this.sslContext = sslContext;
     }
 
@@ -30,6 +28,6 @@ final class ServerInitializer extends ChannelInitializer<SocketChannel> {
         }
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(64 * 1024));
-        pipeline.addLast(routerProvider.get());
+        pipeline.addLast(router);
     }
 }

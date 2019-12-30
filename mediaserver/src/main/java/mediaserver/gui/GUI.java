@@ -10,8 +10,6 @@ import mediaserver.sessions.Sessions;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-
 public final class GUI extends TemplateEnabled {
 
     public static final String ID_COOKIE = "taninim-id";
@@ -34,9 +32,9 @@ public final class GUI extends TemplateEnabled {
 
         return template(webPath, media.get())
             .map(template ->
-                respond(webPath, ctx, template))
+                respondHtml(webPath, ctx, template))
             .orElseGet(() ->
-                sendResponse(ctx, NOT_FOUND));
+                respondNotFound(ctx));
     }
 
     private Optional<Template> template(WebPath webPath, Media media) {
