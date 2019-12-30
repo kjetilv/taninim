@@ -178,9 +178,9 @@
     {if(album.additionalArtists)}
     <H3>Medvirkende</H3>
 
-    {album.artists:{artist|
-    [<A HREF="/?artist={artist.uuid}">{artist.name}</A>
-    &nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>]
+    {album.artists:{artist|[
+    <A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>
+    ]
     }}
     {endif}
 </DIV>
@@ -203,5 +203,4 @@
     <A HREF="res/privacy.txt">Privacy stuff</A> <A HREF="res/terms.txt">Terms of disservice</A>
 </DIV>
 </BODY>
-
 </HTML>
