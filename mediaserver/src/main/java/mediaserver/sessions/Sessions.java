@@ -50,7 +50,7 @@ public final class Sessions {
             log.info("Session created, replacing {}: {} / {}",
                 session, wasValid ? "live existing" : "invalid", previousSession);
         }
-        return previousSession;
+        return session;
     }
 
     public Optional<Session> activeSession(WebPath webPath, AccessLevel accessLevel) {
