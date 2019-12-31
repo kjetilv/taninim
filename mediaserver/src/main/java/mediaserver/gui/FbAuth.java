@@ -42,10 +42,22 @@ public final class FbAuth extends NettyHandler {
             .map(session ->
                 handleExisting(ctx, session))
             .or(() ->
-                loginFacebookUser(webPath).flatMap(user ->
-                    handleNewSession(webPath, user, ctx)))
+                loginFacebookUser(webPath)
+                    .filter(this::isRecognized)
+                    .flatMap(user ->
+                        handleNewSession(webPath, user, ctx)))
             .orElseGet(() ->
                 handleBadRequest(ctx));
+    }
+
+    private boolean isRecognized(FacebookUser facebookUser) {
+        AccessLevel accessLevel = ids.get().getLevel(facebookUser);
+        if (accessLevel.is(AccessLevel.LOGIN)) {
+            log.info("Recognized user logged in with level {}: {}", accessLevel, facebookUser);
+            return true;
+        }
+        log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
+        return false;
     }
 
     private Handling handleExisting(ChannelHandlerContext ctx, Session session) {
@@ -54,14 +66,14 @@ public final class FbAuth extends NettyHandler {
         return handleOK(ctx);
     }
 
-    private Optional<Handling> handleNewSession(WebPath webPath, FacebookUser user, ChannelHandlerContext ctx) {
+    private Optional<Handling> handleNewSession(WebPath webPath, FacebookUser facebookUser, ChannelHandlerContext ctx) {
 
-        AccessLevel accessLevel = ids.get().getLevel(user);
+        AccessLevel accessLevel = ids.get().getLevel(facebookUser);
         if (accessLevel == AccessLevel.NONE) {
-            log.warn("Unknown user attempted login: {}/{}", user.getName(), user.getId());
-            return Optional.empty();
+            throw new IllegalStateException(
+                "Unknown user attempted login: " + facebookUser);
         }
-        Session session = sessions.establish(webPath, user, accessLevel);
+        Session session = sessions.establish(webPath, facebookUser, accessLevel);
         log.info("Recognized user logged in: {}", session);
         return Optional.of(handle(ctx, Netty.authCookieResponse(webPath, Netty.authCookie(session))));
     }
@@ -71,7 +83,7 @@ public final class FbAuth extends NettyHandler {
         return webPath.getContent().map(json -> {
             FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
             FacebookUser facebookUser = login(authResponse);
-            log.info("Logged in: {}", facebookUser);
+            log.info("Facebook user logged in: {}", facebookUser);
             return facebookUser;
         });
     }

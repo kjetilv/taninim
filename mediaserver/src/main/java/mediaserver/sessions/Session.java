@@ -117,7 +117,7 @@ public final class Session {
 
     public boolean hasLevel(AccessLevel accessLevel) {
 
-        return accessLevel.ordinal() >= accessLevel.ordinal();
+        return this.accessLevel.is(accessLevel);
     }
 
     public enum Status {

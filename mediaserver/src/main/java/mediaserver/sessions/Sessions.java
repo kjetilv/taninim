@@ -71,7 +71,11 @@ public final class Sessions {
 
         return session(webPath, true, null)
             .map(Session::getFacebookUser)
-            .map(sessions::remove);
+            .map(sessions::remove)
+            .stream()
+            .peek(session ->
+                log.info("{} removed session, {} left: {}", this, sessions.size(), session))
+            .findFirst();
     }
 
     private Optional<Session> session(WebPath webPath, boolean includeInvalid, AccessLevel accessLevel) {

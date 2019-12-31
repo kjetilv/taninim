@@ -1,5 +1,7 @@
 package mediaserver.sessions;
 
+import java.util.Objects;
+
 public enum AccessLevel {
 
     NONE,
@@ -8,5 +10,9 @@ public enum AccessLevel {
 
     STREAM,
 
-    ADMIN
+    ADMIN;
+
+    public boolean is(AccessLevel level) {
+        return ordinal() >= Objects.requireNonNull(level, "level").ordinal();
+    }
 }

@@ -18,8 +18,8 @@ public class ActiveUser extends AbstractHashable {
 
         this.name = Objects.requireNonNull(name, "name");
         this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
-        if (accessLevel.ordinal() == 0) {
-            throw new IllegalArgumentException("No access level for " + name);
+        if (!accessLevel.is(AccessLevel.LOGIN)) {
+            throw new IllegalArgumentException("No login for " + name);
         }
     }
 
@@ -34,13 +34,14 @@ public class ActiveUser extends AbstractHashable {
     }
 
     public boolean isStreaming() {
-        return accessLevel.ordinal() >= AccessLevel.STREAM.ordinal();
+
+        return accessLevel.is(AccessLevel.STREAM);
     }
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
-        hash(h, name);
-        hash(h, accessLevel.ordinal());
+
+        hash(h, name, accessLevel.name());
     }
 
     @Override
