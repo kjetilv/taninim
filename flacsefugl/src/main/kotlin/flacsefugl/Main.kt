@@ -39,6 +39,7 @@ fun main() {
                         artist(path).contains("bar kokhba") ||
                         artist(path).contains("trigger") ||
                         artist(path).contains("mesinai") ||
+                        artist(path).contains("autoryno") ||
                         artist(path).contains("locus solus") ||
                         artist(path).startsWith("naked city") ||
                         artist(path).startsWith("painkiller") ||

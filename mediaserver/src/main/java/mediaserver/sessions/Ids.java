@@ -13,9 +13,19 @@ public final class Ids {
         this.sources = sources;
     }
 
-    public boolean isAuthorized(FacebookUser facebookUser) {
+    public AccessLevel getLevel(FacebookUser facebookUser) {
 
-        return sources.values().stream().anyMatch(id ->
-            String.valueOf(id).equalsIgnoreCase(facebookUser.getId()));
+        return sources.entrySet().stream()
+            .filter(id ->
+                String.valueOf(id.getValue()).equals(facebookUser.getId()))
+            .map(id -> {
+                String key = id.getKey();
+                return key.endsWith("**") ? AccessLevel.ADMIN
+                    : key.endsWith("*") ? AccessLevel.STREAM
+                    : AccessLevel.LOGIN;
+            })
+            .findFirst()
+            .orElse(AccessLevel.NONE);
     }
+
 }

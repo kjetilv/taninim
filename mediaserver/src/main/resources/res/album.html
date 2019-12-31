@@ -35,7 +35,7 @@
 </DIV>
 
 <DIV>
-    <P>Hei, {user.name}!</P>
+    <P>Hei, {user.name}! Tilgangsniv&aring;: {user.accessLevel}</P>
 </DIV>
 
 <DIV STYLE="float: right">
@@ -67,7 +67,9 @@
 <H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
 
 <H3>{album.artist.name}: <EM>{album.name}</EM>
+    {if(user.streaming)}
     <A HREF="/playlist/album/{album.uuid}">⏬</A>
+    {endif}
 </H3>
 
 <DIV>
@@ -75,6 +77,7 @@
     </P>
 </DIV>
 
+{if(user.streaming)}
 {if(playTrack)}
 <DIV STYLE="clear: both">
     <P>Playing: <em>{playTrack.name}</em> from <em>{playTrack.album}</em> by <em>{playTrack.artist.name}</em></P>
@@ -86,6 +89,7 @@
     <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
 </DIV>
 {endif}
+{endif}
 
 <DIV STYLE="clear: both">
     <H3>Spor</H3>
@@ -96,16 +100,24 @@
         {albumPart.tracks:{track |
         <LI>
             [{track.trackNo}]
+            {if(user.streaming)}
             <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶
-            {track.name}
-            {track.prettyDuration}
+                {endif}
+                {track.name}
+                {track.prettyDuration}
+                {if(user.streaming)}
             </A>
+            {endif}
             {if(track.otherArtists)}
             <UL>
                 {track.otherArtists:{otherArtist|
                 <LI>
                     [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
-                     <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>]
+                    {if(user.streaming)}
+                    <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
+                    {endif}
+                    ]
+
                 </LI>
                 }}
             </UL>
@@ -135,7 +147,10 @@
         {album.context.credits.artistCredits:{credit |
         <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
             [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
-            &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+            {if(user.streaming)}
+            &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
+            {endif}
+            ]
         </LI>
         }}
     </UL>
@@ -156,7 +171,10 @@
                 {trackContext.credits.artistCredits:{credit |
                 <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
                     [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
-                    <A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>]
+                    {if(user.streaming)}
+                    <A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
+                    {endif}
+                    ]
                 </LI>
                 }}
             </UL>
@@ -179,7 +197,10 @@
     <H3>Medvirkende</H3>
 
     {album.artists:{artist|[
-    <A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;<A HREF="/playlist/artist/{artist.uuid}">⏬</A>
+    <A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;
+    {if(user.streaming)}
+    <A HREF="/playlist/artist/{artist.uuid}">⏬</A>
+    {endif}
     ]
     }}
     {endif}

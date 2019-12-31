@@ -3,10 +3,10 @@ package mediaserver.gui;
 import com.restfb.*;
 import com.restfb.types.User;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
 import mediaserver.http.*;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
@@ -15,11 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 public final class FbAuth extends NettyHandler {
 
@@ -42,33 +38,32 @@ public final class FbAuth extends NettyHandler {
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return sessions.activeSession(webPath)
+        return sessions.activeSession(webPath, AccessLevel.LOGIN)
             .map(session ->
-                sessionAlreadyExists(ctx, session))
+                handleExisting(ctx, session))
+            .or(() ->
+                loginFacebookUser(webPath).flatMap(user ->
+                    handleNewSession(webPath, user, ctx)))
             .orElseGet(() ->
-                loginFacebookUser(webPath)
-                    .map(login(webPath, ctx))
-                    .orElseGet(this::pass));
+                handleBadRequest(ctx));
     }
 
-    private Handling sessionAlreadyExists(ChannelHandlerContext ctx, Session session) {
+    private Handling handleExisting(ChannelHandlerContext ctx, Session session) {
 
-        log.info("Redundant login, session alrady exists: {}", session);
-        return respondOK(ctx);
+        log.info("Redundant login, session already exists: {}", session);
+        return handleOK(ctx);
     }
 
-    private Function<FacebookUser, Handling> login(WebPath webPath, ChannelHandlerContext ctx) {
+    private Optional<Handling> handleNewSession(WebPath webPath, FacebookUser user, ChannelHandlerContext ctx) {
 
-        return user -> {
-            if (ids.get().isAuthorized(user)) {
-                Session session = sessions.establish(webPath, user);
-                HttpResponse response =
-                    Netty.authCookieResponse(webPath, Netty.authCookie(session));
-                return sendResponse(ctx, response);
-            }
+        AccessLevel accessLevel = ids.get().getLevel(user);
+        if (accessLevel == AccessLevel.NONE) {
             log.warn("Unknown user attempted login: {}/{}", user.getName(), user.getId());
-            return respondBadRequest(ctx);
-        };
+            return Optional.empty();
+        }
+        Session session = sessions.establish(webPath, user, accessLevel);
+        log.info("Recognized user logged in: {}", session);
+        return Optional.of(handle(ctx, Netty.authCookieResponse(webPath, Netty.authCookie(session))));
     }
 
     private Optional<FacebookUser> loginFacebookUser(WebPath webPath) {

@@ -3,8 +3,6 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-
 public final class Favicon extends NettyHandler {
 
     private final WebCache<String, byte[]> webCache;
@@ -25,6 +23,6 @@ public final class Favicon extends NettyHandler {
             .map(bytes ->
                 handle(webPath, ctx, bytes))
             .orElseGet(() ->
-                respondNotFound(ctx));
+                handleNotFound(ctx));
     }
 }

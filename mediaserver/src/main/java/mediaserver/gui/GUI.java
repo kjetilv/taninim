@@ -1,9 +1,9 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelHandlerContext;
-import mediaserver.externals.FacebookUser;
 import mediaserver.http.*;
 import mediaserver.media.*;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 
@@ -34,7 +34,7 @@ public final class GUI extends TemplateEnabled {
             .map(template ->
                 respondHtml(webPath, ctx, template))
             .orElseGet(() ->
-                respondNotFound(ctx));
+                handleNotFound(ctx));
     }
 
     private Optional<Template> template(WebPath webPath, Media media) {
@@ -90,9 +90,11 @@ public final class GUI extends TemplateEnabled {
             .add(QPar.PLAY_TRACKS, album.getTracks());
     }
 
-    private FacebookUser user(WebPath webPath) {
+    private ActiveUser user(WebPath webPath) {
 
-        return sessions.activeSession(webPath).map(Session::getFacebookUser)
-            .orElseThrow(() -> new IllegalStateException("No user: " + webPath));
+        return sessions.activeSession(webPath, AccessLevel.LOGIN)
+            .map(Session::getActiveUser)
+            .orElseThrow(() ->
+                new IllegalStateException("No user: " + webPath));
     }
 }

@@ -40,15 +40,18 @@ public final class Sessions {
         }
     }
 
-    public Session establish(WebPath webPath, FacebookUser user) {
+    public Session establish(WebPath webPath, FacebookUser user, AccessLevel level) {
 
         return sessions.compute(user, (__, session) -> {
 
-            if (session != null && valid(webPath, session)) {
-                log.info("Session active: {}", session);
-                return session.accessedBy(webPath);
+            if (session != null) {
+                boolean valid = valid(webPath, session);
+                if (valid) {
+                    log.info("Session active: {}", session);
+                    return session.accessedBy(webPath);
+                }
             }
-            Session newSession = newSession(webPath, user);
+            Session newSession = newSession(webPath, user, level);
             log.info("Session created: {} <= {}", newSession, session);
             return newSession.accessedBy(webPath);
         });
@@ -56,38 +59,46 @@ public final class Sessions {
 
     public Optional<Session> activeSession(WebPath webPath) {
 
-        return session(webPath, false);
+        return activeSession(webPath, AccessLevel.LOGIN);
+    }
+
+    public Optional<Session> activeSession(WebPath webPath, AccessLevel accessLevel) {
+
+        return session(webPath, false, accessLevel);
     }
 
     public Optional<Session> close(WebPath webPath) {
 
-        return session(webPath, true)
+        return session(webPath, true, null)
             .map(Session::getFacebookUser)
             .map(sessions::remove);
     }
 
-    private Optional<Session> session(WebPath webPath, boolean includeInvalid) {
+    private Optional<Session> session(WebPath webPath, boolean includeInvalid, AccessLevel accessLevel) {
 
         return webPath.getAuthentication()
             .flatMap(uuid ->
-                singleSession(uuid)
-                    .filter(session -> includeInvalid || valid(webPath, session)))
+                uniqueSession(uuid)
+                    .filter(session ->
+                        includeInvalid || valid(webPath, session))
+                    .filter(session ->
+                        accessLevel == null || session.hasLevel(accessLevel)))
             .or(() ->
                 devSession(webPath));
     }
 
-    private Optional<Session> singleSession(UUID uuid) {
+    private Optional<Session> uniqueSession(UUID uuid) {
 
         Collection<Session> sessions = this.sessions.values().stream()
             .filter(withCookie(uuid))
             .collect(Collectors.toList());
         if (sessions.size() > 1) {
-            throw new IllegalStateException("Multiple sessions for " + uuid);
+            throw new IllegalStateException("Multiple sessions for " + uuid + ": " + sessions);
         }
         return sessions.stream().findFirst();
     }
 
-    private Session newSession(WebPath webPath, FacebookUser user) {
+    private Session newSession(WebPath webPath, FacebookUser user, AccessLevel accessLevel) {
 
         Instant currentTime = webPath.getTime();
         return new Session(
@@ -96,31 +107,22 @@ public final class Sessions {
             currentTime,
             currentTime.plus(sessionLength),
             inactivityMax,
+            accessLevel,
             bytesQuota);
     }
 
     private boolean valid(WebPath webPath, Session session) {
 
-        Collection<Session.Status> statuses = sessionStatus(webPath, session);
-        if (ok(statuses)) {
+        Collection<Session.Status> statuses = session.status(webPath);
+        boolean ok = ok(statuses);
+        if (ok) {
             return true;
         }
+        String statusString = statuses.stream().map(Enum::name)
+            .collect(Collectors.joining(", "));
         log.info("Session disabled for {}: {} {}",
-            webPath, session, statuses.stream().map(Enum::name).collect(Collectors.joining(", ")));
+            webPath, session, statusString);
         return false;
-    }
-
-    private Collection<Session.Status> sessionStatus(WebPath webPath, Session session) {
-
-        return status(
-            session.sessionStatus(webPath),
-            session.activityStatus(webPath),
-            session.quotaStatus());
-    }
-
-    private Collection<Session.Status> status(Session.Status... stats) {
-
-        return new HashSet<>(Arrays.asList(stats));
     }
 
     private boolean ok(Collection<Session.Status> statuses) {
@@ -137,7 +139,7 @@ public final class Sessions {
     private Optional<Session> devSession(WebPath webPath) {
 
         if (devLogin) {
-            Session session = newSession(webPath, DEV_USER);
+            Session session = newSession(webPath, DEV_USER, AccessLevel.STREAM);
             log.warn("Established dev session: {}", session);
             return Optional.of(session);
         }

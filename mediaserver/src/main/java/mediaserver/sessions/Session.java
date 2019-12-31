@@ -1,20 +1,22 @@
 package mediaserver.sessions;
 
 import mediaserver.externals.FacebookUser;
+import mediaserver.gui.ActiveUser;
 import mediaserver.http.WebPath;
 import mediaserver.util.Print;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class Session {
 
     private final Instant startTime;
+
+    private final AccessLevel accessLevel;
 
     private final long bytesQuota;
 
@@ -36,12 +38,14 @@ public final class Session {
         Instant startTime,
         Instant sessionCutoff,
         Duration inactivityMax,
+        AccessLevel accessLevel,
         long bytesQuota
     ) {
 
         this.facebookUser = Objects.requireNonNull(facebookUser, "facebookUser");
         this.cookie = Objects.requireNonNull(cookie, "cookie");
         this.startTime = Objects.requireNonNull(startTime, "startTime");
+        this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
         this.bytesQuota = bytesQuota;
         this.lastAccessed.set(this.startTime);
         this.sessionCutoff = Objects.requireNonNull(sessionCutoff, "cutoff");
@@ -51,6 +55,11 @@ public final class Session {
     public UUID getCookie() {
 
         return cookie;
+    }
+
+    public ActiveUser getActiveUser() {
+
+        return new ActiveUser(facebookUser.getName(), accessLevel);
     }
 
     public FacebookUser getFacebookUser() {
@@ -98,6 +107,19 @@ public final class Session {
         return this;
     }
 
+    public Collection<Status> status(WebPath webPath) {
+
+        return new HashSet<>(Arrays.asList(
+            sessionStatus(webPath),
+            activityStatus(webPath),
+            quotaStatus()));
+    }
+
+    public boolean hasLevel(AccessLevel accessLevel) {
+
+        return accessLevel.ordinal() >= accessLevel.ordinal();
+    }
+
     public enum Status {
 
         OK,
@@ -112,7 +134,7 @@ public final class Session {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + facebookUser + "/" + cookie +
+        return getClass().getSimpleName() + "[" + facebookUser + "/" + accessLevel + "/" + cookie +
             "@" + Print.aboutTime(startTime) +
             " s:" + Print.bytes(bytesStreamed.get()) + "/" + Print.bytes(bytesQuota) +
             " t:" + Duration.between(lastAccessed.get(), sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +

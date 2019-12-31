@@ -53,15 +53,27 @@
 </DIV>
 
 <DIV STYLE="clear:left">
-    <P>Hei, {user.name}!</P>
+    <P>Hei, {user.name}! Tilgangsniv&aring;: {user.accessLevel}</P>
     {if(artist)}
-    <P>Artist: <STRONG>{artist.name}&nbsp;<A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A></STRONG></P>
+    <P>Artist: <STRONG>{artist.name}
+        {if(user.streaming)}
+        <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A>
+        {endif}
+    </STRONG></P>
     {endif}
     {if(series)}
-    <P>Serie: <STRONG>{series.name}&nbsp;<A TITLE="M3U" HREF="/playlist/series/{series.uuid}">⏬</A></STRONG></P>
+    <P>Serie: <STRONG>{series.name}
+        {if(user.streaming)}
+        <A TITLE="M3U" HREF="/playlist/series/{series.uuid}">⏬</A>
+        {endif}
+    </STRONG></P>
     {endif}
     {if(playlist)}
-    <P>Spilleliste: <STRONG>{playlist.name}&nbsp;<A TITLE="M3U" HREF="/playlist/{playlist.uuid}">⏬</A></STRONG></P>
+    <P>Spilleliste: <STRONG>{playlist.name}
+        {if(user.streaming)}
+        <A TITLE="M3U" HREF="/playlist/{playlist.uuid}">⏬</A>
+        {endif}
+    </STRONG></P>
     {endif}
     <P>{length(media.albums)} plater, {length(media.tracks)} spor.</P>
     <P> Spilletid {media.prettyDuration}.</P>
@@ -75,7 +87,9 @@
     <UL>
         {media.albums:{album|
         <LI>
+            {if(user.streaming)}
             <A TITLE="M3U" HREF="/playlist/album/{album.uuid}">⏬</A>
+            {endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
         </LI>
         }}

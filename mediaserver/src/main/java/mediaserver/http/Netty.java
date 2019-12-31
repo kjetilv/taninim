@@ -193,7 +193,7 @@ public final class Netty {
 
     private static byte[] helloContent(Session session) {
 
-        return session.getFacebookUser().getName().getBytes(StandardCharsets.UTF_8);
+        return session.getActiveUser().getName().getBytes(StandardCharsets.UTF_8);
     }
 
     private static Consumer<BiConsumer<CharSequence, CharSequence>> setCookie(String cookie) {

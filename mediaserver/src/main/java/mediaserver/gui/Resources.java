@@ -3,8 +3,6 @@ package mediaserver.gui;
 import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-
 public final class Resources extends NettyHandler {
 
     private final String resourcePrefix;
@@ -25,6 +23,6 @@ public final class Resources extends NettyHandler {
             .map(bytes ->
                 handle(webPath, ctx, bytes))
             .orElseGet(() ->
-                respondNotFound(ctx));
+                handleNotFound(ctx));
     }
 }

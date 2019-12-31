@@ -13,6 +13,7 @@ import mediaserver.http.Prefix;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 
@@ -46,18 +47,18 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return sessions.activeSession(webPath)
+        return sessions.activeSession(webPath, AccessLevel.STREAM)
             .map(session ->
                 getMediaTrack(webPath.getPath(true))
                     .map(track ->
                         stream(webPath, session, track, ctx))
                     .map(
-                        this::sentResponse
+                        this::handled
                     )
                     .orElseGet(() ->
-                        respondNotFound(ctx)))
+                        handleNotFound(ctx)))
             .orElseGet(() ->
-                respondUnauthorized(ctx));
+                handleUnauthorized(ctx));
     }
 
     @Override

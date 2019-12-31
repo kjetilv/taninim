@@ -26,29 +26,49 @@ public abstract class NettyHandler {
 
     public abstract Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx);
 
-    protected Handling sendResponse(ChannelHandlerContext ctx, HttpResponse response) {
+    protected Handling handled(HttpResponse sentResponse) {
 
-        return sentResponse(Netty.respond(ctx, response));
+        return Handling.sentResponse(this, sentResponse);
     }
 
-    protected Handling sentResponse(HttpResponse response) {
-
-        return Handling.sentResponse(this, response);
-    }
-
-    protected Handling handle(
-        WebPath webPath,
-        ChannelHandlerContext ctx,
-        byte[] bytes
-    ) {
+    protected Handling handle(WebPath webPath, ChannelHandlerContext ctx, byte[] bytes) {
 
         try {
-            HttpResponse response =
-                Netty.response(webPath, bytes, null);
-            return sendResponse(ctx, response);
+            return handle(ctx, Netty.response(webPath, bytes, null));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + webPath, e);
         }
+    }
+
+    protected Handling handle(ChannelHandlerContext ctx, HttpResponse response) {
+
+        HttpResponse sentResponse = Netty.respond(ctx, response);
+        return handled(sentResponse);
+    }
+
+    protected Handling handleNotFound(ChannelHandlerContext ctx) {
+
+        return handle(ctx, NOT_FOUND);
+    }
+
+    protected Handling handleUnauthorized(ChannelHandlerContext ctx) {
+
+        return handle(ctx, UNAUTHORIZED);
+    }
+
+    protected Handling handleBadRequest(ChannelHandlerContext ctx) {
+
+        return handle(ctx, BAD_REQUEST);
+    }
+
+    protected Handling handleUnavailable(ChannelHandlerContext ctx) {
+
+        return handle(ctx, SERVICE_UNAVAILABLE);
+    }
+
+    protected Handling handleOK(ChannelHandlerContext ctx) {
+
+        return handle(ctx, OK);
     }
 
     protected Handling pass() {
@@ -56,33 +76,8 @@ public abstract class NettyHandler {
         return Handling.pass(this);
     }
 
-    protected Handling respondNotFound(ChannelHandlerContext ctx) {
+    private Handling handle(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        return sendResponse(ctx, NOT_FOUND);
-    }
-
-    protected Handling respondUnauthorized(ChannelHandlerContext ctx) {
-
-        return sendResponse(ctx, UNAUTHORIZED);
-    }
-
-    protected Handling respondBadRequest(ChannelHandlerContext ctx) {
-
-        return sendResponse(ctx, BAD_REQUEST);
-    }
-
-    protected Handling respondUnavailable(ChannelHandlerContext ctx) {
-
-        return sendResponse(ctx, SERVICE_UNAVAILABLE);
-    }
-
-    protected Handling respondOK(ChannelHandlerContext ctx) {
-
-        return sendResponse(ctx, OK);
-    }
-
-    private Handling sendResponse(ChannelHandlerContext ctx, HttpResponseStatus status) {
-
-        return sendResponse(ctx, Netty.response(null, status, null, null));
+        return handle(ctx, Netty.response(null, status, null, null));
     }
 }

@@ -7,6 +7,6 @@ public final class Fail extends NettyHandler {
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return respondUnavailable(ctx);
+        return handleUnavailable(ctx);
     }
 }

@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.*;
 import mediaserver.media.*;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 
@@ -50,17 +51,17 @@ public final class M3UPlaylists extends TemplateEnabled {
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return sessions.activeSession(webPath)
+        return sessions.activeSession(webPath, AccessLevel.STREAM)
             .map(session ->
                 template(webPath.getUri())
                     .map(template ->
                         instrumented(template, session, webPath))
                     .map(template ->
-                        sendResponse(ctx, response(webPath, template)))
+                        handle(ctx, response(webPath, template)))
                     .orElseGet(() ->
-                        respondNotFound(ctx)))
+                        handleNotFound(ctx)))
             .orElseGet(() ->
-                respondUnauthorized(ctx));
+                handleUnauthorized(ctx));
     }
 
     private HttpResponse response(WebPath webPath, Template template) {
