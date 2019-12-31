@@ -41,25 +41,16 @@ public final class Sessions {
     }
 
     public Session establish(WebPath webPath, FacebookUser user, AccessLevel level) {
-
-        return sessions.compute(user, (__, session) -> {
-
-            if (session != null) {
-                boolean valid = valid(webPath, session);
-                if (valid) {
-                    log.info("Session active: {}", session);
-                    return session.accessedBy(webPath);
-                }
-            }
-            Session newSession = newSession(webPath, user, level);
-            log.info("Session created: {} <= {}", newSession, session);
-            return newSession.accessedBy(webPath);
-        });
-    }
-
-    public Optional<Session> activeSession(WebPath webPath) {
-
-        return activeSession(webPath, AccessLevel.LOGIN);
+        Session session = newSession(webPath, user, level).accessedBy(webPath);
+        Session previousSession = sessions.put(user, session);
+        if (previousSession == null) {
+            log.info("Session created: {}", session);
+        } else {
+            boolean wasValid = valid(webPath, previousSession);
+            log.info("Session created, replacing {}: {} / {}",
+                session, wasValid ? "live existing" : "invalid", previousSession);
+        }
+        return previousSession;
     }
 
     public Optional<Session> activeSession(WebPath webPath, AccessLevel accessLevel) {
@@ -69,7 +60,7 @@ public final class Sessions {
 
     public Optional<Session> close(WebPath webPath) {
 
-        return session(webPath, true, null)
+        return session(webPath, true, AccessLevel.NONE)
             .map(Session::getFacebookUser)
             .map(sessions::remove)
             .stream()
@@ -82,11 +73,8 @@ public final class Sessions {
 
         return webPath.getAuthentication()
             .flatMap(uuid ->
-                uniqueSession(uuid)
-                    .filter(session ->
-                        includeInvalid || valid(webPath, session))
-                    .filter(session ->
-                        accessLevel == null || session.hasLevel(accessLevel)))
+                uniqueSession(uuid).filter(session ->
+                    includeInvalid || valid(webPath, session) && session.hasLevel(accessLevel)))
             .or(() ->
                 devSession(webPath));
     }

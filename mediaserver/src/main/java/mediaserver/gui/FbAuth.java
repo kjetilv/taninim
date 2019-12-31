@@ -38,19 +38,16 @@ public final class FbAuth extends NettyHandler {
     @Override
     public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
 
-        return sessions.activeSession(webPath, AccessLevel.LOGIN)
-            .map(session ->
-                handleExisting(ctx, session))
-            .or(() ->
-                loginFacebookUser(webPath)
-                    .filter(this::isRecognized)
-                    .flatMap(user ->
-                        handleNewSession(webPath, user, ctx)))
+        return loginFacebookUser(webPath)
+            .filter(this::isRecognized)
+            .map(facebookUser ->
+                handleNewSession(webPath, facebookUser, ctx))
             .orElseGet(() ->
                 handleBadRequest(ctx));
     }
 
     private boolean isRecognized(FacebookUser facebookUser) {
+
         AccessLevel accessLevel = ids.get().getLevel(facebookUser);
         if (accessLevel.is(AccessLevel.LOGIN)) {
             log.info("Recognized user logged in with level {}: {}", accessLevel, facebookUser);
@@ -60,13 +57,7 @@ public final class FbAuth extends NettyHandler {
         return false;
     }
 
-    private Handling handleExisting(ChannelHandlerContext ctx, Session session) {
-
-        log.info("Redundant login, session already exists: {}", session);
-        return handleOK(ctx);
-    }
-
-    private Optional<Handling> handleNewSession(WebPath webPath, FacebookUser facebookUser, ChannelHandlerContext ctx) {
+    private Handling handleNewSession(WebPath webPath, FacebookUser facebookUser, ChannelHandlerContext ctx) {
 
         AccessLevel accessLevel = ids.get().getLevel(facebookUser);
         if (accessLevel == AccessLevel.NONE) {
@@ -74,8 +65,7 @@ public final class FbAuth extends NettyHandler {
                 "Unknown user attempted login: " + facebookUser);
         }
         Session session = sessions.establish(webPath, facebookUser, accessLevel);
-        log.info("Recognized user logged in: {}", session);
-        return Optional.of(handle(ctx, Netty.authCookieResponse(webPath, Netty.authCookie(session))));
+        return handle(ctx, Netty.authCookieResponse(webPath, Netty.authCookie(session)));
     }
 
     private Optional<FacebookUser> loginFacebookUser(WebPath webPath) {
