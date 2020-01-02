@@ -206,6 +206,7 @@ public final class CloudMedia {
     }
 
     public static boolean updatedFromRemote(String name) {
+
         return S3.get().map(s3 -> {
             Sourced<String> localResource = IO.read(name);
             if (localResource.source() == Sourced.Type.SOURCES) {
@@ -221,11 +222,21 @@ public final class CloudMedia {
         }).orElse(false);
     }
 
+    public static Map<String, ?> ids() {
+
+        InputStream inputStream = stream(IDS_JSON);
+        log.info("Downloading ids... ");
+        Map<String, ?> ids = IO.readMap(IDS_JSON, inputStream);
+        log.info("Downloaded ids {}", ids.keySet());
+        return ids;
+    }
+
     private static void updateLocal(Path localPath) {
 
-        List<String> lines = new BufferedReader(new InputStreamReader(
-            stream(IDS_JSON),
-            StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+        List<String> lines = new BufferedReader(new InputStreamReader(stream(IDS_JSON), StandardCharsets.UTF_8))
+            .lines()
+            .collect(Collectors.toList());
+        log.info("Updating local file {} with remote content", localPath);
         try {
             Files.write(localPath, lines);
         } catch (IOException e) {
@@ -239,6 +250,7 @@ public final class CloudMedia {
     }
 
     private static Instant lastModifiedRemote(String name, MinioClient s3) {
+
         ObjectStat objectStat = objectStat(name, s3);
         return objectStat.createdTime().toInstant();
     }
@@ -271,15 +283,6 @@ public final class CloudMedia {
             }
         }).orElseThrow(() ->
             new IllegalStateException("No S3 connection"));
-    }
-
-    public static Map<String, ?> ids() {
-
-        InputStream inputStream = stream(IDS_JSON);
-        log.info("Downloading ids... ");
-        Map<String, ?> ids = IO.readMap(IDS_JSON, inputStream);
-        log.info("Downloaded ids {}", ids.keySet());
-        return ids;
     }
 
     private static Media deserialize(InputStream inputStream) {
