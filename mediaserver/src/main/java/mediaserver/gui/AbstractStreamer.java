@@ -9,7 +9,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.util.concurrent.GenericFutureListener;
 import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
-import mediaserver.http.Prefix;
+import mediaserver.http.Page;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
@@ -25,7 +25,8 @@ import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.BYTES;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.PARTIAL_CONTENT;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 
@@ -33,39 +34,34 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
 
     protected final Supplier<Media> media;
 
-    private final Sessions sessions;
-
     private static final int BYTES_PREAMBLE = (BYTES + "=").length();
 
-    AbstractStreamer(Supplier<Media> media, Sessions sessions) {
+    AbstractStreamer(Supplier<Media> media) {
 
-        super(Prefix.AUDIO);
+        super(Page.AUDIO);
         this.media = media;
-        this.sessions = sessions;
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
-        return sessions.activeSession(webPath, AccessLevel.STREAM)
-            .map(session ->
-                getMediaTrack(webPath.getPath(true))
-                    .map(track ->
-                        stream(webPath, session, track, ctx))
-                    .map(
-                        this::handled
-                    )
-                    .orElseGet(() ->
-                        handleNotFound(ctx)))
-            .orElseGet(() ->
-                handleUnauthorized(ctx));
+        if (webPath.getSession().hasLevel(AccessLevel.STREAM)) {
+            return getMediaTrack(webPath.getPath(true))
+                .map(track ->
+                    stream(webPath, track))
+                .map(this::handled)
+                .orElseGet(() ->
+                    handleNotFound(webPath));
+
+        }
+        return handleUnauthorized(webPath);
     }
 
     @Override
-    public HttpResponse stream(WebPath webPath, Session session, Track track, ChannelHandlerContext ctx) {
+    public HttpResponse stream(WebPath webPath, Track track) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-        boolean lossless = webPath.isFlac() && session.isPrivileged();
+        boolean lossless = webPath.isFlac() && webPath.getSession().isPrivileged();
         response.headers().set(CONTENT_TYPE, lossless
             ? WebPath.AUDIO_FLAC
             : WebPath.AUDIO_AAC);
@@ -75,10 +71,10 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
         }
         response.headers().add(ACCEPT_RANGES, BYTES);
 
-        streamFuture(webPath, session, track, lossless, response, ctx).ifPresent(future ->
-            future.addListener(progressListener(session, track)));
+        streamFuture(webPath, track, lossless, response).ifPresent(future ->
+            future.addListener(progressListener(webPath.getSession(), track)));
 
-        ChannelFuture lastContentFuture = ctx.writeAndFlush(EMPTY_LAST_CONTENT);
+        ChannelFuture lastContentFuture = webPath.getCtx().writeAndFlush(EMPTY_LAST_CONTENT);
         if (!keepAlive) {
             lastContentFuture.addListener(CLOSE);
         }
@@ -99,11 +95,9 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
 
     protected abstract Optional<ChannelFuture> streamFuture(
         WebPath webPath,
-        Session user,
         Track track,
         boolean lossless,
-        HttpResponse response,
-        ChannelHandlerContext ctx
+        HttpResponse response
     );
 
     protected ChannelFuture writeLength(
@@ -124,7 +118,8 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
     }
 
     protected ChannelFuture writeContent(
-        Session session, ChannelHandlerContext ctx,
+        Session session,
+        ChannelHandlerContext ctx,
         Chunk chunk,
         HttpResponse response,
         Object content
@@ -168,6 +163,6 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + sessions + "]";
+        return getClass().getSimpleName() + "[" + media + "]";
     }
 }

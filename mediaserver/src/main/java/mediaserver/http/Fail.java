@@ -1,12 +1,10 @@
 package mediaserver.http;
 
-import io.netty.channel.ChannelHandlerContext;
-
 public final class Fail extends NettyHandler {
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
-        return handleUnavailable(ctx);
+        return handleBadRequest(webPath);
     }
 }

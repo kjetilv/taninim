@@ -34,6 +34,10 @@ public final class Main {
 
     public static final Clock CLOCK = Clock.system(Config.TIMEZONE);
 
+    public static final WebCache<String, String> TEMPLATE_CACHE = new WebCache<>(IO::read);
+
+    public static final WebCache<String, byte[]> RESOURCE_CACHE = new WebCache<>(IO::readBytes);
+
     private static final OnceEvery ONCE_EVERY = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
     private static final String RES = "res";
@@ -63,6 +67,12 @@ public final class Main {
             local ? "local mode" : "the cloud",
             noStream ? "dis" : "en");
 
+        if (local) {
+            if (CloudMedia.updatedFromRemote(Ids.IDS)) {
+                log.info("Updated local ids.json");
+            }
+        }
+
         SslContext mockSslContext = Config.PRETEND_SSL && devLogin ? mockSslContext() : null;
 
         if (mockSslContext != null) {
@@ -72,33 +82,40 @@ public final class Main {
         Supplier<Ids> ids = idsSupplier(args, local);
         Supplier<Media> media = mediaSupplier(args, local);
 
-        Templater templater = new Templater();
+        Templater templater = new Templater(TEMPLATE_CACHE);
 
-        AbstractStreamer streamer = noStream
-            ? new NullStreamer()
-            : streamer(local, media, sessions);
-
-        log.info("Streamer: {}", streamer);
-
-        WebCache<String, byte[]> resourceCache = new WebCache<>(IO::readBytes);
+        AbstractStreamer streamer = streamer(media, local, noStream);
 
         Router router = new Router(
+            sessions,
             CLOCK,
             streamer,
             new Debug(),
-            new Gatekeeper(sessions, templater),
+            new Gatekeeper(templater),
             new FbUnauth(sessions),
             new FbAuth(sessions, ids, secretsProvider()),
-            new Resources(RES, resourceCache),
-            new Favicon(resourceCache, FAVICON_ICO),
+            new Resources(RES, RESOURCE_CACHE),
+            new Favicon(RESOURCE_CACHE, FAVICON_ICO),
             new Login(templater),
-            new M3UPlaylists(media, sessions, templater, sslPlaylists),
-            new GUI(media, sessions, templater),
+            new Admin(ids, templater),
+            new Playlists(media, templater, sslPlaylists),
+            new GUI(media, templater),
             new Fail());
 
         log.info("Binding to port {}", Config.PORT);
 
         new NettyRunner(4, 1).run(router, Config.PORT, mockSslContext);
+    }
+
+    private static AbstractStreamer streamer(Supplier<Media> media, boolean local, boolean noStream) {
+
+        AbstractStreamer streamer = noStream
+            ? new NullStreamer()
+            : local ? new FileStreamer(media)
+            : new S3Streamer(media);
+
+        log.info("Streamer: {}", streamer);
+        return streamer;
     }
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
@@ -120,7 +137,7 @@ public final class Main {
     private static Ids refreshIds(boolean local) {
 
         Map<String, ?> sources = local
-            ? IO.readResource("ids.json")
+            ? IO.readResource(Ids.IDS)
             : CloudMedia.ids();
         return new Ids(sources);
     }
@@ -222,10 +239,4 @@ public final class Main {
         return () -> IO.getProperty(FB_SEC).toCharArray();
     }
 
-    private static AbstractStreamer streamer(boolean local, Supplier<Media> media, Sessions sessions) {
-
-        return local
-            ? new FileStreamer(media, sessions)
-            : new S3Streamer(media, sessions);
-    }
 }

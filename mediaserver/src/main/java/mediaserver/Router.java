@@ -4,13 +4,14 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.ssl.NotSslRecordException;
 import mediaserver.http.Handling;
+import mediaserver.http.Netty;
 import mediaserver.http.NettyHandler;
 import mediaserver.http.WebPath;
+import mediaserver.sessions.Sessions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,29 +26,28 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static mediaserver.http.Netty.respond;
 
 @ChannelHandler.Sharable
 final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
-
-    private static final DefaultFullHttpResponse TO_BE_CONTINUED = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
 
     private static final Logger log = LoggerFactory.getLogger(Router.class);
 
     private static final Collection<String> ROUTED = new ConcurrentSkipListSet<>();
 
+    private final Sessions sessions;
+
     private final Clock clock;
 
     private final Collection<NettyHandler> handlers;
 
-    Router(Clock clock, NettyHandler... handlers) {
+    Router(Sessions sessions, Clock clock, NettyHandler... handlers) {
 
-        this(clock, Arrays.asList(handlers));
+        this(sessions, clock, Arrays.asList(handlers));
     }
 
-    Router(Clock clock, Collection<NettyHandler> handlers) {
+    Router(Sessions sessions, Clock clock, Collection<NettyHandler> handlers) {
 
+        this.sessions = sessions;
         this.clock = clock;
         this.handlers = List.copyOf(handlers);
     }
@@ -56,23 +56,24 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
 
         if (HttpUtil.is100ContinueExpected(request)) {
-            respond(ctx, TO_BE_CONTINUED);
+            Netty.respondRaw(ctx, CONTINUE);
         }
         Instant time = clock.instant();
+        Optional<Handling> handling;
         try {
-            WebPath.from(time, request)
-                .flatMap(handling(ctx))
-                .ifPresentOrElse(
-                    handling ->
-                        log(request, handling, time),
-                    () -> {
-                        logError(request, null, time);
-                        respond(ctx, BAD_REQUEST);
-                    });
+            handling = handling(ctx, request, time);
         } catch (Exception e) {
             logError(request, e, time);
-            respond(ctx, INTERNAL_SERVER_ERROR);
+            Netty.respondRaw(ctx, INTERNAL_SERVER_ERROR);
+            return;
         }
+        handling.ifPresentOrElse(
+            result ->
+                log(request, result, time),
+            () -> {
+                logError(request, null, time);
+                Netty.respondRaw(ctx, BAD_REQUEST);
+            });
     }
 
     @Override
@@ -88,21 +89,23 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                         addr(ctx, Channel::remoteAddress), addr(ctx, Channel::localAddress), cause));
         } finally {
             if (ctx.channel().isActive()) {
-                respond(ctx, INTERNAL_SERVER_ERROR);
+                Netty.respondRaw(ctx, INTERNAL_SERVER_ERROR);
             }
         }
     }
 
-    private Function<WebPath, Optional<Handling>> handling(ChannelHandlerContext ctx) {
+    private Optional<Handling> handling(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
 
-        return webPath ->
-            handlers.stream()
-                .filter(handler ->
-                    handler.couldHandle(webPath))
-                .map(handler ->
-                    handler.handleRequest(webPath, ctx))
-                .filter(Handling::isHandled)
-                .findFirst();
+        return WebPath.from(ctx, request, time)
+            .map(sessions::instrument)
+            .flatMap(webPath ->
+                handlers.stream()
+                    .filter(handler ->
+                        handler.couldHandle(webPath))
+                    .map(handler ->
+                        handler.handleRequest(webPath))
+                    .filter(Handling::isHandled)
+                    .findFirst());
     }
 
     private void logError(FullHttpRequest req, Exception e, Instant time) {

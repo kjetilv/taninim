@@ -7,10 +7,12 @@ import io.minio.messages.DeleteError;
 import io.minio.messages.Item;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
+import mediaserver.util.Sourced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -196,35 +198,88 @@ public final class CloudMedia {
 
     public static Media download() {
 
-        InputStream inputStream = S3.get().map(s3 -> {
-            try {
-                return s3.getObject(S3.BUCKET, MEDIA_SER);
-            } catch (Exception e) {
-                throw new IllegalStateException("Could not download media file", e);
-            }
-        }).orElseThrow(() ->
-            new IllegalStateException("No S3 connection"));
+        InputStream inputStream = stream(MEDIA_SER);
         log.info("Downloading media... ");
         Media media = deserialize(inputStream);
         log.info("Downloaded media {}", media);
         return media;
     }
 
-    public static Map<String, ?> ids() {
+    public static boolean updatedFromRemote(String name) {
+        return S3.get().map(s3 -> {
+            Sourced<String> localResource = IO.read(name);
+            if (localResource.source() == Sourced.Type.SOURCES) {
 
-        InputStream inputStream = S3.get().map(s3 -> {
+                Path localPath = localPath(localResource);
+                Instant lastModifiedTimeLocal = lastModifiedLocal(localPath);
+                Instant lastModifiedRemote = lastModifiedRemote(name, s3);
+                if (lastModifiedRemote.isAfter(lastModifiedTimeLocal)) {
+                    updateLocal(localPath);
+                }
+            }
+            return true;
+        }).orElse(false);
+    }
+
+    private static void updateLocal(Path localPath) {
+
+        List<String> lines = new BufferedReader(new InputStreamReader(
+            stream(IDS_JSON),
+            StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+        try {
+            Files.write(localPath, lines);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to write to " + localPath, e);
+        }
+    }
+
+    private static Path localPath(Sourced<String> localResource) {
+
+        return new File(localResource.getUrl().getFile()).toPath();
+    }
+
+    private static Instant lastModifiedRemote(String name, MinioClient s3) {
+        ObjectStat objectStat = objectStat(name, s3);
+        return objectStat.createdTime().toInstant();
+    }
+
+    private static ObjectStat objectStat(String name, MinioClient s3) {
+
+        try {
+            return s3.statObject(S3.BUCKET, name);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not stat " + name, e);
+        }
+    }
+
+    private static Instant lastModifiedLocal(Path localPath) {
+
+        try {
+            return Files.getLastModifiedTime(localPath).toInstant();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to stat local time", e);
+        }
+    }
+
+    private static InputStream stream(String name) {
+
+        return S3.get().map(s3 -> {
             try {
-                return s3.getObject(S3.BUCKET, IDS_JSON);
+                return s3.getObject(S3.BUCKET, name);
             } catch (Exception e) {
                 throw new IllegalStateException("Could not download media file", e);
             }
         }).orElseThrow(() ->
             new IllegalStateException("No S3 connection"));
+    }
+
+    public static Map<String, ?> ids() {
+
+        InputStream inputStream = stream(IDS_JSON);
         log.info("Downloading ids... ");
         Map<String, ?> ids = IO.readMap(IDS_JSON, inputStream);
         log.info("Downloaded ids {}", ids.keySet());
         return ids;
-
     }
 
     private static Media deserialize(InputStream inputStream) {
@@ -281,11 +336,10 @@ public final class CloudMedia {
 
         Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource("ids.json"))
             .ifPresentOrElse(
-                resource -> {
-                    File file = new File(resource.getFile());
-                    put(s3, file, IDS_JSON);
-                },
-                () -> log.warn("Found no {} file", IDS_JSON));
+                resource ->
+                    put(s3, new File(resource.getFile()), IDS_JSON),
+                () ->
+                    log.warn("Found no {} file", IDS_JSON));
     }
 
     private static List<String> redundantRemotes(String suffix, String arg, Map<String, Long> remoteSizes) {

@@ -1,20 +1,19 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.Handling;
-import mediaserver.http.Prefix;
+import mediaserver.http.Page;
 import mediaserver.http.WebPath;
 
 public final class Login extends TemplateEnabled {
 
     public Login(Templater templater) {
 
-        super(templater, Prefix.LOGIN);
+        super(templater, Page.LOGIN);
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
-        return respondHtml(webPath, ctx, login());
+        return respondHtml(webPath, login());
     }
 }

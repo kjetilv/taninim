@@ -1,10 +1,8 @@
 package mediaserver.http;
 
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.gui.TemplateEnabled;
 import mediaserver.gui.Templater;
 import mediaserver.sessions.AccessLevel;
-import mediaserver.sessions.Sessions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,37 +10,34 @@ public final class Gatekeeper extends TemplateEnabled {
 
     private static final Logger log = LoggerFactory.getLogger(Gatekeeper.class);
 
-    private final Sessions sessions;
-
-    public Gatekeeper(Sessions sessions, Templater templater) {
+    public Gatekeeper(Templater templater) {
 
         super(templater);
-        this.sessions = sessions;
     }
 
     @Override
     public Handling handleRequest(
-        WebPath webPath,
-        ChannelHandlerContext ctx
+        WebPath webPath
     ) {
-        if (webPath.hasPrefix(LOGIN)) {
+
+        if (webPath.getPage().accessibleIn(webPath.getSession())) {
             return pass();
         }
-        if (webPath.requiresAuthentication()) {
-            return sessions.activeSession(webPath, AccessLevel.LOGIN)
-                .map(user ->
-                    pass())
-                .orElseGet(() -> {
-                    log.info("Redirecting {} to {}", webPath, LOGIN.getPref());
-                    return handle(ctx, Netty.redirectResponse(LOGIN.getPref()));
-                });
+        if (webPath.getPage().accessibleWith(AccessLevel.LOGIN)) {
+            return redirectToLogin(webPath);
         }
-        return pass();
+        return handleUnauthorized(webPath);
+    }
+
+    private Handling redirectToLogin(WebPath webPath) {
+
+        log.info("Redirecting {} to {}", webPath, Page.LOGIN.getPref());
+        return respondPath(webPath, Netty.redirectResponse(Page.LOGIN));
     }
 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + sessions + "]";
+        return getClass().getSimpleName() + "[]";
     }
 }

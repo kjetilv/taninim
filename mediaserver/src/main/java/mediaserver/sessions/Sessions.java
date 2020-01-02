@@ -40,22 +40,27 @@ public final class Sessions {
         }
     }
 
-    public Session establish(WebPath webPath, FacebookUser user, AccessLevel level) {
-        Session session = newSession(webPath, user, level).accessedBy(webPath);
-        Session previousSession = sessions.put(user, session);
+    public UUID newSessionUUID(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
+        Session session =
+            newSession(webPath, facebookUser, accessLevel).accessedBy(webPath);
+        Session previousSession =
+            sessions.put(facebookUser, session);
+
         if (previousSession == null) {
-            log.info("Session created: {}", session);
+            log.info("Session created for {}: {}", facebookUser, session);
         } else {
             boolean wasValid = valid(webPath, previousSession);
-            log.info("Session created, replacing {}: {} / {}",
-                session, wasValid ? "live existing" : "invalid", previousSession);
+            log.info("Session created for {}: {}, replacing {} previous: {}",
+                facebookUser, session, wasValid ? "still valid" : "invalidated", previousSession);
         }
-        return session;
+        return session.getCookie();
     }
 
-    public Optional<Session> activeSession(WebPath webPath, AccessLevel accessLevel) {
+    public WebPath instrument(WebPath webPath) {
 
-        return session(webPath, false, accessLevel);
+        return session(webPath, false, AccessLevel.LOGIN)
+            .map(webPath::with)
+            .orElse(webPath);
     }
 
     public Optional<Session> close(WebPath webPath) {
@@ -90,11 +95,11 @@ public final class Sessions {
         return sessions.stream().findFirst();
     }
 
-    private Session newSession(WebPath webPath, FacebookUser user, AccessLevel accessLevel) {
+    private Session newSession(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
 
         Instant currentTime = webPath.getTime();
         return new Session(
-            user,
+            facebookUser,
             UUID.randomUUID(),
             currentTime,
             currentTime.plus(sessionLength),
@@ -131,7 +136,7 @@ public final class Sessions {
     private Optional<Session> devSession(WebPath webPath) {
 
         if (devLogin) {
-            Session session = newSession(webPath, DEV_USER, AccessLevel.STREAM);
+            Session session = newSession(webPath, DEV_USER, AccessLevel.ADMIN);
             log.warn("Established dev session: {}", session);
             return Optional.of(session);
         }

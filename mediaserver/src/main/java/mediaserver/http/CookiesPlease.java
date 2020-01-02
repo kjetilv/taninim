@@ -1,6 +1,5 @@
 package mediaserver.http;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,12 +9,12 @@ public final class CookiesPlease extends NettyHandler {
 
     public CookiesPlease() {
 
-        super(Prefix.COOKIESPLEASE);
+        super(Page.COOKIESPLEASE);
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
-        return handle(ctx, Netty.okCookieResponse(webPath, "cookies"));
+        return respondPath(webPath, Netty.okCookieResponse(webPath, "cookies"));
     }
 }

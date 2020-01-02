@@ -1,13 +1,8 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 
 public abstract class TemplateEnabled extends NettyHandler {
-
-    protected static final Prefix LOGIN = Prefix.LOGIN;
-
-    protected static final Prefix ALBUM = Prefix.ALBUM;
 
     private final Templater templater;
 
@@ -17,11 +12,13 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     private static final String ALBUM_PAGE = "res/album.html";
 
+    private static final String ADMIN_PAGE = "res/admin.html";
+
     private static final String TEXT_HTML = "text/html";
 
     public static final String PLAYLIST_M3U = "res/playlist.m3u";
 
-    protected TemplateEnabled(Templater templater, Prefix... prefix) {
+    protected TemplateEnabled(Templater templater, Page... prefix) {
 
         super(prefix);
         this.templater = templater;
@@ -47,8 +44,13 @@ public abstract class TemplateEnabled extends NettyHandler {
         return templater.template(ALBUM_PAGE);
     }
 
-    protected Handling respondHtml(WebPath webPath, ChannelHandlerContext ctx, Template template) {
+    protected Template adminTemplate() {
 
-        return handle(ctx, Netty.response(webPath, TEXT_HTML, template.bytes()));
+        return templater.template(ADMIN_PAGE);
+    }
+
+    protected Handling respondHtml(WebPath webPath, Template template) {
+
+        return respondPath(webPath, Netty.response(webPath, TEXT_HTML, template.bytes()));
     }
 }

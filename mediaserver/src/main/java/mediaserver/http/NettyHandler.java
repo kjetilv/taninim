@@ -1,6 +1,5 @@
 package mediaserver.http;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
@@ -12,63 +11,38 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public abstract class NettyHandler {
 
-    private final Collection<Prefix> handled;
+    private final Collection<Page> pages;
 
-    protected NettyHandler(Prefix... handled) {
+    protected NettyHandler(Page... pages) {
 
-        this.handled = new HashSet<>(Arrays.asList(handled));
+        this.pages = new HashSet<>(Arrays.asList(pages));
     }
 
     public boolean couldHandle(WebPath webPath) {
 
-        return handled.isEmpty() || handled.stream().anyMatch(webPath::hasPrefix);
+        return pages.isEmpty() || pages.stream().anyMatch(page -> matchingPage(webPath, page));
     }
 
-    public abstract Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx);
+    public abstract Handling handleRequest(WebPath webPath);
 
     protected Handling handled(HttpResponse sentResponse) {
 
         return Handling.sentResponse(this, sentResponse);
     }
 
-    protected Handling handle(WebPath webPath, ChannelHandlerContext ctx, byte[] bytes) {
+    protected Handling respondPath(WebPath webPath, HttpResponse response) {
+
+        return handled(Netty.respond(webPath.getCtx(), response));
+    }
+
+    protected Handling handle(WebPath webPath, byte[] bytes) {
 
         try {
-            return handle(ctx, Netty.response(webPath, bytes, null));
+
+            return respondPath(webPath, Netty.response(webPath, bytes, null));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + webPath, e);
         }
-    }
-
-    protected Handling handle(ChannelHandlerContext ctx, HttpResponse response) {
-
-        HttpResponse sentResponse = Netty.respond(ctx, response);
-        return handled(sentResponse);
-    }
-
-    protected Handling handleNotFound(ChannelHandlerContext ctx) {
-
-        return handle(ctx, NOT_FOUND);
-    }
-
-    protected Handling handleUnauthorized(ChannelHandlerContext ctx) {
-
-        return handle(ctx, UNAUTHORIZED);
-    }
-
-    protected Handling handleBadRequest(ChannelHandlerContext ctx) {
-
-        return handle(ctx, BAD_REQUEST);
-    }
-
-    protected Handling handleUnavailable(ChannelHandlerContext ctx) {
-
-        return handle(ctx, SERVICE_UNAVAILABLE);
-    }
-
-    protected Handling handleOK(ChannelHandlerContext ctx) {
-
-        return handle(ctx, OK);
     }
 
     protected Handling pass() {
@@ -76,8 +50,29 @@ public abstract class NettyHandler {
         return Handling.pass(this);
     }
 
-    private Handling handle(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    protected Handling handleUnauthorized(WebPath webPath) {
 
-        return handle(ctx, Netty.response(null, status, null, null));
+        return handle(webPath, UNAUTHORIZED);
     }
+
+    protected Handling handleBadRequest(WebPath webPath) {
+
+        return handle(webPath, BAD_REQUEST);
+    }
+
+    protected Handling handleNotFound(WebPath webPath) {
+
+        return handle(webPath, NOT_FOUND);
+    }
+
+    private Handling handle(WebPath webPath, HttpResponseStatus status) {
+
+        return respondPath(webPath, Netty.response(null, status, null, null));
+    }
+
+    private boolean matchingPage(WebPath webPath, Page page) {
+
+        return webPath.isFor(page) && page.accessibleWith(webPath.getSession().getAccessLevel());
+    }
+
 }

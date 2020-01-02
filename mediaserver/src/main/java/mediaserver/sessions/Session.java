@@ -120,6 +120,11 @@ public final class Session {
         return this.accessLevel.is(accessLevel);
     }
 
+    public AccessLevel getAccessLevel() {
+
+        return accessLevel;
+    }
+
     public enum Status {
 
         OK,

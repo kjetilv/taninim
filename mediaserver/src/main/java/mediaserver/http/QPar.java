@@ -29,6 +29,8 @@ public enum QPar {
 
     PROTOCOL,
 
+    IDS,
+
     STREAMLEASE;
 
     private final String name;

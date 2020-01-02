@@ -10,12 +10,12 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import mediaserver.gui.GUI;
 import mediaserver.sessions.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -27,8 +27,6 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public final class Netty {
 
-    private static final Logger log = LoggerFactory.getLogger(Netty.class);
-
     public static final HttpVersion HTTP = HTTP_1_1;
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
@@ -37,16 +35,15 @@ public final class Netty {
 
     }
 
-    public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    public static void respondRaw(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        return respond(ctx, response(null, status, null, null));
+        respond(ctx, new DefaultHttpResponse(HTTP, status));
     }
 
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
 
         try {
-            ctx.writeAndFlush(response)
-                .addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             return response;
         } catch (Exception e) {
             throw new IllegalStateException("Response failed: " + response, e);
@@ -59,7 +56,7 @@ public final class Netty {
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
-        return response(webPath, null, null, content, moreHeaders);
+        return fullResponse(webPath, null, null, content, moreHeaders);
     }
 
     public static HttpResponse response(
@@ -69,7 +66,7 @@ public final class Netty {
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
-        return response(webPath, null, status, content, moreHeaders);
+        return fullResponse(webPath, null, status, content, moreHeaders);
     }
 
     public static HttpResponse response(
@@ -88,10 +85,10 @@ public final class Netty {
         byte[] content
     ) {
 
-        return response(webPath, contentType, status, content, null);
+        return fullResponse(webPath, contentType, status, content, null);
     }
 
-    public static HttpResponse response(
+    private static HttpResponse fullResponse(
         WebPath webPath,
         String contentType,
         HttpResponseStatus status,
@@ -103,7 +100,7 @@ public final class Netty {
         if (contentType != null) {
             headers.set(CONTENT_TYPE, contentType);
         } else {
-            Optional.ofNullable(webPath).flatMap(WebPath::getContentType).ifPresent(type ->
+            Optional.ofNullable(webPath).flatMap(WebPath::getResponseContentType).ifPresent(type ->
                 headers.set(CONTENT_TYPE, type));
         }
         if (content != null) {
@@ -128,7 +125,7 @@ public final class Netty {
     }
 
     public static HttpResponse redirectResponse(
-        String location,
+        Page page,
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
@@ -137,7 +134,7 @@ public final class Netty {
             moreHeaders.accept(headers::set);
         }
         return new DefaultFullHttpResponse(
-            HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, location), EmptyHttpHeaders.INSTANCE);
+            HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, page.getPref()), EmptyHttpHeaders.INSTANCE);
     }
 
     public static HttpResponse authCookieResponse(WebPath webPath, String cookie) {
@@ -147,13 +144,14 @@ public final class Netty {
 
     public static HttpResponse unauthCookieResponse(String cookie) {
 
-        return redirectResponse(Prefix.LOGIN.getPref(), setCookie(cookie));
+        return redirectResponse(Page.LOGIN, setCookie(cookie));
     }
 
-    public static String authCookie(Session session) {
+    public static String authCookie(UUID uuid) {
 
         io.netty.handler.codec.http.cookie.Cookie cookie = new io.netty.handler.codec.http.cookie.DefaultCookie(
-            GUI.ID_COOKIE, session.getCookie().toString());
+            GUI.ID_COOKIE,
+            Objects.requireNonNull(uuid, "uuid").toString());
         cookie.setMaxAge(COOKIE_TIME);
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
@@ -165,18 +163,18 @@ public final class Netty {
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
+    public static HttpResponse redirectResponse(Page location) {
+
+        return redirectResponse(location, null);
+    }
+
     protected static HttpResponse ok(
         WebPath webPath,
         byte[] content,
         Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
     ) {
 
-        return response(webPath, null, null, content, moreHeaders);
-    }
-
-    protected static HttpResponse redirectResponse(String location) {
-
-        return redirectResponse(location, null);
+        return fullResponse(webPath, null, null, content, moreHeaders);
     }
 
     protected static HttpResponse okCookieResponse(WebPath webPath, String cookieCookie) {

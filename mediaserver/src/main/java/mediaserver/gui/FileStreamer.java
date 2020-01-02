@@ -1,13 +1,11 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
-import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 
 import java.io.File;
@@ -20,19 +18,17 @@ import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 
 public final class FileStreamer extends AbstractStreamer {
 
-    public FileStreamer(Supplier<Media> media, Sessions sessions) {
+    public FileStreamer(Supplier<Media> media) {
 
-        super(media, sessions);
+        super(media);
     }
 
     @Override
     protected Optional<ChannelFuture> streamFuture(
         WebPath webPath,
-        Session session,
         Track track,
         boolean lossless,
-        HttpResponse response,
-        ChannelHandlerContext ctx
+        HttpResponse response
     ) {
 
         File sourceFile = lossless
@@ -44,7 +40,7 @@ public final class FileStreamer extends AbstractStreamer {
         String rangeHeader = webPath.header(RANGE);
         if (rangeHeader == null || rangeHeader.length() == 0) {
             return Optional.of(
-                writeLength(ctx, response, fileLength));
+                writeLength(webPath.getCtx(), response, fileLength));
         }
 
         Chunk chunk = chunk(rangeHeader.trim(), fileLength);
@@ -53,7 +49,7 @@ public final class FileStreamer extends AbstractStreamer {
             channel, chunk.getStartOffset(), chunk.getSize());
 
         return Optional.of(
-            writeContent(session, ctx, chunk, response, content));
+            writeContent(webPath.getSession(), webPath.getCtx(), chunk, response, content));
     }
 
     private static RandomAccessFile randomAccess(File file) {

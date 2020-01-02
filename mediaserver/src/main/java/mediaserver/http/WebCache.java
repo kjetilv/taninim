@@ -22,10 +22,13 @@ public final class WebCache<K, V> {
 
     public Optional<V> get(K key) {
 
-        Sourced<V> sourced = cache.computeIfAbsent(key, loader);
-        if (sourced.source() == SOURCES) {
-            return loader.apply(key).unpack();
-        }
-        return sourced.unpack();
+        Sourced<V> cached = cache.computeIfAbsent(key, loader);
+        return cached
+            .unpackTyped(
+                SOURCES,
+                obj ->
+                    loader.apply(key).unpack())
+            .orElseGet(cached::unpack);
     }
+
 }

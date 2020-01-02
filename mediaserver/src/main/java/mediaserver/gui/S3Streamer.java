@@ -4,13 +4,11 @@ import io.minio.ObjectStat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
-import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.S3;
 
@@ -22,19 +20,17 @@ import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 
 public final class S3Streamer extends AbstractStreamer {
 
-    public S3Streamer(Supplier<Media> media, Sessions sessions) {
+    public S3Streamer(Supplier<Media> media) {
 
-        super(media, sessions);
+        super(media);
     }
 
     @Override
     protected Optional<ChannelFuture> streamFuture(
         WebPath webPath,
-        Session session,
         Track track,
         boolean lossless,
-        HttpResponse response,
-        ChannelHandlerContext ctx
+        HttpResponse response
     ) {
 
         String type = lossless ? "flac" : "m4a";
@@ -43,7 +39,7 @@ public final class S3Streamer extends AbstractStreamer {
         String rangeHeader = webPath.header(RANGE);
         if (rangeHeader == null || rangeHeader.length() <= 0) {
             return Optional.of(
-                writeLength(ctx, response, fileLength));
+                writeLength(webPath.getCtx(), response, fileLength));
         }
 
         Chunk chunk = chunk(rangeHeader, fileLength);
@@ -51,7 +47,7 @@ public final class S3Streamer extends AbstractStreamer {
         DefaultHttpContent content = new DefaultHttpContent(byteBuf);
 
         return Optional.of(
-            writeContent(session, ctx, chunk, response, content));
+            writeContent(webPath.getSession(), webPath.getCtx(), chunk, response, content));
     }
 
     private long length(Track track, String type) {

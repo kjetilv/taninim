@@ -1,6 +1,5 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 import mediaserver.sessions.Sessions;
 import org.slf4j.Logger;
@@ -14,21 +13,19 @@ public final class FbUnauth extends NettyHandler {
 
     public FbUnauth(Sessions sessions) {
 
-        super(Prefix.UNAUTH);
+        super(Page.UNAUTH);
         this.sessions = sessions;
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
         sessions.close(webPath).ifPresentOrElse(
             session ->
                 log.info("Session closed: {}", session),
             () ->
                 log.info("No session to close"));
-        return handle(
-            ctx,
-            Netty.unauthCookieResponse(Netty.unauthCookie()));
+        return respondPath(webPath, Netty.unauthCookieResponse(Netty.unauthCookie()));
     }
 
 }

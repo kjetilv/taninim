@@ -1,12 +1,9 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.AccessLevel;
-import mediaserver.sessions.Session;
-import mediaserver.sessions.Sessions;
 
 import java.util.Collection;
 import java.util.Map;
@@ -16,13 +13,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
-public final class M3UPlaylists extends TemplateEnabled {
+public final class Playlists extends TemplateEnabled {
 
     private final Supplier<Media> media;
-
-    private final Sessions sessions;
 
     private final boolean https;
 
@@ -35,33 +30,26 @@ public final class M3UPlaylists extends TemplateEnabled {
 
     private static final String CONTENT_TYPE = "audio/x-mpegurl";
 
-    public M3UPlaylists(
-        Supplier<Media> media,
-        Sessions sessions,
-        Templater templater,
-        boolean https
-    ) {
+    public Playlists(Supplier<Media> media, Templater templater, boolean https) {
 
-        super(templater, Prefix.PLAYLIST);
+        super(templater, Page.PLAYLIST);
         this.media = media;
-        this.sessions = sessions;
         this.https = https;
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
-        return sessions.activeSession(webPath, AccessLevel.STREAM)
-            .map(session ->
-                template(webPath.getUri())
-                    .map(template ->
-                        instrumented(template, session, webPath))
-                    .map(template ->
-                        handle(ctx, response(webPath, template)))
-                    .orElseGet(() ->
-                        handleNotFound(ctx)))
-            .orElseGet(() ->
-                handleUnauthorized(ctx));
+        if (webPath.getSession().hasLevel(AccessLevel.STREAM)) {
+            template(webPath.getUri())
+                .map(template ->
+                    instrumented(template, webPath))
+                .map(template ->
+                    respondPath(webPath, response(webPath, template)))
+                .orElseGet(() ->
+                    handleNotFound(webPath));
+        }
+        return handleUnauthorized(webPath);
     }
 
     private HttpResponse response(WebPath webPath, Template template) {
@@ -85,10 +73,10 @@ public final class M3UPlaylists extends TemplateEnabled {
         return provider.apply(uuid(resource, heading.length()));
     }
 
-    private Template instrumented(Template template, Session session, WebPath webPath) {
+    private Template instrumented(Template template, WebPath webPath) {
 
         return template
-            .add(QPar.STREAMLEASE, session.getCookie())
+            .add(QPar.STREAMLEASE, webPath.getSession().getCookie())
             .add(QPar.HOST, webPath.getHost())
             .add(QPar.PROTOCOL, https ? "https" : "http");
     }

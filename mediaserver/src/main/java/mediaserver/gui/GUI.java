@@ -1,11 +1,7 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 import mediaserver.media.*;
-import mediaserver.sessions.AccessLevel;
-import mediaserver.sessions.Session;
-import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -18,33 +14,25 @@ public final class GUI extends TemplateEnabled {
 
     private final Supplier<Media> media;
 
-    private final Sessions sessions;
+    public GUI(Supplier<Media> media, Templater templater) {
 
-    public GUI(Supplier<Media> media, Sessions sessions, Templater templater) {
-
-        super(templater, Prefix.INDEX, Prefix.ALBUM);
+        super(templater, Page.INDEX, Page.ALBUM);
         this.media = media;
-        this.sessions = sessions;
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
         return template(webPath, media.get())
             .map(template ->
-                respondHtml(webPath, ctx, template))
+                respondHtml(webPath, template))
             .orElseGet(() ->
-                handleNotFound(ctx));
+                handleNotFound(webPath));
     }
 
     private Optional<Template> template(WebPath webPath, Media media) {
-
-        if (webPath.hasPrefix(LOGIN)) {
-            return Optional.of(login());
-        }
-
         QPars pars = webPath.getQueryParameters();
-        if (webPath.hasPrefix(ALBUM)) {
+        if (webPath.isFor(Page.ALBUM)) {
             return pars.apply(QPar.ALBUM)
                 .flatMap(media::getAlbum)
                 .map(album ->
@@ -70,9 +58,7 @@ public final class GUI extends TemplateEnabled {
             return Optional.empty();
         }
 
-        return Optional.of(indexTemplate()
-            .add(QPar.USER, user(webPath))
-            .add(QPar.MEDIA, submedia)
+        return Optional.of(base(indexTemplate(), webPath, submedia)
             .add(QPar.ARTIST, artist)
             .add(QPar.SERIES, series)
             .add(QPar.PLAYLIST, playlist));
@@ -81,20 +67,17 @@ public final class GUI extends TemplateEnabled {
     private Template album(WebPath webPath, Media media, Album album, QPars pars) {
 
         Optional<Track> track = pars.apply(QPar.TRACK).flatMap(media::getTrack);
-        return albumTemplate()
-            .add(QPar.USER, user(webPath))
-            .add(QPar.MEDIA, media)
+        return base(albumTemplate(), webPath, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAYLISTS, Playlist.playlistsWith(album))
             .add(QPar.PLAY_TRACK, track.orElse(null))
             .add(QPar.PLAY_TRACKS, album.getTracks());
     }
 
-    private ActiveUser user(WebPath webPath) {
+    private Template base(Template template, WebPath webPath, Media media) {
 
-        return sessions.activeSession(webPath, AccessLevel.LOGIN)
-            .map(Session::getActiveUser)
-            .orElseThrow(() ->
-                new IllegalStateException("No user: " + webPath));
+        return template
+            .add(QPar.USER, webPath.getSession().getActiveUser())
+            .add(QPar.MEDIA, media);
     }
 }

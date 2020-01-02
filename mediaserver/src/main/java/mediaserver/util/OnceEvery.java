@@ -12,6 +12,14 @@ public final class OnceEvery {
 
     private final ScheduledExecutorService service;
 
+    public static <T> void refresh(Supplier<T> supplier) {
+        if (supplier instanceof Supp<?>) {
+            ((Supp<?>)supplier).refresh();
+        } else {
+            throw new IllegalStateException("Not a refreshable: " + supplier);
+        }
+    }
+
     public OnceEvery(ScheduledExecutorService service) {
 
         this.service = Objects.requireNonNull(service);
@@ -59,6 +67,8 @@ public final class OnceEvery {
 
         private final AtomicReference<T> value = new AtomicReference<>();
 
+        private final Supplier<T> supplier;
+
         private Supp(
             ScheduledExecutorService service,
             Duration interval,
@@ -66,14 +76,21 @@ public final class OnceEvery {
             Supplier<T> supplier
         ) {
 
-            this.value.set(supplier.get());
+            this.supplier = supplier;
+
+            refresh();
             service.scheduleAtFixedRate(
                 () -> {
                     if (condition.getAsBoolean()) {
-                        this.value.set(supplier.get());
+                        refresh();
                     }
                 },
                 interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS);
+        }
+
+        private void refresh() {
+
+            this.value.set(supplier.get());
         }
 
         @Override

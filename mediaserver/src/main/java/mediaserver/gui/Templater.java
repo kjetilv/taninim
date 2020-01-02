@@ -1,7 +1,6 @@
 package mediaserver.gui;
 
 import mediaserver.http.WebCache;
-import mediaserver.util.IO;
 
 public final class Templater {
 
@@ -9,9 +8,9 @@ public final class Templater {
 
     protected static final String ALBUM = "album";
 
-    public Templater() {
+    public Templater(WebCache<String, String> cache) {
 
-        this.cache = new WebCache<>(IO::read);
+        this.cache = cache;
     }
 
     protected Template template(String resource) {

@@ -1,11 +1,13 @@
 package mediaserver.http;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.AsciiString;
 import mediaserver.gui.GUI;
+import mediaserver.sessions.Session;
 import mediaserver.util.MostlyOnce;
 import mediaserver.util.URLs;
 
@@ -15,6 +17,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
 import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
@@ -25,11 +28,15 @@ public final class WebPath {
 
     public static final String AUDIO_AAC = "audio/aac";
 
-    private final Prefix prefix;
+    private final ChannelHandlerContext ctx;
+
+    private final Page page;
 
     private final String path;
 
     private final String uri;
+
+    private final Session session;
 
     private final Instant time;
 
@@ -41,24 +48,33 @@ public final class WebPath {
 
     private final Supplier<Optional<String>> content;
 
-    private Supplier<Optional<String>> contentType;
+    private Supplier<Optional<String>> responseContentType;
 
     private final FullHttpRequest request;
 
     private final Supplier<ConcurrentHashMap<String, Optional<String>>> headers =
         MostlyOnce.get(ConcurrentHashMap::new);
 
-    public WebPath(Prefix prefix, String uri, FullHttpRequest request, Instant time) {
+    private WebPath(
+        ChannelHandlerContext ctx,
+        Page page,
+        String uri,
+        FullHttpRequest request,
+        Session session,
+        Instant time
+    ) {
+        this.ctx = ctx;
 
-        this.prefix = Objects.requireNonNull(prefix, "prefix");
-        this.uri = this.prefix.resolve(Objects.requireNonNull(uri, "uri"));
+        this.page = Objects.requireNonNull(page, "page");
+        this.uri = Objects.requireNonNull(uri, "uri");
         this.request = Objects.requireNonNull(request, "req");
+        this.session = session;
         this.time = Objects.requireNonNull(time, "time");
 
         int pathIndex = this.uri.indexOf("?");
         this.path = pathIndex > 0 ? this.uri.substring(0, pathIndex) : this.uri;
 
-        this.contentType = MostlyOnce.get(this::contentType);
+        this.responseContentType = MostlyOnce.get(this::contentType);
         this.uuid = MostlyOnce.get(() -> authentication(this.request));
         this.qpars = MostlyOnce.get(() -> new QPars(params(this.uri, this.uri.indexOf("?"))));
         this.content = MostlyOnce.get(() ->
@@ -70,9 +86,14 @@ public final class WebPath {
                 .orElse("localhost"));
     }
 
-    public Prefix getPrefix() {
+    public WebPath with(Session session) {
 
-        return prefix;
+        return new WebPath(ctx, page, uri, request, Objects.requireNonNull(session, "session"), time);
+    }
+
+    public Page getPage() {
+
+        return page;
     }
 
     public String getPath() {
@@ -87,6 +108,11 @@ public final class WebPath {
             p = p.substring(1);
         }
         return p;
+    }
+
+    public ChannelHandlerContext getCtx() {
+
+        return ctx;
     }
 
     public Instant getTime() {
@@ -104,6 +130,11 @@ public final class WebPath {
         return host.get();
     }
 
+    public Session getSession() {
+
+        return session;
+    }
+
     public String header(AsciiString header) {
 
         return header(header.toString());
@@ -117,9 +148,9 @@ public final class WebPath {
             .orElse(null);
     }
 
-    public Optional<String> getContentType() {
+    public Optional<String> getResponseContentType() {
 
-        return contentType.get();
+        return responseContentType.get();
     }
 
     public Optional<UUID> get(QPar queryParameter) {
@@ -137,14 +168,9 @@ public final class WebPath {
         return content.get();
     }
 
-    public boolean hasPrefix(Prefix prefix) {
+    public boolean isFor(Page page) {
 
-        return this.prefix == prefix;
-    }
-
-    public boolean requiresAuthentication() {
-
-        return prefix.isAuthenticated();
+        return this.page == page;
     }
 
     public Optional<UUID> getAuthentication() {
@@ -157,17 +183,17 @@ public final class WebPath {
         return request;
     }
 
-    public static Optional<WebPath> from(Instant start, FullHttpRequest request) {
+    public static Optional<WebPath> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
 
         return Optional.of(request)
             .map(HttpRequest::uri)
             .filter(uri ->
                 !uri.isBlank())
-            .flatMap(uri -> {
-                String decoded = URLDecoder.decode(uri, StandardCharsets.UTF_8);
-                return Prefix.getFor(decoded).map(prefix ->
-                    new WebPath(prefix, decoded, request, start));
-            });
+            .map(uri ->
+                URLDecoder.decode(uri, StandardCharsets.UTF_8))
+            .flatMap(uri ->
+                Page.get(uri).map(page ->
+                    new WebPath(ctx, page, page.resolve(uri), request, null, time)));
     }
 
     public boolean isKeepAlive() {
@@ -197,6 +223,14 @@ public final class WebPath {
 
     private Optional<UUID> authentication(HttpRequest req) {
 
+        return cookies(req)
+            .findFirst()
+            .or(() ->
+                get(QPar.STREAMLEASE));
+    }
+
+    private Stream<UUID> cookies(HttpRequest req) {
+
         return Optional.of(req.headers())
             .map(headers ->
                 headers.get(COOKIE))
@@ -206,14 +240,12 @@ public final class WebPath {
             .filter(cookie ->
                 cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
             .map(cookie ->
-                UUID.fromString(cookie.value()))
-            .findFirst()
-            .or(() -> get(QPar.STREAMLEASE));
+                UUID.fromString(cookie.value()));
     }
 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + prefix.getPref() + path + "]";
+        return getClass().getSimpleName() + "[" + page.getPref() + path + "]";
     }
 }

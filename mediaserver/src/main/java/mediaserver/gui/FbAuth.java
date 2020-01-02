@@ -2,19 +2,18 @@ package mediaserver.gui;
 
 import com.restfb.*;
 import com.restfb.types.User;
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
 import mediaserver.http.*;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Ids;
-import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public final class FbAuth extends NettyHandler {
@@ -29,60 +28,43 @@ public final class FbAuth extends NettyHandler {
 
     public FbAuth(Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret) {
 
-        super(Prefix.AUTH);
+        super(Page.AUTH);
         this.sessions = sessions;
         this.appSecret = appSecret;
         this.ids = ids;
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
-        return loginFacebookUser(webPath)
-            .filter(this::isRecognized)
-            .map(facebookUser ->
-                handleNewSession(webPath, facebookUser, ctx))
-            .orElseGet(() ->
-                handleBadRequest(ctx));
-    }
-
-    private boolean isRecognized(FacebookUser facebookUser) {
-
-        AccessLevel accessLevel = ids.get().getLevel(facebookUser);
-        if (accessLevel.is(AccessLevel.LOGIN)) {
-            log.info("Recognized user logged in with level {}: {}", accessLevel, facebookUser);
-            return true;
-        }
-        log.warn("Unknown user attempted login: {}/{}", facebookUser.getName(), facebookUser.getId());
-        return false;
-    }
-
-    private Handling handleNewSession(WebPath webPath, FacebookUser facebookUser, ChannelHandlerContext ctx) {
-
-        AccessLevel accessLevel = ids.get().getLevel(facebookUser);
-        if (accessLevel == AccessLevel.NONE) {
-            throw new IllegalStateException(
-                "Unknown user attempted login: " + facebookUser);
-        }
-        Session session = sessions.establish(webPath, facebookUser, accessLevel);
-        return handle(ctx, Netty.authCookieResponse(webPath, Netty.authCookie(session)));
+        return loginFacebookUser(webPath).flatMap(facebookUser -> {
+            AccessLevel accessLevel = ids.get().resolve(facebookUser);
+            if (accessLevel.is(AccessLevel.LOGIN)) {
+                UUID cookie = sessions.newSessionUUID(webPath, facebookUser, accessLevel);
+                return Optional.of(
+                    respondPath(webPath, Netty.authCookieResponse(webPath, Netty.authCookie(cookie))));
+            }
+            log.warn("Unknown user {} attempted login with access level {}", facebookUser, accessLevel);
+            return Optional.empty();
+        }).orElseGet(() ->
+            handleBadRequest(webPath));
     }
 
     private Optional<FacebookUser> loginFacebookUser(WebPath webPath) {
 
         return webPath.getContent().map(json -> {
             FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
-            FacebookUser facebookUser = login(authResponse);
+            User facebookApiUser = lookup(authResponse);
+            FacebookUser facebookUser = new FacebookUser(facebookApiUser.getName(), facebookApiUser.getId());
             log.info("Facebook user logged in: {}", facebookUser);
             return facebookUser;
         });
     }
 
-    private FacebookUser login(FacebookAuthResponse authResponse) {
+    private User lookup(FacebookAuthResponse authResponse) {
 
         try {
-            User user = facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class);
-            return new FacebookUser(user.getName(), user.getId());
+            return facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class);
         } catch (Exception e) {
             throw new IllegalStateException("Login failed for user: " + authResponse.getUserID(), e);
         }

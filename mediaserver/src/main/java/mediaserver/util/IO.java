@@ -2,6 +2,7 @@ package mediaserver.util;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -24,6 +25,10 @@ import static mediaserver.util.Sourced.Type.SOURCES;
 public final class IO {
 
     public static final ObjectMapper OM = new ObjectMapper()
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+    public static final ObjectMapper OMP = new ObjectMapper()
+        .enable(SerializationFeature.INDENT_OUTPUT)
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     public static final String ROOT = "/";
@@ -178,9 +183,11 @@ public final class IO {
         return url(resource)
             .filter(IO::isInSources)
             .map(sourceUrl ->
-                Sourced.from(SOURCES, readSources(resource, sourceUrl)))
-            .orElseGet(() ->
-                Sourced.from(JAR, readClasspath(resource)));
+                IO.isInSources(sourceUrl)
+                    ? Sourced.from(SOURCES, readSources(resource, sourceUrl), sourceUrl)
+                    : Sourced.from(JAR, readClasspath(resource), sourceUrl))
+            .orElseGet(
+                Sourced::notFound);
     }
 
     private static InputStream readClasspath(String resource) {

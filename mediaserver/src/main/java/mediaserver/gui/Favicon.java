@@ -1,6 +1,5 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 
 public final class Favicon extends NettyHandler {
@@ -11,18 +10,18 @@ public final class Favicon extends NettyHandler {
 
     public Favicon(WebCache<String, byte[]> webCache, String resource) {
 
-        super(Prefix.FAVICON_ICO);
+        super(Page.FAVICON_ICO);
         this.webCache = webCache;
         this.resource = resource;
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
         return webCache.get(resource)
             .map(bytes ->
-                handle(webPath, ctx, bytes))
+                handle(webPath, bytes))
             .orElseGet(() ->
-                handleNotFound(ctx));
+                handleNotFound(webPath));
     }
 }

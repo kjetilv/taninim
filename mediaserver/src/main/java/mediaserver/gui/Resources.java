@@ -1,6 +1,5 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelHandlerContext;
 import mediaserver.http.*;
 
 public final class Resources extends NettyHandler {
@@ -11,18 +10,18 @@ public final class Resources extends NettyHandler {
 
     public Resources(String resourcePrefix, WebCache<String, byte[]> cache) {
 
-        super(Prefix.RES);
+        super(Page.RES);
         this.resourcePrefix = resourcePrefix;
         this.cache = cache;
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath, ChannelHandlerContext ctx) {
+    public Handling handleRequest(WebPath webPath) {
 
         return cache.get(resourcePrefix + webPath.getPath())
             .map(bytes ->
-                handle(webPath, ctx, bytes))
+                handle(webPath, bytes))
             .orElseGet(() ->
-                handleNotFound(ctx));
+                handleNotFound(webPath));
     }
 }
