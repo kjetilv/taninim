@@ -74,6 +74,13 @@ public final class Sessions {
             .findFirst();
     }
 
+    public Collection<Session> list() {
+
+        return this.sessions.values().stream()
+            .sorted(Comparator.comparing(Session::getStartTime))
+            .collect(Collectors.toList());
+    }
+
     private Optional<Session> session(WebPath webPath, boolean includeInvalid, AccessLevel accessLevel) {
 
         return webPath.getAuthentication()

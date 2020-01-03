@@ -35,6 +35,8 @@ public enum QPar {
 
     IDS,
 
+    SESSIONS,
+
     STREAMLEASE;
 
     private final String name;

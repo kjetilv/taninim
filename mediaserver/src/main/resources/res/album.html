@@ -35,7 +35,9 @@
 </DIV>
 
 <DIV>
-    <P>Hei, {user.name}! Tilgangsniv&aring;: {user.accessLevel}</P>
+    <P>Hei, {user.name}!</P>
+
+    <P>Tilgangsniv&aring;: {user.accessLevel}</P>
 </DIV>
 
 <DIV STYLE="float: right">
@@ -104,6 +106,7 @@
 
     {album.albumParts:{albumPart |
     <P>{if(albumPart.part)}Plate {albumPart.part}:{endif}</P>
+
     <UL>
         {albumPart.tracks:{track |
         <LI>

@@ -6,6 +6,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.MixedAttribute;
 import mediaserver.http.*;
 import mediaserver.sessions.Ids;
+import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import mediaserver.util.OnceEvery;
 
@@ -20,10 +21,13 @@ public final class Admin extends TemplateEnabled {
 
     private final Supplier<Ids> ids;
 
-    public Admin(Supplier<Ids> ids, Templater templater) {
+    private final Sessions sessions;
+
+    public Admin(Supplier<Ids> ids, Sessions sessions, Templater templater) {
 
         super(templater, Page.ADMIN);
         this.ids = ids;
+        this.sessions = sessions;
     }
 
     @Override
@@ -38,6 +42,7 @@ public final class Admin extends TemplateEnabled {
 
         return Optional.of(adminTemplate()
             .add(QPar.USER, webPath.getSession().getActiveUser())
+            .add(QPar.SESSIONS, sessions.list())
             .add(QPar.IDS, map(ids.get())))
             .map(template ->
                 respondHtml(webPath, template))

@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public final class Session {
 
@@ -52,6 +53,11 @@ public final class Session {
         this.inactivityMax = Objects.requireNonNull(inactivityMax, "inactivityMax");
     }
 
+    public Instant getStartTime() {
+
+        return startTime;
+    }
+
     public UUID getCookie() {
 
         return cookie;
@@ -67,29 +73,6 @@ public final class Session {
         return facebookUser;
     }
 
-    public Status sessionStatus(WebPath webPath) {
-
-        return webPath.getTime().isAfter(sessionCutoff)
-            ? Status.SESSION_LENGTH_CUTOFF
-            : Status.OK;
-    }
-
-    public Status activityStatus(WebPath webPath) {
-
-        Duration inactivity =
-            Duration.between(lastAccessed.get(), webPath.getTime());
-        return inactivity.toSeconds() > inactivityMax.toSeconds()
-            ? Status.INACTIVITY_CUTOFF
-            : Status.OK;
-    }
-
-    public Status quotaStatus() {
-
-        return bytesStreamed.get() < bytesQuota
-            ? Status.OK
-            : Status.QUOTA_EXCEEDED;
-    }
-
     public Session streaming(long bytes) {
 
         bytesStreamed.addAndGet(bytes);
@@ -98,13 +81,18 @@ public final class Session {
 
     public boolean isPrivileged() {
 
-        return false;//facebookUser.getId().equals("2787973921215833");
+        return false;
     }
 
     public Session accessedBy(WebPath webPath) {
 
         lastAccessed.set(webPath.getTime());
         return this;
+    }
+
+    public Collection<Status> getCurrentStatus() {
+
+        return status(null).stream().distinct().collect(Collectors.toList());
     }
 
     public Collection<Status> status(WebPath webPath) {
@@ -123,6 +111,38 @@ public final class Session {
     public AccessLevel getAccessLevel() {
 
         return accessLevel;
+    }
+
+    public String getDescription() {
+        return toString();
+    }
+
+    private Status sessionStatus(WebPath webPath) {
+
+        return time(webPath).isAfter(sessionCutoff)
+            ? Status.SESSION_LENGTH_CUTOFF
+            : Status.OK;
+    }
+
+    private Status activityStatus(WebPath webPath) {
+
+        Duration inactivity =
+            Duration.between(lastAccessed.get(), time(webPath));
+        return inactivity.toSeconds() > inactivityMax.toSeconds()
+            ? Status.INACTIVITY_CUTOFF
+            : Status.OK;
+    }
+
+    private Status quotaStatus() {
+
+        return bytesStreamed.get() < bytesQuota
+            ? Status.OK
+            : Status.QUOTA_EXCEEDED;
+    }
+
+    private Instant time(WebPath webPath) {
+
+        return webPath == null ? Instant.now() : webPath.getTime();
     }
 
     public enum Status {

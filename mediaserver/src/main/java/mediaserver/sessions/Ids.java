@@ -22,6 +22,7 @@ public final class Ids {
     public Ids(Map<String, ?> sources) {
 
         this.sources = sources;
+        log.info("Ids loaded: {}", sources == null ? "{}" : sources.keySet());
     }
 
     public void persist() {

@@ -8,6 +8,14 @@
     <TITLE>taninim: admin</TITLE>
 </HEAD>
 <BODY>
+
+<H1>Sesjoner</H1>
+
+{sessions:{session|
+<H3>{session.activeUser.name}</H3>
+<P>{session.description}</P>
+}}
+
 <H1>ids.json</H1>
 
 <FORM ACTION="/admin" METHOD="POST" AUTOCOMPLETE="off">

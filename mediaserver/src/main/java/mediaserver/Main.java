@@ -97,7 +97,7 @@ public final class Main {
             new Resources(RES, RESOURCE_CACHE),
             new Favicon(RESOURCE_CACHE, FAVICON_ICO),
             new Login(templater),
-            new Admin(ids, templater),
+            new Admin(ids, sessions, templater),
             new Playlists(media, templater, sslPlaylists),
             new GUI(media, templater),
             new Fail());
