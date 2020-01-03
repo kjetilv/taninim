@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.AsciiString;
 import mediaserver.gui.GUI;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 import mediaserver.util.MostlyOnce;
 import mediaserver.util.URLs;
@@ -63,6 +64,7 @@ public final class WebPath {
         Session session,
         Instant time
     ) {
+
         this.ctx = ctx;
 
         this.page = Objects.requireNonNull(page, "page");
@@ -204,6 +206,11 @@ public final class WebPath {
     public boolean isFlac() {
 
         return request.uri().endsWith(".flac");
+    }
+
+    public AccessLevel getAccessLevel() {
+
+        return session == null ? AccessLevel.NONE : session.getAccessLevel();
     }
 
     private Optional<String> contentType() {

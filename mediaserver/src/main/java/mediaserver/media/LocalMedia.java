@@ -179,6 +179,12 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
+    public boolean isCurated(Track track) {
+
+        return getCurations().stream().anyMatch(playlist -> playlist.contains(track));
+    }
+
+    @Override
     public Optional<Playlist> getCuration(UUID uuid) {
 
         return getPlaylist(this.curations, uuid);

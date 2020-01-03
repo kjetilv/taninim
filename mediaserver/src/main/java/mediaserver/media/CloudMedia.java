@@ -5,6 +5,7 @@ import io.minio.ObjectStat;
 import io.minio.Result;
 import io.minio.messages.DeleteError;
 import io.minio.messages.Item;
+import mediaserver.externals.ACL;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
 import mediaserver.util.Sourced;
@@ -220,12 +221,12 @@ public final class CloudMedia {
         }).orElse(false);
     }
 
-    public static Map<String, ?> ids() {
+    public static ACL acl() {
 
         InputStream inputStream = stream(IDS_JSON);
         log.info("Downloading ids... ");
-        Map<String, ?> ids = IO.readMap(IDS_JSON, inputStream);
-        log.info("Downloaded ids {}", ids.keySet());
+        ACL ids = IO.read(ACL.class, IDS_JSON, inputStream);
+        log.info("Downloaded ids {}", ids);
         return ids;
     }
 

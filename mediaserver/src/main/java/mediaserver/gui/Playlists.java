@@ -125,21 +125,24 @@ public final class Playlists extends TemplateEnabled {
 
     private Template playlist(Album album) {
 
-        return playlists()
-            .add(QPar.PLAYLIST, new PlaylistM3U(album));
+        return getTemplate(PLAYLIST_M3U).add(
+            QPar.PLAYLIST,
+            new PlaylistM3U(album));
     }
 
     private Template playlist(Collection<Album> albums) {
 
-        return playlists()
-            .add(QPar.PLAYLIST, new PlaylistM3U(
+        return getTemplate(PLAYLIST_M3U).add(
+            QPar.PLAYLIST,
+            new PlaylistM3U(
                 albums.size() + " albums",
                 albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList())));
     }
 
     private Template playlist(Artist artist, Collection<Track> tracks) {
 
-        return playlists()
-            .add(QPar.PLAYLIST, new PlaylistM3U(artist.getName(), tracks));
+        return getTemplate(PLAYLIST_M3U).add(
+            QPar.PLAYLIST,
+            new PlaylistM3U(artist.getName(), tracks));
     }
 }

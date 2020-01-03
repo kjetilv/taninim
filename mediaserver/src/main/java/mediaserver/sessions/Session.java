@@ -90,9 +90,11 @@ public final class Session {
         return this;
     }
 
-    public Collection<Status> getCurrentStatus() {
+    public String getCurrentStatus() {
 
-        return status(null).stream().distinct().collect(Collectors.toList());
+        return status(null).stream().distinct()
+            .map(Status::getDescription)
+            .collect(Collectors.joining(", "));
     }
 
     public Collection<Status> status(WebPath webPath) {
@@ -105,7 +107,7 @@ public final class Session {
 
     public boolean hasLevel(AccessLevel accessLevel) {
 
-        return this.accessLevel.is(accessLevel);
+        return this.accessLevel.satisfies(accessLevel);
     }
 
     public AccessLevel getAccessLevel() {
@@ -153,7 +155,11 @@ public final class Session {
 
         INACTIVITY_CUTOFF,
 
-        QUOTA_EXCEEDED
+        QUOTA_EXCEEDED;
+
+        public String getDescription() {
+            return name().toLowerCase().replace('_', ' ');
+        }
     }
 
     @Override

@@ -72,7 +72,7 @@
 
     {if(artist)}
     <P>Artist: <STRONG>{artist.name}
-        {if(user.streaming)}
+        {if(user.streamingPlaylists)}
         <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A>
         {endif}
     </STRONG></P>
@@ -80,28 +80,33 @@
 
     {if(series)}
     <P>Serie: <STRONG>{series.name}
-        {if(user.streaming)}
+        {if(user.streamingPlaylists)}
         <A TITLE="M3U" HREF="/playlist/series/{series.uuid}">⏬</A>
         {endif}
-    </STRONG></P>
+    </STRONG>
+    </P>
     {endif}
 
     {if(playlist)}
     <P>Spilleliste:
         <STRONG>{playlist.name}
-            {if(user.streaming)}
+            {if(user.streamingPlaylists)}
             <A TITLE="M3U" HREF="/playlist/{playlist.uuid}">⏬</A>
             {endif}
-        </STRONG></P>
+        </STRONG>
+    </P>
     {endif}
 
     {if(curation)}
+    {if(user.streamingCurated)}
     <P>Kuratert spilleliste:
         <STRONG>{curation.name}
-            {if(user.streamingCurated)}
+            {if(user.streamingPlaylists)}
             <A TITLE="M3U" HREF="/curation/{curation.uuid}">⏬</A>
             {endif}
-        </STRONG></P>
+        </STRONG>
+    </P>
+    {endif}
     {endif}
 
     <P>{length(media.albums)} plater, {length(media.tracks)} spor.</P>
@@ -116,7 +121,7 @@
     <UL>
         {media.albums:{album|
         <LI>
-            {if(user.streaming)}
+            {if(user.streamingPlaylists)}
             <A TITLE="M3U" HREF="/playlist/album/{album.uuid}">⏬</A>
             {endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>

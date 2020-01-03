@@ -8,11 +8,11 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     protected static final String LOGIN_PAGE = "res/login.html";
 
-    private static final String INDEX_PAGE = "res/index.html";
+    protected static final String INDEX_PAGE = "res/index.html";
 
-    private static final String ALBUM_PAGE = "res/album.html";
+    protected static final String ALBUM_PAGE = "res/album.html";
 
-    private static final String ADMIN_PAGE = "res/admin.html";
+    protected static final String ADMIN_PAGE = "res/admin.html";
 
     private static final String TEXT_HTML = "text/html";
 
@@ -24,29 +24,9 @@ public abstract class TemplateEnabled extends NettyHandler {
         this.templater = templater;
     }
 
-    protected Template playlists() {
+    protected Template getTemplate(String albumPage) {
 
-        return templater.template(PLAYLIST_M3U);
-    }
-
-    protected Template login() {
-
-        return templater.template(LOGIN_PAGE);
-    }
-
-    protected Template indexTemplate() {
-
-        return templater.template(INDEX_PAGE);
-    }
-
-    protected Template albumTemplate() {
-
-        return templater.template(ALBUM_PAGE);
-    }
-
-    protected Template adminTemplate() {
-
-        return templater.template(ADMIN_PAGE);
+        return templater.template(albumPage);
     }
 
     protected Handling respondHtml(WebPath webPath, Template template) {

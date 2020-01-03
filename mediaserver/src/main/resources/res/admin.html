@@ -12,8 +12,13 @@
 <H1>Sesjoner</H1>
 
 {sessions:{session|
-<H3>{session.activeUser.name}</H3>
-<P>{session.description}</P>
+<H3>{session.activeUser.name} {session.cookie}</H3>
+<UL>
+    <LI>Access level: {session.accessLevel}</LI>
+    <LI>Status: {session.currentStatus}</LI>
+    <LI>Login time: {session.startTime}</LI>
+</UL>
+<P>Description: {session.description}</P>
 }}
 
 <H1>ids.json</H1>

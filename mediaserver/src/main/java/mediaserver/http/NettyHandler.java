@@ -72,7 +72,7 @@ public abstract class NettyHandler {
 
     private boolean matchingPage(WebPath webPath, Page page) {
 
-        return webPath.isFor(page) && page.accessibleWith(webPath.getSession().getAccessLevel());
+        return webPath.isFor(page) && page.accessibleWith(webPath.getAccessLevel());
     }
 
 }

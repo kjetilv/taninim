@@ -2,15 +2,23 @@ package mediaserver.gui;
 
 import mediaserver.http.*;
 import mediaserver.media.*;
+import mediaserver.sessions.AccessLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class GUI extends TemplateEnabled {
 
     public static final String ID_COOKIE = "taninim-id";
 
     public static final String COOKIE_COOKIE = "taninim-cookies-ok";
+
+    private static final Logger log = LoggerFactory.getLogger(GUI.class);
 
     private final Supplier<Media> media;
 
@@ -36,16 +44,46 @@ public final class GUI extends TemplateEnabled {
         if (webPath.isFor(Page.ALBUM)) {
             return pars.apply(QPar.ALBUM)
                 .flatMap(media::getAlbum)
-                .map(album ->
-                    album(webPath, media, album, pars))
-                .or(() ->
-                    index(webPath, media, pars));
+                .map(album -> albumTemplate(
+                    webPath,
+                    media,
+                    album,
+                    playTrack(webPath, media, pars),
+                    playTracks(webPath, media, album)))
+                .or(() -> {
+                    log.warn("Was asked for {}", pars.apply(QPar.ALBUM)
+                        .map(unknown -> "unknown album " + unknown)
+                        .orElse("unspecified album"));
+                    return indexTemplate(webPath, media, pars);
+                });
         }
-
-        return index(webPath, media, pars);
+        return indexTemplate(webPath, media, pars);
     }
 
-    private Optional<Template> index(WebPath webPath, Media media, QPars pars) {
+    private Collection<Track> playTracks(WebPath webPath, Media media, Album album) {
+
+        return album.getTracks().stream()
+            .filter(track ->
+                isPlayable(webPath, media, track))
+            .collect(Collectors.toList());
+    }
+
+    private Track playTrack(WebPath webPath, Media media, QPars pars) {
+
+        return pars.apply(QPar.TRACK)
+            .flatMap(media::getTrack)
+            .filter(track ->
+                webPath.getAccessLevel().satisfies(AccessLevel.STREAM) || isPlayable(webPath, media, track))
+            .orElse(null);
+    }
+
+    private boolean isPlayable(WebPath webPath, Media media, Track track) {
+
+        return webPath.getAccessLevel().satisfies
+            (AccessLevel.STREAM_CURATED) && media.isCurated(track);
+    }
+
+    private Optional<Template> indexTemplate(WebPath webPath, Media media, QPars pars) {
 
         Artist artist =
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
@@ -62,22 +100,27 @@ public final class GUI extends TemplateEnabled {
             return Optional.empty();
         }
 
-        return Optional.of(base(indexTemplate(), webPath, submedia)
+        return Optional.of(base(getTemplate(INDEX_PAGE), webPath, submedia)
             .add(QPar.ARTIST, artist)
             .add(QPar.SERIES, series)
             .add(QPar.PLAYLIST, playlist)
             .add(QPar.CURATION, curation));
     }
 
-    private Template album(WebPath webPath, Media media, Album album, QPars pars) {
+    private Template albumTemplate(
+        WebPath webPath,
+        Media media,
+        Album album,
+        Track track,
+        Collection<Track> playableTracks
+    ) {
 
-        Optional<Track> track = pars.apply(QPar.TRACK).flatMap(media::getTrack);
-        return base(albumTemplate(), webPath, media)
+        return base(getTemplate(ALBUM_PAGE), webPath, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAYLISTS, Playlist.playlistsWith(album))
             .add(QPar.CURATIONS, Playlist.curationsWith(album))
-            .add(QPar.PLAY_TRACK, track.orElse(null))
-            .add(QPar.PLAY_TRACKS, album.getTracks());
+            .add(QPar.PLAY_TRACK, track)
+            .add(QPar.PLAY_TRACKS, playableTracks);
     }
 
     private Template base(Template template, WebPath webPath, Media media) {

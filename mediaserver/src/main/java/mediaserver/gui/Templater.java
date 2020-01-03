@@ -13,7 +13,7 @@ public final class Templater {
         this.cache = cache;
     }
 
-    protected Template template(String resource) {
+    public Template template(String resource) {
 
         return cache.get(resource)
             .map(source ->

@@ -3,6 +3,7 @@ package mediaserver;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import mediaserver.externals.ACL;
 import mediaserver.gui.*;
 import mediaserver.http.Fail;
 import mediaserver.http.Gatekeeper;
@@ -24,7 +25,6 @@ import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
@@ -136,9 +136,9 @@ public final class Main {
 
     private static Ids refreshIds(boolean local) {
 
-        Map<String, ?> sources = local
-            ? IO.readResource(Ids.IDS)
-            : CloudMedia.ids();
+        ACL sources = local
+            ? IO.readLocalACL(Ids.IDS)
+            : CloudMedia.acl();
         return new Ids(sources);
     }
 

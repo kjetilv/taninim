@@ -3,6 +3,7 @@ package mediaserver.util;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import mediaserver.externals.ACL;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -10,8 +11,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -59,20 +58,11 @@ public final class IO {
         return tryDownload(uri, headers, readMapFrom(uri));
     }
 
-    public static Map<String, String> readResource(String resource) {
+    public static ACL readLocalACL(String resource) {
 
         return Optional.ofNullable(readClasspath(resource))
             .map(res ->
-                readMapFrom(resource).apply(res))
-            .map(map ->
-                map.entrySet().stream().collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    e -> e.getValue().toString(),
-                    (s1, s2) -> {
-                        throw new IllegalStateException("No combine:" + s1 + "/" + s2);
-                    },
-                    LinkedHashMap::new
-                )))
+                read(ACL.class, resource, res))
             .orElseThrow(() ->
                 new IllegalArgumentException("No resource found @ " + resource));
     }
@@ -115,10 +105,16 @@ public final class IO {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static Map<String, ?> readMap(Object source, InputStream is) {
 
+        return read(Map.class, source, is);
+    }
+
+    public static <T> T read(Class<T> type, Object source, InputStream is) {
+
         try {
-            return IO.OM.readerFor(Map.class).readValue(is);
+            return IO.OM.readerFor(type).readValue(is);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read: " + source, e);
         }
@@ -181,7 +177,6 @@ public final class IO {
     private static Sourced<InputStream> readStream(String resource) {
 
         return url(resource)
-            .filter(IO::isInSources)
             .map(sourceUrl ->
                 IO.isInSources(sourceUrl)
                     ? Sourced.from(SOURCES, readSources(resource, sourceUrl), sourceUrl)

@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.MixedAttribute;
+import mediaserver.externals.ACL;
 import mediaserver.http.*;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
@@ -11,7 +12,6 @@ import mediaserver.util.IO;
 import mediaserver.util.OnceEvery;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -40,7 +40,7 @@ public final class Admin extends TemplateEnabled {
             return respondPath(webPath, Netty.redirectResponse(Page.ADMIN));
         }
 
-        return Optional.of(adminTemplate()
+        return Optional.of(getTemplate(ADMIN_PAGE)
             .add(QPar.USER, webPath.getSession().getActiveUser())
             .add(QPar.SESSIONS, sessions.list())
             .add(QPar.IDS, map(ids.get())))
@@ -72,7 +72,7 @@ public final class Admin extends TemplateEnabled {
     private String map(Ids ids) {
 
         try {
-            return IO.OMP.writeValueAsString(ids.toMap());
+            return IO.OMP.writeValueAsString(ids.getSource());
         } catch (Exception e) {
             throw new IllegalStateException("No map", e);
         }
@@ -81,7 +81,7 @@ public final class Admin extends TemplateEnabled {
     private Ids map(String ids) {
 
         try {
-            return new Ids(IO.OM.readerFor(Map.class).readValue(ids));
+            return new Ids(IO.OM.readerFor(ACL.class).readValue(ids));
         } catch (Exception e) {
             throw new IllegalStateException("No map", e);
         }

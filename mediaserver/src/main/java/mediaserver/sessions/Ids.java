@@ -1,5 +1,6 @@
 package mediaserver.sessions;
 
+import mediaserver.externals.ACL;
 import mediaserver.externals.FacebookUser;
 import mediaserver.media.CloudMedia;
 import mediaserver.util.IO;
@@ -9,20 +10,23 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Map;
 
 public final class Ids {
 
     public static final String IDS = "ids.json";
 
-    private final Map<String, ?> sources;
+    private final ACL sources;
 
     private static final Logger log = LoggerFactory.getLogger(Ids.class);
 
-    public Ids(Map<String, ?> sources) {
+    public Ids(ACL acl) {
 
-        this.sources = sources;
-        log.info("Ids loaded: {}", sources == null ? "{}" : sources.keySet());
+        this.sources = acl;
+        log.info("Ids loaded: {}", sources == null || sources.getAcl().length == 0
+            ? "{}"
+            : Arrays.toString(sources.getAcl()));
     }
 
     public void persist() {
@@ -36,30 +40,26 @@ public final class Ids {
                 } catch (Exception e) {
                     throw new IllegalStateException("Failed to upload", e);
                 }
-                log.info("Uploaded:{}", sources.keySet());
+                log.info("Uploaded:{}", sources);
             },
             () -> {
-                log.warn("Not uploading, no S3 connection: {}", sources.keySet());
+                log.warn("Not uploading, no S3 connection: {}", sources);
             });
     }
 
     public AccessLevel resolve(FacebookUser facebookUser) {
 
-        return sources.entrySet().stream()
-            .filter(id ->
-                String.valueOf(id.getValue()).equals(facebookUser.getId()))
-            .map(id -> {
-                String key = id.getKey();
-                return key.endsWith("**") ? AccessLevel.ADMIN
-                    : key.endsWith("*") ? AccessLevel.STREAM
-                    : AccessLevel.LOGIN;
-            })
+        return Arrays.stream(sources.getAcl())
+            .filter(entry ->
+                String.valueOf(entry.getSer()).equals(facebookUser.getId()))
+            .map(entry ->
+                AccessLevel.get(entry.getLev()))
             .findFirst()
             .orElse(AccessLevel.NONE);
     }
 
-    public Map<String, ?> toMap() {
+    public ACL getSource() {
 
-        return Map.copyOf(sources);
+        return sources;
     }
 }

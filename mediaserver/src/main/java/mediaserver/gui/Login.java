@@ -14,6 +14,6 @@ public final class Login extends TemplateEnabled {
     @Override
     public Handling handleRequest(WebPath webPath) {
 
-        return respondHtml(webPath, login());
+        return respondHtml(webPath, getTemplate(LOGIN_PAGE));
     }
 }

@@ -6,6 +6,7 @@ import mediaserver.sessions.AccessLevel;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unused")
 public class ActiveUser extends AbstractHashable {
 
     private final String name;
@@ -18,7 +19,7 @@ public class ActiveUser extends AbstractHashable {
 
         this.name = Objects.requireNonNull(name, "name");
         this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
-        if (!accessLevel.is(AccessLevel.LOGIN)) {
+        if (!accessLevel.satisfies(AccessLevel.LOGIN)) {
             throw new IllegalArgumentException("No login for " + name);
         }
     }
@@ -35,12 +36,17 @@ public class ActiveUser extends AbstractHashable {
 
     public boolean isStreamingCurated() {
 
-        return accessLevel.is(AccessLevel.STREAM_CURATED);
+        return accessLevel.satisfies(AccessLevel.STREAM_CURATED);
     }
 
     public boolean isStreaming() {
 
-        return accessLevel.is(AccessLevel.STREAM);
+        return accessLevel.satisfies(AccessLevel.STREAM);
+    }
+
+    public boolean isStreamingPlaylists() {
+
+        return accessLevel.satisfies(AccessLevel.STREAM_PLAYLISTS);
     }
 
     @Override

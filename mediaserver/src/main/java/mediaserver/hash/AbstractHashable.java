@@ -95,6 +95,11 @@ public abstract class AbstractHashable
         hash.accept(buffer.array());
     }
 
+    protected static void hash(Consumer<byte[]> h, Hashable... hasheds) {
+
+        hash(h, Arrays.asList(hasheds));
+    }
+
     protected static void hash(Consumer<byte[]> h, Collection<? extends Hashable> hasheds) {
 
         for (Hashable hashable : hasheds) {

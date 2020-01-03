@@ -48,6 +48,11 @@ public final class Playlist extends AbstractNameHashable {
             .collect(Collectors.toList());
     }
 
+    public boolean contains(Track track) {
+
+        return getTracks().stream().anyMatch(track::equals);
+    }
+
     public boolean contains(Album album) {
 
         return tracks.containsKey(album);
