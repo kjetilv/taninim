@@ -62,6 +62,10 @@ public interface Media {
 
     Optional<Playlist> getPlaylist(UUID uuid);
 
+    Collection<Playlist> getCurations();
+
+    Optional<Playlist> getCuration(UUID uuid);
+
     Duration getDuration();
 
     default String getPrettyDuration() {
@@ -242,10 +246,12 @@ public interface Media {
 
     static Optional<URI> cover(DiscogReleaseDigest release) {
 
-        return Optional.ofNullable(release.getImages()).stream().flatMap(Collection::stream)
-            .filter(image -> "primary".equalsIgnoreCase(image.getType()))
-            .map(DiscogImage::getUri150)
-            .findFirst();
+        return Stream.concat(
+            release.getImages().stream().filter(Media::isPrimary),
+            release.getImages().stream().filter(Media::hasImage)
+        ).filter(Media::hasImage)
+            .findFirst()
+            .map(DiscogImage::getUri150);
     }
 
     static List<String> series(DiscogReleaseDigest release) {
@@ -294,4 +300,14 @@ public interface Media {
     }
 
     boolean isEmpty();
+
+    private static boolean isPrimary(DiscogImage image) {
+
+        return "primary".equalsIgnoreCase(image.getType());
+    }
+
+    private static boolean hasImage(DiscogImage image) {
+
+        return image.getUri150() != null;
+    }
 }

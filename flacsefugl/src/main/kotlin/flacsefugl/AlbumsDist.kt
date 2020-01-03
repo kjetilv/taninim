@@ -1,10 +1,10 @@
 package flacsefugl
 
-import mediaserver.media.CustomCategory
+import mediaserver.media.PlaylistYaml
 import java.nio.file.Path
 
-data class AlbumsDist(private val customCategory: CustomCategory) : Dist {
+data class AlbumsDist(private val playlistYaml: PlaylistYaml) : Dist {
 
     override fun subPath(path: Path): Path? =
-            if (customCategory.isCovered(path)) customCategory.path else null
+            if (playlistYaml.isCovered(path)) playlistYaml.path else null
 }

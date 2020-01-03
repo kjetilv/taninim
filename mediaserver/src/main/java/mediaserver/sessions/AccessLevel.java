@@ -8,6 +8,8 @@ public enum AccessLevel {
 
     LOGIN,
 
+    STREAM_CURATED,
+
     STREAM,
 
     ADMIN;

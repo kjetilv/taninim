@@ -44,12 +44,22 @@
     </UL>
 </DIV>
 <DIV STYLE="float:right">
+    {if(media.curations)}
+    <H3>Kuraterte spillelister</H3>
+    <UL>
+        {media.curations:{curation|
+        <LI><A HREF="?curation={curation.uuid}">{curation.name}</A></LI>
+        }}
+    </UL>
+    {endif}
+    {if(media.playlists)}
     <H3>Spillelister</H3>
     <UL>
         {media.playlists:{playlist|
         <LI><A HREF="/?playlist={playlist.uuid}">{playlist.name}</A></LI>
         }}
     </UL>
+    {endif}
 </DIV>
 
 <DIV STYLE="clear:left">
@@ -69,11 +79,20 @@
     </STRONG></P>
     {endif}
     {if(playlist)}
-    <P>Spilleliste: <STRONG>{playlist.name}
-        {if(user.streaming)}
-        <A TITLE="M3U" HREF="/playlist/{playlist.uuid}">⏬</A>
-        {endif}
-    </STRONG></P>
+    <P>Spilleliste:
+        <STRONG>{playlist.name}
+            {if(user.streaming)}
+            <A TITLE="M3U" HREF="/playlist/{playlist.uuid}">⏬</A>
+            {endif}
+        </STRONG></P>
+    {endif}
+    {if(curation)}
+    <P>Kuratert spilleliste:
+        <STRONG>{curation.name}
+            {if(user.streamingCurated)}
+            <A TITLE="M3U" HREF="/curation/{curation.uuid}">⏬</A>
+            {endif}
+        </STRONG></P>
     {endif}
     <P>{length(media.albums)} plater, {length(media.tracks)} spor.</P>
     <P> Spilletid {media.prettyDuration}.</P>

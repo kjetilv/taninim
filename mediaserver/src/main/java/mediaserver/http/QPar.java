@@ -11,6 +11,10 @@ public enum QPar {
 
     PLAYLISTS,
 
+    CURATION,
+
+    CURATIONS,
+
     ALBUM,
 
     ARTIST,

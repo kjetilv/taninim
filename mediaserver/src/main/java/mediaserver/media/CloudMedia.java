@@ -157,9 +157,7 @@ public final class CloudMedia {
         remoteFiles.forEach(remoteItem -> {
             try {
                 Item item = remoteItem.get();
-                items.put(
-                    item.objectName(),
-                    item.objectSize());
+                items.put(item.objectName(), item.objectSize());
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to stat " + items, e);
             }

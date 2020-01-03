@@ -31,6 +31,7 @@ public final class GUI extends TemplateEnabled {
     }
 
     private Optional<Template> template(WebPath webPath, Media media) {
+
         QPars pars = webPath.getQueryParameters();
         if (webPath.isFor(Page.ALBUM)) {
             return pars.apply(QPar.ALBUM)
@@ -50,10 +51,13 @@ public final class GUI extends TemplateEnabled {
             pars.apply(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
         Series series =
             pars.apply(QPar.SERIES).flatMap(media::getSeries).orElse(null);
-        Playlist playlist =
-            pars.apply(QPar.PLAYLIST).flatMap(media::getPlaylist).orElse(null);
+        Playlist curation =
+            pars.apply(QPar.CURATION).flatMap(media::getCuration).orElse(null);
+        Playlist playlist = curation == null
+            ? pars.apply(QPar.PLAYLIST).flatMap(media::getPlaylist).orElse(null)
+            : null;
 
-        Media submedia = media.subLibrary(null, artist, series, playlist);
+        Media submedia = media.subLibrary(null, artist, series, curation == null ? playlist : curation);
         if (submedia.isEmpty()) {
             return Optional.empty();
         }
@@ -61,7 +65,8 @@ public final class GUI extends TemplateEnabled {
         return Optional.of(base(indexTemplate(), webPath, submedia)
             .add(QPar.ARTIST, artist)
             .add(QPar.SERIES, series)
-            .add(QPar.PLAYLIST, playlist));
+            .add(QPar.PLAYLIST, playlist)
+            .add(QPar.CURATION, curation));
     }
 
     private Template album(WebPath webPath, Media media, Album album, QPars pars) {
@@ -70,6 +75,7 @@ public final class GUI extends TemplateEnabled {
         return base(albumTemplate(), webPath, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAYLISTS, Playlist.playlistsWith(album))
+            .add(QPar.CURATIONS, Playlist.curationsWith(album))
             .add(QPar.PLAY_TRACK, track.orElse(null))
             .add(QPar.PLAY_TRACKS, album.getTracks());
     }

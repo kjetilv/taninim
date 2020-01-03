@@ -60,17 +60,37 @@ public final class Playlist extends AbstractNameHashable {
 
     public static Collection<Playlist> playlistsWith(Album... albums) {
 
-        return playlistsWith(Arrays.asList(albums));
+        return with(PlaylistYaml.PLAYLISTS, Arrays.asList(albums));
     }
 
     public static Collection<Playlist> playlistsWith(Stream<Album> albums) {
 
-        return playlistsWith(albums.collect(Collectors.toList()));
+        return with(PlaylistYaml.PLAYLISTS, albums.collect(Collectors.toList()));
     }
 
     public static Collection<Playlist> playlistsWith(Collection<Album> albums) {
 
-        return CustomCategory.ALL.stream()
+        return with(PlaylistYaml.PLAYLISTS, albums);
+    }
+
+    public static Collection<Playlist> curationsWith(Album... albums) {
+
+        return with(PlaylistYaml.CURATED, Arrays.asList(albums));
+    }
+
+    public static Collection<Playlist> curationsWith(Stream<Album> albums) {
+
+        return with(PlaylistYaml.CURATED, albums.collect(Collectors.toList()));
+    }
+
+    public static Collection<Playlist> curationsWith(Collection<Album> albums) {
+
+        return with(PlaylistYaml.CURATED, albums);
+    }
+
+    private static Collection<Playlist> with(Collection<PlaylistYaml> playlists, Collection<Album> albums) {
+
+        return playlists.stream()
             .map(customCategory ->
                 toPlaylistWith(customCategory, albums))
             .filter(playlist ->
@@ -78,7 +98,7 @@ public final class Playlist extends AbstractNameHashable {
             .collect(Collectors.toList());
     }
 
-    private static Playlist toPlaylistWith(CustomCategory customCategory, Collection<Album> albums) {
+    private static Playlist toPlaylistWith(PlaylistYaml customCategory, Collection<Album> albums) {
 
         return albums.stream()
             .filter(customCategory::contains)
@@ -88,7 +108,7 @@ public final class Playlist extends AbstractNameHashable {
                 Playlist::add);
     }
 
-    private static Playlist playlist(CustomCategory customCategory) {
+    private static Playlist playlist(PlaylistYaml customCategory) {
 
         return new Playlist(customCategory.getPath().toString());
     }

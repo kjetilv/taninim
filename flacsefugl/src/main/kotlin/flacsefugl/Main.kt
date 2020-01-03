@@ -2,7 +2,7 @@ package flacsefugl
 
 import mediaserver.gui.Template
 import mediaserver.http.QPar
-import mediaserver.media.CustomCategory
+import mediaserver.media.PlaylistYaml
 import mediaserver.media.Media
 import mediaserver.media.PlaylistM3U
 import mediaserver.util.IO
@@ -143,7 +143,7 @@ private fun shouldUpdate(source: Path, target: Path) =
         !Files.isRegularFile(target) || Files.size(target) <= 0 || changed(source, target)
 
 private fun playlists(): List<Dist> =
-        CustomCategory.categories("categories.yaml").map { AlbumsDist(it) }
+        PlaylistYaml.categories("categories.yaml").map { AlbumsDist(it) }
 
 private fun noDists(): List<Dist> = emptyList()
 

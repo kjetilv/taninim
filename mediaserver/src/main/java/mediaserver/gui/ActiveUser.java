@@ -33,6 +33,11 @@ public class ActiveUser extends AbstractHashable {
         return accessLevel;
     }
 
+    public boolean isStreamingCurated() {
+
+        return accessLevel.is(AccessLevel.STREAM_CURATED);
+    }
+
     public boolean isStreaming() {
 
         return accessLevel.is(AccessLevel.STREAM);

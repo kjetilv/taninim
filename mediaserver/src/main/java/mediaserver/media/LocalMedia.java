@@ -31,6 +31,8 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     private Collection<Playlist> playlists;
 
+    private final Collection<Playlist> curations;
+
     public LocalMedia(Path root) {
 
         this(null, getAlbums(root, root), null);
@@ -53,8 +55,9 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         this.albumContexts = albumContexts == null || albumContexts.isEmpty()
             ? Collections.emptyMap()
             : Map.copyOf(albumContexts);
+        Collection<Album> mediaAlbums = albumStream(true).collect(Collectors.toList());
         this.artists = Stream.concat(
-            albumStream(true).map(Album::getArtist),
+            mediaAlbums.stream().map(Album::getArtist),
             trackStream(true).flatMap(track ->
                 Stream.concat(
                     Stream.of(track.getArtist()),
@@ -64,7 +67,9 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             .distinct()
             .collect(Collectors.toList());
         this.playlists =
-            Playlist.playlistsWith(albumStream(true));
+            Playlist.playlistsWith(mediaAlbums);
+        this.curations =
+            Playlist.curationsWith(mediaAlbums);
     }
 
     @Override
@@ -164,7 +169,19 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     @Override
     public Optional<Playlist> getPlaylist(UUID uuid) {
 
-        return playlists.stream().filter(playlist -> playlist.getUuid().equals(uuid)).findFirst();
+        return getPlaylist(this.playlists, uuid);
+    }
+
+    @Override
+    public Collection<Playlist> getCurations() {
+
+        return curations;
+    }
+
+    @Override
+    public Optional<Playlist> getCuration(UUID uuid) {
+
+        return getPlaylist(this.curations, uuid);
     }
 
     @Override
@@ -313,6 +330,11 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     protected StringBuilder withStringBody(StringBuilder sb) {
 
         return sb.append(albums.size()).append(" albums");
+    }
+
+    private Optional<Playlist> getPlaylist(Collection<Playlist> playlists, UUID uuid) {
+
+        return playlists.stream().filter(playlist -> playlist.getUuid().equals(uuid)).findFirst();
     }
 
     private Collection<Artist> collectArtists(Function<Album, Collection<Artist>> getAllArtists) {
