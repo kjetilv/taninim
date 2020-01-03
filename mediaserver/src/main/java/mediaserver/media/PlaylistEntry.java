@@ -63,11 +63,11 @@ public final class PlaylistEntry {
             "]";
     }
 
-    private static List<Matcher> specs(Collection<Matcher> spec, MatchType artist) {
+    private static List<Matcher> specs(Collection<Matcher> spec, MatchType matchType) {
 
         return spec.stream()
             .filter(m ->
-                m.getType() == artist)
+                m.getType() == matchType)
             .collect(Collectors.toList());
     }
 
@@ -86,9 +86,9 @@ public final class PlaylistEntry {
         return match(artist, artistSpecs);
     }
 
-    private static boolean match(String album, Collection<Matcher> albumSpecs) {
+    private static boolean match(String str, Collection<Matcher> specs) {
 
-        return albumSpecs.isEmpty() || albumSpecs.stream().allMatch(m -> m.test(album));
+        return specs.isEmpty() || specs.stream().allMatch(m -> m.test(str));
     }
 
     enum MatchType {

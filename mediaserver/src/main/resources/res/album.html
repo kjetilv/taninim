@@ -108,14 +108,10 @@
         {albumPart.tracks:{track |
         <LI>
             [{track.trackNo}]
-            {if(user.streaming)}
-            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶
-                {endif}
-                {track.name}
-                {track.prettyDuration}
-                {if(user.streaming)}
-            </A>
-            {endif}
+            {if(user.streaming)} <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶ {endif}
+            {track.name}
+            {track.prettyDuration}
+            {if(user.streaming)} </A> {endif}
             {if(track.otherArtists)}
             <UL>
                 {track.otherArtists:{otherArtist|

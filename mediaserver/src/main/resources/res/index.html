@@ -35,7 +35,7 @@
     <A HREF="/unauth">Logg ut!</A>
 </DIV>
 
-<DIV STYLE="float:right">
+<DIV STYLE="float:right; padding: 15px">
     <H3>Serier</H3>
     <UL>
         {media.series:{series|
@@ -43,7 +43,7 @@
         }}
     </UL>
 </DIV>
-<DIV STYLE="float:right">
+<DIV STYLE="float:right; padding: 15px">
     {if(media.curations)}
     <H3>Kuraterte spillelister</H3>
     <UL>
@@ -64,6 +64,7 @@
 
 <DIV STYLE="clear:left">
     <P>Hei, {user.name}! Tilgangsniv&aring;: {user.accessLevel}</P>
+
     {if(artist)}
     <P>Artist: <STRONG>{artist.name}
         {if(user.streaming)}
@@ -71,6 +72,7 @@
         {endif}
     </STRONG></P>
     {endif}
+
     {if(series)}
     <P>Serie: <STRONG>{series.name}
         {if(user.streaming)}
@@ -78,6 +80,7 @@
         {endif}
     </STRONG></P>
     {endif}
+
     {if(playlist)}
     <P>Spilleliste:
         <STRONG>{playlist.name}
@@ -86,6 +89,7 @@
             {endif}
         </STRONG></P>
     {endif}
+
     {if(curation)}
     <P>Kuratert spilleliste:
         <STRONG>{curation.name}
@@ -94,6 +98,7 @@
             {endif}
         </STRONG></P>
     {endif}
+
     <P>{length(media.albums)} plater, {length(media.tracks)} spor.</P>
     <P> Spilletid {media.prettyDuration}.</P>
 </DIV>
