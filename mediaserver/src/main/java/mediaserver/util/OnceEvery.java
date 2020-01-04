@@ -12,17 +12,18 @@ public final class OnceEvery {
 
     private final ScheduledExecutorService service;
 
-    public static <T> void refresh(Supplier<T> supplier) {
-        if (supplier instanceof Supp<?>) {
-            ((Supp<?>)supplier).refresh();
-        } else {
-            throw new IllegalStateException("Not a refreshable: " + supplier);
-        }
-    }
-
     public OnceEvery(ScheduledExecutorService service) {
 
         this.service = Objects.requireNonNull(service);
+    }
+
+    public static <T> void refresh(Supplier<T> supplier) {
+
+        if (supplier instanceof Supp<?>) {
+            ((Supp<?>) supplier).refresh();
+        } else {
+            throw new IllegalStateException("Not a refreshable: " + supplier);
+        }
     }
 
     public TimingBuilder interval(Duration duration) {
@@ -88,15 +89,21 @@ public final class OnceEvery {
                 interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS);
         }
 
+        @Override
+        public T get() {
+
+            return value.get();
+        }
+
         private void refresh() {
 
             this.value.set(supplier.get());
         }
 
         @Override
-        public T get() {
+        public String toString() {
 
-            return value.get();
+            return getClass().getSimpleName() + "[" + supplier + "]";
         }
     }
 }

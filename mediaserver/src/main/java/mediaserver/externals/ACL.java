@@ -6,18 +6,24 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class ACL {
 
-    public static final ACLEntry[] NONE = new ACLEntry[0];
+    public static final ACLEntry[] NO_ENTRIES = new ACLEntry[0];
 
-    public ACLEntry[] acl;
+    public static final ACL NONE = new ACL();
+
+    public ACLEntry[] acl = NO_ENTRIES;
 
     public ACLEntry[] getAcl() {
 
         return acl.clone();
     }
 
+    public boolean isEmpty() {
+        return this.acl.length == 0;
+    }
+
     public void setAcl(ACLEntry[] acl) {
 
-        this.acl = acl == null || acl.length == 0 ? NONE : acl.clone();
+        this.acl = acl == null || acl.length == 0 ? NO_ENTRIES : acl.clone();
     }
 
     @Override

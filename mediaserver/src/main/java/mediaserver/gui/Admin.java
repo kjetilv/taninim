@@ -72,7 +72,7 @@ public final class Admin extends TemplateEnabled {
     private String map(Ids ids) {
 
         try {
-            return IO.OMP.writeValueAsString(ids.getSource());
+            return IO.OMP.writeValueAsString(ids.getACL());
         } catch (Exception e) {
             throw new IllegalStateException("No map", e);
         }

@@ -17,11 +17,15 @@ public final class PlaylistYaml {
     public static final ObjectReader YAML_READER =
         new ObjectMapper(new YAMLFactory()).readerFor(Map.class);
 
+    public static final String PLAYLISTS_RESOURCE = "playlists.yaml";
+
     public static final Collection<PlaylistYaml> PLAYLISTS =
-        categories("playlists.yaml");
+        categories(PLAYLISTS_RESOURCE);
+
+    public static final String CURATED_RESOURCE = "curated.yaml";
 
     public static final Collection<PlaylistYaml> CURATED =
-        categories("curated.yaml");
+        categories(CURATED_RESOURCE);
 
     private final Path path;
 
@@ -55,14 +59,13 @@ public final class PlaylistYaml {
     }
 
     public static Collection<PlaylistYaml> categories(String resource) {
-
-        List<PlaylistYaml> customCategories = IO.read(resource)
+        return IO.read(resource)
             .unpack(value ->
                 customCategories(null, readMap(resource, value))
                     .collect(Collectors.toList()))
             .orElseGet(Collections::emptyList);
-        return customCategories;
-//        Collection<PlaylistYaml> combines =
+
+        //        Collection<PlaylistYaml> combines =
 //            customCategories.stream()
 //                .flatMap(cc ->
 //                    getSuperpaths(cc.getPath()))

@@ -46,11 +46,11 @@ public final class S3 {
     private static Optional<MinioClient> s3() {
         String awsKey = getProperty(AWS_KEY, AWS_KEY_ENV, true);
         String awsSecret = getProperty(AWS_SECRET, AWS_SECRET_ENV, true);
+        String cloudUri = getProperty(RELATIVE_URI, RELATIVE_URI, false);
         if (awsKey != null && awsSecret != null) {
             log.info("Connecting to S3 with system properties/env vars");
             return Optional.of(newClient(awsKey, awsSecret));
         }
-        String cloudUri = getProperty(RELATIVE_URI, RELATIVE_URI, false);
         if (cloudUri != null) {
             URI uri = URI.create(SELF_ASSIGNED + cloudUri);
             log.info("Looking for credentials on {}", uri);

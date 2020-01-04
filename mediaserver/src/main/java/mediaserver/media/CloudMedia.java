@@ -209,15 +209,17 @@ public final class CloudMedia {
         return S3.get().map(s3 -> {
             Sourced<String> localResource = IO.read(name);
             if (localResource.source() == Sourced.Type.SOURCES) {
-
                 Path localPath = localPath(localResource);
                 Instant lastModifiedTimeLocal = lastModifiedLocal(localPath);
-                Instant lastModifiedRemote = lastModifiedRemote(name, s3);
-                if (lastModifiedRemote.isAfter(lastModifiedTimeLocal)) {
+                Optional<Instant> remoteUpdate = lastModifiedRemote(name, s3)
+                    .filter(lastModifiedRemote ->
+                        lastModifiedRemote.isAfter(lastModifiedTimeLocal));
+                if (remoteUpdate.isPresent()) {
                     updateLocal(localPath);
                 }
+                return remoteUpdate.isPresent();
             }
-            return true;
+            return false;
         }).orElse(false);
     }
 
@@ -248,17 +250,21 @@ public final class CloudMedia {
         return new File(localResource.getUrl().getFile()).toPath();
     }
 
-    private static Instant lastModifiedRemote(String name, MinioClient s3) {
+    private static Optional<Instant> lastModifiedRemote(String name, MinioClient s3) {
 
-        ObjectStat objectStat = objectStat(name, s3);
-        return objectStat.createdTime().toInstant();
+        return objectStat(name, s3)
+            .map(ObjectStat::createdTime)
+            .map(Date::toInstant);
     }
 
-    private static ObjectStat objectStat(String name, MinioClient s3) {
+    private static Optional<ObjectStat> objectStat(String name, MinioClient s3) {
 
         try {
-            return s3.statObject(S3.BUCKET, name);
+            return Optional.ofNullable(s3.statObject(S3.BUCKET, name));
         } catch (Exception e) {
+            if (e.getMessage().equals("Object does not exist")) {
+                return Optional.empty();
+            }
             throw new IllegalStateException("Could not stat " + name, e);
         }
     }

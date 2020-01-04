@@ -15,18 +15,15 @@ import java.util.Map;
 
 public final class Ids {
 
-    public static final String IDS = "ids.json";
+    public static final String IDS_RESOURCE = "ids.json";
 
-    private final ACL sources;
+    private final ACL acl;
 
     private static final Logger log = LoggerFactory.getLogger(Ids.class);
 
     public Ids(ACL acl) {
 
-        this.sources = acl;
-        log.info("Ids loaded: {}", sources == null || sources.getAcl().length == 0
-            ? "{}"
-            : Arrays.toString(sources.getAcl()));
+        this.acl = acl == null || acl.isEmpty() ? ACL.NONE : acl;
     }
 
     public void persist() {
@@ -35,21 +32,20 @@ public final class Ids {
             s3 -> {
                 try {
                     Path newJson = Files.createTempFile("new-ids", "json");
-                    IO.OM.writerFor(Map.class).writeValue(newJson.toFile(), sources);
-                    CloudMedia.put(s3, newJson.toFile(), IDS);
+                    IO.OM.writerFor(Map.class).writeValue(newJson.toFile(), acl);
+                    CloudMedia.put(s3, newJson.toFile(), IDS_RESOURCE);
                 } catch (Exception e) {
                     throw new IllegalStateException("Failed to upload", e);
                 }
-                log.info("Uploaded:{}", sources);
+                log.info("Uploaded:{}", acl);
             },
-            () -> {
-                log.warn("Not uploading, no S3 connection: {}", sources);
-            });
+            () ->
+                log.warn("Not uploading, no S3 connection: {}", acl));
     }
 
     public AccessLevel resolve(FacebookUser facebookUser) {
 
-        return Arrays.stream(sources.getAcl())
+        return Arrays.stream(acl.getAcl())
             .filter(entry ->
                 String.valueOf(entry.getSer()).equals(facebookUser.getId()))
             .map(entry ->
@@ -58,8 +54,8 @@ public final class Ids {
             .orElse(AccessLevel.NONE);
     }
 
-    public ACL getSource() {
+    public ACL getACL() {
 
-        return sources;
+        return acl;
     }
 }

@@ -8,18 +8,13 @@ import mediaserver.externals.ACL;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static mediaserver.util.Sourced.Type.JAR;
-import static mediaserver.util.Sourced.Type.SOURCES;
 
 public final class IO {
 
@@ -31,8 +26,6 @@ public final class IO {
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     public static final String ROOT = "/";
-
-    private static final String GRADLE_OUT = "out/production";
 
     public static <T> void writeStream(Path path, T output, BiConsumer<T, OutputStream> receptor) {
 
@@ -60,9 +53,10 @@ public final class IO {
 
     public static ACL readLocalACL(String resource) {
 
-        return Optional.ofNullable(readClasspath(resource))
+        return read(resource)
             .map(res ->
                 read(ACL.class, resource, res))
+            .unpack()
             .orElseThrow(() ->
                 new IllegalArgumentException("No resource found @ " + resource));
     }
@@ -85,7 +79,7 @@ public final class IO {
 
     public static Sourced<byte[]> readBytes(String resource) {
 
-        return readStream(resource)
+        return Sourced.readStream(resource)
             .map(stream -> {
                 byte[] buf = new byte[8192];
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -109,6 +103,14 @@ public final class IO {
     public static Map<String, ?> readMap(Object source, InputStream is) {
 
         return read(Map.class, source, is);
+    }
+
+    public static <T> T read(Class<T> type, Object source, String data) {
+        try {
+            return IO.OM.readerFor(type).readValue(data);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read: " + source, e);
+        }
     }
 
     public static <T> T read(Class<T> type, Object source, InputStream is) {
@@ -172,58 +174,6 @@ public final class IO {
     private static Function<InputStream, Map<String, ?>> readMapFrom(Object source) {
 
         return is -> readMap(source, is);
-    }
-
-    private static Sourced<InputStream> readStream(String resource) {
-
-        return url(resource)
-            .map(sourceUrl ->
-                IO.isInSources(sourceUrl)
-                    ? Sourced.from(SOURCES, readSources(resource, sourceUrl), sourceUrl)
-                    : Sourced.from(JAR, readClasspath(resource), sourceUrl))
-            .orElseGet(
-                Sourced::notFound);
-    }
-
-    private static InputStream readClasspath(String resource) {
-
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-    }
-
-    private static InputStream readSources(String resource, URL url) {
-
-        return fromSourceEnvironment(url).orElseThrow(() ->
-            new IllegalArgumentException("No such resource: " + resource));
-    }
-
-    private static Optional<URL> url(String resource) {
-
-        Optional<URL> url = Optional.ofNullable(
-            Thread.currentThread().getContextClassLoader().getResource(resource));
-        if (url.isEmpty()) {
-            throw new IllegalArgumentException("No such resource: " + resource);
-        }
-        return url;
-    }
-
-    private static boolean isInSources(URL url) {
-
-        return url.getFile().contains(GRADLE_OUT);
-    }
-
-    private static Optional<InputStream> fromSourceEnvironment(URL url) {
-
-        return Optional.of(url)
-            .map(URL::getFile)
-            .map(name ->
-                name.replaceAll(GRADLE_OUT, "src/main"))
-            .map(name -> {
-                try {
-                    return new FileInputStream(name);
-                } catch (FileNotFoundException e) {
-                    throw new IllegalStateException("Failed to open file: " + name, e);
-                }
-            });
     }
 
     private static byte[] readTo(InputStream stream, byte[] buf, ByteArrayOutputStream baos) {

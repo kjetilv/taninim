@@ -10,6 +10,7 @@ import mediaserver.http.Gatekeeper;
 import mediaserver.http.WebCache;
 import mediaserver.media.CloudMedia;
 import mediaserver.media.Media;
+import mediaserver.media.PlaylistYaml;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public final class Main {
 
@@ -68,9 +70,14 @@ public final class Main {
             noStream ? "dis" : "en");
 
         if (local) {
-            if (CloudMedia.updatedFromRemote(Ids.IDS)) {
-                log.info("Updated local ids.json");
-            }
+            Stream.of(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE, PlaylistYaml.PLAYLISTS_RESOURCE)
+                .forEach(resource -> {
+                    if (CloudMedia.updatedFromRemote(resource)) {
+                        log.info("Updated local: {}", resource);
+                    } else {
+                        log.info("Local is current: {}", resource);
+                    }
+                });
         }
 
         SslContext mockSslContext = Config.PRETEND_SSL && devLogin ? mockSslContext() : null;
@@ -137,7 +144,7 @@ public final class Main {
     private static Ids refreshIds(boolean local) {
 
         ACL sources = local
-            ? IO.readLocalACL(Ids.IDS)
+            ? IO.readLocalACL(Ids.IDS_RESOURCE)
             : CloudMedia.acl();
         return new Ids(sources);
     }
