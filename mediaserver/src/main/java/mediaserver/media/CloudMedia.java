@@ -349,10 +349,10 @@ public final class CloudMedia {
 
             System.out.println("Refreshing media");
             uploadMedia(mediaFile, s3);
-//            System.out.println("Refreshing ids");
-//            uploadIds(s3);
-//            System.out.println("Refreshing curations");
-//            uploadCurations(s3);
+            System.out.println("Refreshing ids");
+            uploadIds(s3);
+            System.out.println("Refreshing curations");
+            uploadCurations(s3);
 
             Map<String, Long> remoteSizes = remoteFiles(s3);
             localFiles(root, ".flac").forEach(localFile -> {
