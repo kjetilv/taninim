@@ -15,7 +15,6 @@ import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
-import mediaserver.sessions.Sessions;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -45,8 +44,10 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
     @Override
     public Handling handleRequest(WebPath webPath) {
 
-        if (webPath.getSession().hasLevel(AccessLevel.STREAM)) {
+        if (webPath.getSession().hasLevel(AccessLevel.STREAM_CURATED)) {
             return getMediaTrack(webPath.getPath(true))
+                .filter(track ->
+                    Streamer.isAuthorized(webPath, track, this.media))
                 .map(track ->
                     stream(webPath, track))
                 .map(this::handled)

@@ -112,6 +112,12 @@ public final class CloudMedia {
             });
     }
 
+    public static void put(MinioClient s3, String contents, String remoteName) {
+
+        byte[] bytes = contents.getBytes(StandardCharsets.UTF_8);
+        put(s3, new ByteArrayInputStream(bytes), bytes.length, remoteName);
+    }
+
     public static void put(MinioClient s3, File localFile, String remoteName) {
 
         try {
@@ -125,6 +131,22 @@ public final class CloudMedia {
                 null);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to put " + localFile.getName() + " -> " + remoteName, e);
+        }
+    }
+
+    public static void put(MinioClient s3, InputStream inputStream, long length, String remoteName) {
+
+        try {
+            s3.putObject(
+                S3.BUCKET,
+                remoteName,
+                inputStream,
+                length,
+                null,
+                null,
+                null);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to put -> " + remoteName, e);
         }
     }
 

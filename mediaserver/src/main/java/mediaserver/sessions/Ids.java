@@ -8,10 +8,7 @@ import mediaserver.util.S3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Map;
 
 public final class Ids {
 
@@ -30,13 +27,7 @@ public final class Ids {
 
         S3.get().ifPresentOrElse(
             s3 -> {
-                try {
-                    Path newJson = Files.createTempFile("new-ids", "json");
-                    IO.OM.writerFor(Map.class).writeValue(newJson.toFile(), acl);
-                    CloudMedia.put(s3, newJson.toFile(), IDS_RESOURCE);
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to upload", e);
-                }
+                CloudMedia.put(s3, contents(), IDS_RESOURCE);
                 log.info("Uploaded:{}", acl);
             },
             () ->
@@ -57,5 +48,14 @@ public final class Ids {
     public ACL getACL() {
 
         return acl;
+    }
+
+    private String contents() {
+
+        try {
+            return IO.OM.writerFor(ACL.class).writeValueAsString(acl);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to write ACL", e);
+        }
     }
 }

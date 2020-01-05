@@ -24,7 +24,7 @@ public enum Page {
 
     ALBUM(AccessLevel.LOGIN),
 
-    AUDIO(AccessLevel.STREAM),
+    AUDIO(AccessLevel.STREAM_CURATED),
 
     PLAYLIST(AccessLevel.STREAM),
 

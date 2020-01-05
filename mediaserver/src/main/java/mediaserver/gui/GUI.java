@@ -2,12 +2,10 @@ package mediaserver.gui;
 
 import mediaserver.http.*;
 import mediaserver.media.*;
-import mediaserver.sessions.AccessLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -64,7 +62,7 @@ public final class GUI extends TemplateEnabled {
 
         return album.getTracks().stream()
             .filter(track ->
-                isPlayable(webPath, media, track))
+                Streamer.isAuthorized(webPath, track, media))
             .collect(Collectors.toList());
     }
 
@@ -73,14 +71,8 @@ public final class GUI extends TemplateEnabled {
         return pars.apply(QPar.TRACK)
             .flatMap(media::getTrack)
             .filter(track ->
-                webPath.getAccessLevel().satisfies(AccessLevel.STREAM) || isPlayable(webPath, media, track))
+                Streamer.isAuthorized(webPath, track, media))
             .orElse(null);
-    }
-
-    private boolean isPlayable(WebPath webPath, Media media, Track track) {
-
-        return webPath.getAccessLevel().satisfies
-            (AccessLevel.STREAM_CURATED) && media.isCurated(track);
     }
 
     private Optional<Template> indexTemplate(WebPath webPath, Media media, QPars pars) {

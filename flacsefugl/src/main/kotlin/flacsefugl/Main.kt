@@ -2,9 +2,9 @@ package flacsefugl
 
 import mediaserver.gui.Template
 import mediaserver.http.QPar
-import mediaserver.media.PlaylistYaml
 import mediaserver.media.Media
 import mediaserver.media.PlaylistM3U
+import mediaserver.media.PlaylistYaml
 import mediaserver.util.IO
 import java.net.URI
 import java.nio.file.Files
@@ -63,7 +63,7 @@ fun main() {
             Traverser(rootDir),
             included)
 
-    val flacConversions = flacConversion.convert("flac") { no, total, source, target ->
+    val flacConversions = flacConversion.convert("flac") { _, _, source, target ->
         if (shouldUpdate(source, target)) {
             ffmpeg(source, target).await()
         }
@@ -75,7 +75,7 @@ fun main() {
             Traverser(rootDir),
             included)
 
-    val compressions = m4aCompression.convert("m4a") { no, total, source, target ->
+    val compressions = m4aCompression.convert("m4a") { _, _, source, target ->
         if (shouldUpdate(source, target)) {
             ffmpegM4a(source, target).await()
         }
@@ -89,7 +89,7 @@ fun main() {
                 Mover(flacDir, walkDir, playlists()),
                 Traverser(flacDir))
         val transfers =
-                walkmanTransfer.convert() { no: Int, total: Int, source: Path, target: Path ->
+                walkmanTransfer.convert() { _: Int, _: Int, source: Path, target: Path ->
                     if (shouldUpdate(source, target)) {
                         println("$source -> $target")
                         Files.copy(source, target, COPY_ATTRIBUTES, REPLACE_EXISTING)
@@ -122,7 +122,7 @@ fun main() {
             val replacedName =
                     playlist.name.replace('/', ' ') + ".M3U8"
             val target = musicDir.resolve(replacedName)
-            Files.write(target, bytes);
+            Files.write(target, bytes)
             println("Playlist: ${playlist.name}: $target")
         }
     } else {

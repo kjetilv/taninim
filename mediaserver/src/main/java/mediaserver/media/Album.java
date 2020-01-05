@@ -108,9 +108,7 @@ public final class Album extends AbstractHashable
 
     public Duration getDuration() {
 
-        return getTracks().stream().map(Track::getDuration).reduce(
-            Duration.ZERO,
-            Duration::plus);
+        return getTracks().stream().map(Track::getDuration).reduce(Duration.ZERO, Duration::plus);
     }
 
     public String getPrettyDuration() {
@@ -240,6 +238,7 @@ public final class Album extends AbstractHashable
     }
 
     public Optional<Track> getTrack(Integer trackNo) {
+
         if (trackNo <= tracks.size()) {
             return tracks.stream()
                 .filter(track ->

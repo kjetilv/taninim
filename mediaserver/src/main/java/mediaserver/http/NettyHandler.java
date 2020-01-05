@@ -20,7 +20,8 @@ public abstract class NettyHandler {
 
     public boolean couldHandle(WebPath webPath) {
 
-        return pages.isEmpty() || pages.stream().anyMatch(page -> matchingPage(webPath, page));
+        return pages.isEmpty() ||
+            pages.stream().anyMatch(page -> matchingPage(webPath, page));
     }
 
     public abstract Handling handleRequest(WebPath webPath);

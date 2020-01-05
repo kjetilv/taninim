@@ -27,11 +27,11 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     private final Collection<CategoryPath> categories;
 
-    private static final long serialVersionUID = -7165763549356996140L;
-
-    private Collection<Playlist> playlists;
+    private final Collection<Playlist> playlists;
 
     private final Collection<Playlist> curations;
+
+    private static final long serialVersionUID = -7165763549356996140L;
 
     public LocalMedia(Path root) {
 
@@ -179,23 +179,21 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public boolean isCurated(Track track) {
-
-        return getCurations().stream().anyMatch(playlist -> playlist.contains(track));
-    }
-
-    @Override
     public Optional<Playlist> getCuration(UUID uuid) {
 
         return getPlaylist(this.curations, uuid);
     }
 
     @Override
+    public boolean isCurated(Track track) {
+
+        return getCurations().stream().anyMatch(curation -> curation.contains(track));
+    }
+
+    @Override
     public Duration getDuration() {
 
-        return albumStream(true).map(Album::getDuration).reduce(
-            Duration.ZERO,
-            Duration::plus);
+        return albumStream(true).map(Album::getDuration).reduce(Duration.ZERO, Duration::plus);
     }
 
     @Override

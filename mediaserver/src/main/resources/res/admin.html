@@ -9,7 +9,7 @@
 </HEAD>
 <BODY>
 
-<H1>Sesjoner</H1>
+<H1>Sesjoner: {length(sessions)}</H1>
 
 {sessions:{session|
 <H3>{session.activeUser.name} {session.cookie}</H3>
@@ -18,7 +18,7 @@
     <LI>Status: {session.currentStatus}</LI>
     <LI>Login time: {session.startTime}</LI>
 </UL>
-<P>Description: {session.description}</P>
+<P><CODE>{session.description}</CODE></P>
 }}
 
 <H1>ids.json</H1>
