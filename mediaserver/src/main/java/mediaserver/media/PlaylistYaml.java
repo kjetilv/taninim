@@ -51,38 +51,13 @@ public final class PlaylistYaml {
         this.entries = entries;
     }
 
-    public static PlaylistYaml combine(Path path, Collection<PlaylistYaml> subentries) {
-
-        return new PlaylistYaml(
-            subentries.stream().flatMap(sub -> sub.entries.stream()).collect(Collectors.toList()),
-            path);
-    }
-
     public static Collection<PlaylistYaml> categories(String resource) {
+
         return IO.read(resource)
             .unpack(value ->
                 customCategories(null, readMap(resource, value))
                     .collect(Collectors.toList()))
             .orElseGet(Collections::emptyList);
-
-        //        Collection<PlaylistYaml> combines =
-//            customCategories.stream()
-//                .flatMap(cc ->
-//                    getSuperpaths(cc.getPath()))
-//                .distinct()
-//                .collect(Collectors.toMap(
-//                    Function.identity(),
-//                    path1 ->
-//                        customCategories.stream()
-//                            .filter(customCategory ->
-//                                customCategory.isCovered(path1))
-//                            .collect(Collectors.toList()))).entrySet().stream().map(e ->
-//                combine(e.getKey(), e.getValue()))
-//                .collect(Collectors.toList());
-//        return Stream.of(customCategories, combines)
-//            .flatMap(Collection::stream)
-//            .sorted(Comparator.comparing(PlaylistYaml::getPath))
-//            .collect(Collectors.toList());
     }
 
     public Path getPath() {

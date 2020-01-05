@@ -45,11 +45,11 @@ public final class Session {
 
         this.facebookUser = Objects.requireNonNull(facebookUser, "facebookUser");
         this.cookie = Objects.requireNonNull(cookie, "cookie");
-        this.startTime = Objects.requireNonNull(startTime, "startTime");
+        this.startTime = Objects.requireNonNull(startTime, "startTime").truncatedTo(ChronoUnit.SECONDS);
         this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
         this.bytesQuota = bytesQuota;
         this.lastAccessed.set(this.startTime);
-        this.sessionCutoff = Objects.requireNonNull(sessionCutoff, "cutoff");
+        this.sessionCutoff = Objects.requireNonNull(sessionCutoff, "cutoff").truncatedTo(ChronoUnit.SECONDS);
         this.inactivityMax = Objects.requireNonNull(inactivityMax, "inactivityMax");
     }
 

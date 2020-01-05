@@ -3,6 +3,8 @@ package mediaserver.util;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,6 +22,8 @@ public final class Sourced<T> {
     private final URL url;
 
     private static final String GRADLE_OUT = "out/production";
+
+    private static final String SRC_MAIN = "src/main";
 
     private Sourced(Type source, T object, URL url) {
 
@@ -79,12 +83,24 @@ public final class Sourced<T> {
     public static Sourced<InputStream> readStream(String resource) {
 
         return url(resource)
-            .map(sourceUrl ->
-                isInSources(sourceUrl)
-                    ? from(SOURCES, readSources(resource, sourceUrl), sourceUrl)
-                    : from(JAR, readClasspath(resource), sourceUrl))
+            .map(sourceUrl -> {
+                if (isInSources(sourceUrl)) {
+                    URL adjusted = inSources(sourceUrl);
+                    return from(SOURCES, readSources(resource, adjusted), adjusted);
+                }
+                return from(JAR, readClasspath(resource), sourceUrl);
+            })
             .orElseGet(
                 Sourced::notFound);
+    }
+
+    private static URL inSources(URL sourceUrl) {
+
+        try {
+            return URI.create(sourceUrl.toExternalForm().replaceAll(GRADLE_OUT, SRC_MAIN)).toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Could not transform to sources url: " + sourceUrl, e);
+        }
     }
 
     private static InputStream readClasspath(String resource) {
@@ -118,7 +134,7 @@ public final class Sourced<T> {
         return Optional.of(url)
             .map(URL::getFile)
             .map(name ->
-                name.replaceAll(GRADLE_OUT, "src/main"))
+                name.replaceAll(GRADLE_OUT, SRC_MAIN))
             .map(name -> {
                 try {
                     return new FileInputStream(name);
@@ -131,5 +147,11 @@ public final class Sourced<T> {
     public enum Type {
 
         SOURCES, JAR, UNKNOWN
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + source + ": " + url + "]";
     }
 }

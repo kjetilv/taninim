@@ -5,7 +5,9 @@ import io.minio.ObjectStat;
 import io.minio.Result;
 import io.minio.messages.DeleteError;
 import io.minio.messages.Item;
+import mediaserver.Main;
 import mediaserver.externals.ACL;
+import mediaserver.sessions.Ids;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
 import mediaserver.util.Sourced;
@@ -27,8 +29,6 @@ public final class CloudMedia {
     private static final Logger log = LoggerFactory.getLogger(CloudMedia.class);
 
     private static final String MEDIA_SER = "media.ser";
-
-    private static final String IDS_JSON = "ids.json";
 
     public static void main(String[] args) {
 
@@ -200,7 +200,7 @@ public final class CloudMedia {
 
     public static Optional<Instant> lastUpdatedIds() {
 
-        return lastUpdate(IDS_JSON);
+        return lastUpdate(Ids.IDS_RESOURCE);
     }
 
     public static Optional<Instant> lastUpdate(String object) {
@@ -237,7 +237,7 @@ public final class CloudMedia {
                     .filter(lastModifiedRemote ->
                         lastModifiedRemote.isAfter(lastModifiedTimeLocal));
                 if (remoteUpdate.isPresent()) {
-                    updateLocal(localPath);
+                    updateLocal(localPath, name);
                 }
                 return remoteUpdate.isPresent();
             }
@@ -247,16 +247,28 @@ public final class CloudMedia {
 
     public static ACL acl() {
 
-        InputStream inputStream = stream(IDS_JSON);
+        InputStream inputStream = stream(Ids.IDS_RESOURCE);
         log.info("Downloading ids... ");
-        ACL ids = IO.read(ACL.class, IDS_JSON, inputStream);
+        ACL ids = IO.read(ACL.class, Ids.IDS_RESOURCE, inputStream);
         log.info("Downloaded ids {}", ids);
         return ids;
     }
 
-    private static void updateLocal(Path localPath) {
+    public static void updateLocals(String... strings) {
 
-        List<String> lines = new BufferedReader(new InputStreamReader(stream(IDS_JSON), StandardCharsets.UTF_8))
+        Stream.of(strings)
+            .forEach(resource -> {
+                if (updatedFromRemote(resource)) {
+                    log.info("Updated local: {}", resource);
+                } else {
+                    log.info("Local is current: {}", resource);
+                }
+            });
+    }
+
+    private static void updateLocal(Path localPath, String resource) {
+
+        List<String> lines = new BufferedReader(new InputStreamReader(stream(resource), StandardCharsets.UTF_8))
             .lines()
             .collect(Collectors.toList());
         log.info("Updating local file {} with remote content", localPath);
@@ -333,10 +345,14 @@ public final class CloudMedia {
         File mediaFile = serialize(media);
         S3.get().ifPresent(s3 -> {
 
+            updateLocals(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE);
+
             System.out.println("Refreshing media");
             uploadMedia(mediaFile, s3);
             System.out.println("Refreshing ids");
             uploadIds(s3);
+            System.out.println("Refreshing curations");
+            uploadCurations(s3);
 
             Map<String, Long> remoteSizes = remoteFiles(s3);
             localFiles(root, ".flac").forEach(localFile -> {
@@ -362,14 +378,23 @@ public final class CloudMedia {
 
     }
 
+    private static void uploadCurations(MinioClient s3) {
+
+        uploadResource(s3, PlaylistYaml.CURATED_RESOURCE);
+    }
     private static void uploadIds(MinioClient s3) {
 
-        Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource("ids.json"))
+        uploadResource(s3, Ids.IDS_RESOURCE);
+    }
+
+    private static void uploadResource(MinioClient s3, String res) {
+
+        Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource(res))
             .ifPresentOrElse(
                 resource ->
-                    put(s3, new File(resource.getFile()), IDS_JSON),
+                    put(s3, new File(resource.getFile()), res),
                 () ->
-                    log.warn("Found no {} file", IDS_JSON));
+                    log.warn("Found no {} file", res));
     }
 
     private static List<String> redundantRemotes(String suffix, String arg, Map<String, Long> remoteSizes) {

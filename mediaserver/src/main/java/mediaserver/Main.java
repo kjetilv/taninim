@@ -30,7 +30,6 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public final class Main {
 
@@ -70,14 +69,7 @@ public final class Main {
             noStream ? "dis" : "en");
 
         if (local) {
-            Stream.of(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE, PlaylistYaml.PLAYLISTS_RESOURCE)
-                .forEach(resource -> {
-                    if (CloudMedia.updatedFromRemote(resource)) {
-                        log.info("Updated local: {}", resource);
-                    } else {
-                        log.info("Local is current: {}", resource);
-                    }
-                });
+            CloudMedia.updateLocals(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE, PlaylistYaml.PLAYLISTS_RESOURCE);
         }
 
         SslContext mockSslContext = Config.PRETEND_SSL && devLogin ? mockSslContext() : null;
