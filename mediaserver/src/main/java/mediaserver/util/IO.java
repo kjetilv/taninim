@@ -54,9 +54,8 @@ public final class IO {
     public static ACL readLocalACL(String resource) {
 
         return read(resource)
-            .map(res ->
+            .unpack(res ->
                 read(ACL.class, resource, res))
-            .unpack()
             .orElseThrow(() ->
                 new IllegalArgumentException("No resource found @ " + resource));
     }

@@ -41,6 +41,7 @@ public final class Sessions {
     }
 
     public UUID newSessionUUID(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
+
         Session session =
             newSession(webPath, facebookUser, accessLevel).accessedBy(webPath);
         Session previousSession =
@@ -58,9 +59,7 @@ public final class Sessions {
 
     public WebPath instrument(WebPath webPath) {
 
-        return session(webPath, false, AccessLevel.LOGIN)
-            .map(webPath::with)
-            .orElse(webPath);
+        return session(webPath, false, AccessLevel.LOGIN).map(webPath::with).orElse(webPath);
     }
 
     public Optional<Session> close(WebPath webPath) {

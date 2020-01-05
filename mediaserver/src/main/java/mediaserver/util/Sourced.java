@@ -68,7 +68,7 @@ public final class Sourced<T> {
 
     public <R> Optional<R> unpack(Function<T, R> map) {
 
-        return Optional.ofNullable(object).map(map);
+        return unpack().map(map);
     }
 
     public static <T> Sourced<T> notFound() {

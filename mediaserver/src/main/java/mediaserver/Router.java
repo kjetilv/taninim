@@ -63,7 +63,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         try {
             handling = handling(ctx, request, time);
         } catch (Exception e) {
-            logError(request, e, time);
+            logError("Handling of request failed", request, time, e);
             Netty.respondRaw(ctx, INTERNAL_SERVER_ERROR);
             return;
         }
@@ -71,7 +71,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             result ->
                 log(request, result, time),
             () -> {
-                logError(request, null, time);
+                logError("No handling found", request, time, null);
                 Netty.respondRaw(ctx, BAD_REQUEST);
             });
     }
@@ -108,9 +108,9 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                     .findFirst());
     }
 
-    private void logError(FullHttpRequest req, Exception e, Instant time) {
+    private void logError(String situation, FullHttpRequest req, Instant time, Exception e) {
 
-        log.error("Failed [{}ms]: {}", durationSince(time), req, e);
+        log.error("Failure situation: {} [{}ms]: {}", situation, durationSince(time), req, e);
     }
 
     private void log(FullHttpRequest req, Handling response, Instant time) {

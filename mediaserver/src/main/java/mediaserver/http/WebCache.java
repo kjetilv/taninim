@@ -30,5 +30,4 @@ public final class WebCache<K, V> {
                     loader.apply(key).unpack())
             .orElseGet(cached::unpack);
     }
-
 }
