@@ -22,7 +22,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -30,13 +30,15 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 @ChannelHandler.Sharable
 final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    private static final Logger log = LoggerFactory.getLogger(Router.class);
+    private static final int MAX_ROUTED = 1_024;
 
-    private static final Collection<String> ROUTED = new ConcurrentSkipListSet<>();
+    private static final Logger log = LoggerFactory.getLogger(Router.class);
 
     private final Sessions sessions;
 
     private final Clock clock;
+
+    private final Map<String, Instant> routed = new ConcurrentHashMap<>();
 
     private final Collection<NettyHandler> handlers;
 
@@ -115,9 +117,19 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private void log(FullHttpRequest req, Handling response, Instant time) {
 
-        if (ROUTED.add(req.uri())) {
-            log.info("{} -> {} in {}ms",
-                req.uri(), response.getSentResponse().status(), durationSince(time));
+        synchronized (routed) {
+            try {
+                if (routed.containsKey(req.uri())) {
+                    return;
+                }
+                routed.put(req.uri(), time);
+                log.info("{} -> {} in {}ms",
+                    req.uri(), response.getSentResponse().status(), durationSince(time));
+            } finally {
+                if (routed.size() > MAX_ROUTED) {
+                    routed.keySet().stream().findFirst().ifPresent(routed::remove);
+                }
+            }
         }
     }
 
