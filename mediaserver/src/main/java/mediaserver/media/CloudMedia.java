@@ -1,15 +1,10 @@
 package mediaserver.media;
 
-import io.minio.MinioClient;
-import io.minio.ObjectStat;
-import io.minio.Result;
-import io.minio.messages.DeleteError;
-import io.minio.messages.Item;
-import mediaserver.Main;
 import mediaserver.externals.ACL;
 import mediaserver.sessions.Ids;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
+import mediaserver.util.S3Connector;
 import mediaserver.util.Sourced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,34 +30,13 @@ public final class CloudMedia {
         main(args[0], args[1], args[2]);
     }
 
-    public static void removeRedundantRemotes(MinioClient s3, List<String> removables) {
-
-        log.info("Removables: {}", removables.size());
-        Iterable<Result<DeleteError>> results = s3.removeObjects(S3.BUCKET, removables);
-        System.out.println(
-            "Results : " + (results instanceof Collection<?> ? ((Collection<?>) results).size() : -1));
-
-        Collection<DeleteError> errors = new ArrayList<>();
-        Collection<Exception> failures = new ArrayList<>();
-        results.forEach(result -> {
-            try {
-                errors.add(result.get());
-            } catch (Exception e) {
-                failures.add(e);
-            }
-        });
-
-        System.out.println("Deleted: " + errors.size());
-        System.out.println("Failed : " + failures.size());
-    }
-
     public static List<File> localFiles(String directory, String suffix) {
 
         return getFiles(new File(directory), suffix).collect(Collectors.toList());
     }
 
     public static void uploadMissingRemote(
-        MinioClient s3,
+        S3.Client s3,
         Map<String, Long> remoteSizes,
         File localFile,
         Predicate<Track> alsoInclude
@@ -94,7 +68,7 @@ public final class CloudMedia {
                 log.info("Uploading {} bytes: {}/{}/{} => {}",
                     localFile.length(), track.getArtist().getName(), track.getAlbum(), track.getName(),
                     remoteFlac);
-                put(s3, localFile, remoteFlac);
+                s3.put(localFile, remoteFlac);
             });
 
         remoteM4aSize.ifPresentOrElse(
@@ -108,46 +82,8 @@ public final class CloudMedia {
                 log.info("Uploading {} bytes: {}/{}/{} => {}",
                     localCompressedFile.length(), track.getArtist().getName(), track.getAlbum(), track.getName(),
                     remoteM4a);
-                put(s3, localCompressedFile, remoteCompressed);
+                s3.put(localCompressedFile, remoteCompressed);
             });
-    }
-
-    public static void put(MinioClient s3, String contents, String remoteName) {
-
-        byte[] bytes = contents.getBytes(StandardCharsets.UTF_8);
-        put(s3, new ByteArrayInputStream(bytes), bytes.length, remoteName);
-    }
-
-    public static void put(MinioClient s3, File localFile, String remoteName) {
-
-        try {
-            s3.putObject(
-                S3.BUCKET,
-                remoteName,
-                localFile.getAbsolutePath(),
-                localFile.length(),
-                null,
-                null,
-                null);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to put " + localFile.getName() + " -> " + remoteName, e);
-        }
-    }
-
-    public static void put(MinioClient s3, InputStream inputStream, long length, String remoteName) {
-
-        try {
-            s3.putObject(
-                S3.BUCKET,
-                remoteName,
-                inputStream,
-                length,
-                null,
-                null,
-                null);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to put -> " + remoteName, e);
-        }
     }
 
     public static Stream<File> getFiles(File file, String suffix) {
@@ -168,29 +104,9 @@ public final class CloudMedia {
                 getFiles(f, predicate));
     }
 
-    public static Map<String, Long> remoteFiles(MinioClient s3) {
+    public static void uploadMedia(File file, S3.Client s3) {
 
-        Iterable<Result<Item>> remoteFiles;
-        try {
-            remoteFiles = s3.listObjects(S3.BUCKET);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to list " + S3.BUCKET, e);
-        }
-        Map<String, Long> items = new HashMap<>();
-        remoteFiles.forEach(remoteItem -> {
-            try {
-                Item item = remoteItem.get();
-                items.put(item.objectName(), item.objectSize());
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to stat " + items, e);
-            }
-        });
-        return items;
-    }
-
-    public static void uploadMedia(File file, MinioClient s3) {
-
-        put(s3, file, MEDIA_SER);
+        s3.put(file, MEDIA_SER);
     }
 
     public static Optional<Instant> lastUpdatedMedia() {
@@ -205,11 +121,9 @@ public final class CloudMedia {
 
     public static Optional<Instant> lastUpdate(String object) {
 
-        return S3.get().flatMap(s3 -> {
-            ObjectStat objectStat;
+        return S3Connector.get().flatMap(s3 -> {
             try {
-                objectStat = s3.statObject(S3.BUCKET, object);
-                return Optional.of(objectStat.createdTime().toInstant());
+                return s3.lastModifiedRemote(object);
             } catch (Exception e) {
                 log.warn("Failed", e);
             }
@@ -228,12 +142,12 @@ public final class CloudMedia {
 
     public static boolean updatedFromRemote(String name) {
 
-        return S3.get().map(s3 -> {
+        return S3Connector.get().map(s3 -> {
             Sourced<String> localResource = IO.read(name);
             if (localResource.source() == Sourced.Type.SOURCES) {
                 Path localPath = localPath(localResource);
                 Instant lastModifiedTimeLocal = lastModifiedLocal(localPath);
-                Optional<Instant> remoteUpdate = lastModifiedRemote(name, s3)
+                Optional<Instant> remoteUpdate = s3.lastModifiedRemote(name)
                     .filter(lastModifiedRemote ->
                         lastModifiedRemote.isAfter(lastModifiedTimeLocal));
                 if (remoteUpdate.isPresent()) {
@@ -284,25 +198,6 @@ public final class CloudMedia {
         return new File(localResource.getUrl().getFile()).toPath();
     }
 
-    private static Optional<Instant> lastModifiedRemote(String name, MinioClient s3) {
-
-        return objectStat(name, s3)
-            .map(ObjectStat::createdTime)
-            .map(Date::toInstant);
-    }
-
-    private static Optional<ObjectStat> objectStat(String name, MinioClient s3) {
-
-        try {
-            return Optional.ofNullable(s3.statObject(S3.BUCKET, name));
-        } catch (Exception e) {
-            if (e.getMessage().equals("Object does not exist")) {
-                return Optional.empty();
-            }
-            throw new IllegalStateException("Could not stat " + name, e);
-        }
-    }
-
     private static Instant lastModifiedLocal(Path localPath) {
 
         try {
@@ -314,9 +209,9 @@ public final class CloudMedia {
 
     private static InputStream stream(String name) {
 
-        return S3.get().map(s3 -> {
+        return S3Connector.get().map(s3 -> {
             try {
-                return s3.getObject(S3.BUCKET, name);
+                return s3.stream(name);
             } catch (Exception e) {
                 throw new IllegalStateException("Could not download media file", e);
             }
@@ -343,7 +238,7 @@ public final class CloudMedia {
             new File(library).toPath(),
             new File(resources).toPath());
         File mediaFile = serialize(media);
-        S3.get().ifPresent(s3 -> {
+        S3Connector.get().ifPresent(s3 -> {
 
             updateLocals(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE);
 
@@ -354,20 +249,19 @@ public final class CloudMedia {
             System.out.println("Refreshing curations");
             uploadCurations(s3);
 
-            Map<String, Long> remoteSizes = remoteFiles(s3);
-            localFiles(root, ".flac").forEach(localFile -> {
+            Map<String, Long> remoteSizes = s3.remoteSizes();
+            localFiles(root, ".flac").forEach(localFile ->
                 uploadMissingRemote(
                     s3,
                     remoteSizes,
                     localFile,
                     track ->
                         Arrays.stream(albumIncludes).anyMatch(inc ->
-                            track.getAlbum().toLowerCase().contains(inc)));
-            });
+                            track.getAlbum().toLowerCase().contains(inc))));
 
             List<String> removables = redundantRemotes(".flac", root, remoteSizes);
             if (!removables.isEmpty()) {
-                removeRedundantRemotes(s3, removables);
+                s3.remove(removables);
             }
 //            String m4aRoot = new File(new File(root).getParentFile().getParentFile(), "M4A").getAbsolutePath();
 //            List<String> removableM4as = redundantRemotes(".m4a", m4aRoot, remoteSizes);
@@ -378,21 +272,22 @@ public final class CloudMedia {
 
     }
 
-    private static void uploadCurations(MinioClient s3) {
+    private static void uploadCurations(S3.Client s3) {
 
         uploadResource(s3, PlaylistYaml.CURATED_RESOURCE);
     }
-    private static void uploadIds(MinioClient s3) {
+
+    private static void uploadIds(S3.Client s3) {
 
         uploadResource(s3, Ids.IDS_RESOURCE);
     }
 
-    private static void uploadResource(MinioClient s3, String res) {
+    private static void uploadResource(S3.Client s3, String res) {
 
         Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource(res))
             .ifPresentOrElse(
                 resource ->
-                    put(s3, new File(resource.getFile()), res),
+                    s3.put(new File(resource.getFile()), res),
                 () ->
                     log.warn("Found no {} file", res));
     }

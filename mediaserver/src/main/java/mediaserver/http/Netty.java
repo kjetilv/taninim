@@ -35,9 +35,9 @@ public final class Netty {
 
     }
 
-    public static void respondRaw(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    public static HttpResponse respondRaw(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        respond(ctx, new DefaultHttpResponse(HTTP, status));
+        return respond(ctx, new DefaultHttpResponse(HTTP, status));
     }
 
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {

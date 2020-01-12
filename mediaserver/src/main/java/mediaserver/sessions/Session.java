@@ -116,6 +116,7 @@ public final class Session {
     }
 
     public String getDescription() {
+
         return toString();
     }
 
@@ -158,8 +159,24 @@ public final class Session {
         QUOTA_EXCEEDED;
 
         public String getDescription() {
+
             return name().toLowerCase().replace('_', ' ');
         }
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(cookie, facebookUser);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        return this == o ||
+            o instanceof Session &&
+                Objects.equals(cookie, ((Session) o).cookie) &&
+                Objects.equals(facebookUser, ((Session) o).facebookUser);
     }
 
     @Override

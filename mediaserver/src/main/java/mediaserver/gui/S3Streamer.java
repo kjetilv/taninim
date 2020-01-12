@@ -1,6 +1,5 @@
 package mediaserver.gui;
 
-import io.minio.ObjectStat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -9,9 +8,12 @@ import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
-import mediaserver.sessions.Sessions;
 import mediaserver.util.S3;
+import mediaserver.util.S3Connector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -20,9 +22,14 @@ import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 
 public final class S3Streamer extends AbstractStreamer {
 
-    public S3Streamer(Supplier<Media> media) {
+    private static final Logger log = LoggerFactory.getLogger(S3Streamer.class);
 
-        super(media);
+    private final S3.Client client;
+
+    public S3Streamer(Supplier<Media> media, S3.Client client, int bytesPerChunk) {
+
+        super(media, bytesPerChunk);
+        this.client = client;
     }
 
     @Override
@@ -34,68 +41,67 @@ public final class S3Streamer extends AbstractStreamer {
     ) {
 
         String type = lossless ? "flac" : "m4a";
-        long fileLength = length(track, type);
-
-        String rangeHeader = webPath.header(RANGE);
-        if (rangeHeader == null || rangeHeader.length() <= 0) {
-            return Optional.of(
-                writeLength(webPath.getCtx(), response, fileLength));
-        }
-
-        Chunk chunk = chunk(rangeHeader, fileLength);
-        ByteBuf byteBuf = read(track, type, chunk);
-        DefaultHttpContent content = new DefaultHttpContent(byteBuf);
-
-        return Optional.of(
-            writeContent(webPath.getSession(), webPath.getCtx(), chunk, response, content));
+        return length(track, type).flatMap(length ->
+            BytesRange.read(webPath.header(RANGE))
+                .filter(bytesRange ->
+                    bytesRange.isSatisfiable(length))
+                .map(bytesRange -> {
+                    Chunk chunk = chunk(bytesRange, length);
+                    ByteBuf byteBuf = read(track, type, chunk);
+                    return respondData(webPath, response, chunk, new DefaultHttpContent(byteBuf));
+                }));
     }
 
-    private long length(Track track, String type) {
+    @Override
+    protected long length(Track track, boolean lossless) {
 
-        return S3.get().map(s3 -> {
-            try {
-                return s3.statObject(
-                    S3.BUCKET,
-                    track.getUuid() + "." + type);
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to resolve in cloud: " + track + "/" + type, e);
+        return length(track, lossless ? "flac" : "m4a").orElseThrow(() ->
+            new IllegalStateException("Failed to assess length of " + track));
+    }
+
+    private Optional<Long> length(Track track, String type) {
+
+        return client.length(track.getUuid() + "." + type);
+    }
+
+    private ByteBuf read(Track track, String type, Chunk chunk) {
+
+        long partialLength = chunk.getEnd() - chunk.getStart();
+        ByteBuf buffer = Unpooled.buffer((int) partialLength);
+        try (InputStream input = stream(track, chunk.getStart(), chunk.getEnd(), type)) {
+            int transferred = 0;
+            while (true) {
+                try {
+                    transferred += buffer.writeBytes(input, intValue(partialLength));
+                } catch (Exception e) {
+                    throw new IllegalStateException(
+                        "Failed to stream after " + transferred + "/" + partialLength + " bytes", e);
+                }
+                if (transferred >= partialLength) {
+                    return buffer;
+                }
             }
-        }).map(ObjectStat::length)
-            .orElseThrow(() ->
-                new IllegalStateException("No S3 connection"));
+        } catch (IOException e) {
+            log.warn("Failed to close", e);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read from " + track + "/" + type, e);
+        }
+        return buffer;
     }
 
     private InputStream stream(Track track, Long offset, Long length, String type) {
 
-        return S3.get().map(s3 -> {
+        return S3Connector.get().map(s3 -> {
             try {
-                String obj = track.getUuid().toString() + "." + type;
-                return offset == null || length == null
-                    ? s3.getObject(S3.BUCKET, obj)
-                    : s3.getObject(S3.BUCKET, obj, offset, length);
+                return s3.stream(
+                    track.getUuid().toString() + "." + type,
+                    offset,
+                    length);
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to load " + track + "/" + type, e);
             }
         }).orElseThrow(() ->
             new IllegalStateException("No S3 connection"));
-    }
-
-    private ByteBuf read(Track track, String type, Chunk chunk) {
-
-        InputStream input = stream(track, chunk.getStartOffset(), chunk.getEndOffset(), type);
-        long partialLength = chunk.getEndOffset() - chunk.getStartOffset();
-        ByteBuf buffer = Unpooled.buffer((int) partialLength);
-        try {
-            int totalRead = 0;
-            while (true) {
-                totalRead += buffer.writeBytes(input, intValue(partialLength));
-                if (totalRead >= partialLength) {
-                    return buffer;
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to read from " + track + "/" + type, e);
-        }
     }
 
     private int intValue(long partialLength) {

@@ -1,44 +1,45 @@
 package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.util.concurrent.GenericFutureListener;
-import mediaserver.http.Handling;
-import mediaserver.http.NettyHandler;
-import mediaserver.http.Page;
-import mediaserver.http.WebPath;
+import mediaserver.http.*;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
-import mediaserver.sessions.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.LongStream;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.BYTES;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpResponseStatus.PARTIAL_CONTENT;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 
 public abstract class AbstractStreamer extends NettyHandler implements Streamer {
 
+    private static final Logger log = LoggerFactory.getLogger(AbstractStreamer.class);
+
     protected final Supplier<Media> media;
 
-    private static final int BYTES_PREAMBLE = (BYTES + "=").length();
+    private final int bytesPerChunk;
 
-    AbstractStreamer(Supplier<Media> media) {
+    AbstractStreamer(Supplier<Media> media, int bytesPerChunk) {
 
         super(Page.AUDIO);
         this.media = media;
+        this.bytesPerChunk = bytesPerChunk;
     }
 
     @Override
@@ -50,10 +51,10 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
                     Streamer.isAuthorized(webPath, track, this.media))
                 .map(track ->
                     stream(webPath, track))
-                .map(this::handled)
+                .map(response ->
+                    handled(webPath, response))
                 .orElseGet(() ->
                     handleNotFound(webPath));
-
         }
         return handleUnauthorized(webPath);
     }
@@ -66,29 +67,43 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
         response.headers().set(CONTENT_TYPE, lossless
             ? WebPath.AUDIO_FLAC
             : WebPath.AUDIO_AAC);
-        boolean keepAlive = webPath.isKeepAlive();
-        if (keepAlive) {
+        if (webPath.isKeepAlive()) {
             response.headers().set(CONNECTION, KEEP_ALIVE);
         }
         response.headers().add(ACCEPT_RANGES, BYTES);
-
-        streamFuture(webPath, track, lossless, response).ifPresent(future ->
-            future.addListener(progressListener(webPath.getSession(), track)));
-
-        ChannelFuture lastContentFuture = webPath.getCtx().writeAndFlush(EMPTY_LAST_CONTENT);
-        if (!keepAlive) {
-            lastContentFuture.addListener(CLOSE);
+        if (webPath.getRequest().method() == HttpMethod.GET) {
+            return streamFuture(webPath, track, lossless, response)
+                .map(listen(webPath, track))
+                .map(close(webPath, response))
+                .orElseGet(() ->
+                    Netty.respondRaw(webPath.getCtx(), REQUESTED_RANGE_NOT_SATISFIABLE));
         }
-        return response;
+        if (webPath.getRequest().method() == HttpMethod.HEAD) {
+            response.setStatus(OK);
+            response.headers().set(CONTENT_LENGTH, length(track, lossless));
+            return Netty.respond(webPath.getCtx(), response);
+        }
+        return Netty.respondRaw(webPath.getCtx(), BAD_REQUEST);
     }
 
-    protected static Chunk chunk(String rangeHeader, long fileLength) {
+    public Function<ChannelFuture, HttpResponse> close(WebPath webPath, HttpResponse response) {
+
+        return future -> {
+            if (!webPath.isKeepAlive()) {
+                webPath.getCtx().writeAndFlush(EMPTY_LAST_CONTENT).addListener(CLOSE);
+            }
+            return response;
+        };
+    }
+
+    protected Chunk chunk(BytesRange rangeHeader, long fileLength) {
 
         try {
-            long startOffset = Integer.parseInt(rangeHeader.substring(BYTES_PREAMBLE, rangeHeader.indexOf("-")));
-            long endOffset = endOffset(fileLength, startOffset);
-            long chunkSize = endOffset - startOffset + 1;
-            return new Chunk(startOffset, endOffset, chunkSize, fileLength);
+            long start = rangeHeader.getStart();
+            long rangeExclusiveEnd = rangeHeader.getEndExclusive(fileLength);
+            long exclusiveEnd = min(rangeExclusiveEnd, start + fileLength, start + bytesPerChunk);
+
+            return new Chunk(start, exclusiveEnd, fileLength);
         } catch (Exception e) {
             throw new IllegalStateException("Invalid range header", e);
         }
@@ -101,48 +116,50 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
         HttpResponse response
     );
 
-    protected ChannelFuture writeLength(
-        ChannelHandlerContext ctx,
+    protected ChannelFuture respondData(
+        WebPath webPath,
         HttpResponse response,
-        long fileLength
-    ) {
-
-        HttpUtil.setContentLength(response, fileLength);
-        return ctx.write(response);
-    }
-
-    protected static GenericFutureListener<ChannelProgressiveFuture> progressListener(
-        Session session, Track track
-    ) {
-
-        return new ProgressListener(String.format("%s %s", session, track));
-    }
-
-    protected ChannelFuture writeContent(
-        Session session,
-        ChannelHandlerContext ctx,
         Chunk chunk,
-        HttpResponse response,
         Object content
     ) {
 
-        response.headers().add(
-            CONTENT_RANGE,
-            BYTES + " " + chunk.getStartOffset() + "-" + chunk.getEndOffset() + "/" + chunk.getTotalSize());
-        HttpUtil.setContentLength(response, chunk.getSize());
-        response.setStatus(PARTIAL_CONTENT);
         try {
-            ctx.write(response);
-            return ctx.writeAndFlush(content, ctx.newProgressivePromise());
+            response.headers().set(CONTENT_LENGTH, chunk.getSize());
+            response.headers().set(CONTENT_RANGE, chunk.range());
+            response.setStatus(PARTIAL_CONTENT);
+            try {
+                ChannelFuture header = webPath.getCtx().write(response);
+                if (chunk.getSize() > 0) {
+                    return webPath.getCtx().write(content, webPath.getCtx().newProgressivePromise());
+                }
+                log.info("Responding with {} => {}", chunk, webPath);
+                return header;
+            } finally {
+                webPath.getCtx().flush();
+            }
         } finally {
-            session.streaming(chunk.getSize());
+            webPath.getSession().streaming(chunk.getSize());
         }
     }
 
-    private static long endOffset(long fileLength, long startOffset) {
+    protected abstract long length(Track track, boolean lossless);
 
-        long endOffset = startOffset + fileLength;
-        return endOffset < fileLength ? endOffset : fileLength - 1;
+    private Function<ChannelFuture, ChannelFuture> listen(WebPath webPath, Track track) {
+
+        return channelFuture -> {
+            if (channelFuture instanceof ChannelProgressiveFuture) {
+                ((ChannelProgressiveFuture) channelFuture).addListener(
+                    new ProgressListener(String.format("%s %s", webPath.getSession(), track))
+                );
+            }
+            return channelFuture;
+        };
+    }
+
+    private long min(long... lengths) {
+
+        return LongStream.of(lengths).min().orElseThrow(() ->
+            new IllegalStateException("No end in sight! " + Arrays.toString(lengths)));
     }
 
     private Optional<Track> getMediaTrack(String path) {

@@ -5,10 +5,9 @@ import mediaserver.sessions.Session;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public enum Page {
-
-    DEBUG(AccessLevel.NONE),
 
     LOGIN(AccessLevel.NONE),
 
@@ -29,6 +28,8 @@ public enum Page {
     PLAYLIST(AccessLevel.STREAM),
 
     ADMIN(AccessLevel.ADMIN),
+
+    DEBUG(AccessLevel.ADMIN),
 
     INDEX("", AccessLevel.LOGIN);
 
@@ -68,9 +69,9 @@ public enum Page {
         return this.accessLevel.ordinal() <= accessLevel.ordinal();
     }
 
-    public static Optional<Page> get(String uri) {
+    public static Stream<Page> get(String uri) {
 
-        return Arrays.stream(values()).filter(page -> page.resolves(uri)).findFirst();
+        return Arrays.stream(values()).filter(page -> page.resolves(uri)).limit(1);
     }
 
     public String resolve(String uri) {

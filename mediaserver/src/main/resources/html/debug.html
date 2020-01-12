@@ -1,0 +1,50 @@
+<!doctype html>
+<!--suppress HtmlUnknownTarget -->
+<HTML lang="en">
+<HEAD>
+    <LINK REL="stylesheet" HREF="/res/taninim.css">
+    <LINK REL="stylesheet" HREF="/res/plyr.css">
+    <META charset="utf-8">
+    <TITLE>taninim: debug</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Last exchanges: {length(exchanges)}</H1>
+
+{exchanges:{entry|
+<H4>{entry.key.facebookUser.name}/{entry.key.accessLevel} @ {entry.key.startTime} auth {entry.key.cookie}</H4>
+
+{entry.value:{exchange|
+<H5>{exchange.sequenceNo} {exchange.webPath.session.currentStatus} @ {exchange.webPath.time}:</H5>
+
+<PRE>
+    {exchange.handler}
+</PRE>
+
+<BLOCKQUOTE>
+    <PRE>
+    {exchange.webPath.request}
+    </PRE>
+    <PRE>
+    {exchange.response}
+    </PRE>
+    <PRE>
+    {exchange.webPath.session}: {exchange.webPath.session.currentStatus}
+    </PRE>
+</BLOCKQUOTE>
+
+<P><CODE>{session.description}</CODE></P>
+}}
+}}
+
+<H1>ids.json</H1>
+
+<FORM ACTION="/admin" METHOD="POST" AUTOCOMPLETE="off">
+    <LABEL>
+        <TEXTAREA NAME="ids" STYLE="width: 90%; height: 256px">{ids}</TEXTAREA>
+    </LABEL>
+    <BR>
+    <BUTTON TYPE="submit" value="Upload">Upload</BUTTON>
+</FORM>
+</BODY>
+</HTML>

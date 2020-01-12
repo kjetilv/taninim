@@ -1,49 +1,45 @@
 package mediaserver.gui;
 
+import io.netty.handler.codec.http.HttpHeaderValues;
+
 final class Chunk {
 
-    private final long startOffset;
+    private final long start;
 
-    private final long endOffset;
-
-    private final long size;
+    private final long end;
 
     private final long totalSize;
 
-    public Chunk(long startOffset, long endOffset, long size, long totalSize) {
+    public Chunk(long start, long end, long totalSize) {
 
-        this.startOffset = startOffset;
-        this.endOffset = endOffset;
-        this.size = size;
+        this.start = start;
+        this.end = end;
         this.totalSize = totalSize;
     }
 
-    long getStartOffset() {
+    public String range() {
 
-        return startOffset;
+        return HttpHeaderValues.BYTES + " " + start + "-" + (end - 1) + "/" + totalSize;
     }
 
-    public long getEndOffset() {
+    public long getEnd() {
 
-        return endOffset;
+        return end;
+    }
+
+    long getStart() {
+
+        return start;
     }
 
     long getSize() {
 
-        return size;
-    }
-
-    long getTotalSize() {
-
-        return totalSize;
+        return end - start;
     }
 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" +
-            startOffset + "-" + endOffset +
-            " " + size + "/" + totalSize +
-            "]";
+        return getClass().getSimpleName() + "[" + range() + " [" + getSize() + "]]";
     }
 }

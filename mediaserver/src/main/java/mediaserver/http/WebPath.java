@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -27,7 +28,7 @@ public final class WebPath {
 
     public static final String AUDIO_FLAC = "audio/flac";
 
-    public static final String AUDIO_AAC = "audio/aac";
+    public static final String AUDIO_AAC = "audio/m4a";
 
     private final ChannelHandlerContext ctx;
 
@@ -46,6 +47,8 @@ public final class WebPath {
     private final Supplier<Optional<UUID>> uuid;
 
     private final Supplier<QPars> qpars;
+
+    private final AtomicReference<Boolean> keepAlive = new AtomicReference<>();
 
     private final Supplier<Optional<String>> content;
 
@@ -185,9 +188,9 @@ public final class WebPath {
         return request;
     }
 
-    public static Optional<WebPath> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+    public static Stream<WebPath> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
 
-        return Optional.of(request)
+        return Stream.of(request)
             .map(HttpRequest::uri)
             .filter(uri ->
                 !uri.isBlank())
@@ -200,7 +203,9 @@ public final class WebPath {
 
     public boolean isKeepAlive() {
 
-        return HttpUtil.isKeepAlive(request);
+        return keepAlive.updateAndGet(value -> value == null
+            ? HttpUtil.isKeepAlive(request)
+            : value);
     }
 
     public boolean isFlac() {

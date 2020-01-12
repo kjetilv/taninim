@@ -2,11 +2,11 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.FileRegion;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.WebPath;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
-import mediaserver.sessions.Sessions;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -18,9 +18,9 @@ import static io.netty.handler.codec.http.HttpHeaderNames.RANGE;
 
 public final class FileStreamer extends AbstractStreamer {
 
-    public FileStreamer(Supplier<Media> media) {
+    public FileStreamer(Supplier<Media> media, int bytesPerChunk) {
 
-        super(media);
+        super(media, bytesPerChunk);
     }
 
     @Override
@@ -31,25 +31,24 @@ public final class FileStreamer extends AbstractStreamer {
         HttpResponse response
     ) {
 
-        File sourceFile = lossless
-            ? track.getFile()
-            : track.getCompressedFile();
-        RandomAccessFile file = randomAccess(sourceFile);
-        long fileLength = length(file);
+        long fileLength = length(track, lossless);
 
-        String rangeHeader = webPath.header(RANGE);
-        if (rangeHeader == null || rangeHeader.length() == 0) {
-            return Optional.of(
-                writeLength(webPath.getCtx(), response, fileLength));
-        }
+        return BytesRange.read(webPath.header(RANGE))
+            .filter(bytesRange ->
+                bytesRange.isSatisfiable(fileLength))
+            .map(bytesRange -> {
+                Chunk chunk = chunk(bytesRange, fileLength);
+                FileChannel channel = randomAccess(lossless ? track.getFile() : track.getCompressedFile()).getChannel();
+                FileRegion content =
+                    new DefaultFileRegion(channel, chunk.getStart(), chunk.getSize());
+                return respondData(webPath, response, chunk, content);
+            });
+    }
 
-        Chunk chunk = chunk(rangeHeader.trim(), fileLength);
-        FileChannel channel = file.getChannel();
-        DefaultFileRegion content = new DefaultFileRegion(
-            channel, chunk.getStartOffset(), chunk.getSize());
+    @Override
+    protected long length(Track track, boolean lossless) {
 
-        return Optional.of(
-            writeContent(webPath.getSession(), webPath.getCtx(), chunk, response, content));
+        return length(lossless ? track.getFile() : track.getCompressedFile());
     }
 
     private static RandomAccessFile randomAccess(File file) {
@@ -67,6 +66,15 @@ public final class FileStreamer extends AbstractStreamer {
             return randomAccessFile.length();
         } catch (Exception e) {
             throw new IllegalStateException("Could not read length of " + randomAccessFile, e);
+        }
+    }
+
+    private static long length(File file) {
+
+        try {
+            return file.length();
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not read length of " + file, e);
         }
     }
 }

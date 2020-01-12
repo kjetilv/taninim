@@ -112,7 +112,7 @@ public final class TrackContext implements Serializable {
         try {
             return Optional.of(Integer.parseInt(substring));
         } catch (NumberFormatException e) {
-            log.warn("Bogus int {}", substring);
+            log.debug("Bogus int {}", substring);
             String pruned = substring.replaceAll("[^\\d]?", "");
             return pruned.isBlank() ? Optional.empty() : toInt(pruned);
         }

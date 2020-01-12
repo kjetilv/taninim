@@ -42,7 +42,7 @@ public final class FbAuth extends NettyHandler {
             if (accessLevel.satisfies(AccessLevel.LOGIN)) {
                 UUID cookie = sessions.newSessionUUID(webPath, facebookUser, accessLevel);
                 return Optional.of(
-                    respondPath(webPath, Netty.authCookieResponse(webPath, Netty.authCookie(cookie))));
+                    respond(webPath, Netty.authCookieResponse(webPath, Netty.authCookie(cookie))));
             }
             log.warn("Unknown user {} attempted login with access level {}", facebookUser, accessLevel);
             return Optional.empty();

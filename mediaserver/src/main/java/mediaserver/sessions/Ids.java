@@ -2,7 +2,6 @@ package mediaserver.sessions;
 
 import mediaserver.externals.ACL;
 import mediaserver.externals.FacebookUser;
-import mediaserver.media.CloudMedia;
 import mediaserver.util.IO;
 import mediaserver.util.S3;
 import org.slf4j.Logger;
@@ -16,22 +15,20 @@ public final class Ids {
 
     private final ACL acl;
 
+    private final S3.Client s3;
+
     private static final Logger log = LoggerFactory.getLogger(Ids.class);
 
-    public Ids(ACL acl) {
+    public Ids(ACL acl, S3.Client s3) {
 
         this.acl = acl == null || acl.isEmpty() ? ACL.NONE : acl;
+        this.s3 = s3;
     }
 
     public void persist() {
 
-        S3.get().ifPresentOrElse(
-            s3 -> {
-                CloudMedia.put(s3, contents(), IDS_RESOURCE);
-                log.info("Uploaded:{}", acl);
-            },
-            () ->
-                log.warn("Not uploading, no S3 connection: {}", acl));
+        s3.put(contents(), IDS_RESOURCE);
+        log.info("Uploaded:{}", acl);
     }
 
     public AccessLevel resolve(FacebookUser facebookUser) {

@@ -32,7 +32,7 @@ public final class Gatekeeper extends TemplateEnabled {
     private Handling redirectToLogin(WebPath webPath) {
 
         log.info("Redirecting {} to {}", webPath, Page.LOGIN.getPref());
-        return respondPath(webPath, Netty.redirectResponse(Page.LOGIN));
+        return respond(webPath, Netty.redirectResponse(Page.LOGIN));
     }
 
     @Override

@@ -3,7 +3,7 @@
 <HTML lang="en">
 <HEAD>
     <LINK REL="stylesheet" HREF="/res/taninim.css">
-    <LINK REL="stylesheet" HREF="/res/plyr.css">
+<!--    <LINK REL="stylesheet" HREF="/res/plyr.css">-->
     <META charset="utf-8">
     <TITLE>taninim: {album.uuid}</TITLE>
 </HEAD>
@@ -83,7 +83,8 @@
 </H3>
 
 <DIV>
-    <P>Spilletid {album.prettyDuration}{if(album.context.year)}. Kom i {album.context.year.value}.{endif}
+    <P>
+        Spilletid {album.prettyDuration}{if(album.context.year)}. Kom i {album.context.year.value}.{endif}
     </P>
 </DIV>
 
@@ -94,12 +95,12 @@
         by <EM>{playTrack.artist.name}</EM>
     </P>
 
-    <AUDIO id="player" controls>
-        <SOURCE src="/audio/{playTrack.uuid}.m4a" type="audio/aac">
+    <AUDIO id="player" controls preload="metadata" src="/audio/{playTrack.uuid}.m4a">
+
     </AUDIO>
 
-    <SCRIPT src="/res/plyr.js"></SCRIPT>
-    <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
+<!--    <SCRIPT src="/res/plyr.js"></SCRIPT>-->
+<!--    <SCRIPT src="/res/plyr-setup.js"></SCRIPT>-->
 </DIV>
 {endif}
 

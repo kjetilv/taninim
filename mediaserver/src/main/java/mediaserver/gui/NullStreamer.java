@@ -11,7 +11,13 @@ public final class NullStreamer extends AbstractStreamer {
 
     public NullStreamer() {
 
-        super(null);
+        super(null, 0);
+    }
+
+    @Override
+    protected long length(Track track, boolean lossless) {
+
+        return 0L;
     }
 
     @Override

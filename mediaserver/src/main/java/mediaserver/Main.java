@@ -13,9 +13,7 @@ import mediaserver.media.Media;
 import mediaserver.media.PlaylistYaml;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.IO;
-import mediaserver.util.OnceEvery;
-import mediaserver.util.UpdateDetector;
+import mediaserver.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,25 +76,27 @@ public final class Main {
             log.warn("Mock SSL context: {}", mockSslContext);
         }
 
-        Supplier<Ids> ids = idsSupplier(args, local);
+        S3.Client s3 = S3Connector.get().orElse(null);
+
+        Supplier<Ids> ids = idsSupplier(args, local, s3);
         Supplier<Media> media = mediaSupplier(args, local);
 
         Templater templater = new Templater(TEMPLATE_CACHE);
 
-        AbstractStreamer streamer = streamer(media, local, noStream);
+        AbstractStreamer streamer = streamer(media, local, s3, noStream);
 
         Router router = new Router(
             sessions,
+            templater,
             CLOCK,
             streamer,
-            new Debug(),
             new Gatekeeper(templater),
             new FbUnauth(sessions),
             new FbAuth(sessions, ids, secretsProvider()),
             new Resources(RES, RESOURCE_CACHE),
             new Favicon(RESOURCE_CACHE, FAVICON_ICO),
             new Login(templater),
-            new Admin(ids, sessions, templater),
+            new Admin(ids, sessions, templater, s3),
             new Playlists(media, templater, sslPlaylists),
             new GUI(media, templater),
             new Fail());
@@ -106,12 +106,11 @@ public final class Main {
         new NettyRunner(4, 1).run(router, Config.PORT, mockSslContext);
     }
 
-    private static AbstractStreamer streamer(Supplier<Media> media, boolean local, boolean noStream) {
+    private static AbstractStreamer streamer(Supplier<Media> media, boolean local, S3.Client s3, boolean noStream) {
 
-        AbstractStreamer streamer = noStream
-            ? new NullStreamer()
-            : local ? new FileStreamer(media)
-            : new S3Streamer(media);
+        AbstractStreamer streamer = noStream ? new NullStreamer()
+            : local ? new FileStreamer(media, Config.BYTES_PER_CHUNK)
+            : new S3Streamer(media, s3, Config.BYTES_PER_CHUNK);
 
         log.info("Streamer: {}", streamer);
         return streamer;
@@ -125,20 +124,20 @@ public final class Main {
                 retrieveMedia(local, args));
     }
 
-    private static Supplier<Ids> idsSupplier(String[] args, boolean local) {
+    private static Supplier<Ids> idsSupplier(String[] args, boolean local, S3.Client client) {
 
         return ONCE_EVERY.interval(Config.REFRESH_TIME)
             .when(shouldRefresh(local, args))
             .get(() ->
-                refreshIds(local));
+                refreshIds(local, client));
     }
 
-    private static Ids refreshIds(boolean local) {
+    private static Ids refreshIds(boolean local, S3.Client s3) {
 
         ACL sources = local
             ? IO.readLocalACL(Ids.IDS_RESOURCE)
             : CloudMedia.acl();
-        return new Ids(sources);
+        return new Ids(sources, s3);
     }
 
     private static BooleanSupplier shouldRefresh(boolean local, String[] args) {

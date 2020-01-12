@@ -4,14 +4,14 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.NotSslRecordException;
-import mediaserver.http.Handling;
-import mediaserver.http.Netty;
-import mediaserver.http.NettyHandler;
-import mediaserver.http.WebPath;
+import mediaserver.gui.TemplateEnabled;
+import mediaserver.gui.Templater;
+import mediaserver.http.*;
+import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
+import mediaserver.util.RingBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -34,6 +38,8 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(Router.class);
 
+    private static final AtomicLong sequence = new AtomicLong();
+
     private final Sessions sessions;
 
     private final Clock clock;
@@ -42,39 +48,63 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final Collection<NettyHandler> handlers;
 
-    Router(Sessions sessions, Clock clock, NettyHandler... handlers) {
+    private final RingBuffer<Exchange> latestExchanges = new RingBuffer<>(EXCHANGES_REMEMBERED);
 
-        this(sessions, clock, Arrays.asList(handlers));
+    private static final int EXCHANGES_REMEMBERED = 100;
+
+    Router(Sessions sessions, Templater templater, Clock clock, NettyHandler... handlers) {
+
+        this(sessions, templater, clock, Arrays.asList(handlers));
     }
 
-    Router(Sessions sessions, Clock clock, Collection<NettyHandler> handlers) {
+    Router(Sessions sessions, Templater templater, Clock clock, Collection<NettyHandler> handlers) {
 
         this.sessions = sessions;
         this.clock = clock;
-        this.handlers = List.copyOf(handlers);
+        this.handlers = Stream.concat(
+            Stream.of(new Debug(templater, latestExchanges::get)),
+            handlers.stream()
+        ).collect(Collectors.toList());
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
 
-        if (HttpUtil.is100ContinueExpected(request)) {
-            Netty.respondRaw(ctx, CONTINUE);
-        }
         Instant time = clock.instant();
-        Optional<Handling> handling;
+        Handling response;
         try {
-            handling = handling(ctx, request, time);
-        } catch (Exception e) {
+            response = response(time, request, ctx);
+        } catch (Throwable e) {
             logError("Handling of request failed", request, time, e);
-            Netty.respondRaw(ctx, INTERNAL_SERVER_ERROR);
-            return;
+            response = statusSent(ctx, INTERNAL_SERVER_ERROR);
         }
-        handling.ifPresentOrElse(
-            result ->
-                log(request, result, time),
-            () -> {
+        logExchange(time, response);
+    }
+
+    public Handling response(Instant time, FullHttpRequest request, ChannelHandlerContext ctx) {
+
+        if (HttpUtil.is100ContinueExpected(request)) {
+            return statusSent(ctx, CONTINUE);
+        }
+
+        Stream<Handling> handling = WebPath.from(ctx, request, time)
+            .map(sessions::instrument)
+            .flatMap(webPath ->
+                handlers.stream()
+                    .filter(handler ->
+                        handler.couldHandle(webPath))
+                    .map(handler ->
+                        handler.handleRequest(webPath))
+                    .filter(Handling::isHandled))
+            .limit(1);
+
+        return handling
+            .peek(result ->
+                log(request, result, time))
+            .findFirst()
+            .orElseGet(() -> {
                 logError("No handling found", request, time, null);
-                Netty.respondRaw(ctx, BAD_REQUEST);
+                return statusSent(ctx, BAD_REQUEST);
             });
     }
 
@@ -96,21 +126,20 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private Optional<Handling> handling(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+    private static Handling statusSent(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
-        return WebPath.from(ctx, request, time)
-            .map(sessions::instrument)
-            .flatMap(webPath ->
-                handlers.stream()
-                    .filter(handler ->
-                        handler.couldHandle(webPath))
-                    .map(handler ->
-                        handler.handleRequest(webPath))
-                    .filter(Handling::isHandled)
-                    .findFirst());
+        return Handling.sentResponse(null, null, Netty.respondRaw(ctx, status));
     }
 
-    private void logError(String situation, FullHttpRequest req, Instant time, Exception e) {
+    private void logExchange(Instant time, Handling handling) {
+
+        WebPath webPath = handling.getWebPath();
+        if (webPath != null && webPath.getSession() != null && webPath.getPage() != Page.DEBUG) {
+            latestExchanges.add(new Exchange(time, sequence.getAndIncrement(), handling));
+        }
+    }
+
+    private void logError(String situation, FullHttpRequest req, Instant time, Throwable e) {
 
         log.error("Failure situation: {} [{}ms]: {}", situation, durationSince(time), req, e);
     }
@@ -169,5 +198,101 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             .map(remoteAddress)
             .map(Objects::toString)
             .orElse("?");
+    }
+
+    private static final class Debug extends TemplateEnabled {
+
+        private final Logger log = LoggerFactory.getLogger(Debug.class);
+
+        private final Supplier<Collection<Exchange>> latestExchanges;
+
+        public Debug(Templater templater, Supplier<Collection<Exchange>> latestExchanges) {
+
+            super(templater, Page.DEBUG);
+            this.latestExchanges = latestExchanges;
+        }
+
+        @Override
+        public Handling handleRequest(WebPath webPath) {
+
+            log.info("Request receieved @ {}: {}", webPath, webPath.getRequest());
+            Map<Session, List<Exchange>> exchanges = latestExchanges.get().stream()
+                .filter(exchange ->
+                    exchange.getWebPath() != null)
+                .collect(Collectors.groupingBy(
+                    exchange ->
+                        exchange.getWebPath().getSession(),
+                    Collectors.toCollection(ArrayList::new)));
+            return respondHtml(webPath, getTemplate(DEBUG_PAGE).add(
+                "exchanges",
+                exchanges
+                    .entrySet()));
+        }
+    }
+
+    public static final class Exchange {
+
+        private final Instant time;
+
+        private final long sequenceNo;
+
+        private final NettyHandler handler;
+
+        private final WebPath webPath;
+
+        private final HttpResponse response;
+
+        public Exchange(Instant time, long sequenceNo, Handling handling) {
+
+            this.time = time;
+            this.sequenceNo = sequenceNo;
+            this.handler = handling.getHandler();
+            this.webPath = handling.getWebPath();
+            this.response = handling.getSentResponse();
+        }
+
+        public Instant getTime() {
+
+            return time != null ? time
+                : webPath != null ? webPath.getTime()
+                : null;
+        }
+
+        public NettyHandler getHandler() {
+
+            return handler;
+        }
+
+        public WebPath getWebPath() {
+
+            return webPath;
+        }
+
+        public HttpRequest getRequest() {
+
+            return webPath == null ? null : webPath.getRequest();
+        }
+
+        public HttpResponse getResponse() {
+
+            return response;
+        }
+
+        public long getSequenceNo() {
+
+            return sequenceNo;
+        }
+
+        @Override
+        public int hashCode() {
+
+            return (int) sequenceNo;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+
+            return this == o || o instanceof Exchange && sequenceNo == ((Exchange) o).sequenceNo;
+        }
     }
 }

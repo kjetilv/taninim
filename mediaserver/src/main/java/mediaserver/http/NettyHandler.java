@@ -20,27 +20,33 @@ public abstract class NettyHandler {
 
     public boolean couldHandle(WebPath webPath) {
 
-        return pages.isEmpty() ||
-            pages.stream().anyMatch(page -> matchingPage(webPath, page));
+        if (pages.isEmpty()) {
+            return true;
+        }
+        return pages.stream()
+            .filter(page ->
+                matchingPage(webPath, page))
+            .anyMatch(page ->
+                page.accessibleIn(webPath.getSession()));
     }
 
     public abstract Handling handleRequest(WebPath webPath);
 
-    protected Handling handled(HttpResponse sentResponse) {
+    protected Handling respond(WebPath webPath, HttpResponse response) {
 
-        return Handling.sentResponse(this, sentResponse);
+        return handled(webPath, Netty.respond(webPath.getCtx(), response));
     }
 
-    protected Handling respondPath(WebPath webPath, HttpResponse response) {
+    protected Handling handled(WebPath webPath, HttpResponse sentResponse) {
 
-        return handled(Netty.respond(webPath.getCtx(), response));
+        return Handling.sentResponse(this, webPath, sentResponse);
     }
 
     protected Handling handle(WebPath webPath, byte[] bytes) {
 
         try {
 
-            return respondPath(webPath, Netty.response(webPath, bytes, null));
+            return respond(webPath, Netty.response(webPath, bytes, null));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + webPath, e);
         }
@@ -68,7 +74,7 @@ public abstract class NettyHandler {
 
     private Handling handle(WebPath webPath, HttpResponseStatus status) {
 
-        return respondPath(webPath, Netty.response(null, status, null, null));
+        return respond(webPath, Netty.response(null, status, null, null));
     }
 
     private boolean matchingPage(WebPath webPath, Page page) {

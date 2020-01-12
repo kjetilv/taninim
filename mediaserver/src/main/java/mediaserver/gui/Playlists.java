@@ -45,7 +45,7 @@ public final class Playlists extends TemplateEnabled {
                 .map(template ->
                     instrumented(template, webPath))
                 .map(template ->
-                    respondPath(webPath, response(webPath, template)))
+                    respond(webPath, response(webPath, template)))
                 .orElseGet(() ->
                     handleNotFound(webPath));
         }

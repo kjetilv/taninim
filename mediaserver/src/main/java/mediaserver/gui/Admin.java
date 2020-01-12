@@ -10,6 +10,9 @@ import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import mediaserver.util.OnceEvery;
+import mediaserver.util.S3;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -17,17 +20,22 @@ import java.util.function.Supplier;
 
 public final class Admin extends TemplateEnabled {
 
+    private static final Logger log = LoggerFactory.getLogger(Admin.class);
+
     public static final String FORM_URLENCODED = "application/x-www-form-urlencoded";
 
     private final Supplier<Ids> ids;
 
     private final Sessions sessions;
 
-    public Admin(Supplier<Ids> ids, Sessions sessions, Templater templater) {
+    private final S3.Client s3;
+
+    public Admin(Supplier<Ids> ids, Sessions sessions, Templater templater, S3.Client s3) {
 
         super(templater, Page.ADMIN);
         this.ids = ids;
         this.sessions = sessions;
+        this.s3 = s3;
     }
 
     @Override
@@ -35,9 +43,13 @@ public final class Admin extends TemplateEnabled {
 
         FullHttpRequest request = webPath.getRequest();
         if (isIdsUpdate(webPath, request)) {
-            ids(webPath).ifPresent(Ids::persist);
-            OnceEvery.refresh(ids);
-            return respondPath(webPath, Netty.redirectResponse(Page.ADMIN));
+            if (s3 != null) {
+                ids(webPath).ifPresent(Ids::persist);
+                OnceEvery.refresh(ids);
+            } else {
+                log.warn("Could not update, no S3 connection: {}", webPath);
+            }
+            return respond(webPath, Netty.redirectResponse(Page.ADMIN));
         }
 
         return Optional.of(getTemplate(ADMIN_PAGE)
@@ -81,7 +93,7 @@ public final class Admin extends TemplateEnabled {
     private Ids map(String ids) {
 
         try {
-            return new Ids(IO.OM.readerFor(ACL.class).readValue(ids));
+            return new Ids(IO.OM.readerFor(ACL.class).readValue(ids), s3);
         } catch (Exception e) {
             throw new IllegalStateException("No map", e);
         }

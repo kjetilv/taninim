@@ -15,6 +15,6 @@ public final class CookiesPlease extends NettyHandler {
     @Override
     public Handling handleRequest(WebPath webPath) {
 
-        return respondPath(webPath, Netty.okCookieResponse(webPath, "cookies"));
+        return respond(webPath, Netty.okCookieResponse(webPath, "cookies"));
     }
 }
