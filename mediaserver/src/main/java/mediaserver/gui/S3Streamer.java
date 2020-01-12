@@ -26,6 +26,10 @@ public final class S3Streamer extends AbstractStreamer {
 
     private final S3.Client client;
 
+    public static final String M4A = "m4a";
+
+    public static final String FLAC = "flac";
+
     public S3Streamer(Supplier<Media> media, S3.Client client, int bytesPerChunk) {
 
         super(media, bytesPerChunk);
@@ -40,15 +44,16 @@ public final class S3Streamer extends AbstractStreamer {
         HttpResponse response
     ) {
 
-        String type = lossless ? "flac" : "m4a";
+        String type = lossless ? FLAC : M4A;
         return length(track, type).flatMap(length ->
             BytesRange.read(webPath.header(RANGE))
                 .filter(bytesRange ->
                     bytesRange.isSatisfiable(length))
                 .map(bytesRange -> {
                     Chunk chunk = chunk(bytesRange, length);
-                    ByteBuf byteBuf = read(track, type, chunk);
-                    return respondData(webPath, response, chunk, new DefaultHttpContent(byteBuf));
+                    ByteBuf byteBuf = data(track, type, chunk);
+                    Object content = new DefaultHttpContent(byteBuf);
+                    return respondData(webPath, response, chunk, content);
                 }));
     }
 
@@ -64,20 +69,19 @@ public final class S3Streamer extends AbstractStreamer {
         return client.length(track.getUuid() + "." + type);
     }
 
-    private ByteBuf read(Track track, String type, Chunk chunk) {
+    private ByteBuf data(Track track, String type, Chunk chunk) {
 
-        long partialLength = chunk.getEnd() - chunk.getStart();
-        ByteBuf buffer = Unpooled.buffer((int) partialLength);
+        ByteBuf buffer = Unpooled.buffer((int) chunk.getSize());
         try (InputStream input = stream(track, chunk.getStart(), chunk.getEnd(), type)) {
             int transferred = 0;
             while (true) {
                 try {
-                    transferred += buffer.writeBytes(input, intValue(partialLength));
+                    transferred += buffer.writeBytes(input, intValue(chunk.getSize()));
                 } catch (Exception e) {
                     throw new IllegalStateException(
-                        "Failed to stream after " + transferred + "/" + partialLength + " bytes", e);
+                        "Failed to stream after " + transferred + " bytes: " + chunk, e);
                 }
-                if (transferred >= partialLength) {
+                if (transferred >= chunk.getSize()) {
                     return buffer;
                 }
             }
