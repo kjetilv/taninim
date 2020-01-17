@@ -1,7 +1,6 @@
 package mediaserver.sessions;
 
 import mediaserver.externals.FacebookUser;
-import mediaserver.gui.ActiveUser;
 import mediaserver.http.WebPath;
 import mediaserver.util.Print;
 

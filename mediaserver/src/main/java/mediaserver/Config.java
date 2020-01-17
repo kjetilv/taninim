@@ -14,23 +14,44 @@ public class Config {
 
     public static final int MEGAS_PER_SESSION = count("sessionMb", 255);
 
-    public static final int BYTES_PER_CHUNK = count("chunkMb", 1024 * 1024);
+    /**
+     * Set to 0 to chunk according to requests.
+     */
+    public static final int KILOS_PER_CHUNK = count("chunkKb", 0);
 
-    public static final int KILOS_PER_SESSION = MEGAS_PER_SESSION * 1024;
+    public static final int LISTEN_GROUP = count("listenGroup", Runtime.getRuntime().availableProcessors());
 
-    public static final int BYTES_PER_SESSION = KILOS_PER_SESSION * 1024;
+    public static final int WORK_GROUP = count("workGroup", 8);
 
-    static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(5));
+    public static final int THREAD_GROUP = count("threadGroup", 16);
 
-    static final boolean LIVE = isTrue("live");
+    public static final int THREAD_QUEUE = count("threadQueue", 25);
 
-    static final boolean DEV_LOGIN = isTrue("dev");
+    private static final int K = 1024;
 
-    static final boolean NEUTER = !(LIVE || DEV_LOGIN);
+    public static final int KILOS_PER_SESSION = MEGAS_PER_SESSION * K;
 
-    static final boolean PRETEND_SSL = isTrue("ssl");
+    public static final int BYTES_PER_SESSION = KILOS_PER_SESSION * K;
 
-    static final int PORT = PRETEND_SSL ? 1443
+    public static final int BYTES_PER_CHUNK = KILOS_PER_CHUNK * K;
+
+    public static final Duration IO_TIMEOUT = duration("timeout", Duration.ofSeconds(10));
+
+    public static final Duration CONNECT_TIMEOUT = duration("timeout", Duration.ofSeconds(10));
+
+    public static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(5));
+
+    public static final boolean PLYR = isTrue("plyr");
+
+    public static final boolean LIVE = isTrue("live");
+
+    public static final boolean DEV_LOGIN = isTrue("dev");
+
+    public static final boolean NEUTER = !(LIVE || DEV_LOGIN);
+
+    public static final boolean PRETEND_SSL = isTrue("ssl");
+
+    public static final int PORT = PRETEND_SSL ? 1443
         : DEV_LOGIN ? 1080
         : 80;
 

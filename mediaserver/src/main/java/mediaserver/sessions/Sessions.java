@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public final class Sessions {
 
     private static final Logger log = LoggerFactory.getLogger(Sessions.class);
 
-    private final Map<FacebookUser, Session> sessions = new ConcurrentHashMap<>();
+    private final Map<FacebookUser, Collection<Session>> sessionsMap = new ConcurrentHashMap<>();
 
     private final Duration sessionLength;
 
@@ -42,57 +43,88 @@ public final class Sessions {
 
     public UUID newSessionUUID(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
 
-        Session session =
+        Session newSession =
             newSession(webPath, facebookUser, accessLevel).accessedBy(webPath);
-        Session previousSession =
-            sessions.put(facebookUser, session);
+        ejectedSession(facebookUser, newSession).ifPresentOrElse(
+            previous -> {
+                boolean wasValid = valid(webPath, previous);
+                log.info("Session created for {}: {}, previous was {}: {}",
+                    facebookUser, newSession, wasValid ? "live" : "expired",
+                    previous);
+            },
+            () ->
+                log.info("Session created for {}: {}", facebookUser, newSession));
+        return newSession.getCookie();
+    }
 
-        if (previousSession == null) {
-            log.info("Session created for {}: {}", facebookUser, session);
-        } else {
-            boolean wasValid = valid(webPath, previousSession);
-            log.info("Session created for {}: {}, replacing {} previous: {}",
-                facebookUser, session, wasValid ? "still valid" : "invalidated", previousSession);
+    public Optional<Session> ejectedSession(FacebookUser facebookUser, Session session) {
+
+        if (session.hasLevel(AccessLevel.ADMIN)) {
+            sessionsMap.computeIfAbsent(facebookUser, __ -> new CopyOnWriteArrayList<>()).add(session);
+            return Optional.empty();
         }
-        return session.getCookie();
+        return Optional.ofNullable(sessionsMap.put(facebookUser, Collections.singleton(session))).stream()
+            .flatMap(Collection::stream)
+            .findFirst();
     }
 
     public WebPath instrument(WebPath webPath) {
 
-        return session(webPath, false, AccessLevel.LOGIN).map(webPath::with).orElse(webPath);
+        return session(webPath, AccessLevel.LOGIN, false)
+            .map(webPath::with)
+            .orElse(webPath);
     }
 
     public Optional<Session> close(WebPath webPath) {
 
-        return session(webPath, true, AccessLevel.NONE)
-            .map(Session::getFacebookUser)
-            .map(sessions::remove)
-            .stream()
-            .peek(session ->
-                log.info("{} removed session, {} left: {}", this, sessions.size(), session))
-            .findFirst();
+        return session(webPath, AccessLevel.NONE, true)
+            .map(session -> {
+                FacebookUser facebookUser = session.getFacebookUser();
+                Optional.of(sessionsMap.get(facebookUser))
+                    .filter(sessions ->
+                        !sessions.isEmpty())
+                    .ifPresentOrElse(
+                    sessions -> {
+                        if (sessions.remove(session)) {
+                            if (sessions.isEmpty()) {
+                                sessionsMap.remove(facebookUser);
+                            }
+                            log.info("{} removed session, {} left: {}/{}",
+                                this, sessions.size(), this.sessionsMap.size(), session);
+                        } else {
+                            log.warn("{} found no removable session: {}",
+                                this, session);
+                        }
+                    },
+                    () ->
+                        log.info("No sessions to close for {}", facebookUser));
+                return session;
+            });
     }
 
     public Collection<Session> list() {
 
-        return this.sessions.values().stream()
+        return this.sessionsMap.values().stream()
+            .flatMap(Collection::stream)
             .sorted(Comparator.comparing(Session::getStartTime))
             .collect(Collectors.toList());
     }
 
-    private Optional<Session> session(WebPath webPath, boolean includeInvalid, AccessLevel accessLevel) {
+    private Optional<Session> session(WebPath webPath, AccessLevel accessLevel, boolean includeInvalid) {
 
         return webPath.getAuthentication()
             .flatMap(uuid ->
-                uniqueSession(uuid).filter(session ->
-                    includeInvalid || valid(webPath, session) && session.hasLevel(accessLevel)))
+                uniqueSession(uuid)
+                    .filter(session ->
+                        includeInvalid || valid(webPath, session) && session.hasLevel(accessLevel)))
             .or(() ->
                 devSession(webPath));
     }
 
     private Optional<Session> uniqueSession(UUID uuid) {
 
-        Collection<Session> sessions = this.sessions.values().stream()
+        Collection<Session> sessions = this.sessionsMap.values().stream()
+            .flatMap(Collection::stream)
             .filter(withCookie(uuid))
             .collect(Collectors.toList());
         if (sessions.size() > 1) {
@@ -152,7 +184,7 @@ public final class Sessions {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + sessions.keySet() +
+        return getClass().getSimpleName() + "[" + sessionsMap.keySet() +
             " bytesQuota:" + Print.bytes(bytesQuota) +
             " sessionLength:" + sessionLength +
             " inactivityMax:" + inactivityMax +

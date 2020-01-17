@@ -1,10 +1,11 @@
-package mediaserver.util;
+package mediaserver.externals;
 
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.minio.Result;
 import io.minio.messages.DeleteError;
 import io.minio.messages.Item;
+import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.AccessLevel;
+import mediaserver.toolkit.Templater;
 
 import java.util.Collection;
 import java.util.Map;
@@ -49,7 +50,7 @@ public final class Playlists extends TemplateEnabled {
                 .orElseGet(() ->
                     handleNotFound(webPath));
         }
-        return handleUnauthorized(webPath);
+        return handleBadRequest(webPath);
     }
 
     private HttpResponse response(WebPath webPath, Template template) {

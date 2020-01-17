@@ -7,6 +7,8 @@ public enum QPar {
 
     MEDIA,
 
+    PLYR,
+
     PLAYLIST,
 
     PLAYLISTS,

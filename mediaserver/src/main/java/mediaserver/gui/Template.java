@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Supplier;
 
 public final class Template {

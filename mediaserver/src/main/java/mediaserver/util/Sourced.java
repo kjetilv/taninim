@@ -75,23 +75,16 @@ public final class Sourced<T> {
         return unpack().map(map);
     }
 
-    public static <T> Sourced<T> notFound() {
-
-        return new Sourced<>(Type.UNKNOWN, null, null);
-    }
-
     public static Sourced<InputStream> readStream(String resource) {
 
-        return url(resource)
-            .map(sourceUrl -> {
-                if (isInSources(sourceUrl)) {
-                    URL adjusted = inSources(sourceUrl);
-                    return from(SOURCES, readSources(resource, adjusted), adjusted);
-                }
-                return from(JAR, readClasspath(resource), sourceUrl);
-            })
-            .orElseGet(
-                Sourced::notFound);
+        URL sourceUrl = Optional.ofNullable(
+            Thread.currentThread().getContextClassLoader().getResource(resource)).orElseThrow(() ->
+            new IllegalArgumentException("No such resource: " + resource));
+        if (isInSources(sourceUrl)) {
+            URL adjusted = inSources(sourceUrl);
+            return from(SOURCES, readSources(resource, adjusted), adjusted);
+        }
+        return from(JAR, readClasspath(resource), sourceUrl);
     }
 
     private static URL inSources(URL sourceUrl) {
@@ -112,16 +105,6 @@ public final class Sourced<T> {
 
         return fromSourceEnvironment(url).orElseThrow(() ->
             new IllegalArgumentException("No such resource: " + resource));
-    }
-
-    private static Optional<URL> url(String resource) {
-
-        Optional<URL> url = Optional.ofNullable(
-            Thread.currentThread().getContextClassLoader().getResource(resource));
-        if (url.isEmpty()) {
-            throw new IllegalArgumentException("No such resource: " + resource);
-        }
-        return url;
     }
 
     private static boolean isInSources(URL url) {

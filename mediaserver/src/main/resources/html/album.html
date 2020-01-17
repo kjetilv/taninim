@@ -3,7 +3,9 @@
 <HTML lang="en">
 <HEAD>
     <LINK REL="stylesheet" HREF="/res/taninim.css">
-<!--    <LINK REL="stylesheet" HREF="/res/plyr.css">-->
+    {if(plyr)}
+    <LINK REL="stylesheet" HREF="/res/plyr.css">
+    {endif}
     <META charset="utf-8">
     <TITLE>taninim: {album.uuid}</TITLE>
 </HEAD>
@@ -95,12 +97,11 @@
         by <EM>{playTrack.artist.name}</EM>
     </P>
 
-    <AUDIO id="player" controls preload="metadata" src="/audio/{playTrack.uuid}.m4a">
-
-    </AUDIO>
-
-<!--    <SCRIPT src="/res/plyr.js"></SCRIPT>-->
-<!--    <SCRIPT src="/res/plyr-setup.js"></SCRIPT>-->
+    <AUDIO id="player" controls src="/audio/{playTrack.uuid}.m4a"></AUDIO>
+    {if(plyr)}
+        <SCRIPT src="/res/plyr.js"></SCRIPT>
+        <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
+    {endif}
 </DIV>
 {endif}
 

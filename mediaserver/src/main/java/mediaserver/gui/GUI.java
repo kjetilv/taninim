@@ -1,7 +1,9 @@
 package mediaserver.gui;
 
+import mediaserver.Config;
 import mediaserver.http.*;
 import mediaserver.media.*;
+import mediaserver.toolkit.Templater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,6 +121,7 @@ public final class GUI extends TemplateEnabled {
 
         return template
             .add(QPar.USER, webPath.getSession().getActiveUser())
-            .add(QPar.MEDIA, media);
+            .add(QPar.MEDIA, media)
+            .add(QPar.PLYR, Config.PLYR);
     }
 }

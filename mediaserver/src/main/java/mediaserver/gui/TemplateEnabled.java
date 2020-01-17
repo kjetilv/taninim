@@ -1,10 +1,11 @@
 package mediaserver.gui;
 
 import mediaserver.http.*;
+import mediaserver.toolkit.Templater;
 
 public abstract class TemplateEnabled extends NettyHandler {
 
-    public static final String PLAYLIST_M3U = "res/playlist.m3u";
+    public static final String PLAYLIST_M3U = "playlist.m3u";
 
     private final Templater templater;
 

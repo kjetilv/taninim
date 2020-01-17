@@ -4,6 +4,8 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.externals.ACL;
+import mediaserver.externals.S3;
+import mediaserver.externals.S3Connector;
 import mediaserver.gui.*;
 import mediaserver.http.Fail;
 import mediaserver.http.Gatekeeper;
@@ -13,7 +15,10 @@ import mediaserver.media.Media;
 import mediaserver.media.PlaylistYaml;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
-import mediaserver.util.*;
+import mediaserver.toolkit.Templater;
+import mediaserver.util.IO;
+import mediaserver.util.OnceEvery;
+import mediaserver.util.UpdateDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +98,7 @@ public final class Main {
             new Gatekeeper(templater),
             new FbUnauth(sessions),
             new FbAuth(sessions, ids, secretsProvider()),
-            new Resources(RES, RESOURCE_CACHE),
+            new Resources(RESOURCE_CACHE, RES),
             new Favicon(RESOURCE_CACHE, FAVICON_ICO),
             new Login(templater),
             new Admin(ids, sessions, templater, s3),
@@ -103,7 +108,17 @@ public final class Main {
 
         log.info("Binding to port {}", Config.PORT);
 
-        new NettyRunner(4, 1).run(router, Config.PORT, mockSslContext);
+        new NettyRunner(
+            Config.LISTEN_GROUP,
+            Config.WORK_GROUP,
+            Config.THREAD_GROUP,
+            Config.THREAD_QUEUE,
+            Config.IO_TIMEOUT,
+            Config.CONNECT_TIMEOUT
+        ).run(
+            router,
+            Config.PORT,
+            mockSslContext);
     }
 
     private static AbstractStreamer streamer(Supplier<Media> media, boolean local, S3.Client s3, boolean noStream) {

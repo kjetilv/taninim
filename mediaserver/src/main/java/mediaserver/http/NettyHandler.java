@@ -1,17 +1,25 @@
 package mediaserver.http;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public abstract class NettyHandler {
 
     private final Collection<Page> pages;
+
+    protected static final Consumer<BiConsumer<CharSequence, CharSequence>> CACHEABLE =
+        headers ->
+            headers.accept(HttpHeaderNames.CACHE_CONTROL, "public");
 
     protected NettyHandler(Page... pages) {
 
@@ -44,9 +52,17 @@ public abstract class NettyHandler {
 
     protected Handling handle(WebPath webPath, byte[] bytes) {
 
-        try {
+        return handle(webPath, bytes, null);
+    }
 
-            return respond(webPath, Netty.response(webPath, bytes, null));
+    protected Handling handle(
+        WebPath webPath,
+        byte[] bytes,
+        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
+    ) {
+
+        try {
+            return respond(webPath, Netty.response(webPath, bytes, moreHeaders));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + webPath, e);
         }
@@ -55,11 +71,6 @@ public abstract class NettyHandler {
     protected Handling pass() {
 
         return Handling.pass(this);
-    }
-
-    protected Handling handleUnauthorized(WebPath webPath) {
-
-        return handle(webPath, UNAUTHORIZED);
     }
 
     protected Handling handleBadRequest(WebPath webPath) {
@@ -82,4 +93,10 @@ public abstract class NettyHandler {
         return webPath.isFor(page) && page.accessibleWith(webPath.getAccessLevel());
     }
 
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "" +
+            "[" + pages.stream().map(Enum::name).collect(Collectors.joining(" ")) + "]";
+    }
 }

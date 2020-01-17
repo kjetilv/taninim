@@ -1,4 +1,4 @@
-package mediaserver.gui;
+package mediaserver.sessions;
 
 import mediaserver.hash.AbstractHashable;
 import mediaserver.sessions.AccessLevel;

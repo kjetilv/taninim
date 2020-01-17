@@ -1,14 +1,18 @@
-package mediaserver.gui;
+package mediaserver.toolkit;
 
 import io.netty.handler.codec.http.HttpHeaderValues;
 
-final class Chunk {
+public final class Chunk {
 
     private final long start;
 
     private final long end;
 
     private final long totalSize;
+
+    public Chunk(long totalSize) {
+        this(0, 0, totalSize);
+    }
 
     public Chunk(long start, long end, long totalSize) {
 
@@ -27,14 +31,19 @@ final class Chunk {
         return end;
     }
 
-    long getStart() {
+    public long getStart() {
 
         return start;
     }
 
-    long getSize() {
+    public long getSize() {
 
         return end - start;
+    }
+
+    public long getTotalSize() {
+
+        return totalSize;
     }
 
     @Override

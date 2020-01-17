@@ -1,27 +1,23 @@
 package mediaserver.gui;
 
-import mediaserver.http.*;
+import mediaserver.http.Handling;
+import mediaserver.http.Page;
+import mediaserver.http.WebCache;
+import mediaserver.http.WebPath;
 
-public final class Favicon extends NettyHandler {
-
-    private final WebCache<String, byte[]> webCache;
+public final class Favicon extends AbstractResources {
 
     private final String resource;
 
     public Favicon(WebCache<String, byte[]> webCache, String resource) {
 
-        super(Page.FAVICON_ICO);
-        this.webCache = webCache;
+        super(webCache, Page.FAVICON_ICO);
         this.resource = resource;
     }
 
     @Override
     public Handling handleRequest(WebPath webPath) {
 
-        return webCache.get(resource)
-            .map(bytes ->
-                handle(webPath, bytes))
-            .orElseGet(() ->
-                handleNotFound(webPath));
+        return handle(webPath, resource);
     }
 }

@@ -3,7 +3,7 @@ package mediaserver.sessions;
 import mediaserver.externals.ACL;
 import mediaserver.externals.FacebookUser;
 import mediaserver.util.IO;
-import mediaserver.util.S3;
+import mediaserver.externals.S3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

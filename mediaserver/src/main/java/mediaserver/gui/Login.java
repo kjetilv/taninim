@@ -3,6 +3,7 @@ package mediaserver.gui;
 import mediaserver.http.Handling;
 import mediaserver.http.Page;
 import mediaserver.http.WebPath;
+import mediaserver.toolkit.Templater;
 
 public final class Login extends TemplateEnabled {
 

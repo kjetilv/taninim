@@ -1,11 +1,7 @@
 package mediaserver.gui;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.handler.codec.http.HttpResponse;
-import mediaserver.http.WebPath;
 import mediaserver.media.Track;
-
-import java.util.Optional;
+import mediaserver.toolkit.Chunk;
 
 public final class NullStreamer extends AbstractStreamer {
 
@@ -15,18 +11,14 @@ public final class NullStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected long length(Track track, boolean lossless) {
+    protected Object content(Track track, Chunk chunk, boolean lossless) {
 
-        return 0L;
+        return null;
     }
 
     @Override
-    protected Optional<ChannelFuture> streamFuture(
-        WebPath webPath,
-        Track track,
-        boolean lossless,
-        HttpResponse response
-    ) {
-        return Optional.empty();
+    protected long length(Track track, boolean lossless) {
+
+        return 0L;
     }
 }
