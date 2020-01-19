@@ -48,12 +48,12 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
         Duration streamingTime = Duration.between(webPath.getTime(), clock.instant());
         SocketAddress remote = future.channel().remoteAddress();
         if (streamingTime.toSeconds() > WARN_THRESHOLD_SECONDS) {
-            log.warn("{}: {} -> {} in {} IS A LONG TIME: {} > {} > {}",
-                webPath.getCtx(), range, chunk, printed(streamingTime), webPath, track, remote);
+            log.warn("{}: {} -> {} in {} IS A LONG TIME: {}:{} > {} > {}",
+                webPath.getCtx(), range, chunk, printed(streamingTime), webPath, webPath.getSession(), track, remote);
 
         }
-        log.info("{}: {} -> {} in {}: {} > {} > {}",
-            webPath.getCtx(), range, chunk, printed(streamingTime), webPath, track, remote);
+        log.info("{}: {} -> {} in {}: {}:{} > {} > {}",
+            webPath.getCtx(), range, chunk, printed(streamingTime), webPath, webPath.getSession(), track, remote);
     }
 
     @Override
