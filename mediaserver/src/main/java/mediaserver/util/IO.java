@@ -27,6 +27,10 @@ public final class IO {
 
     public static final String ROOT = "/";
 
+    private IO() {
+
+    }
+
     public static <T> void writeStream(Path path, T output, BiConsumer<T, OutputStream> receptor) {
 
         if (!(path.getParent().toFile().isDirectory() || path.getParent().toFile().mkdirs())) {
@@ -105,6 +109,7 @@ public final class IO {
     }
 
     public static <T> T read(Class<T> type, Object source, String data) {
+
         try {
             return IO.OM.readerFor(type).readValue(data);
         } catch (IOException e) {

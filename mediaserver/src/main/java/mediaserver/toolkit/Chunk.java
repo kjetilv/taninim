@@ -1,7 +1,5 @@
 package mediaserver.toolkit;
 
-import io.netty.handler.codec.http.HttpHeaderValues;
-
 public final class Chunk {
 
     private final long start;
@@ -10,7 +8,10 @@ public final class Chunk {
 
     private final long totalSize;
 
+    private static final String BYTES = "bytes ";
+
     public Chunk(long totalSize) {
+
         this(0, 0, totalSize);
     }
 
@@ -21,9 +22,14 @@ public final class Chunk {
         this.totalSize = totalSize;
     }
 
-    public String range() {
+    public String getRangeHeader() {
 
-        return HttpHeaderValues.BYTES + " " + start + "-" + (end - 1) + "/" + totalSize;
+        return BYTES + getRange();
+    }
+
+    public String getRange() {
+
+        return start + "-" + (end - 1) + "/" + totalSize;
     }
 
     public long getEnd() {
@@ -49,6 +55,6 @@ public final class Chunk {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + range() + " [" + getSize() + "]]";
+        return getClass().getSimpleName() + "[" + getRange() + " [" + getSize() + "]]";
     }
 }

@@ -2,18 +2,20 @@ package mediaserver.gui;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import mediaserver.Config;
 import mediaserver.http.*;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
-import mediaserver.toolkit.BytesRange;
 import mediaserver.toolkit.Chunk;
+import mediaserver.toolkit.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +34,10 @@ import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 
 public abstract class AbstractStreamer extends NettyHandler implements Streamer {
 
+    private static final Logger log = LoggerFactory.getLogger(AbstractStreamer.class);
+
+    private final Clock clock;
+
     protected final Supplier<Media> media;
 
     private final int bytesPerChunk;
@@ -40,11 +46,15 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
 
     private final Map<Track, Long> longLengths = new ConcurrentHashMap<>();
 
-    AbstractStreamer(Supplier<Media> media, int bytesPerChunk) {
+    AbstractStreamer(Clock clock, Supplier<Media> media, int bytesPerChunk) {
 
         super(Page.AUDIO);
+
+        this.clock = clock;
         this.media = media;
         this.bytesPerChunk = bytesPerChunk;
+
+        log.info("{} created", this);
     }
 
     @Override
@@ -67,7 +77,7 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + media + "]";
+        return getClass().getSimpleName() + "[" + media + ", kb/chunk:" + bytesPerChunk / Config.K + "]";
     }
 
     public boolean authorized(WebPath webPath, Track track) {
@@ -79,96 +89,28 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
     public HttpResponse stream(WebPath webPath, Track track) {
 
         HttpMethod method = webPath.getRequest().method();
-        if (method == HttpMethod.HEAD || method == HttpMethod.GET) {
-            return stream(webPath, track, method);
-        } else {
-            return Netty.respond(webPath.getCtx(), BAD_REQUEST);
-        }
+        return method == HttpMethod.HEAD || method == HttpMethod.GET
+            ? stream(webPath, track, method)
+            : Netty.respond(webPath.getCtx(), BAD_REQUEST);
 
-    }
-
-    public HttpResponse stream(WebPath webPath, Track track, HttpMethod method) {
-        ChannelHandlerContext ctx = webPath.getCtx();
-
-        boolean lossless = webPath.isFlac() && webPath.getSession().isPrivileged();
-        long length = getLength(track, lossless);
-
-        Optional<BytesRange> range = BytesRange.read(webPath.header(RANGE), length).findFirst();
-        if (range.filter(AbstractStreamer::unsatisfiable).isPresent()) {
-            return Netty.respond(ctx, REQUESTED_RANGE_NOT_SATISFIABLE);
-        }
-
-        boolean keepAlive = webPath.isKeepAlive();
-
-        HttpResponse response = prepareResponse(lossless, range.orElse(null), keepAlive);
-
-        if (method == HttpMethod.GET) {
-            Chunk chunk = range
-                .map(bytesRange -> chunk(bytesRange, length))
-                .orElseGet(() -> allOf(length));
-            response.headers()
-                .set(CONTENT_RANGE, chunk.range())
-                .set(CONTENT_LENGTH, chunk.getSize());
-
-            Object content = prepareContent(track, lossless, chunk);
-            try {
-                ctx.write(response);
-                ChannelFuture streamingFuture = ctx.write(content, ctx.newProgressivePromise());
-                if (!keepAlive) {
-                    ctx.write(EMPTY_LAST_CONTENT).addListener(CLOSE);
-                }
-                listen(webPath, track, streamingFuture);
-                return response;
-            } finally {
-                ctx.flush();
-                webPath.getSession().streaming(chunk.getSize());
-            }
-        }
-
-        response.headers().set(CONTENT_LENGTH, length);
-        ctx.writeAndFlush(response);
-        return response;
-    }
-
-    public HttpResponse prepareResponse(boolean lossless, BytesRange range, boolean keepAlive) {
-
-        HttpResponseStatus status = range == null ? OK : PARTIAL_CONTENT;
-        HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
-        response.headers()
-            .set(CONTENT_TYPE, lossless ? WebPath.AUDIO_FLAC : WebPath.AUDIO_AAC)
-            .set(ACCEPT_RANGES, BYTES);
-        if (keepAlive) {
-            response.headers().set(CONNECTION, KEEP_ALIVE);
-        }
-        return response;
-    }
-
-    public void listen(WebPath webPath, Track track, ChannelFuture streamingFuture) {
-
-        if (streamingFuture instanceof ChannelProgressiveFuture) {
-            ((ChannelProgressiveFuture) streamingFuture).addListener(
-                new ProgressListener(String.format("%s %s", webPath.getSession(), track)));
-        }
     }
 
     public Object prepareContent(Track track, boolean lossless, Chunk chunk) {
 
-        Object content;
         try {
-            content = content(track, chunk, lossless);
+            return content(track, chunk, lossless);
         } catch (Exception e) {
             throw new IllegalStateException(
                 "Failed to prepare chunk " + chunk + " of " + (lossless ? "lossless " : "") + track, e);
         }
-        return content;
     }
 
-    public static boolean unsatisfiable(BytesRange r) {
+    public static boolean unsatisfiable(Range r) {
 
         return !r.isSatisfiable();
     }
 
-    protected Chunk chunk(BytesRange rangeHeader, long fileLength) {
+    protected Chunk chunk(Range rangeHeader, long fileLength) {
 
         try {
             long start = rangeHeader.getStart();
@@ -188,30 +130,97 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
 
     protected abstract Object content(Track track, Chunk chunk, boolean lossless);
 
-    protected abstract long length(Track track, boolean lossless);
+    protected abstract long trackLength(Track track, boolean lossless);
 
     protected Chunk allOf(long length) {
 
         return new Chunk(length);
     }
 
-    private long getLength(Track track, boolean lossless) {
+    private HttpResponse stream(WebPath webPath, Track track, HttpMethod method) {
 
-        return (lossless ? longLengths : shortLengths).computeIfAbsent(track, t -> length(track, lossless));
+        boolean lossless = webPath.isFlac() && webPath.getSession().isPrivileged();
+        if (method == HttpMethod.HEAD) {
+            return respondMeta(webPath, track, lossless);
+        }
+
+        Optional<Range> range = Range.read(webPath.header(RANGE), length(track, lossless)).findFirst();
+        if (range.filter(AbstractStreamer::unsatisfiable).isPresent()) {
+            return respondUnsatisfiable(webPath);
+        }
+
+        return respondPartial(webPath, track, lossless, range.orElse(null));
     }
 
-    private long min(long... lengths) {
+    private HttpResponse respondMeta(WebPath webPath, Track track, boolean lossless) {
 
-        return LongStream.of(lengths).min().orElseThrow(() ->
-            new IllegalStateException("No end in sight! " + Arrays.toString(lengths)));
+        HttpResponse response =
+            new DefaultHttpResponse(HTTP_1_1, OK);
+        response.headers()
+            .set(CONTENT_LENGTH, length(track, lossless))
+            .set(CONTENT_TYPE, lossless ? WebPath.AUDIO_FLAC : WebPath.AUDIO_AAC)
+            .set(ACCEPT_RANGES, BYTES);
+        if (webPath.isKeepAlive()) {
+            response.headers().set(CONNECTION, KEEP_ALIVE);
+        }
+        webPath.getCtx().writeAndFlush(response);
+        return response;
+    }
+
+    private HttpResponse respondUnsatisfiable(WebPath webPath) {
+
+        return Netty.respond(webPath.getCtx(), REQUESTED_RANGE_NOT_SATISFIABLE);
+    }
+
+    private HttpResponse respondPartial(WebPath webPath, Track track, boolean lossless, Range range) {
+
+        HttpResponse response =
+            new DefaultHttpResponse(HTTP_1_1, range == null ? OK : PARTIAL_CONTENT);
+        response.headers()
+            .set(CONTENT_TYPE, lossless ? WebPath.AUDIO_FLAC : WebPath.AUDIO_AAC)
+            .set(ACCEPT_RANGES, BYTES);
+
+        if (webPath.isKeepAlive()) {
+            response.headers().set(CONNECTION, KEEP_ALIVE);
+        }
+
+        Chunk chunk = range == null
+            ? allOf(length(track, lossless))
+            : chunk(range, length(track, lossless));
+
+        response.headers()
+            .set(CONTENT_RANGE, chunk.getRangeHeader())
+            .set(CONTENT_LENGTH, chunk.getSize());
+
+        Object content = prepareContent(track, lossless, chunk);
+
+        ChannelHandlerContext ctx = webPath.getCtx();
+        try {
+            ctx.write(response);
+            ctx.write(content, ctx.newProgressivePromise()
+                .addListener(new ProgressListener(clock, webPath, track, range, chunk)));
+            ChannelFuture last = ctx.writeAndFlush(EMPTY_LAST_CONTENT);
+            if (!webPath.isKeepAlive()) {
+                last.addListener(CLOSE);
+            }
+        } finally {
+            webPath.getSession().streaming(chunk.getSize());
+        }
+
+        return response;
+    }
+
+    private long length(Track track, boolean lossless) {
+
+        return (lossless ? longLengths : shortLengths).computeIfAbsent(track, t -> trackLength(track, lossless));
     }
 
     private Optional<Track> getMediaTrack(String path) {
 
-        return media.get().getTrack(pathUUID(path));
+        return media.get().getTrack(uuid(path));
     }
 
-    private UUID pathUUID(String path) {
+    private static UUID uuid(String path) {
 
         try {
             int typeIndex = path.indexOf('.', 1);
@@ -220,5 +229,11 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
         } catch (Exception e) {
             throw new IllegalArgumentException("Ugyldig UUID: " + path, e);
         }
+    }
+
+    private static long min(long... lengths) {
+
+        return LongStream.of(lengths).min().orElseThrow(() ->
+            new IllegalStateException("No end in sight! " + Arrays.toString(lengths)));
     }
 }

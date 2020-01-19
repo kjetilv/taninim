@@ -52,6 +52,10 @@ public final class Main {
 
     private static final String FAVICON_ICO = RES + "/favicon.ico";
 
+    private Main() {
+
+    }
+
     public static void main(String[] args) {
 
         Sessions sessions = new Sessions(
@@ -83,12 +87,18 @@ public final class Main {
 
         S3.Client s3 = S3Connector.get().orElse(null);
 
+        log.info("Refresh resources every {}", Config.REFRESH_TIME);
+
         Supplier<Ids> ids = idsSupplier(args, local, s3);
         Supplier<Media> media = mediaSupplier(args, local);
 
         Templater templater = new Templater(TEMPLATE_CACHE);
 
-        AbstractStreamer streamer = streamer(media, local, s3, noStream);
+        AbstractStreamer streamer = noStream ? new NullStreamer()
+            : local ? new FileStreamer(CLOCK, media, Config.BYTES_PER_CHUNK)
+            : new S3Streamer(CLOCK, media, s3, Config.BYTES_PER_CHUNK);
+
+        log.info("Streamer: {}", streamer);
 
         Router router = new Router(
             sessions,
@@ -119,16 +129,6 @@ public final class Main {
             router,
             Config.PORT,
             mockSslContext);
-    }
-
-    private static AbstractStreamer streamer(Supplier<Media> media, boolean local, S3.Client s3, boolean noStream) {
-
-        AbstractStreamer streamer = noStream ? new NullStreamer()
-            : local ? new FileStreamer(media, Config.BYTES_PER_CHUNK)
-            : new S3Streamer(media, s3, Config.BYTES_PER_CHUNK);
-
-        log.info("Streamer: {}", streamer);
-        return streamer;
     }
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
@@ -251,5 +251,4 @@ public final class Main {
 
         return () -> IO.getProperty(FB_SEC).toCharArray();
     }
-
 }

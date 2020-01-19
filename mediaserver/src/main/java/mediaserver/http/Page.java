@@ -4,56 +4,71 @@ import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public enum Page {
 
-    LOGIN(AccessLevel.NONE),
+    LOGIN(AccessLevel.NONE, Method.GET),
 
-    AUTH(AccessLevel.NONE),
+    AUTH(AccessLevel.NONE, Method.POST),
 
-    RES(AccessLevel.NONE),
+    RES(AccessLevel.NONE, Method.GET),
 
-    FAVICON_ICO("favicon.ico", AccessLevel.NONE),
+    FAVICON_ICO("favicon.ico", AccessLevel.NONE, Method.GET),
 
-    COOKIESPLEASE(AccessLevel.LOGIN),
+    COOKIESPLEASE(AccessLevel.LOGIN, Method.POST),
 
-    UNAUTH(AccessLevel.LOGIN),
+    UNAUTH(AccessLevel.LOGIN, Method.POST),
 
-    ALBUM(AccessLevel.LOGIN),
+    ALBUM(AccessLevel.LOGIN, Method.GET),
 
-    AUDIO(AccessLevel.STREAM_CURATED),
+    AUDIO(AccessLevel.STREAM_CURATED, Method.GET, Method.HEAD),
 
-    PLAYLIST(AccessLevel.STREAM),
+    PLAYLIST(AccessLevel.STREAM, Method.GET),
 
-    ADMIN(AccessLevel.ADMIN),
+    ADMIN(AccessLevel.ADMIN, Method.GET),
 
-    DEBUG(AccessLevel.ADMIN),
+    DEBUG(AccessLevel.ADMIN, Method.GET),
 
-    INDEX("", AccessLevel.LOGIN);
+    INDEX("", AccessLevel.LOGIN, Method.GET);
 
     private final String pref;
 
     private final AccessLevel accessLevel;
 
+    private final Method[] methods;
+
     private final int length;
 
-    Page(AccessLevel accessLevel) {
+    Page(AccessLevel accessLevel, Method... methods) {
 
-        this(null, accessLevel);
+        this(null, accessLevel, methods);
     }
 
-    Page(String pref, AccessLevel accessLevel) {
+    Page(String pref, AccessLevel accessLevel, Method... methods) {
 
         this.pref = "/" + (pref == null ? name().toLowerCase() : pref);
         this.accessLevel = accessLevel;
+        this.methods = methods;
         this.length = this.pref.length();
+    }
+
+    enum Method {
+
+        HEAD, GET, POST;
+
+        public boolean test(String s) {
+            return name().equalsIgnoreCase(s);
+        }
     }
 
     public String getPref() {
 
         return pref;
+    }
+
+    public boolean accessibleBy(String method) {
+        return Arrays.stream(methods).anyMatch(m -> m.test(method));
     }
 
     public boolean accessibleIn(Session session) {

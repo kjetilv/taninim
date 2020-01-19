@@ -6,6 +6,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.AsciiString;
+import mediaserver.Config;
 import mediaserver.gui.GUI;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
@@ -14,7 +15,9 @@ import mediaserver.util.URLs;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,6 +62,8 @@ public final class WebPath {
     private final Supplier<ConcurrentHashMap<String, Optional<String>>> headers =
         MostlyOnce.get(ConcurrentHashMap::new);
 
+    private Supplier<String> formattedTime;
+
     private WebPath(
         ChannelHandlerContext ctx,
         Page page,
@@ -80,8 +85,10 @@ public final class WebPath {
         this.path = pathIndex > 0 ? this.uri.substring(0, pathIndex) : this.uri;
 
         this.responseContentType = MostlyOnce.get(this::contentType);
-        this.uuid = MostlyOnce.get(() -> authentication(this.request));
-        this.qpars = MostlyOnce.get(() -> new QPars(params(this.uri, this.uri.indexOf("?"))));
+        this.uuid = MostlyOnce.get(() ->
+            authentication(this.request));
+        this.qpars = MostlyOnce.get(() ->
+            new QPars(params(this.uri, this.uri.indexOf("?"))));
         this.content = MostlyOnce.get(() ->
             Optional.of(this.request.content())
                 .map(content ->
@@ -89,9 +96,16 @@ public final class WebPath {
         this.host = MostlyOnce.get(() ->
             Optional.ofNullable(this.request.headers().getAsString(HOST))
                 .orElse("localhost"));
+        this.formattedTime = MostlyOnce.get(() ->
+            this.time.atZone(Config.TIMEZONE).format(DateTimeFormatter.ISO_TIME));
     }
 
-    public WebPath with(Session session) {
+    public boolean isAllowed() {
+
+        return page.accessibleBy(request.method().toString()) && page.accessibleIn(session);
+    }
+
+    public WebPath bind(Session session) {
 
         return new WebPath(ctx, page, uri, request, Objects.requireNonNull(session, "session"), time);
     }
@@ -158,7 +172,7 @@ public final class WebPath {
         return responseContentType.get();
     }
 
-    public Optional<UUID> get(QPar queryParameter) {
+    public Optional<UUID> getUUIDParameter(QPar queryParameter) {
 
         return getQueryParameters().apply(queryParameter);
     }
@@ -188,7 +202,7 @@ public final class WebPath {
         return request;
     }
 
-    public static Stream<WebPath> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+    public static Optional<WebPath> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
 
         return Stream.of(request)
             .map(HttpRequest::uri)
@@ -198,7 +212,8 @@ public final class WebPath {
                 URLDecoder.decode(uri, StandardCharsets.UTF_8))
             .flatMap(uri ->
                 Page.get(uri).map(page ->
-                    new WebPath(ctx, page, page.resolve(uri), request, null, time)));
+                    new WebPath(ctx, page, page.resolve(uri), request, null, time)))
+            .findFirst();
     }
 
     public boolean isKeepAlive() {
@@ -218,6 +233,11 @@ public final class WebPath {
         return session == null ? AccessLevel.NONE : session.getAccessLevel();
     }
 
+    public Duration getSessionTimeLeft() {
+
+        return Duration.between(time, session.getEndTime());
+    }
+
     private Optional<String> contentType() {
 
         return Optional.ofNullable(path.endsWith(".css") ? "text/css"
@@ -228,20 +248,15 @@ public final class WebPath {
 
     private static Map<QPar, String> params(String uri, int queryIndex) {
 
-        return queryIndex < 0
-            ? Collections.emptyMap()
-            : URLs.queryParams(uri.substring(queryIndex + 1));
+        return queryIndex < 0 ? Collections.emptyMap() : URLs.queryParams(uri.substring(queryIndex + 1));
     }
 
     private Optional<UUID> authentication(HttpRequest req) {
 
-        return cookies(req)
-            .findFirst()
-            .or(() ->
-                get(QPar.STREAMLEASE));
+        return cookieUUID(req).or(() -> getUUIDParameter(QPar.STREAMLEASE));
     }
 
-    private Stream<UUID> cookies(HttpRequest req) {
+    private Optional<UUID> cookieUUID(HttpRequest req) {
 
         return Optional.of(req.headers())
             .map(headers ->
@@ -252,12 +267,13 @@ public final class WebPath {
             .filter(cookie ->
                 cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
             .map(cookie ->
-                UUID.fromString(cookie.value()));
+                UUID.fromString(cookie.value()))
+            .findFirst();
     }
 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + page.getPref() + path + "]";
+        return getClass().getSimpleName() + "[" + page.getPref() + path + "@" + formattedTime.get() + "]";
     }
 }

@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -11,7 +12,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
 public abstract class NettyHandler {
 
@@ -19,23 +21,20 @@ public abstract class NettyHandler {
 
     protected static final Consumer<BiConsumer<CharSequence, CharSequence>> CACHEABLE =
         headers ->
-            headers.accept(HttpHeaderNames.CACHE_CONTROL, "public");
+            headers.accept(HttpHeaderNames.CACHE_CONTROL, "public, max-age=" + Duration.ofDays(1).toSeconds());
+
+    protected static final Consumer<BiConsumer<CharSequence, CharSequence>> UN_CACHEABLE =
+        headers ->
+            headers.accept(HttpHeaderNames.CACHE_CONTROL, "no-cache");
 
     protected NettyHandler(Page... pages) {
 
         this.pages = new HashSet<>(Arrays.asList(pages));
     }
 
-    public boolean couldHandle(WebPath webPath) {
+    public boolean matches(WebPath webPath) {
 
-        if (pages.isEmpty()) {
-            return true;
-        }
-        return pages.stream()
-            .filter(page ->
-                matchingPage(webPath, page))
-            .anyMatch(page ->
-                page.accessibleIn(webPath.getSession()));
+        return pages.isEmpty() || pages.stream().anyMatch(webPath::isFor);
     }
 
     public abstract Handling handleRequest(WebPath webPath);
@@ -86,11 +85,6 @@ public abstract class NettyHandler {
     private Handling handle(WebPath webPath, HttpResponseStatus status) {
 
         return respond(webPath, Netty.response(null, status, null, null));
-    }
-
-    private boolean matchingPage(WebPath webPath, Page page) {
-
-        return webPath.isFor(page) && page.accessibleWith(webPath.getAccessLevel());
     }
 
     @Override

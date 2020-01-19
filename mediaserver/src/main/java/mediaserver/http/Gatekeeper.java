@@ -1,8 +1,8 @@
 package mediaserver.http;
 
 import mediaserver.gui.TemplateEnabled;
-import mediaserver.toolkit.Templater;
 import mediaserver.sessions.AccessLevel;
+import mediaserver.toolkit.Templater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,24 +20,24 @@ public final class Gatekeeper extends TemplateEnabled {
         WebPath webPath
     ) {
 
-        if (webPath.getPage().accessibleIn(webPath.getSession())) {
+        if (webPath.isAllowed()) {
             return pass();
         }
-        if (webPath.getPage().accessibleWith(AccessLevel.LOGIN)) {
+        if (canLogin(webPath)) {
             return redirectToLogin(webPath);
         }
+
         return handleBadRequest(webPath);
+    }
+
+    private boolean canLogin(WebPath webPath) {
+
+        return webPath.getPage().accessibleWith(AccessLevel.LOGIN);
     }
 
     private Handling redirectToLogin(WebPath webPath) {
 
         log.info("Redirecting {} to {}", webPath, Page.LOGIN.getPref());
         return respond(webPath, Netty.redirectResponse(Page.LOGIN));
-    }
-
-    @Override
-    public String toString() {
-
-        return getClass().getSimpleName() + "[]";
     }
 }

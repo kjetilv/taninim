@@ -7,7 +7,7 @@ public final class NullStreamer extends AbstractStreamer {
 
     public NullStreamer() {
 
-        super(null, 0);
+        super(null, null, 0);
     }
 
     @Override
@@ -17,7 +17,7 @@ public final class NullStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected long length(Track track, boolean lossless) {
+    protected long trackLength(Track track, boolean lossless) {
 
         return 0L;
     }

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.OptionalInt;
-import java.util.function.Consumer;
 
 public final class URLs {
 
@@ -41,8 +40,10 @@ public final class URLs {
             eqIndex ->
                 QPar.get(pars.substring(index, eqIndex))
                     .ifPresentOrElse(
-                        expandMap(map, pars, eqIndex + 1, nextPair),
-                        logUnknown(pars, index, eqIndex)),
+                        param ->
+                            map.put(param, pars.substring(eqIndex + 1, nextPair)),
+                        () ->
+                            log.debug("Unknown parameter: {}", pars.substring(index, eqIndex))),
             logMalformed(pars, index, nextPair));
     }
 
@@ -55,26 +56,10 @@ public final class URLs {
         return OptionalInt.of(eqIndex);
     }
 
-    private static Consumer<QPar> expandMap(
-        Map<QPar, String> map,
-        String string,
-        int start,
-        int end
-    ) {
-
-        return param ->
-            map.put(param, string.substring(start, end));
-    }
-
     private static Runnable logMalformed(String pars, int start, int end) {
 
         return () ->
             log.warn("Expected value for {}", pars.substring(start + 1, end));
     }
 
-    private static Runnable logUnknown(String string, int start, int end) {
-
-        return () ->
-            log.debug("Unknown parameter: {}", string.substring(start, end));
-    }
 }

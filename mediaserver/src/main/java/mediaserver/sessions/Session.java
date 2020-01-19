@@ -7,6 +7,7 @@ import mediaserver.util.Print;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -117,6 +118,11 @@ public final class Session {
     public String getDescription() {
 
         return toString();
+    }
+
+    public Temporal getEndTime() {
+
+        return sessionCutoff;
     }
 
     private Status sessionStatus(WebPath webPath) {

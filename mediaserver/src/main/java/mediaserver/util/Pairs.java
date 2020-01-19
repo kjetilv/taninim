@@ -7,6 +7,10 @@ import java.util.stream.IntStream;
 
 public final class Pairs {
 
+    private Pairs() {
+
+    }
+
     public static <T> Collection<Pair<T>> pairs(Collection<T> t, T end) {
 
         ArrayList<T> l = new ArrayList<>(t);

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -43,8 +42,7 @@ public final class Sessions {
 
     public UUID newSessionUUID(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
 
-        Session newSession =
-            newSession(webPath, facebookUser, accessLevel).accessedBy(webPath);
+        Session newSession = newSession(webPath, facebookUser, accessLevel);
         ejectedSession(facebookUser, newSession).ifPresentOrElse(
             previous -> {
                 boolean wasValid = valid(webPath, previous);
@@ -60,7 +58,9 @@ public final class Sessions {
     public Optional<Session> ejectedSession(FacebookUser facebookUser, Session session) {
 
         if (session.hasLevel(AccessLevel.ADMIN)) {
-            sessionsMap.computeIfAbsent(facebookUser, __ -> new CopyOnWriteArrayList<>()).add(session);
+            sessionsMap.computeIfAbsent(facebookUser, __ ->
+                new CopyOnWriteArrayList<>()
+            ).add(session);
             return Optional.empty();
         }
         return Optional.ofNullable(sessionsMap.put(facebookUser, Collections.singleton(session))).stream()
@@ -68,10 +68,10 @@ public final class Sessions {
             .findFirst();
     }
 
-    public WebPath instrument(WebPath webPath) {
+    public WebPath bind(WebPath webPath) {
 
         return session(webPath, AccessLevel.LOGIN, false)
-            .map(webPath::with)
+            .map(webPath::bind)
             .orElse(webPath);
     }
 
@@ -84,20 +84,20 @@ public final class Sessions {
                     .filter(sessions ->
                         !sessions.isEmpty())
                     .ifPresentOrElse(
-                    sessions -> {
-                        if (sessions.remove(session)) {
-                            if (sessions.isEmpty()) {
-                                sessionsMap.remove(facebookUser);
+                        sessions -> {
+                            if (sessions.remove(session)) {
+                                if (sessions.isEmpty()) {
+                                    sessionsMap.remove(facebookUser);
+                                }
+                                log.info("{} removed session, {} left: {}/{}",
+                                    this, sessions.size(), this.sessionsMap.size(), session);
+                            } else {
+                                log.warn("{} found no removable session: {}",
+                                    this, session);
                             }
-                            log.info("{} removed session, {} left: {}/{}",
-                                this, sessions.size(), this.sessionsMap.size(), session);
-                        } else {
-                            log.warn("{} found no removable session: {}",
-                                this, session);
-                        }
-                    },
-                    () ->
-                        log.info("No sessions to close for {}", facebookUser));
+                        },
+                        () ->
+                            log.info("No sessions to close for {}", facebookUser));
                 return session;
             });
     }
@@ -114,9 +114,8 @@ public final class Sessions {
 
         return webPath.getAuthentication()
             .flatMap(uuid ->
-                uniqueSession(uuid)
-                    .filter(session ->
-                        includeInvalid || valid(webPath, session) && session.hasLevel(accessLevel)))
+                uniqueSession(uuid).filter(session ->
+                    includeInvalid || valid(webPath, session) && session.hasLevel(accessLevel)))
             .or(() ->
                 devSession(webPath));
     }
@@ -135,15 +134,15 @@ public final class Sessions {
 
     private Session newSession(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
 
-        Instant currentTime = webPath.getTime();
         return new Session(
             facebookUser,
             UUID.randomUUID(),
-            currentTime,
-            currentTime.plus(sessionLength),
+            webPath.getTime(),
+            webPath.getTime().plus(sessionLength),
             inactivityMax,
             accessLevel,
-            bytesQuota);
+            bytesQuota
+        ).accessedBy(webPath);
     }
 
     private boolean valid(WebPath webPath, Session session) {

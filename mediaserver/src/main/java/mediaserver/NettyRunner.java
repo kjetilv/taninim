@@ -1,11 +1,11 @@
 package mediaserver;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
@@ -75,7 +75,17 @@ final class NettyRunner {
                 .handler(
                     new LoggingHandler())
                 .childHandler(
-                    new ServerInitializer(router, ioTimeout, sslContext))
+                    new ChannelInitializer<NioSocketChannel>() {
+                        @Override
+                        protected void initChannel(NioSocketChannel ch) {
+
+                            ChannelPipeline pipeline = ch.pipeline();
+                            if (sslContext != null) {
+                                pipeline.addLast(sslContext.newHandler(ch.alloc()));
+                            }
+                            init(pipeline, router);
+                        }
+                    })
                 .bind(port)
                 .sync()
                 .channel();
@@ -92,6 +102,21 @@ final class NettyRunner {
             listenGroup.shutdownGracefully();
             workGroup.shutdownGracefully();
         }
+    }
+
+    private void init(ChannelPipeline channelPipeline, Router router) {
+
+        channelPipeline
+            .addLast("decoder", new HttpServerCodec())
+            .addLast("aggregator", new HttpObjectAggregator(Config.BYTES_PER_CHUNK * 2) {
+
+                @Override
+                protected void handleOversizedMessage(ChannelHandlerContext ctx, HttpMessage oversized) {
+
+                    log.warn("{}: Oversized message: {}", ctx, oversized);
+                }
+            })
+            .addLast(router);
     }
 
     private ThreadFactory countingThreadFactory(String prefix) {

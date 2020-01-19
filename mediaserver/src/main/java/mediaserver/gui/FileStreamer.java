@@ -8,13 +8,14 @@ import mediaserver.toolkit.Chunk;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.time.Clock;
 import java.util.function.Supplier;
 
 public final class FileStreamer extends AbstractStreamer {
 
-    public FileStreamer(Supplier<Media> media, int bytesPerChunk) {
+    public FileStreamer(Clock clock, Supplier<Media> media, int bytesPerChunk) {
 
-        super(media, bytesPerChunk);
+        super(clock, media, bytesPerChunk);
     }
 
     @Override
@@ -25,7 +26,7 @@ public final class FileStreamer extends AbstractStreamer {
     }
 
     @Override
-    protected long length(Track track, boolean lossless) {
+    protected long trackLength(Track track, boolean lossless) {
 
         return length(lossless ? track.getFile() : track.getCompressedFile());
     }

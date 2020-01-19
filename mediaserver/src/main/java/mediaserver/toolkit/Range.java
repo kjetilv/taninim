@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import static io.netty.handler.codec.http.HttpHeaderValues.BYTES;
 import static java.lang.Long.parseLong;
 
-public final class BytesRange {
+public final class Range {
 
     public static final String BYTES_PREAMBLE = BYTES + "=";
 
@@ -19,14 +19,14 @@ public final class BytesRange {
 
     private final boolean satisfiable;
 
-    private BytesRange(Long start, Long exclusiveEnd, long length) {
+    private Range(Long start, Long exclusiveEnd, long length) {
 
         this.start = start;
         this.exclusiveEnd = exclusiveEnd;
         this.satisfiable = start == null || start < length;
     }
 
-    public static Stream<BytesRange> read(String value, long length) {
+    public static Stream<Range> read(String value, long length) {
 
         return Optional.ofNullable(value)
             .stream()
@@ -41,7 +41,7 @@ public final class BytesRange {
                     if (range.lastIndexOf('-') != split) {
                         throw new IllegalStateException("Invalid byte range, length " + length + ": " + value);
                     }
-                    return new BytesRange(
+                    return new Range(
                         split == 0 ? null : parseLong(range.substring(0, split)),
                         range.endsWith("-") ? null : parseLong(range.substring(split + 1)) + 1,
                         length);
@@ -69,6 +69,6 @@ public final class BytesRange {
     public String toString() {
 
         return getClass().getSimpleName() +
-            "[" + BYTES_PREAMBLE + (start == null ? "" : start) + '-' + (exclusiveEnd == null ? "" : exclusiveEnd) + "]";
+            "[" + (start == null ? "" : start) + '-' + (exclusiveEnd == null ? "" : exclusiveEnd) + "]";
     }
 }

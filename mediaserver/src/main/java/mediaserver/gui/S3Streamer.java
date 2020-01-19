@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Clock;
 import java.util.function.Supplier;
 
 public final class S3Streamer extends AbstractStreamer {
@@ -25,9 +26,9 @@ public final class S3Streamer extends AbstractStreamer {
 
     private final S3.Client client;
 
-    public S3Streamer(Supplier<Media> media, S3.Client client, int bytesPerChunk) {
+    public S3Streamer(Clock clock, Supplier<Media> media, S3.Client client, int bytesPerChunk) {
 
-        super(media, bytesPerChunk);
+        super(clock, media, bytesPerChunk);
         this.client = client;
     }
 
@@ -40,7 +41,7 @@ public final class S3Streamer extends AbstractStreamer {
     }
 
     @Override
-    protected long length(Track track, boolean lossless) {
+    protected long trackLength(Track track, boolean lossless) {
 
         return client
             .length(track.getUuid() + "." + type(lossless))

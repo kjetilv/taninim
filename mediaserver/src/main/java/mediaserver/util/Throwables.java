@@ -8,6 +8,10 @@ import java.util.stream.StreamSupport;
 
 public class Throwables {
 
+    private Throwables() {
+
+    }
+
     public static Stream<Throwable> causes(Throwable e) {
 
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<Throwable>(
@@ -17,6 +21,7 @@ public class Throwables {
 
             @Override
             public boolean tryAdvance(Consumer<? super Throwable> action) {
+
                 action.accept(t);
                 Throwable cause = t.getCause();
                 if (cause == null || cause == t) {

@@ -15,7 +15,7 @@ public final class Print {
 
     public static final int M = K * K;
 
-    Print() {
+    private Print() {
 
     }
 

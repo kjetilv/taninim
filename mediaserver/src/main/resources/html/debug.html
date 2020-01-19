@@ -15,7 +15,7 @@
 <H4>{entry.key.facebookUser.name}/{entry.key.accessLevel} @ {entry.key.startTime} auth {entry.key.cookie}</H4>
 
 {entry.value:{exchange|
-<H5>{exchange.sequenceNo} {exchange.webPath.session.currentStatus} @ {exchange.webPath.time}:</H5>
+<H5>{exchange.sequenceNo} {exchange.sessionStatus} @ {exchange.webPath.time}:</H5>
 
 <PRE>
     {exchange.handler}
