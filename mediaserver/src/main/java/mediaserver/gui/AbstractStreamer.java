@@ -95,7 +95,7 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
 
     }
 
-    public Object prepareContent(Track track, boolean lossless, Chunk chunk) {
+    public Object data(Track track, boolean lossless, Chunk chunk) {
 
         try {
             return content(track, chunk, lossless);
@@ -176,38 +176,33 @@ public abstract class AbstractStreamer extends NettyHandler implements Streamer 
 
         HttpResponse response =
             new DefaultHttpResponse(HTTP_1_1, range == null ? OK : PARTIAL_CONTENT);
-        response.headers()
-            .set(CONTENT_TYPE, lossless ? WebPath.AUDIO_FLAC : WebPath.AUDIO_AAC)
-            .set(ACCEPT_RANGES, BYTES);
-
-        if (webPath.isKeepAlive()) {
-            response.headers().set(CONNECTION, KEEP_ALIVE);
-        }
 
         Chunk chunk = range == null
             ? allOf(length(track, lossless))
             : chunk(range, length(track, lossless));
 
         response.headers()
+            .set(CONTENT_TYPE, lossless ? WebPath.AUDIO_FLAC : WebPath.AUDIO_AAC)
+            .set(ACCEPT_RANGES, BYTES)
             .set(CONTENT_RANGE, chunk.getRangeHeader())
             .set(CONTENT_LENGTH, chunk.getSize());
-
-        Object content = prepareContent(track, lossless, chunk);
+        if (webPath.isKeepAlive()) {
+            response.headers().set(CONNECTION, KEEP_ALIVE);
+        }
 
         ChannelHandlerContext ctx = webPath.getCtx();
         try {
             ctx.write(response);
-            ctx.write(content, ctx.newProgressivePromise()
+            ctx.write(data(track, lossless, chunk), ctx.newProgressivePromise()
                 .addListener(new ProgressListener(clock, webPath, track, range, chunk)));
-            ChannelFuture last = ctx.writeAndFlush(EMPTY_LAST_CONTENT);
+            ChannelFuture lastContentFuture = ctx.writeAndFlush(EMPTY_LAST_CONTENT);
             if (!webPath.isKeepAlive()) {
-                last.addListener(CLOSE);
+                lastContentFuture.addListener(CLOSE);
             }
+            return response;
         } finally {
             webPath.getSession().streaming(chunk.getSize());
         }
-
-        return response;
     }
 
     private long length(Track track, boolean lossless) {
