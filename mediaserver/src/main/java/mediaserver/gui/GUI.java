@@ -3,6 +3,8 @@ package mediaserver.gui;
 import mediaserver.Config;
 import mediaserver.http.*;
 import mediaserver.media.*;
+import mediaserver.sessions.AccessLevel;
+import mediaserver.sessions.Session;
 import mediaserver.toolkit.Templater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,12 +111,15 @@ public final class GUI extends TemplateEnabled {
         Collection<Track> playableTracks
     ) {
 
-        return base(getTemplate(ALBUM_PAGE), webPath, media)
+        Template template = base(getTemplate(ALBUM_PAGE), webPath, media)
             .add(QPar.ALBUM, album)
             .add(QPar.PLAYLISTS, Playlist.playlistsWith(album))
-            .add(QPar.CURATIONS, Playlist.curationsWith(album))
             .add(QPar.PLAY_TRACK, track)
             .add(QPar.PLAY_TRACKS, playableTracks);
+        Session session = webPath.getSession();
+        return session.hasLevel(AccessLevel.STREAM_CURATED) && ! session.hasLevel(AccessLevel.STREAM)
+            ? template.add(QPar.CURATIONS, Playlist.curationsWith(album))
+            : template;
     }
 
     private Template base(Template template, WebPath webPath, Media media) {

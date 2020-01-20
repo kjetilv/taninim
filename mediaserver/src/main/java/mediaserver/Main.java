@@ -65,7 +65,7 @@ public final class Main {
             Config.DEV_LOGIN);
 
         boolean local = local(args);
-        boolean devLogin = Config.DEV_LOGIN;
+        boolean devLogin = local && Config.DEV_LOGIN;
         boolean noStream = Config.NEUTER;
         boolean sslPlaylists = Config.PRETEND_SSL || !devLogin && !local;
 

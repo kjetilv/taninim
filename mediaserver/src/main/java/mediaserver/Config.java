@@ -47,7 +47,7 @@ public final class Config {
 
     public static final boolean DEV_LOGIN = set("dev");
 
-    public static final boolean NEUTER = !(LIVE || DEV_LOGIN);
+    public static final boolean NEUTER = !LIVE && !DEV_LOGIN;
 
     public static final boolean PRETEND_SSL = set("ssl");
 
