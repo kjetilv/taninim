@@ -97,106 +97,108 @@
         by <EM>{playTrack.artist.name}</EM>
     </P>
 
-    <AUDIO id="player" controls src="/audio/{playTrack.uuid}.m4a"></AUDIO>
+    <AUDIO id="player" preload="none" controls src="/audio/{playTrack.uuid}.m4a"
+           data-plyr-config='\{ "duration": {playTrack.seconds}, "disableContextMenu": true }'>
+
+    </AUDIO>
     {if(plyr)}
-        <SCRIPT src="/res/plyr.js"></SCRIPT>
-        <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
+    <SCRIPT src="/res/plyr.js"></SCRIPT>
+    <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
     {endif}
 </DIV>
 {endif}
 
-<DIV STYLE="clear: both">
-    <H3>Spor</H3>
+<DIV STYLE="width: 95%; float: right; clear: both">
+    <DIV>
+        <H3>Spor</H3>
 
-    {album.albumParts:{albumPart |
-    <P>{if(albumPart.part)}Plate {albumPart.part}:{endif}</P>
+        {album.albumParts:{albumPart |
+        <P>{if(albumPart.part)}Plate {albumPart.part}:{endif}</P>
 
-    <UL>
         {albumPart.tracks:{track |
-        <LI>
-            [{track.trackNo}]
-            {if(user.streaming)} <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶ {endif}
+        {track.trackNo}
+        {if(user.streaming)} <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶{endif}
+        {track.name}
+        /{track.prettyDuration}
+        {if(user.streaming)} </A> {endif}
+        {if(track.otherArtists)}
+        <UL>
+            {track.otherArtists:{otherArtist|
+            <LI>
+                [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
+                {if(user.streamingPlaylists)}
+                <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
+                {endif}
+                ]
+
+            </LI>
+            }}
+        </UL>
+        {endif}
+        <BR>
+        }}
+        }}
+    </DIV>
+
+    {if(curations)}
+    <DIV STYLE="clear: both">
+        <H3>Kuraterte spor</H3>
+        {curations:{curation|
+        {curation.tracks:{track|
+        {track.trackNo}
+        <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶
             {track.name}
             {track.prettyDuration}
-            {if(user.streaming)} </A> {endif}
-            {if(track.otherArtists)}
-            <UL>
-                {track.otherArtists:{otherArtist|
-                <LI>
-                    [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
-                    {if(user.streamingPlaylists)}
-                    <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
-                    {endif}
-                    ]
-
-                </LI>
-                }}
-            </UL>
-            {endif}
-        </LI>
+        </A>
+        {if(track.otherArtists)}
+        <UL>
+            {track.otherArtists:{otherArtist|
+            <LI>
+                [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
+                {if(user.streamingPlaylists)}
+                <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
+                {endif}]
+            </LI>
+            }}
+        </UL>
+        {endif}
+        <BR>
         }}
-    </UL>
-    }}
+        }}
+    </DIV>
+    {endif}
+    <P>
 </DIV>
 
-{if(playTracks)}
 <DIV STYLE="clear: both">
-    <H3>Kuraterte spor</H3>
-    <UL>
-        {playTracks:{track|
-        <LI>
-            [{track.trackNo}]
-            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶
-                {track.name}
-                {track.prettyDuration}
-            </A>
-            {if(track.otherArtists)}
-            <UL>
-                {track.otherArtists:{otherArtist|
-                <LI>
-                    [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
-                    {if(user.streamingPlaylists)}
-                    <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
-                    {endif}]
-                </LI>
-                }}
-            </UL>
-            {endif}
-        </LI>
-        }}
-    </UL>
+    <HR>
+    {if(album.context.credits.credits)}
+    <DIV STYLE="float: right">
+        <H3>Andre involverte</H3>
 
+        <UL>
+            {album.context.credits.otherCredits:{credit|
+            <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}{credit.name}</LI>
+            }}
+        </UL>
+    </DIV>
+    <DIV>
+        <H3>Utøvere</H3>
+
+        <UL>
+            {album.context.credits.artistCredits:{credit |
+            <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
+                [ <A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
+                {if(user.streamingPlaylists)}
+                &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
+                {endif}
+                ]
+            </LI>
+            }}
+        </UL>
+    </DIV>
+    {endif}
 </DIV>
-{endif}
-
-<HR>
-
-{if(album.context.credits.credits)}
-<DIV STYLE="float: right">
-    <H3>Andre involverte</H3>
-
-    <UL>
-        {album.context.credits.otherCredits:{credit|
-        <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}{credit.name}</LI>
-        }}
-    </UL>
-</DIV>
-<DIV>
-    <H3>Utøvere</H3>
-
-    <UL>
-        {album.context.credits.artistCredits:{credit |
-        <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
-            [ <A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
-            {if(user.streamingPlaylists)}
-            &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
-            {endif}
-            ]
-        </LI>
-        }}
-    </UL>
-</DIV>
-{endif}
 
 <DIV>
     {if(album.context.additionalTrackContext)}
