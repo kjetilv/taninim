@@ -65,7 +65,7 @@ public final class Session {
 
     public ActiveUser getActiveUser() {
 
-        return new ActiveUser(facebookUser.getName(), accessLevel);
+        return new ActiveUser(facebookUser.getName(), facebookUser.getId(), accessLevel);
     }
 
     public FacebookUser getFacebookUser() {
@@ -90,19 +90,24 @@ public final class Session {
         return this;
     }
 
-    public String getCurrentStatus() {
+    public String getCurrentStatus(Instant time) {
 
-        return status(null).stream().distinct()
+        return getStatus(time).stream().distinct()
             .map(Status::getDescription)
             .collect(Collectors.joining(", "));
     }
 
-    public Collection<Status> status(WebPath webPath) {
+    public Collection<Status> getStatus(Instant time) {
 
         return new HashSet<>(Arrays.asList(
-            sessionStatus(webPath),
-            activityStatus(webPath),
+            sessionStatus(time),
+            activityStatus(time),
             quotaStatus()));
+    }
+
+    public boolean isValid(Instant time) {
+        Collection<Session.Status> statuses = getStatus(time);
+        return statuses.size() == 1 && statuses.iterator().next() == Status.OK;
     }
 
     public boolean hasLevel(AccessLevel accessLevel) {
@@ -125,17 +130,17 @@ public final class Session {
         return sessionCutoff;
     }
 
-    private Status sessionStatus(WebPath webPath) {
+    private Status sessionStatus(Instant time) {
 
-        return time(webPath).isAfter(sessionCutoff)
+        return time.isAfter(sessionCutoff)
             ? Status.SESSION_LENGTH_CUTOFF
             : Status.OK;
     }
 
-    private Status activityStatus(WebPath webPath) {
+    private Status activityStatus(Instant time) {
 
         Duration inactivity =
-            Duration.between(lastAccessed.get(), time(webPath));
+            Duration.between(lastAccessed.get(), time);
         return inactivity.toSeconds() > inactivityMax.toSeconds()
             ? Status.INACTIVITY_CUTOFF
             : Status.OK;
@@ -146,11 +151,6 @@ public final class Session {
         return bytesStreamed.get() < bytesQuota
             ? Status.OK
             : Status.QUOTA_EXCEEDED;
-    }
-
-    private Instant time(WebPath webPath) {
-
-        return webPath == null ? Instant.now() : webPath.getTime();
     }
 
     public enum Status {

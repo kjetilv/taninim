@@ -1,7 +1,6 @@
 package mediaserver.sessions;
 
 import mediaserver.hash.AbstractHashable;
-import mediaserver.sessions.AccessLevel;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -11,13 +10,16 @@ public class ActiveUser extends AbstractHashable {
 
     private final String name;
 
+    private final String id;
+
     private final AccessLevel accessLevel;
 
     private static final long serialVersionUID = 4919694628627926851L;
 
-    public ActiveUser(String name, AccessLevel accessLevel) {
+    public ActiveUser(String name, String id, AccessLevel accessLevel) {
 
         this.name = Objects.requireNonNull(name, "name");
+        this.id = id;
         this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
         if (!accessLevel.satisfies(AccessLevel.LOGIN)) {
             throw new IllegalArgumentException("No login for " + name);
@@ -32,6 +34,11 @@ public class ActiveUser extends AbstractHashable {
     public AccessLevel getAccessLevel() {
 
         return accessLevel;
+    }
+
+    public String getId() {
+
+        return id;
     }
 
     public boolean isStreamingCurated() {

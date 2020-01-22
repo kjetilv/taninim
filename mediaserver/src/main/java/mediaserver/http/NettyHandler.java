@@ -23,10 +23,6 @@ public abstract class NettyHandler {
         headers ->
             headers.accept(HttpHeaderNames.CACHE_CONTROL, "public, max-age=" + Duration.ofDays(1).toSeconds());
 
-    protected static final Consumer<BiConsumer<CharSequence, CharSequence>> UN_CACHEABLE =
-        headers ->
-            headers.accept(HttpHeaderNames.CACHE_CONTROL, "no-cache");
-
     protected NettyHandler(Page... pages) {
 
         this.pages = new HashSet<>(Arrays.asList(pages));

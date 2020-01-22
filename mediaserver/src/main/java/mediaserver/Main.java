@@ -79,7 +79,7 @@ public final class Main {
             CloudMedia.updateLocals(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE, PlaylistYaml.PLAYLISTS_RESOURCE);
         }
 
-        SslContext mockSslContext = Config.PRETEND_SSL && devLogin ? mockSslContext() : null;
+        SslContext mockSslContext = Config.PRETEND_SSL ? mockSslContext() : null;
 
         if (mockSslContext != null) {
             log.warn("Mock SSL context: {}", mockSslContext);

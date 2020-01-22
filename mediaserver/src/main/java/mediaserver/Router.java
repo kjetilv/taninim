@@ -5,11 +5,11 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import mediaserver.debug.Debug;
 import mediaserver.debug.Exchange;
 import mediaserver.http.*;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Sessions;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.RingBuffer;
@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,20 +69,46 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         if (HttpUtil.is100ContinueExpected(request)) {
             Netty.respond(ctx, CONTINUE);
-        } else {
-            Instant time = clock.instant();
-            try {
-                WebPath.from(ctx, request, time)
+            return;
+        }
+
+        Instant time = clock.instant();
+        try {
+            Optional<WebPath> path = WebPath.from(ctx, request, time);
+            if (path.isPresent()) {
+
+                Optional<WebPath> authorizedPath = path
                     .map(sessions::bind)
-                    .filter(WebPath::isAllowed)
-                    .flatMap(this::handled)
-                    .ifPresentOrElse(
-                        loggedExchange(time),
-                        () -> Netty.respond(ctx, BAD_REQUEST));
-            } catch (Throwable e) {
-                logError("Handling of request failed", request, time, e);
-                Netty.respond(ctx, INTERNAL_SERVER_ERROR);
+                    .filter(WebPath::isAllowed);
+
+                if (authorizedPath.isPresent()) {
+
+                    Optional<Handling> handling = authorizedPath.flatMap(this::handled);
+                    handling.ifPresentOrElse(
+                        this::logExchange,
+                        () -> {
+                            log.info("Failed: {}", authorizedPath.get());
+                            Netty.respond(ctx, BAD_REQUEST);
+                        });
+                } else {
+
+                    if (path.filter(this::loginAllowed).isPresent()) {
+                        log.info("Redirecteded: {}", path.get());
+                        Netty.respond(ctx, Netty.redirectResponse(Page.LOGIN));
+                    } else {
+                        log.info("Unauthorized: {}", path.get());
+                        Netty.respond(ctx, UNAUTHORIZED);
+                    }
+                }
+
+            } else {
+                log.info("Failed: {}", request);
+                Netty.respond(ctx, BAD_REQUEST);
             }
+
+        } catch (Throwable e) {
+            logError(request, time, e);
+            Netty.respond(ctx, INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -113,6 +138,11 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
+    private boolean loginAllowed(WebPath webPath) {
+
+        return webPath.getPage() != Page.LOGIN && webPath.getPage().accessibleWith(AccessLevel.LOGIN);
+    }
+
     private Optional<Handling> handled(WebPath webPath) {
 
         return handlers.stream()
@@ -132,19 +162,14 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             .collect(Collectors.joining(" <= "));
     }
 
-    private Consumer<Handling> loggedExchange(Instant time) {
+    private void logExchange(Handling handling) {
 
-        return handling -> {
-            WebPath webPath = handling.getWebPath();
-            if (webPath != null && webPath.getSession() != null && webPath.getPage() != Page.DEBUG) {
-                latestExchanges.add(new Exchange(time, sequence.getAndIncrement(), handling));
-            }
-        };
+        latestExchanges.add(new Exchange(sequence.getAndIncrement(), handling));
     }
 
-    private void logError(String situation, FullHttpRequest req, Instant time, Throwable e) {
+    private void logError(FullHttpRequest req, Instant time, Throwable e) {
 
-        log.error("Failure situation: {} [{}ms]: {}", situation, durationSince(time), req, e);
+        log.error("Failure situation: {} [{}ms]: {}", "Handling of request failed", durationSince(time), req, e);
     }
 
     private long durationSince(Instant start) {

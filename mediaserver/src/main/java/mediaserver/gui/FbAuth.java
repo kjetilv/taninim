@@ -1,6 +1,7 @@
 package mediaserver.gui;
 
 import com.restfb.*;
+import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FacebookUser;
@@ -12,6 +13,9 @@ import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -55,10 +59,26 @@ public final class FbAuth extends NettyHandler {
         return webPath.getContent().map(json -> {
             FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
             User facebookApiUser = lookup(authResponse);
-            FacebookUser facebookUser = new FacebookUser(facebookApiUser.getName(), facebookApiUser.getId());
+            FacebookUser facebookUser =
+                new FacebookUser(facebookApiUser.getName(), facebookApiUser.getId());
             log.info("Facebook user logged in: {}", facebookUser);
             return facebookUser;
         });
+    }
+
+    private Optional<URL> picture(User facebookApiUser) {
+
+        return Optional.ofNullable(facebookApiUser.getPicture())
+            .map(ProfilePictureSource::getUrl)
+            .map(URI::create)
+            .flatMap(uri -> {
+                try {
+                    return Optional.of(uri.toURL());
+                } catch (MalformedURLException e) {
+                    log.warn("{} had invalid picture: {}", facebookApiUser, uri, e);
+                    return Optional.empty();
+                }
+            });
     }
 
     private User lookup(FacebookAuthResponse authResponse) {

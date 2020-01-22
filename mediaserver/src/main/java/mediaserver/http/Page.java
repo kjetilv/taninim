@@ -18,7 +18,7 @@ public enum Page {
 
     COOKIESPLEASE(AccessLevel.LOGIN, Method.POST),
 
-    UNAUTH(AccessLevel.LOGIN, Method.POST),
+    UNAUTH(AccessLevel.LOGIN, Method.GET, Method.POST),
 
     ALBUM(AccessLevel.LOGIN, Method.GET),
 
@@ -81,7 +81,7 @@ public enum Page {
 
     public boolean accessibleWith(AccessLevel accessLevel) {
 
-        return this.accessLevel.ordinal() <= accessLevel.ordinal();
+        return accessLevel.ordinal() >= this.accessLevel.ordinal();
     }
 
     public static Stream<Page> get(String uri) {

@@ -4,8 +4,6 @@ import mediaserver.http.Handling;
 import mediaserver.http.WebPath;
 import mediaserver.sessions.Session;
 
-import java.time.Instant;
-
 @SuppressWarnings("unused")
 public final class Exchange {
 
@@ -23,22 +21,22 @@ public final class Exchange {
 
     private final String session;
 
-    public Exchange(Instant time, long sequenceNo, Handling handling) {
+    public Exchange(long sequenceNo, Handling handling) {
 
         this.sequenceNo = sequenceNo;
 
-        this.time = String.valueOf(time);
+        this.time = String.valueOf(handling.getWebPath().getTime());
         this.handler = String.valueOf(handling.getHandler());
 
         WebPath webPath = handling.getWebPath();
-        Session session = webPath == null ? null : webPath.getSession();
+        Session session = webPath.getSession();
 
         this.session = session == null ? null : session.toString();
-        this.request = webPath == null ? null : String.valueOf(webPath.getRequest());
+        this.request = String.valueOf(webPath.getRequest());
         this.response = String.valueOf(handling.getSentResponse());
         this.sessionStatus = session == null
             ? null
-            : session.toString() + " status: " + session.getCurrentStatus();
+            : session.toString() + " status: " + session.getCurrentStatus(webPath.getTime());
     }
 
     public String getTime() {

@@ -16,28 +16,18 @@ public final class Gatekeeper extends TemplateEnabled {
     }
 
     @Override
-    public Handling handleRequest(
-        WebPath webPath
-    ) {
+    public Handling handleRequest(WebPath webPath) {
 
         if (webPath.isAllowed()) {
             return pass();
         }
-        if (canLogin(webPath)) {
-            return redirectToLogin(webPath);
+
+        if (webPath.getPage().accessibleWith(AccessLevel.LOGIN)) {
+
+            log.info("Redirecting {} to {}", webPath, Page.LOGIN.getPref());
+            return respond(webPath, Netty.redirectResponse(Page.LOGIN));
         }
 
         return handleBadRequest(webPath);
-    }
-
-    private boolean canLogin(WebPath webPath) {
-
-        return webPath.getPage().accessibleWith(AccessLevel.LOGIN);
-    }
-
-    private Handling redirectToLogin(WebPath webPath) {
-
-        log.info("Redirecting {} to {}", webPath, Page.LOGIN.getPref());
-        return respond(webPath, Netty.redirectResponse(Page.LOGIN));
     }
 }

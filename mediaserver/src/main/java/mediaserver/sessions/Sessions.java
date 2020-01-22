@@ -147,21 +147,13 @@ public final class Sessions {
 
     private boolean valid(WebPath webPath, Session session) {
 
-        Collection<Session.Status> statuses = session.status(webPath);
-        boolean ok = ok(statuses);
-        if (ok) {
+        if (session.isValid(webPath.getTime())) {
             return true;
         }
-        String statusString = statuses.stream().map(Enum::name)
-            .collect(Collectors.joining(", "));
         log.info("Session disabled for {}: {} {}",
-            webPath, session, statusString);
+            webPath, session, session.getStatus(webPath.getTime()).stream().map(Enum::name)
+                .collect(Collectors.joining(", ")));
         return false;
-    }
-
-    private boolean ok(Collection<Session.Status> statuses) {
-
-        return statuses.size() == 1 && statuses.iterator().next() == Session.Status.OK;
     }
 
     private Predicate<Session> withCookie(UUID uuid) {
