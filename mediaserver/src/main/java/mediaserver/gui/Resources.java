@@ -1,6 +1,9 @@
 package mediaserver.gui;
 
-import mediaserver.http.*;
+import mediaserver.http.Handling;
+import mediaserver.http.Page;
+import mediaserver.http.WebCache;
+import mediaserver.http.WebPath;
 
 public final class Resources extends AbstractResources {
 

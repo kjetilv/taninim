@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
@@ -94,7 +95,7 @@ public final class Main {
 
         Templater templater = new Templater(TEMPLATE_CACHE);
 
-        AbstractStreamer streamer = noStream ? new NullStreamer()
+        Streamer streamer = noStream ? new NullStreamer()
             : local ? new FileStreamer(CLOCK, media, Config.BYTES_PER_CHUNK)
             : new S3Streamer(CLOCK, media, s3, Config.BYTES_PER_CHUNK);
 
@@ -104,17 +105,18 @@ public final class Main {
             sessions,
             templater,
             CLOCK,
-            streamer,
-            new Gatekeeper(templater),
-            new FbUnauth(sessions),
-            new FbAuth(sessions, ids, secretsProvider()),
-            new Resources(RESOURCE_CACHE, RES),
-            new Favicon(RESOURCE_CACHE, FAVICON_ICO),
-            new Login(templater),
-            new Admin(ids, sessions, templater, s3),
-            new Playlists(media, templater, sslPlaylists),
-            new GUI(media, templater),
-            new Fail());
+            Arrays.asList(
+                streamer,
+                new Gatekeeper(templater),
+                new FbUnauth(sessions),
+                new FbAuth(sessions, ids, secretsProvider()),
+                new Resources(RESOURCE_CACHE, RES),
+                new Favicon(RESOURCE_CACHE, FAVICON_ICO),
+                new Login(templater),
+                new Admin(ids, sessions, templater, s3),
+                new Playlists(media, templater, sslPlaylists),
+                new GUI(media, templater),
+                new Fail()));
 
         log.info("Binding to port {}", Config.PORT);
 

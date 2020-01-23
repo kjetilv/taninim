@@ -2,7 +2,7 @@ package mediaserver.externals;
 
 import mediaserver.util.MostlyOnce;
 
-import java.util.*;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class S3Connector {

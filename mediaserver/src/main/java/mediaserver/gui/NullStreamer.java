@@ -3,7 +3,7 @@ package mediaserver.gui;
 import mediaserver.media.Track;
 import mediaserver.toolkit.Chunk;
 
-public final class NullStreamer extends AbstractStreamer {
+public final class NullStreamer extends Streamer {
 
     public NullStreamer() {
 

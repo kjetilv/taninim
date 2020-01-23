@@ -42,7 +42,8 @@
     <DIV STYLE="float: right">
         <A HREF="/unauth">Logg ut!</A>
     </DIV>
-    <P>Hei, {user.name}! Tilgangsniv&aring;: {user.accessLevel}</P>
+    <P>Hei, {user.name}! Tilgangsniv&aring;: {user.accessLevel}.  Tid igjen: {user.timeLeft} @ {user.timeRequested}.
+        Data: {user.mbStreamed}/{user.mbQuota}</P>
 
     <P>{length(media.albums)} plater, {length(media.tracks)} spor. Spilletid {media.prettyDuration}.</P>
     <HR>

@@ -74,37 +74,12 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         Instant time = clock.instant();
         try {
-            Optional<WebPath> path = WebPath.from(ctx, request, time);
-            if (path.isPresent()) {
 
-                Optional<WebPath> authorizedPath = path
-                    .map(sessions::bind)
-                    .filter(WebPath::isAllowed);
-
-                if (authorizedPath.isPresent()) {
-
-                    Optional<Handling> handling = authorizedPath.flatMap(this::handled);
-                    handling.ifPresentOrElse(
-                        this::logExchange,
-                        () -> {
-                            log.info("Failed: {}", authorizedPath.get());
-                            Netty.respond(ctx, BAD_REQUEST);
-                        });
-                } else {
-
-                    if (path.filter(this::loginAllowed).isPresent()) {
-                        log.info("Redirecteded: {}", path.get());
-                        Netty.respond(ctx, Netty.redirectResponse(Page.LOGIN));
-                    } else {
-                        log.info("Unauthorized: {}", path.get());
-                        Netty.respond(ctx, UNAUTHORIZED);
-                    }
-                }
-
-            } else {
-                log.info("Failed: {}", request);
-                Netty.respond(ctx, BAD_REQUEST);
-            }
+            getWebPath(ctx, request, time).ifPresentOrElse(
+                path ->
+                    handle(ctx, path),
+                () ->
+                    error(ctx, request));
 
         } catch (Throwable e) {
             logError(request, time, e);
@@ -136,6 +111,46 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                 Netty.respond(ctx, INTERNAL_SERVER_ERROR);
             }
         }
+    }
+
+    private Optional<WebPath> getWebPath(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+
+        return WebPath.from(ctx, request, time).map(sessions::bind);
+    }
+
+    private void handle(ChannelHandlerContext ctx, WebPath path) {
+
+        if (path.isAllowed()) {
+
+            handled(path).ifPresentOrElse(
+                this::logExchange,
+                () -> {
+                    log.info("Failed: {}", path);
+                    Netty.respond(ctx, BAD_REQUEST);
+                });
+        } else {
+
+            handleUnauthorized(ctx, path);
+        }
+    }
+
+    private void handleUnauthorized(ChannelHandlerContext ctx, WebPath path) {
+
+        if (loginAllowed(path)) {
+
+            log.info("Redirecteded: {}", path);
+            Netty.respond(ctx, Netty.redirectResponse(Page.LOGIN));
+        } else {
+
+            log.info("Unauthorized: {}", path);
+            Netty.respond(ctx, UNAUTHORIZED);
+        }
+    }
+
+    private void error(ChannelHandlerContext ctx, FullHttpRequest request) {
+
+        log.info("Failed: {}", request);
+        Netty.respond(ctx, BAD_REQUEST);
     }
 
     private boolean loginAllowed(WebPath webPath) {

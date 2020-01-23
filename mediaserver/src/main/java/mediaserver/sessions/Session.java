@@ -63,9 +63,10 @@ public final class Session {
         return cookie;
     }
 
-    public ActiveUser getActiveUser() {
+    public ActiveUser getActiveUser(WebPath webPath) {
 
-        return new ActiveUser(facebookUser.getName(), facebookUser.getId(), accessLevel);
+        return new ActiveUser(
+            this, webPath.getTime(), facebookUser.getName(), facebookUser.getId(), accessLevel);
     }
 
     public FacebookUser getFacebookUser() {
@@ -128,6 +129,16 @@ public final class Session {
     public Temporal getEndTime() {
 
         return sessionCutoff;
+    }
+
+    public long getStreamedBytes() {
+
+        return bytesStreamed.get();
+    }
+
+    public long getStreamQuota() {
+
+        return bytesQuota;
     }
 
     private Status sessionStatus(Instant time) {

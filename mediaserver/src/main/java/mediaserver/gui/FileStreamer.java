@@ -11,7 +11,7 @@ import java.nio.channels.FileChannel;
 import java.time.Clock;
 import java.util.function.Supplier;
 
-public final class FileStreamer extends AbstractStreamer {
+public final class FileStreamer extends Streamer {
 
     public FileStreamer(Clock clock, Supplier<Media> media, int bytesPerChunk) {
 

@@ -189,9 +189,9 @@ public final class Netty {
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
-    private static byte[] helloContent(Session session) {
+    private static byte[] helloContent(WebPath webPath) {
 
-        return session.getActiveUser().getName().getBytes(StandardCharsets.UTF_8);
+        return webPath.getActiveUser().getName().getBytes(StandardCharsets.UTF_8);
     }
 
     private static Consumer<BiConsumer<CharSequence, CharSequence>> setCookie(String cookie) {

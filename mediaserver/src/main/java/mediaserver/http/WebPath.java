@@ -8,7 +8,9 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.AsciiString;
 import mediaserver.Config;
 import mediaserver.gui.GUI;
+import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
+import mediaserver.sessions.ActiveUser;
 import mediaserver.sessions.Session;
 import mediaserver.util.MostlyOnce;
 import mediaserver.util.URLs;
@@ -66,9 +68,9 @@ public final class WebPath {
 
     private WebPath(
         ChannelHandlerContext ctx,
+        FullHttpRequest request,
         Page page,
         String uri,
-        FullHttpRequest request,
         Session session,
         Instant time
     ) {
@@ -107,7 +109,7 @@ public final class WebPath {
 
     public WebPath bind(Session session) {
 
-        return new WebPath(ctx, page, uri, request, Objects.requireNonNull(session, "session"), time);
+        return new WebPath(ctx, request, page, uri, Objects.requireNonNull(session, "session"), time);
     }
 
     public Page getPage() {
@@ -212,15 +214,13 @@ public final class WebPath {
                 URLDecoder.decode(uri, StandardCharsets.UTF_8))
             .flatMap(uri ->
                 Page.get(uri).map(page ->
-                    new WebPath(ctx, page, page.resolve(uri), request, null, time)))
+                    new WebPath(ctx, request, page, page.resolve(uri), null, time)))
             .findFirst();
     }
 
     public boolean isKeepAlive() {
 
-        return keepAlive.updateAndGet(value -> value == null
-            ? HttpUtil.isKeepAlive(request)
-            : value);
+        return keepAlive.updateAndGet(value -> value == null ? HttpUtil.isKeepAlive(request) : value);
     }
 
     public boolean isFlac() {
@@ -236,6 +236,11 @@ public final class WebPath {
     public Duration getSessionTimeLeft() {
 
         return Duration.between(time, session.getEndTime());
+    }
+
+    public ActiveUser getActiveUser() {
+
+        return session.getActiveUser(this);
     }
 
     private Optional<String> contentType() {

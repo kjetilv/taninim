@@ -61,6 +61,8 @@ public final class Track extends AbstractHashable
 
     private final File compressedFile;
 
+    private final long compressedSize;
+
     public Track(File file) {
 
         this.part = part(Objects.requireNonNull(file, "file").getName());
@@ -82,16 +84,19 @@ public final class Track extends AbstractHashable
             FlacInfo info = flacFile.getInfo();
             this.signature = info.getSignature();
             this.numberOfSamples = info.getNumberOfSamples();
-            this.fileSize = file.length();
             this.duration = Duration.ofMillis(numberOfSamples * 1000 / info.getSampleRate());
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to import flac file: " + file, e);
         }
+
         this.file = file.getPath();
+        this.fileSize = file.length();
+
         try {
             this.compressedFile = new File(file.getCanonicalPath()
                 .replaceAll("FLAC", "M4A")
                 .replaceAll(".flac", ".m4a"));
+            this.compressedSize = this.compressedFile.length();
         } catch (IOException e) {
             throw new IllegalStateException("Unhandled compressed file: " + file, e);
         }
@@ -143,6 +148,14 @@ public final class Track extends AbstractHashable
     public int getTrackNo() {
 
         return trackNo;
+    }
+
+    public String getPrettyCompressedSize() {
+        return Print.bytes(compressedSize);
+    }
+
+    public String getPrettySize() {
+        return Print.bytes(fileSize);
     }
 
     public String getPrettyTrackNo() {

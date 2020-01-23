@@ -2,12 +2,18 @@ package mediaserver.util;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class MostlyOnce {
 
     private MostlyOnce() {
 
+    }
+
+    public static <T, O> Function<T, O> compute(Function<T, O> fun) {
+
+        return new Funn<>(vetted(fun));
     }
 
     /**
@@ -20,27 +26,58 @@ public final class MostlyOnce {
      */
     public static <O> Supplier<O> get(Supplier<O> supplier) {
 
+        return new Supp<>(vetted(supplier));
+    }
+
+    private static <O> Supplier<O> vetted(Supplier<O> supplier) {
+
         if (Objects.requireNonNull(supplier, "supplier") instanceof Supp<?>) {
             throw new IllegalArgumentException("Mostly twice! " + supplier);
         }
-        return new Supp<>(supplier);
+        return supplier;
     }
 
-    private static final class Supp<T> implements Supplier<T> {
+    private static <T, O> Function<T, O> vetted(Function<T, O> supplier) {
 
-        private final Supplier<T> supplier;
+        if (Objects.requireNonNull(supplier, "supplier") instanceof Funn<?, ?>) {
+            throw new IllegalArgumentException("Mostly twice! " + supplier);
+        }
+        return supplier;
+    }
 
-        private final AtomicReference<T> value = new AtomicReference<>();
+    private static final class Supp<O> implements Supplier<O> {
 
-        private Supp(Supplier<T> supplier) {
+        private final Supplier<O> supplier;
+
+        private final AtomicReference<O> value = new AtomicReference<>();
+
+        private Supp(Supplier<O> supplier) {
 
             this.supplier = Objects.requireNonNull(supplier, "supplier");
         }
 
         @Override
-        public T get() {
+        public O get() {
 
             return value.updateAndGet(v -> v == null ? supplier.get() : v);
+        }
+    }
+
+    private static final class Funn<T, O> implements Function<T, O> {
+
+        private final Function<T, O> fun;
+
+        private final AtomicReference<O> value = new AtomicReference<>();
+
+        private Funn(Function<T, O> supplier) {
+
+            this.fun = Objects.requireNonNull(supplier, "supplier");
+        }
+
+        @Override
+        public O apply(T t) {
+
+            return value.updateAndGet(v -> v == null ? fun.apply(t) : v);
         }
     }
 }

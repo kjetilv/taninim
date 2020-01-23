@@ -12,8 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public abstract class NettyHandler {
 
@@ -76,6 +75,11 @@ public abstract class NettyHandler {
     protected Handling handleNotFound(WebPath webPath) {
 
         return handle(webPath, NOT_FOUND);
+    }
+
+    protected Handling handleUnauthorized(WebPath webPath) {
+
+        return handle(webPath, UNAUTHORIZED);
     }
 
     private Handling handle(WebPath webPath, HttpResponseStatus status) {

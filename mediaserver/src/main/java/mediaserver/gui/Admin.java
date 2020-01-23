@@ -5,13 +5,13 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.MixedAttribute;
 import mediaserver.externals.ACL;
+import mediaserver.externals.S3;
 import mediaserver.http.*;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.IO;
 import mediaserver.util.OnceEvery;
-import mediaserver.externals.S3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public final class Admin extends TemplateEnabled {
         }
 
         return Optional.of(getTemplate(ADMIN_PAGE)
-            .add(QPar.USER, webPath.getSession().getActiveUser())
+            .add(QPar.USER, webPath.getSession().getActiveUser(webPath))
             .add(QPar.SESSIONS, sessions.list())
             .add(QPar.IDS, map(ids.get())))
             .map(template ->

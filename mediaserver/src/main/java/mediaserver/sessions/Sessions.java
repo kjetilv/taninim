@@ -2,6 +2,7 @@ package mediaserver.sessions;
 
 import mediaserver.externals.FacebookUser;
 import mediaserver.http.WebPath;
+import mediaserver.util.MostlyOnce;
 import mediaserver.util.Print;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,12 @@ public final class Sessions {
     private final long bytesQuota;
 
     private final boolean devLogin;
+
+    private final Function<WebPath, Session> devSession = MostlyOnce.compute(webPath -> {
+        Session session = newSession(webPath, DEV_USER, AccessLevel.ADMIN);
+        log.warn("Established dev session: {}", session);
+        return session;
+    });
 
     private static final FacebookUser DEV_USER = new FacebookUser("dev", "dev");
 
@@ -164,12 +172,7 @@ public final class Sessions {
 
     private Optional<Session> devSession(WebPath webPath) {
 
-        if (devLogin) {
-            Session session = newSession(webPath, DEV_USER, AccessLevel.ADMIN);
-            log.warn("Established dev session: {}", session);
-            return Optional.of(session);
-        }
-        return Optional.empty();
+        return devLogin ? devSession.andThen(Optional::ofNullable).apply(webPath) : Optional.empty();
     }
 
     @Override

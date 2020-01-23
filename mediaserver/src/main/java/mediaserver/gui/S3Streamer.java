@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.time.Clock;
 import java.util.function.Supplier;
 
-public final class S3Streamer extends AbstractStreamer {
+public final class S3Streamer extends Streamer {
 
     public static final String M4A = "m4a";
 
@@ -33,20 +33,20 @@ public final class S3Streamer extends AbstractStreamer {
     }
 
     @Override
-    protected Object content(Track track, Chunk chunk, boolean lossless) {
-
-        String type = type(lossless);
-        ByteBuf byteBuf = data(track, type, chunk);
-        return new DefaultHttpContent(byteBuf);
-    }
-
-    @Override
     protected long trackLength(Track track, boolean lossless) {
 
         return client
             .length(track.getUuid() + "." + type(lossless))
             .orElseThrow(() ->
                 new IllegalStateException("Failed to assess length of " + track));
+    }
+
+    @Override
+    protected Object content(Track track, Chunk chunk, boolean lossless) {
+
+        String type = type(lossless);
+        ByteBuf byteBuf = data(track, type, chunk);
+        return new DefaultHttpContent(byteBuf);
     }
 
     private String type(boolean lossless) {

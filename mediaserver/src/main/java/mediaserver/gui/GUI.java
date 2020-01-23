@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -65,17 +66,21 @@ public final class GUI extends TemplateEnabled {
     private Collection<Track> playTracks(WebPath webPath, Media media, Album album) {
 
         return album.getTracks().stream()
-            .filter(track ->
-                Streamer.isAuthorized(webPath, track, media))
+            .filter(authorized(media, webPath))
             .collect(Collectors.toList());
+    }
+
+    private Predicate<Track> authorized(Media media, WebPath webPath) {
+
+        return track ->
+            Streamer.isAuthorized(webPath, track, media);
     }
 
     private Track playTrack(WebPath webPath, Media media, QPars pars) {
 
         return pars.apply(QPar.TRACK)
             .flatMap(media::getTrack)
-            .filter(track ->
-                Streamer.isAuthorized(webPath, track, media))
+            .filter(authorized(media, webPath))
             .orElse(null);
     }
 
@@ -125,7 +130,7 @@ public final class GUI extends TemplateEnabled {
     private Template base(Template template, WebPath webPath, Media media) {
 
         return template
-            .add(QPar.USER, webPath.getSession().getActiveUser())
+            .add(QPar.USER, webPath.getSession().getActiveUser(webPath))
             .add(QPar.MEDIA, media)
             .add(QPar.PLYR, Config.PLYR);
     }
