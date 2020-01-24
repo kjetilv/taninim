@@ -70,7 +70,7 @@ public class ActiveUser extends AbstractHashable {
 
     public String getPrettyAccessLevel() {
 
-        return session.getAccessLevel().name().toLowerCase();
+        return session.getAccessLevel().name().toLowerCase().replace('-', ' ');
     }
 
     public String getId() {

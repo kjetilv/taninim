@@ -24,20 +24,13 @@ final class Exceptions {
             .isPresent();
 
         return Optional.of(cause).stream()
-            .flatMap(throwable -> {
-                for (Throwable t = throwable; t != null && t.getCause() != t; t = t.getCause()) {
-                    String message = throwable.getMessage();
-                    if (throwable instanceof SocketException &&
-                        message != null &&
-                        message.equalsIgnoreCase("Connection reset")
-                    ) {
+            .flatMap(e -> {
+                for (Throwable t = e; t != null && t.getCause() != t; t = t.getCause()) {
+                    String msg = e.getMessage();
+                    if (e instanceof SocketException && "Connection reset".equalsIgnoreCase(msg)) {
                         return Stream.of(IgnoreLevel.SUMMARIZE);
                     }
-                    if (
-                        (is(SSLHandshakeException.class, throwable) || is(
-                            NotSslRecordException.class, throwable)
-                        ) && testing
-                    ) {
+                    if (sslStuff(e) && testing) {
                         return Stream.of(IgnoreLevel.MEH);
                     }
                 }
@@ -45,6 +38,11 @@ final class Exceptions {
             })
             .findFirst()
             .orElse(IgnoreLevel.LOG);
+    }
+
+    private static boolean sslStuff(Throwable e) {
+
+        return is(SSLHandshakeException.class, e) || is(NotSslRecordException.class, e);
     }
 
     private static boolean is(Class<?> sslHandshakeExceptionClass, Throwable e) {
