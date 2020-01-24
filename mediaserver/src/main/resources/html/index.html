@@ -42,10 +42,15 @@
     <DIV STYLE="float: right">
         <A HREF="/unauth">Logg ut!</A>
     </DIV>
-    <P>Hei, {user.name}! Tilgangsniv&aring;: {user.accessLevel}.  Tid igjen: {user.timeLeft} @ {user.timeRequested}.
-        Data: {user.mbStreamed}/{user.mbQuota}</P>
+    <P>Hei, {user.name}! {length(media.albums)} plater, {length(media.tracks)} spor. Spilletid {media.prettyDuration}.
+        Utgitt i perioden {media.startYear}-{media.endYear}.</P>
 
-    <P>{length(media.albums)} plater, {length(media.tracks)} spor. Spilletid {media.prettyDuration}.</P>
+    <P>
+        <SMALL>
+            Tid til du kastes ut: {user.timeLeft} @ {user.timeRequested}.
+            Data brukt: {user.mbStreamed}/{user.mbQuota}. Tilgangsniv&aring;: {user.prettyAccessLevel}
+        </SMALL>
+    </P>
     <HR>
 </DIV>
 
@@ -151,6 +156,7 @@
 </DIV>
 
 <DIV STYLE="clear: both">
+    <P>
     <HR>
 </DIV>
 
@@ -165,6 +171,7 @@
 </DIV>
 
 <DIV STYLE="clear: both">
+    <P>
     <HR>
     <A HREF="res/privacy.txt">Privacy stuff</A> <A HREF="res/terms.txt">Terms of disservice</A>
 </DIV>

@@ -68,6 +68,11 @@ public class ActiveUser extends AbstractHashable {
         return session.getAccessLevel();
     }
 
+    public String getPrettyAccessLevel() {
+
+        return session.getAccessLevel().name().toLowerCase();
+    }
+
     public String getId() {
 
         return id;

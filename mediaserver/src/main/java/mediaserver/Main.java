@@ -8,7 +8,7 @@ import mediaserver.externals.S3;
 import mediaserver.externals.S3Connector;
 import mediaserver.gui.*;
 import mediaserver.http.Fail;
-import mediaserver.http.Gatekeeper;
+import mediaserver.http.NettyHandler;
 import mediaserver.http.WebCache;
 import mediaserver.media.CloudMedia;
 import mediaserver.media.Media;
@@ -30,18 +30,21 @@ import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import static mediaserver.Config.*;
+
 public final class Main {
 
-    public static final Clock CLOCK = Clock.system(Config.TIMEZONE);
+    public static final Clock CLOCK = Clock.system(TIMEZONE);
 
-    public static final WebCache<String, String> TEMPLATE_CACHE = new WebCache<>(IO::read);
+    public static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::read);
 
-    public static final WebCache<String, byte[]> RESOURCE_CACHE = new WebCache<>(IO::readBytes);
+    public static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
 
     private static final OnceEvery ONCE_EVERY = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
 
@@ -59,16 +62,13 @@ public final class Main {
 
     public static void main(String[] args) {
 
-        Sessions sessions = new Sessions(
-            Config.SESSION_LENGTH,
-            Config.INACTIVITY_MAX,
-            Config.BYTES_PER_SESSION,
-            Config.DEV_LOGIN);
+        Sessions sessions =
+            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, BYTES_PER_SESSION, DEV_LOGIN);
 
         boolean local = local(args);
-        boolean devLogin = local && Config.DEV_LOGIN;
-        boolean noStream = Config.NEUTER;
-        boolean sslPlaylists = Config.PRETEND_SSL || !devLogin && !local;
+        boolean devLogin = local && DEV_LOGIN;
+        boolean noStream = NEUTER;
+        boolean sslPlaylists = PRETEND_SSL || !devLogin && !local;
 
         log.info(
             "{}: Running in {}, streaming {}abled",
@@ -80,7 +80,7 @@ public final class Main {
             CloudMedia.updateLocals(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE, PlaylistYaml.PLAYLISTS_RESOURCE);
         }
 
-        SslContext mockSslContext = Config.PRETEND_SSL ? mockSslContext() : null;
+        SslContext mockSslContext = PRETEND_SSL ? mockSslContext() : null;
 
         if (mockSslContext != null) {
             log.warn("Mock SSL context: {}", mockSslContext);
@@ -88,65 +88,51 @@ public final class Main {
 
         S3.Client s3 = S3Connector.get().orElse(null);
 
-        log.info("Refresh resources every {}", Config.REFRESH_TIME);
+        log.info("Refreshing resources every {}", REFRESH_TIME);
 
         Supplier<Ids> ids = idsSupplier(args, local, s3);
         Supplier<Media> media = mediaSupplier(args, local);
 
-        Templater templater = new Templater(TEMPLATE_CACHE);
+        Templater templater = new Templater(TMPL_CACHE);
 
         Streamer streamer = noStream ? new NullStreamer()
-            : local ? new FileStreamer(CLOCK, media, Config.BYTES_PER_CHUNK)
-            : new S3Streamer(CLOCK, media, s3, Config.BYTES_PER_CHUNK);
+            : local ? new FileStreamer(CLOCK, media, BYTES_PER_CHUNK)
+            : new S3Streamer(CLOCK, media, s3, BYTES_PER_CHUNK);
 
         log.info("Streamer: {}", streamer);
+        log.info("Binding to port {}", PORT);
 
-        Router router = new Router(
-            sessions,
-            templater,
-            CLOCK,
-            Arrays.asList(
-                streamer,
-                new Gatekeeper(templater),
-                new FbUnauth(sessions),
-                new FbAuth(sessions, ids, secretsProvider()),
-                new Resources(RESOURCE_CACHE, RES),
-                new Favicon(RESOURCE_CACHE, FAVICON_ICO),
-                new Login(templater),
-                new Admin(ids, sessions, templater, s3),
-                new Playlists(media, templater, sslPlaylists),
-                new GUI(media, templater),
-                new Fail()));
+        Collection<NettyHandler> handlers = Arrays.asList(
+            streamer,
+            new Favicon(RES_CACHE, FAVICON_ICO),
+            new Login(templater),
+            new FbAuth(sessions, ids, secretsProvider()),
+            new Resources(RES_CACHE, RES),
+            new GUI(media, templater),
+            new Playlists(media, templater, sslPlaylists),
+            new FbUnauth(sessions),
+            new Admin(ids, sessions, templater, s3),
+            new Fail());
+        Router router =
+            new Router(sessions, templater, CLOCK, handlers);
+        NettyRunner nettyRunner =
+            new NettyRunner(LISTEN_GROUP, WORK_GROUP, THREAD_GROUP, THREAD_QUEUE, IO_TIMEOUT, CONNECT_TIMEOUT);
 
-        log.info("Binding to port {}", Config.PORT);
-
-        new NettyRunner(
-            Config.LISTEN_GROUP,
-            Config.WORK_GROUP,
-            Config.THREAD_GROUP,
-            Config.THREAD_QUEUE,
-            Config.IO_TIMEOUT,
-            Config.CONNECT_TIMEOUT
-        ).run(
-            router,
-            Config.PORT,
-            mockSslContext);
+        nettyRunner.run(router, PORT, mockSslContext);
     }
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
 
-        return ONCE_EVERY.interval(Config.REFRESH_TIME)
+        return ONCE_EVERY.interval(REFRESH_TIME)
             .when(shouldRefresh(local, args))
-            .get(() ->
-                retrieveMedia(local, args));
+            .get(() -> retrieveMedia(local, args));
     }
 
     private static Supplier<Ids> idsSupplier(String[] args, boolean local, S3.Client client) {
 
-        return ONCE_EVERY.interval(Config.REFRESH_TIME)
+        return ONCE_EVERY.interval(REFRESH_TIME)
             .when(shouldRefresh(local, args))
-            .get(() ->
-                refreshIds(local, client));
+            .get(() -> refreshIds(local, client));
     }
 
     private static Ids refreshIds(boolean local, S3.Client s3) {
@@ -159,10 +145,9 @@ public final class Main {
 
     private static BooleanSupplier shouldRefresh(boolean local, String[] args) {
 
-        Supplier<Optional<Instant>> updater = local
+        return new UpdateDetector(local
             ? () -> lastMediaUpdate(args)
-            : CloudMedia::lastUpdatedMedia;
-        return new UpdateDetector(updater);
+            : CloudMedia::lastUpdatedMedia);
     }
 
     private static Optional<Instant> lastMediaUpdate(String[] args) {

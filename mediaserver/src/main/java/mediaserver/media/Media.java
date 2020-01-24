@@ -50,6 +50,10 @@ public interface Media {
         return !getTopCategories().isEmpty();
     }
 
+    Year getStartYear();
+
+    Year getEndYear();
+
     CategoryPath getCategoryPath();
 
     Optional<CategoryPath> getCategoryPath(UUID uuid);

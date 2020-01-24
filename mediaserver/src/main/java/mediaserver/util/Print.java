@@ -55,10 +55,10 @@ public final class Print {
     public static String bytes(long bytes) {
 
         if (bytes > M) {
-            return bytes / M + "mb";
+            return bytes / M + "Mb";
         }
         if (bytes > K) {
-            return bytes / K + "kb";
+            return bytes / K + "Kb";
         }
         return bytes + "b";
     }

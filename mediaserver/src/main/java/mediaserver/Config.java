@@ -12,12 +12,14 @@ public final class Config {
 
     public static final Duration INACTIVITY_MAX = duration("inactivityMax", Duration.ofHours(1));
 
-    public static final int MEGAS_PER_SESSION = count("sessionMb", 255);
+    public static final int K = 1024;
+
+    public static final int MEGAS_PER_SESSION = count("sessionMb", 256);
 
     /**
      * Set to 0 to chunk according to requests.
      */
-    public static final int KILOS_PER_CHUNK = count("chunkKb", 256);
+    public static final int KILOS_PER_CHUNK = count("chunkKb", 1024);
 
     public static final int LISTEN_GROUP = count("listenGroup", Runtime.getRuntime().availableProcessors());
 
@@ -26,8 +28,6 @@ public final class Config {
     public static final int THREAD_GROUP = count("threadGroup", 32);
 
     public static final int THREAD_QUEUE = count("threadQueue", 32);
-
-    public static final int K = 1024;
 
     public static final int KILOS_PER_SESSION = MEGAS_PER_SESSION * K;
 

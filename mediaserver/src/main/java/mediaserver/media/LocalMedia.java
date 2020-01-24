@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Year;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -120,6 +121,25 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         return trackStream(true)
             .filter(track ->
                 track.getUuid().equals(uuid)).findFirst();
+    }
+
+    @Override
+    public Year getStartYear() {
+
+        return albumStream(true)
+            .map(album -> album.getContext().getYear())
+            .filter(Objects::nonNull)
+            .min(Year::compareTo)
+            .orElse(null);
+    }
+
+    @Override
+    public Year getEndYear() {
+        return albumStream(true)
+            .map(album -> album.getContext().getYear())
+            .filter(Objects::nonNull)
+            .max(Year::compareTo)
+            .orElse(null);
     }
 
     @Override
