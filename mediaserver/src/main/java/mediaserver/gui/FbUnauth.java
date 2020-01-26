@@ -18,13 +18,13 @@ public final class FbUnauth extends NettyHandler {
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        sessions.close(webPath).ifPresentOrElse(
+        sessions.close(req).ifPresentOrElse(
             session ->
                 log.info("Session closed: {}", session),
             () ->
                 log.info("No session to close"));
-        return respond(webPath, Netty.unauthCookieResponse(Netty.unauthCookie()));
+        return respond(req, Netty.unauthCookieResponse(Netty.unauthCookie()));
     }
 }

@@ -2,7 +2,7 @@ package mediaserver.gui;
 
 import mediaserver.http.Handling;
 import mediaserver.http.Page;
-import mediaserver.http.WebPath;
+import mediaserver.http.Req;
 import mediaserver.toolkit.Templater;
 
 public final class Login extends TemplateEnabled {
@@ -13,8 +13,8 @@ public final class Login extends TemplateEnabled {
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        return respondHtml(webPath, getTemplate(LOGIN_PAGE));
+        return respondHtml(req, getTemplate(LOGIN_PAGE));
     }
 }

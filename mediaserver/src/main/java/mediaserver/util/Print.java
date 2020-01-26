@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 public final class Print {
 
@@ -24,6 +25,13 @@ public final class Print {
         return instant.atZone(Config.TIMEZONE)
             .truncatedTo(ChronoUnit.MINUTES)
             .format(DATE_TIME_FORMATTER);
+    }
+
+    public static String uuid(UUID uuid) {
+
+        String s = uuid.toString();
+        int endIndex = s.indexOf('-');
+        return endIndex < 0 ? s : s.substring(0, endIndex);
     }
 
     public static String pretty(Duration dur) {

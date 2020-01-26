@@ -1,45 +1,66 @@
-package mediaserver.http;
+package mediaserver.templates;
 
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum QPar {
+public enum TPar {
+
+    MEDIA,
+
+    PLYR,
 
     PLAYLIST,
 
+    PLAYLISTS,
+
     CURATION,
+
+    CURATIONS,
 
     ALBUM,
 
     ARTIST,
 
-    TRACK,
-
     SERIES,
+
+    PLAY_TRACK("playTrack"),
+
+    AUTOPLAY,
+
+    NEXT_TRACK("nextTrack"),
+
+    PREVIOUS_TRACK("previousTrack"),
+
+    PLAY_TRACKS("playTracks"),
+
+    USER,
+
+    HOST,
+
+    PROTOCOL,
+
+    IDS,
+
+    SESSIONS,
 
     STREAMLEASE,
 
-    AUTOPLAY;
+    EXCHANGES;
 
     private final String name;
 
-    QPar() {
-
+    TPar() {
         this(null);
     }
-
-    QPar(String name) {
-
+    TPar(String name) {
         this.name = name == null ? this.name().toLowerCase() : name;
     }
 
     public String getName() {
-
         return name;
     }
 
-    public static Optional<QPar> get(String substring) {
-
+    public static Optional<TPar> get(String substring) {
         return Arrays.stream(values())
             .filter(v ->
                 v.name().equalsIgnoreCase(substring))

@@ -4,7 +4,6 @@ import mediaserver.hash.AbstractNameHashable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class Playlist extends AbstractNameHashable {
 
@@ -68,11 +67,6 @@ public final class Playlist extends AbstractNameHashable {
         return with(PlaylistYaml.PLAYLISTS, Arrays.asList(albums));
     }
 
-    public static Collection<Playlist> playlistsWith(Stream<Album> albums) {
-
-        return with(PlaylistYaml.PLAYLISTS, albums.collect(Collectors.toList()));
-    }
-
     public static Collection<Playlist> playlistsWith(Collection<Album> albums) {
 
         return with(PlaylistYaml.PLAYLISTS, albums);
@@ -81,11 +75,6 @@ public final class Playlist extends AbstractNameHashable {
     public static Collection<Playlist> curationsWith(Album... albums) {
 
         return with(PlaylistYaml.CURATED, Arrays.asList(albums));
-    }
-
-    public static Collection<Playlist> curationsWith(Stream<Album> albums) {
-
-        return with(PlaylistYaml.CURATED, albums.collect(Collectors.toList()));
     }
 
     public static Collection<Playlist> curationsWith(Collection<Album> albums) {

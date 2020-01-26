@@ -6,10 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class QPars implements Function<QPar, Optional<UUID>> {
+public final class QPars {
 
     private static final Logger log = LoggerFactory.getLogger(QPars.class);
 
@@ -20,8 +19,7 @@ public final class QPars implements Function<QPar, Optional<UUID>> {
         this.pars = pars;
     }
 
-    @Override
-    public Optional<UUID> apply(QPar par) {
+    public Optional<UUID> get(QPar par) {
 
         Optional<String> value = Optional.ofNullable(pars.get(par));
         try {

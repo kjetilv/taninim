@@ -1,8 +1,8 @@
-package mediaserver.gui;
+package mediaserver.stream;
 
 import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;
-import mediaserver.http.WebPath;
+import mediaserver.http.Req;
 import mediaserver.media.Track;
 import mediaserver.toolkit.Chunk;
 import mediaserver.toolkit.Range;
@@ -27,16 +27,16 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
 
     private final Clock clock;
 
-    private final WebPath webPath;
+    private final Req req;
 
     private final Track track;
 
     private static final int WARN_THRESHOLD_SECONDS = 30;
 
-    ProgressListener(Clock clock, WebPath webPath, Track track, Range range, Chunk chunk) {
+        ProgressListener(Clock clock, Req req, Track track, Range range, Chunk chunk) {
 
         this.clock = clock;
-        this.webPath = webPath;
+        this.req = req;
         this.track = track;
         this.range = range;
         this.chunk = chunk;
@@ -45,15 +45,15 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
     @Override
     public void operationComplete(ChannelProgressiveFuture future) {
 
-        Duration streamingTime = Duration.between(webPath.getTime(), clock.instant());
+        Duration streamingTime = Duration.between(req.getTime(), clock.instant());
         SocketAddress remote = future.channel().remoteAddress();
         if (streamingTime.toSeconds() > WARN_THRESHOLD_SECONDS) {
             log.warn("{}: {} -> {} in {} IS A LONG TIME: {}:{} > {} > {}",
-                webPath.getCtx(), range, chunk, printed(streamingTime), webPath, webPath.getSession(), track, remote);
+                req.getCtx(), range, chunk, printed(streamingTime), req, req.getSession(), track, remote);
 
         }
         log.info("{}: {} -> {} in {}: {}:{} > {} > {}",
-            webPath.getCtx(), range, chunk, printed(streamingTime), webPath, webPath.getSession(), track, remote);
+            req.getCtx(), range, chunk, printed(streamingTime), req, req.getSession(), track, remote);
     }
 
     @Override

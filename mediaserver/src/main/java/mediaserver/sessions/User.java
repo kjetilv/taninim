@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class ActiveUser extends AbstractHashable {
+public class User extends AbstractHashable {
 
     private final Session session;
 
@@ -19,18 +19,16 @@ public class ActiveUser extends AbstractHashable {
 
     private final String id;
 
-    private final AccessLevel accessLevel;
-
     private static final long serialVersionUID = 4919694628627926851L;
 
-    public ActiveUser(Session session, Instant time, String name, String id, AccessLevel accessLevel) {
+    public User(Session session, Instant time, String name, String id) {
 
         this.session = Objects.requireNonNull(session, "session");
         this.time = time;
         this.name = Objects.requireNonNull(name, "name");
         this.id = id;
-        this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
-        if (!accessLevel.satisfies(AccessLevel.LOGIN)) {
+        AccessLevel accessLevel1 = Objects.requireNonNull(session.getAccessLevel(), "accessLevel");
+        if (!accessLevel1.satisfies(AccessLevel.LOGIN)) {
             throw new IllegalArgumentException("No login for " + name);
         }
     }

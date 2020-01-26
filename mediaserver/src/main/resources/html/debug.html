@@ -9,31 +9,29 @@
 </HEAD>
 <BODY>
 
-<H1>Last exchanges: {length(exchanges)}</H1>
+<H1>Sessions: {length(exchanges)}</H1>
+
+<OL>
+    {exchanges:{entry|
+    <UL>
+        <A HREF="#{entry.key}">{entry.key}</A>
+    </UL>
+    }}
+</OL>
 
 {exchanges:{entry|
-<H4>{entry.key.facebookUser.name}/{entry.key.accessLevel} @ {entry.key.startTime} auth {entry.key.cookie}</H4>
+<H4 ID="{entry.key}">{entry.key}</H4>
 
 {entry.value:{exchange|
-<H5>{exchange.sequenceNo} {exchange.sessionStatus} @ {exchange.webPath.time}:</H5>
+<H5>{exchange.sequenceNo} => {exchange.handler} @ {exchange.time}</H5>
 
 <PRE>
-    {exchange.handler}
+{exchange.request}
+
+{exchange.response}
+
+{exchange.sessionStatus}
 </PRE>
-
-<BLOCKQUOTE>
-    <PRE>
-    {exchange.request}
-    </PRE>
-    <PRE>
-    {exchange.response}
-    </PRE>
-    <PRE>
-    {exchange.sessionStatus}
-    </PRE>
-</BLOCKQUOTE>
-
-<P><CODE>{session.description}</CODE></P>
 }}
 }}
 

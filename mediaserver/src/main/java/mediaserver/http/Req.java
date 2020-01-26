@@ -8,9 +8,8 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.AsciiString;
 import mediaserver.Config;
 import mediaserver.gui.GUI;
-import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
-import mediaserver.sessions.ActiveUser;
+import mediaserver.sessions.User;
 import mediaserver.sessions.Session;
 import mediaserver.util.MostlyOnce;
 import mediaserver.util.URLs;
@@ -22,14 +21,13 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
 import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 
-public final class WebPath {
+public final class Req {
 
     public static final String AUDIO_FLAC = "audio/flac";
 
@@ -53,7 +51,7 @@ public final class WebPath {
 
     private final Supplier<QPars> qpars;
 
-    private final AtomicReference<Boolean> keepAlive = new AtomicReference<>();
+    private final Supplier<Boolean> keepAlive;
 
     private final Supplier<Optional<String>> content;
 
@@ -66,7 +64,7 @@ public final class WebPath {
 
     private Supplier<String> formattedTime;
 
-    private WebPath(
+    private Req(
         ChannelHandlerContext ctx,
         FullHttpRequest request,
         Page page,
@@ -91,6 +89,8 @@ public final class WebPath {
             authentication(this.request));
         this.qpars = MostlyOnce.get(() ->
             new QPars(params(this.uri, this.uri.indexOf("?"))));
+        this.keepAlive = MostlyOnce.get(() ->
+            HttpUtil.isKeepAlive(this.request));
         this.content = MostlyOnce.get(() ->
             Optional.of(this.request.content())
                 .map(content ->
@@ -107,9 +107,9 @@ public final class WebPath {
         return page.accessibleBy(request.method().toString()) && page.accessibleIn(session);
     }
 
-    public WebPath bind(Session session) {
+    public Req bind(Session session) {
 
-        return new WebPath(ctx, request, page, uri, Objects.requireNonNull(session, "session"), time);
+        return new Req(ctx, request, page, uri, Objects.requireNonNull(session, "session"), time);
     }
 
     public Page getPage() {
@@ -176,7 +176,7 @@ public final class WebPath {
 
     public Optional<UUID> getUUIDParameter(QPar queryParameter) {
 
-        return getQueryParameters().apply(queryParameter);
+        return getQueryParameters().get(queryParameter);
     }
 
     public QPars getQueryParameters() {
@@ -204,7 +204,7 @@ public final class WebPath {
         return request;
     }
 
-    public static Optional<WebPath> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+    public static Optional<Req> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
 
         return Stream.of(request)
             .map(HttpRequest::uri)
@@ -214,13 +214,13 @@ public final class WebPath {
                 URLDecoder.decode(uri, StandardCharsets.UTF_8))
             .flatMap(uri ->
                 Page.get(uri).map(page ->
-                    new WebPath(ctx, request, page, page.resolve(uri), null, time)))
+                    new Req(ctx, request, page, page.resolve(uri), null, time)))
             .findFirst();
     }
 
     public boolean isKeepAlive() {
 
-        return keepAlive.updateAndGet(value -> value == null ? HttpUtil.isKeepAlive(request) : value);
+        return keepAlive.get();
     }
 
     public boolean isFlac() {
@@ -238,7 +238,7 @@ public final class WebPath {
         return Duration.between(time, session.getEndTime());
     }
 
-    public ActiveUser getActiveUser() {
+    public User getActiveUser() {
 
         return session.getActiveUser(this);
     }

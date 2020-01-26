@@ -15,12 +15,12 @@ public abstract class AbstractResources extends NettyHandler {
         this.webCache = webCache;
     }
 
-    protected Handling handle(WebPath webPath, String key) {
+    protected Handling handle(Req req, String key) {
 
         return webCache.get(key)
             .map(bytes ->
-                handle(webPath, bytes, CACHEABLE))
+                handle(req, bytes, CACHEABLE))
             .orElseGet(() ->
-                handleNotFound(webPath));
+                handleNotFound(req));
     }
 }

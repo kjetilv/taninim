@@ -8,8 +8,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -18,79 +17,76 @@ public abstract class NettyHandler {
 
     private final Collection<Page> pages;
 
-    protected static final Consumer<BiConsumer<CharSequence, CharSequence>> CACHEABLE =
-        headers ->
-            headers.accept(HttpHeaderNames.CACHE_CONTROL, "public, max-age=" + Duration.ofDays(1).toSeconds());
+    protected static final Headers CACHEABLE = headers ->
+        headers.accept(HttpHeaderNames.CACHE_CONTROL, "public, max-age=" + Duration.ofDays(1).toSeconds());
 
     protected NettyHandler(Page... pages) {
 
         this.pages = new HashSet<>(Arrays.asList(pages));
     }
 
-    public boolean matches(WebPath webPath) {
+    public final Optional<Handling> handledRequest(Req req) {
 
-        return pages.isEmpty() || pages.stream().anyMatch(webPath::isFor);
+        if (pages.isEmpty() || pages.stream().anyMatch(req::isFor)) {
+            return Optional.of(handleRequest(req));
+        }
+        return Optional.empty();
     }
 
-    public abstract Handling handleRequest(WebPath webPath);
+    protected abstract Handling handleRequest(Req req);
 
-    protected Handling respond(WebPath webPath, HttpResponse response) {
+    protected final Handling respond(Req req, HttpResponse response) {
 
-        return handled(webPath, Netty.respond(webPath.getCtx(), response));
+        return handled(req, Netty.respond(req.getCtx(), response));
     }
 
-    protected Handling handled(WebPath webPath, HttpResponse sentResponse) {
+    protected final Handling handled(Req req, HttpResponse sentResponse) {
 
-        return Handling.sentResponse(this, webPath, sentResponse);
+        return Handling.sentResponse(this, req, sentResponse);
     }
 
-    protected Handling handle(WebPath webPath, byte[] bytes) {
+    protected final Handling handle(Req req, byte[] bytes) {
 
-        return handle(webPath, bytes, null);
+        return handle(req, bytes, null);
     }
 
-    protected Handling handle(
-        WebPath webPath,
+    protected final Handling handle(
+        Req req,
         byte[] bytes,
-        Consumer<BiConsumer<CharSequence, CharSequence>> moreHeaders
+        Headers moreHeaders
     ) {
 
         try {
-            return respond(webPath, Netty.response(webPath, bytes, moreHeaders));
+            return respond(req, Netty.response(req, bytes, moreHeaders));
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to respond to " + webPath, e);
+            throw new IllegalStateException("Failed to respond to " + req, e);
         }
     }
 
-    protected Handling pass() {
+    protected final Handling handleBadRequest(Req req) {
 
-        return Handling.pass(this);
+        return handle(req, BAD_REQUEST);
     }
 
-    protected Handling handleBadRequest(WebPath webPath) {
+    protected final Handling handleNotFound(Req req) {
 
-        return handle(webPath, BAD_REQUEST);
+        return handle(req, NOT_FOUND);
     }
 
-    protected Handling handleNotFound(WebPath webPath) {
+    protected final Handling handleUnauthorized(Req req) {
 
-        return handle(webPath, NOT_FOUND);
+        return handle(req, UNAUTHORIZED);
     }
 
-    protected Handling handleUnauthorized(WebPath webPath) {
+    private Handling handle(Req req, HttpResponseStatus status) {
 
-        return handle(webPath, UNAUTHORIZED);
-    }
-
-    private Handling handle(WebPath webPath, HttpResponseStatus status) {
-
-        return respond(webPath, Netty.response(null, status, null, null));
+        return respond(req, Netty.response(null, status, null, null));
     }
 
     @Override
     public String toString() {
 
         return getClass().getSimpleName() + "" +
-            "[" + pages.stream().map(Enum::name).collect(Collectors.joining(" ")) + "]";
+            "[" + pages.stream().map(Page::getPref).collect(Collectors.joining(" ")) + "]";
     }
 }

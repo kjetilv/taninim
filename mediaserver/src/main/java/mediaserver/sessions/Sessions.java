@@ -1,7 +1,7 @@
 package mediaserver.sessions;
 
-import mediaserver.externals.FacebookUser;
-import mediaserver.http.WebPath;
+import mediaserver.externals.FbUser;
+import mediaserver.http.Req;
 import mediaserver.util.MostlyOnce;
 import mediaserver.util.Print;
 import org.slf4j.Logger;
@@ -14,12 +14,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Sessions {
 
     private static final Logger log = LoggerFactory.getLogger(Sessions.class);
 
-    private final Map<FacebookUser, Collection<Session>> sessionsMap = new ConcurrentHashMap<>();
+    private final Map<FbUser, Collection<Session>> sessionsMap = new ConcurrentHashMap<>();
 
     private final Duration sessionLength;
 
@@ -29,13 +30,13 @@ public final class Sessions {
 
     private final boolean devLogin;
 
-    private final Function<WebPath, Session> devSession = MostlyOnce.compute(webPath -> {
-        Session session = newSession(webPath, DEV_USER, AccessLevel.ADMIN);
+    private final Function<Req, Session> devSession = MostlyOnce.compute(req -> {
+        Session session = newSession(req, DEV_USER, AccessLevel.ADMIN);
         log.warn("Established dev session: {}", session);
         return session;
     });
 
-    private static final FacebookUser DEV_USER = new FacebookUser("dev", "dev");
+    private static final FbUser DEV_USER = new FbUser("dev", "dev");
 
     public Sessions(Duration sessionLength, Duration inactivityMax, long bytesQuota, boolean devLogin) {
 
@@ -48,54 +49,53 @@ public final class Sessions {
         }
     }
 
-    public UUID newSessionUUID(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
+    public UUID newSessionUUID(Req req, FbUser fbUser, AccessLevel accessLevel) {
 
-        Session newSession = newSession(webPath, facebookUser, accessLevel);
-        ejectedSession(facebookUser, newSession).ifPresentOrElse(
-            previous -> {
-                boolean wasValid = valid(webPath, previous);
-                log.info("Session created for {}: {}, previous was {}: {}",
-                    facebookUser, newSession, wasValid ? "live" : "expired",
-                    previous);
-            },
-            () ->
-                log.info("Session created for {}: {}", facebookUser, newSession));
+        Session newSession = newSession(req, fbUser, accessLevel);
+        ejectedSessions(fbUser, newSession).forEach(
+            ejectedSession -> {
+                log.info("Ejected {} session for {}: {}",
+                    valid(req, ejectedSession) ? "live" : "expired", fbUser, ejectedSession);
+            });
+        log.info("Session created for {}: {}", fbUser, newSession);
         return newSession.getCookie();
     }
 
-    public Optional<Session> ejectedSession(FacebookUser facebookUser, Session session) {
+    public Stream<Session> ejectedSessions(FbUser fbUser, Session session) {
 
         if (session.hasLevel(AccessLevel.ADMIN)) {
-            sessionsMap.computeIfAbsent(facebookUser, __ ->
+            sessionsMap.computeIfAbsent(fbUser, __ ->
                 new CopyOnWriteArrayList<>()
             ).add(session);
-            return Optional.empty();
+            return Stream.empty();
         }
-        return Optional.ofNullable(sessionsMap.put(facebookUser, Collections.singleton(session))).stream()
-            .flatMap(Collection::stream)
-            .findFirst();
+        Collection<Session> existingSessions =
+            sessionsMap.put(fbUser, new CopyOnWriteArrayList<>(Collections.singleton(session)));
+        return Optional.ofNullable(existingSessions)
+            .stream()
+            .flatMap(Collection::stream);
     }
 
-    public WebPath bind(WebPath webPath) {
+    public Req bind(Req req) {
 
-        return session(webPath, AccessLevel.LOGIN, false)
-            .map(webPath::bind)
-            .orElse(webPath);
+        return session(req, AccessLevel.LOGIN, false)
+            .map(req::bind)
+            .orElse(req);
     }
 
-    public Optional<Session> close(WebPath webPath) {
+    public Optional<Session> close(Req req) {
 
-        return session(webPath, AccessLevel.NONE, true)
+        return session(req, AccessLevel.NONE, true)
             .map(session -> {
-                FacebookUser facebookUser = session.getFacebookUser();
-                Optional.of(sessionsMap.get(facebookUser))
+                FbUser fbUser = session.getFbUser();
+                Optional.of(sessionsMap.get(fbUser))
                     .filter(sessions ->
                         !sessions.isEmpty())
                     .ifPresentOrElse(
                         sessions -> {
                             if (sessions.remove(session)) {
                                 if (sessions.isEmpty()) {
-                                    sessionsMap.remove(facebookUser);
+                                    sessionsMap.remove(fbUser);
                                 }
                                 log.info("{} removed session, {} left: {}/{}",
                                     this, sessions.size(), this.sessionsMap.size(), session);
@@ -105,7 +105,7 @@ public final class Sessions {
                             }
                         },
                         () ->
-                            log.info("No sessions to close for {}", facebookUser));
+                            log.info("No sessions to close for {}", fbUser));
                 return session;
             });
     }
@@ -118,14 +118,14 @@ public final class Sessions {
             .collect(Collectors.toList());
     }
 
-    private Optional<Session> session(WebPath webPath, AccessLevel accessLevel, boolean includeInvalid) {
+    private Optional<Session> session(Req req, AccessLevel accessLevel, boolean includeInvalid) {
 
-        return webPath.getAuthentication()
+        return req.getAuthentication()
             .flatMap(uuid ->
                 uniqueSession(uuid).filter(session ->
-                    includeInvalid || valid(webPath, session) && session.hasLevel(accessLevel)))
+                    includeInvalid || valid(req, session) && session.hasLevel(accessLevel)))
             .or(() ->
-                devSession(webPath));
+                devSession(req));
     }
 
     private Optional<Session> uniqueSession(UUID uuid) {
@@ -140,26 +140,26 @@ public final class Sessions {
         return sessions.stream().findFirst();
     }
 
-    private Session newSession(WebPath webPath, FacebookUser facebookUser, AccessLevel accessLevel) {
+    private Session newSession(Req req, FbUser fbUser, AccessLevel accessLevel) {
 
         return new Session(
-            facebookUser,
+            fbUser,
             UUID.randomUUID(),
-            webPath.getTime(),
-            webPath.getTime().plus(sessionLength),
+            req.getTime(),
+            req.getTime().plus(sessionLength),
             inactivityMax,
             accessLevel,
             bytesQuota
-        ).accessedBy(webPath);
+        ).accessedBy(req);
     }
 
-    private boolean valid(WebPath webPath, Session session) {
+    private boolean valid(Req req, Session session) {
 
-        if (session.isValid(webPath.getTime())) {
+        if (session.isValid(req.getTime())) {
             return true;
         }
         log.info("Session disabled for {}: {} {}",
-            webPath, session, session.getStatus(webPath.getTime()).stream().map(Enum::name)
+            req, session, session.getStatus(req.getTime()).stream().map(Enum::name)
                 .collect(Collectors.joining(", ")));
         return false;
     }
@@ -170,9 +170,9 @@ public final class Sessions {
             Objects.equals(session.getCookie(), uuid);
     }
 
-    private Optional<Session> devSession(WebPath webPath) {
+    private Optional<Session> devSession(Req req) {
 
-        return devLogin ? devSession.andThen(Optional::ofNullable).apply(webPath) : Optional.empty();
+        return devLogin ? devSession.andThen(Optional::ofNullable).apply(req) : Optional.empty();
     }
 
     @Override

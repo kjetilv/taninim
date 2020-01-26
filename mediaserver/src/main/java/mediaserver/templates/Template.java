@@ -1,6 +1,5 @@
-package mediaserver.gui;
+package mediaserver.templates;
 
-import mediaserver.http.QPar;
 import mediaserver.util.MostlyOnce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class Template {
@@ -47,15 +47,10 @@ public final class Template {
         return this.bytes.get();
     }
 
-    public Template add(QPar param, Object value) {
-
-        return add(param.getName(), value);
-    }
-
-    public Template add(String name, Object value) {
+    public Template add(TPar param, Object value) {
 
         if (value != null) {
-            st.add(name, value);
+            st.add(Objects.requireNonNull(param, "param").getName(), value);
         }
         return this;
     }

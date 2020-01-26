@@ -3,7 +3,7 @@ package mediaserver.gui;
 import mediaserver.http.Handling;
 import mediaserver.http.Page;
 import mediaserver.http.WebCache;
-import mediaserver.http.WebPath;
+import mediaserver.http.Req;
 
 public final class Favicon extends AbstractResources {
 
@@ -16,8 +16,8 @@ public final class Favicon extends AbstractResources {
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        return handle(webPath, resource);
+        return handle(req, resource);
     }
 }

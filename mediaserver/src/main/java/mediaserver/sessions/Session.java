@@ -1,7 +1,7 @@
 package mediaserver.sessions;
 
-import mediaserver.externals.FacebookUser;
-import mediaserver.http.WebPath;
+import mediaserver.externals.FbUser;
+import mediaserver.http.Req;
 import mediaserver.util.Print;
 
 import java.time.Duration;
@@ -27,14 +27,14 @@ public final class Session {
 
     private final UUID cookie;
 
-    private final FacebookUser facebookUser;
+    private final FbUser fbUser;
 
     private final AtomicReference<Instant> lastAccessed = new AtomicReference<>();
 
     private final AtomicLong bytesStreamed = new AtomicLong();
 
     public Session(
-        FacebookUser facebookUser,
+        FbUser fbUser,
         UUID cookie,
         Instant startTime,
         Instant sessionCutoff,
@@ -43,7 +43,7 @@ public final class Session {
         long bytesQuota
     ) {
 
-        this.facebookUser = Objects.requireNonNull(facebookUser, "facebookUser");
+        this.fbUser = Objects.requireNonNull(fbUser, "fbUser");
         this.cookie = Objects.requireNonNull(cookie, "cookie");
         this.startTime = Objects.requireNonNull(startTime, "startTime").truncatedTo(ChronoUnit.SECONDS);
         this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
@@ -63,15 +63,14 @@ public final class Session {
         return cookie;
     }
 
-    public ActiveUser getActiveUser(WebPath webPath) {
+    public User getActiveUser(Req req) {
 
-        return new ActiveUser(
-            this, webPath.getTime(), facebookUser.getName(), facebookUser.getId(), accessLevel);
+        return new User(this, req.getTime(), fbUser.getName(), fbUser.getId());
     }
 
-    public FacebookUser getFacebookUser() {
+    public FbUser getFbUser() {
 
-        return facebookUser;
+        return fbUser;
     }
 
     public Session streaming(long bytes) {
@@ -85,10 +84,15 @@ public final class Session {
         return false;
     }
 
-    public Session accessedBy(WebPath webPath) {
+    public Session accessedBy(Req req) {
 
-        lastAccessed.set(webPath.getTime());
+        lastAccessed.set(req.getTime());
         return this;
+    }
+
+    public String getCurrentStatus() {
+
+        return getCurrentStatus(Instant.now());
     }
 
     public String getCurrentStatus(Instant time) {
@@ -107,6 +111,7 @@ public final class Session {
     }
 
     public boolean isValid(Instant time) {
+
         Collection<Session.Status> statuses = getStatus(time);
         return statuses.size() == 1 && statuses.iterator().next() == Status.OK;
     }
@@ -183,7 +188,7 @@ public final class Session {
     @Override
     public int hashCode() {
 
-        return Objects.hash(cookie, facebookUser);
+        return Objects.hash(cookie, fbUser);
     }
 
     @Override
@@ -192,13 +197,13 @@ public final class Session {
         return this == o ||
             o instanceof Session &&
                 Objects.equals(cookie, ((Session) o).cookie) &&
-                Objects.equals(facebookUser, ((Session) o).facebookUser);
+                Objects.equals(fbUser, ((Session) o).fbUser);
     }
 
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + facebookUser + "/" + accessLevel + "/" + cookie +
+        return getClass().getSimpleName() + "[" + fbUser + "/" + accessLevel + "/" + Print.uuid(cookie) +
             "@" + Print.aboutTime(startTime) +
             " s:" + Print.bytes(bytesStreamed.get()) + "/" + Print.bytes(bytesQuota) +
             " t:" + Duration.between(lastAccessed.get(), sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +

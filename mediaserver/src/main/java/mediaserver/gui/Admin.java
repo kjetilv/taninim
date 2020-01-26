@@ -9,6 +9,7 @@ import mediaserver.externals.S3;
 import mediaserver.http.*;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
+import mediaserver.templates.TPar;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.IO;
 import mediaserver.util.OnceEvery;
@@ -40,32 +41,32 @@ public final class Admin extends TemplateEnabled {
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        FullHttpRequest request = webPath.getRequest();
-        if (isIdsUpdate(webPath, request)) {
+        FullHttpRequest request = req.getRequest();
+        if (isIdsUpdate(req, request)) {
             if (s3 != null) {
-                ids(webPath).ifPresent(Ids::persist);
+                ids(req).ifPresent(Ids::persist);
                 OnceEvery.refresh(ids);
             } else {
-                log.warn("Could not update, no S3 connection: {}", webPath);
+                log.warn("Could not update, no S3 connection: {}", req);
             }
-            return respond(webPath, Netty.redirectResponse(Page.ADMIN));
+            return respond(req, Netty.redirectResponse(Page.ADMIN));
         }
 
         return Optional.of(getTemplate(ADMIN_PAGE)
-            .add(QPar.USER, webPath.getSession().getActiveUser(webPath))
-            .add(QPar.SESSIONS, sessions.list())
-            .add(QPar.IDS, map(ids.get())))
+            .add(TPar.USER, req.getSession().getActiveUser(req))
+            .add(TPar.SESSIONS, sessions.list())
+            .add(TPar.IDS, map(ids.get())))
             .map(template ->
-                respondHtml(webPath, template))
+                respondHtml(req, template))
             .orElseGet(() ->
-                handleNotFound(webPath));
+                handleNotFound(req));
     }
 
-    private Optional<Ids> ids(WebPath webPath) {
+    private Optional<Ids> ids(Req req) {
 
-        return new HttpPostRequestDecoder(webPath.getRequest()).getBodyHttpDatas().stream()
+        return new HttpPostRequestDecoder(req.getRequest()).getBodyHttpDatas().stream()
             .filter(data ->
                 data.getName().equals("ids"))
             .filter(MixedAttribute.class::isInstance)
@@ -77,9 +78,9 @@ public final class Admin extends TemplateEnabled {
             .findFirst();
     }
 
-    private boolean isIdsUpdate(WebPath webPath, FullHttpRequest request) {
+    private boolean isIdsUpdate(Req req, FullHttpRequest request) {
 
-        return HttpMethod.POST.equals(request.method()) && FORM_URLENCODED.equals(webPath.header("Content-Type"));
+        return HttpMethod.POST.equals(request.method()) && FORM_URLENCODED.equals(req.header("Content-Type"));
     }
 
     private String map(Ids ids) {

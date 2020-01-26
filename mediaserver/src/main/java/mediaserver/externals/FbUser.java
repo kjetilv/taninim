@@ -4,7 +4,7 @@ import mediaserver.hash.AbstractHashable;
 
 import java.util.function.Consumer;
 
-public final class FacebookUser extends AbstractHashable {
+public final class FbUser extends AbstractHashable {
 
     private final String name;
 
@@ -12,7 +12,7 @@ public final class FacebookUser extends AbstractHashable {
 
     private static final long serialVersionUID = 6897348983612649711L;
 
-    public FacebookUser(String name, String id) {
+    public FbUser(String name, String id) {
 
         this.name = name;
         this.id = id;

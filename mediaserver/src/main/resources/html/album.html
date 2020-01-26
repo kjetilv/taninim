@@ -105,19 +105,36 @@
 
     {if(playTrack)}
     <DIV STYLE="clear: both">
-        <P><SMALL>Playing:</SMALL> <STRONG>{playTrack.name}</STRONG>
-            from <EM>{playTrack.album}</EM>
-            by <EM>{playTrack.artist.name}
+        <P><SMALL>{playTrack.prettyTrackNo}:</SMALL> <STRONG>{playTrack.name}</STRONG>
+            <SMALL>from</SMALL> <EM>{playTrack.album}</EM>
+            <SMALL>by</SMALL> <EM>{playTrack.artist.name}
                 <SMALL>
                     ({playTrack.prettyDuration} [{playTrack.prettyCompressedSize}/{playTrack.prettySize})
                 </SMALL>
             </EM>
         </P>
 
-        <AUDIO id="player" controls src="/audio/{playTrack.uuid}.m4a"
-               data-plyr-config='\{ "duration": {playTrack.seconds}}'>
-
+        <!--suppress HtmlUnknownAttribute -->
+        <AUDIO id="player" preload="none" controls src="/audio/{playTrack.uuid}.m4a" data-plyr-config=
+                '\{ "duration": {playTrack.seconds}, "autoplay": {if(autoplay)}true{else}false}{endif} }'>
         </AUDIO>
+
+        <DIV STYLE="float: right">
+            {if(nextTrack)}
+            <A ID='play-next' HREF="?artist={album.artist.uuid}&album={album.uuid}&track={nextTrack.uuid}&autoplay={nextTrack.uuid}"></A>
+            <SMALL>
+                <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={nextTrack.uuid}">
+                    &nbsp;⏩&nbsp;{nextTrack.prettyTrackNo}: {nextTrack.name}</A>
+            </SMALL>
+            {endif}
+        </DIV>
+        {if(previousTrack)}
+        <SMALL>
+            <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={previousTrack.uuid}">
+                {previousTrack.prettyTrackNo}: {previousTrack.name}&nbsp;⏪&nbsp;</A>
+        </SMALL>
+        {endif}
+
         {if(plyr)}
         <SCRIPT src="/res/plyr.js"></SCRIPT>
         <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
@@ -136,14 +153,23 @@
 
         {albumPart.tracks:{track |
         {track.trackNo}
-        {if(user.streaming)} <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶{endif}
+        {if(user.streaming)}
+        <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">
+            <SMALL>&nbsp;▶&nbsp;</SMALL>{track.name}
+            <EM>
+                <SMALL>
+                    /{track.prettyDuration} [{track.prettyCompressedSize}/{track.prettySize}]
+                </SMALL>
+            </EM>
+        </A>
+        {else}
         {track.name}
         <EM>
             <SMALL>
-                /{track.prettyDuration} [{track.prettyCompressedSize}/{track.prettySize}]
+                /{track.prettyDuration}
             </SMALL>
         </EM>
-        {if(user.streaming)} </A> {endif}
+        {endif}
         {if(track.otherArtists)}
         <UL>
             {track.otherArtists:{otherArtist|
@@ -153,7 +179,6 @@
                 <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
                 {endif}
                 ]
-
             </LI>
             }}
         </UL>
@@ -167,8 +192,8 @@
             <H3>Kuraterte spor</H3>
             {curations:{curation|
             {curation.tracks:{track|
-            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">▶
-                {track.name}
+            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">
+                <SMALL>&nbsp;▶&nbsp;</SMALL>{track.name}
             </A>
             <BR>
             }}
@@ -275,5 +300,10 @@
     <HR>
     <A HREF="res/privacy.txt">Privacy stuff</A> <A HREF="res/terms.txt">Terms of disservice</A>
 </DIV>
+
+{if(nextTrack)}
+<SCRIPT src="/res/autonext.js"></SCRIPT>
+{endif}
+
 </BODY>
 </HTML>

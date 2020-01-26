@@ -1,7 +1,7 @@
 package mediaserver.sessions;
 
 import mediaserver.externals.ACL;
-import mediaserver.externals.FacebookUser;
+import mediaserver.externals.FbUser;
 import mediaserver.externals.S3;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
@@ -31,11 +31,11 @@ public final class Ids {
         log.info("Uploaded:{}", acl);
     }
 
-    public AccessLevel resolve(FacebookUser facebookUser) {
+    public AccessLevel resolve(FbUser fbUser) {
 
         return Arrays.stream(acl.getAcl())
             .filter(entry ->
-                String.valueOf(entry.getSer()).equals(facebookUser.getId()))
+                String.valueOf(entry.getSer()).equals(fbUser.getId()))
             .map(entry ->
                 AccessLevel.get(entry.getLev()))
             .findFirst()

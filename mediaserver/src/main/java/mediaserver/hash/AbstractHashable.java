@@ -62,20 +62,10 @@ public abstract class AbstractHashable
         return hash.updateAndGet(v -> v == null ? uuid() : v);
     }
 
-    public String build() {
+    protected static void hash(Consumer<byte[]> hash, byte[]... bytes) {
 
-        return withStringContents(
-            withStringIdentifier(
-                new StringBuilder(getClass().getSimpleName())
-                    .append('['))
-                .append("<")
-        ).append(">]").toString();
-    }
-
-    protected static void hash(Consumer<byte[]> hash, byte[]... justBytes) {
-
-        for (byte[] justByte : justBytes) {
-            hash.accept(justByte);
+        for (byte[] bite : bytes) {
+            hash.accept(bite);
         }
     }
 
@@ -110,6 +100,16 @@ public abstract class AbstractHashable
     }
 
     protected abstract StringBuilder withStringBody(StringBuilder sb);
+
+    private String build() {
+
+        return withStringContents(
+            withStringIdentifier(
+                new StringBuilder(getClass().getSimpleName())
+                    .append('['))
+                .append("<")
+        ).append(">]").toString();
+    }
 
     private StringBuilder withStringIdentifier(StringBuilder sb) {
 

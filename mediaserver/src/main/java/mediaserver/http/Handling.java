@@ -8,25 +8,20 @@ public final class Handling {
 
     private final NettyHandler handler;
 
-    private final WebPath webPath;
+    private final Req req;
 
     private final HttpResponse sentResponse;
 
-    private Handling(NettyHandler handler, WebPath webPath, HttpResponse sentResponse) {
+    private Handling(NettyHandler handler, Req req, HttpResponse sentResponse) {
 
         this.handler = handler;
-        this.webPath = webPath;
+        this.req = req;
         this.sentResponse = sentResponse;
     }
 
-    public static Handling sentResponse(NettyHandler handler, WebPath webPath, HttpResponse response) {
+    public static Handling sentResponse(NettyHandler handler, Req req, HttpResponse response) {
 
-        return new Handling(handler, webPath, Objects.requireNonNull(response, "response"));
-    }
-
-    public static Handling pass(NettyHandler handler) {
-
-        return new Handling(handler, null, null);
+        return new Handling(handler, req, Objects.requireNonNull(response, "response"));
     }
 
     public HttpResponse getSentResponse() {
@@ -34,9 +29,9 @@ public final class Handling {
         return sentResponse;
     }
 
-    public WebPath getWebPath() {
+    public Req getReq() {
 
-        return webPath;
+        return req;
     }
 
     public NettyHandler getHandler() {

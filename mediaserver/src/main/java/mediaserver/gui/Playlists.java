@@ -4,6 +4,8 @@ import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.AccessLevel;
+import mediaserver.templates.TPar;
+import mediaserver.templates.Template;
 import mediaserver.toolkit.Templater;
 
 import java.util.Collection;
@@ -22,12 +24,11 @@ public final class Playlists extends TemplateEnabled {
 
     private final boolean https;
 
-    private final Map<String, Function<UUID, Optional<Template>>> providers =
-        Map.of(
-            "/artist/", this::artistPlaylist,
-            "/album/", this::albumSublibrary,
-            "/playlist/", this::playlistSublibrary,
-            "/series/", this::seriesSublibrary);
+    private final Map<String, Function<UUID, Optional<Template>>> providers = Map.of(
+        "/artist/", this::artistPlaylist,
+        "/album/", this::albumSublibrary,
+        "/playlist/", this::playlistSublibrary,
+        "/series/", this::seriesSublibrary);
 
     private static final String CONTENT_TYPE = "audio/x-mpegurl";
 
@@ -39,23 +40,23 @@ public final class Playlists extends TemplateEnabled {
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        if (webPath.getSession().hasLevel(AccessLevel.STREAM)) {
-            template(webPath.getUri())
+        if (req.getSession().hasLevel(AccessLevel.STREAM)) {
+            template(req.getUri())
                 .map(template ->
-                    instrumented(template, webPath))
+                    instrumented(template, req))
                 .map(template ->
-                    respond(webPath, response(webPath, template)))
+                    respond(req, response(req, template)))
                 .orElseGet(() ->
-                    handleNotFound(webPath));
+                    handleNotFound(req));
         }
-        return handleBadRequest(webPath);
+        return handleBadRequest(req);
     }
 
-    private HttpResponse response(WebPath webPath, Template template) {
+    private HttpResponse response(Req req, Template template) {
 
-        return Netty.response(webPath, CONTENT_TYPE, OK, template.bytes());
+        return Netty.response(req, CONTENT_TYPE, OK, template.bytes());
     }
 
     private Optional<Template> template(String resource) {
@@ -74,12 +75,12 @@ public final class Playlists extends TemplateEnabled {
         return provider.apply(uuid(resource, heading.length()));
     }
 
-    private Template instrumented(Template template, WebPath webPath) {
+    private Template instrumented(Template template, Req req) {
 
         return template
-            .add(QPar.STREAMLEASE, webPath.getSession().getCookie())
-            .add(QPar.HOST, webPath.getHost())
-            .add(QPar.PROTOCOL, https ? "https" : "http");
+            .add(TPar.STREAMLEASE, req.getSession().getCookie())
+            .add(TPar.HOST, req.getHost())
+            .add(TPar.PROTOCOL, https ? "https" : "http");
     }
 
     private UUID uuid(String path, int preamble) {
@@ -89,8 +90,7 @@ public final class Playlists extends TemplateEnabled {
 
     private Optional<Template> albumSublibrary(UUID albumUUID) {
 
-        Media med = this.media.get();
-        return med.getAlbum(albumUUID).map(this::playlist);
+        return this.media.get().getAlbum(albumUUID).map(this::playlist);
     }
 
     private Optional<Template> seriesSublibrary(UUID seriesUUID) {
@@ -126,24 +126,20 @@ public final class Playlists extends TemplateEnabled {
 
     private Template playlist(Album album) {
 
-        return getTemplate(PLAYLIST_M3U).add(
-            QPar.PLAYLIST,
-            new PlaylistM3U(album));
+        return getTemplate(PLAYLIST_M3U).add(TPar.PLAYLIST, new PlaylistM3U(album));
+    }
+
+    private Template playlist(Artist artist, Collection<Track> tracks) {
+
+        return getTemplate(PLAYLIST_M3U).add(TPar.PLAYLIST, new PlaylistM3U(artist.getName(), tracks));
     }
 
     private Template playlist(Collection<Album> albums) {
 
         return getTemplate(PLAYLIST_M3U).add(
-            QPar.PLAYLIST,
+            TPar.PLAYLIST,
             new PlaylistM3U(
                 albums.size() + " albums",
                 albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList())));
-    }
-
-    private Template playlist(Artist artist, Collection<Track> tracks) {
-
-        return getTemplate(PLAYLIST_M3U).add(
-            QPar.PLAYLIST,
-            new PlaylistM3U(artist.getName(), tracks));
     }
 }

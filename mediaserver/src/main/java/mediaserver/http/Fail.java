@@ -3,8 +3,8 @@ package mediaserver.http;
 public final class Fail extends NettyHandler {
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        return handleBadRequest(webPath);
+        return handleBadRequest(req);
     }
 }

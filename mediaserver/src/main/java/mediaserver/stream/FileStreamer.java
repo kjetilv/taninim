@@ -1,4 +1,4 @@
-package mediaserver.gui;
+package mediaserver.stream;
 
 import io.netty.channel.DefaultFileRegion;
 import mediaserver.media.Media;

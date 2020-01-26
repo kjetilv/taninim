@@ -3,7 +3,8 @@ package mediaserver.debug;
 import mediaserver.gui.TemplateEnabled;
 import mediaserver.http.Handling;
 import mediaserver.http.Page;
-import mediaserver.http.WebPath;
+import mediaserver.http.Req;
+import mediaserver.templates.TPar;
 import mediaserver.toolkit.Templater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +26,17 @@ public final class Debug extends TemplateEnabled {
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        log.info("Request receieved @ {}: {}", webPath, webPath.getRequest());
+        log.info("Request receieved @ {}: {}", req, req.getRequest());
         Map<String, List<Exchange>> exchanges = latestExchanges.get().stream()
             .sorted(
                 Comparator.comparingLong(Exchange::getSequenceNo).reversed())
             .collect(Collectors.groupingBy(
                 Exchange::getSession,
                 Collectors.toCollection(ArrayList::new)));
-        return respondHtml(webPath, getTemplate(DEBUG_PAGE).add(
-            "exchanges",
+        return respondHtml(req, getTemplate(DEBUG_PAGE).add(
+            TPar.EXCHANGES,
             exchanges.entrySet()));
     }
 }

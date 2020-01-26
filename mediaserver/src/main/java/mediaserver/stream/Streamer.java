@@ -1,4 +1,4 @@
-package mediaserver.gui;
+package mediaserver.stream;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.LongStream;
 
@@ -57,20 +58,25 @@ public abstract class Streamer extends NettyHandler {
         log.info("{} created", this);
     }
 
-    @Override
-    public Handling handleRequest(WebPath webPath) {
+    public static Predicate<Track> authorized(Media media, Req req) {
 
-        HttpMethod method = webPath.getRequest().method();
+        return track ->
+            authorized(req, track, () -> media);
+    }
+
+    @Override
+    protected Handling handleRequest(Req req) {
+
+        HttpMethod method = req.getRequest().method();
         if (method == HttpMethod.HEAD || method == HttpMethod.GET) {
-            return getMediaTrack(webPath.getPath(true))
-                .map(track ->
-                    authorized(webPath, track)
-                        ? handled(webPath, streamResponse(webPath, track))
-                        : handleUnauthorized(webPath))
+            return getMediaTrack(req.getPath(true))
+                .map(track -> authorized(req, track, this.media)
+                    ? handled(req, respond(req, track))
+                    : handleUnauthorized(req))
                 .orElseGet(() ->
-                    handleNotFound(webPath));
+                    handleNotFound(req));
         }
-        return handleBadRequest(webPath);
+        return handleBadRequest(req);
     }
 
     @Override
@@ -79,19 +85,7 @@ public abstract class Streamer extends NettyHandler {
         return getClass().getSimpleName() + "[" + media + ", kb/chunk:" + bytesPerChunk / Config.K + "]";
     }
 
-    public static boolean isAuthorized(WebPath webPath, Track track, Media media) {
-
-        return isAuthorized(webPath, track, () -> media);
-    }
-
-    public static boolean isAuthorized(WebPath webPath, Track track, Supplier<Media> media) {
-
-        AccessLevel accessLevel = webPath.getAccessLevel();
-        return accessLevel.satisfies(AccessLevel.STREAM) ||
-            accessLevel.satisfies(AccessLevel.STREAM_CURATED) && media.get().isCurated(track);
-    }
-
-    protected Chunk chunk(Range rangeHeader, long fileLength) {
+    protected Chunk chunk(Range rangeHeader, long fileLength, boolean truncate) {
 
         try {
             long start = rangeHeader.getStart();
@@ -99,7 +93,7 @@ public abstract class Streamer extends NettyHandler {
             long exclusiveEnd = min(
                 rangeExclusiveEnd,
                 start + fileLength,
-                bytesPerChunk > 0
+                truncate && bytesPerChunk > 0
                     ? start + bytesPerChunk
                     : Long.MAX_VALUE);
 
@@ -118,19 +112,26 @@ public abstract class Streamer extends NettyHandler {
         return new Chunk(length);
     }
 
-    private HttpResponse streamResponse(WebPath webPath, Track track) {
+    private static boolean authorized(Req req, Track track, Supplier<Media> media) {
 
-        boolean lossless = webPath.isFlac() && webPath.getSession().isPrivileged();
-        if (webPath.getRequest().method() == HttpMethod.HEAD) {
-            return respondMeta(webPath, track, lossless);
+        AccessLevel accessLevel = req.getAccessLevel();
+        return accessLevel.satisfies(AccessLevel.STREAM) ||
+            accessLevel.satisfies(AccessLevel.STREAM_CURATED) && media.get().isCurated(track);
+    }
+
+    private HttpResponse respond(Req req, Track track) {
+
+        boolean lossless = req.isFlac() && req.getSession().isPrivileged();
+        if (req.getRequest().method() == HttpMethod.HEAD) {
+            return respondMeta(req, track, lossless);
         }
 
-        Optional<Range> range = Range.read(webPath.header(RANGE), length(track, lossless)).findFirst();
+        Optional<Range> range = Range.read(req.header(RANGE), length(track, lossless)).findFirst();
         if (range.filter(Streamer::unsatisfiable).isPresent()) {
-            return respondUnsatisfiable(webPath);
+            return respondUnsatisfiable(req);
         }
 
-        return respondPartial(webPath, track, lossless, range.orElse(null));
+        return respondPartial(req, track, lossless, range.orElse(null));
     }
 
     private static boolean unsatisfiable(Range r) {
@@ -138,45 +139,40 @@ public abstract class Streamer extends NettyHandler {
         return !r.isSatisfiable();
     }
 
-    private boolean authorized(WebPath webPath, Track track) {
-
-        return isAuthorized(webPath, track, this.media);
-    }
-
-    private HttpResponse respondMeta(WebPath webPath, Track track, boolean lossless) {
+    private HttpResponse respondMeta(Req req, Track track, boolean lossless) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         response.headers()
             .set(CONTENT_LENGTH, length(track, lossless))
-            .set(CONTENT_TYPE, lossless ? WebPath.AUDIO_FLAC : WebPath.AUDIO_AAC)
+            .set(CONTENT_TYPE, lossless ? Req.AUDIO_FLAC : Req.AUDIO_AAC)
             .set(ACCEPT_RANGES, BYTES);
-        if (webPath.isKeepAlive()) {
+        if (req.isKeepAlive()) {
             response.headers().set(CONNECTION, KEEP_ALIVE);
         }
-        webPath.getCtx().writeAndFlush(response);
+        req.getCtx().writeAndFlush(response);
         return response;
     }
 
-    private HttpResponse respondUnsatisfiable(WebPath webPath) {
+    private HttpResponse respondUnsatisfiable(Req req) {
 
-        return Netty.respond(webPath.getCtx(), REQUESTED_RANGE_NOT_SATISFIABLE);
+        return Netty.respond(req.getCtx(), REQUESTED_RANGE_NOT_SATISFIABLE);
     }
 
-    private HttpResponse respondPartial(WebPath webPath, Track track, boolean lossless, Range range) {
+    private HttpResponse respondPartial(Req req, Track track, boolean lossless, Range range) {
 
         HttpResponse response =
             new DefaultHttpResponse(HTTP_1_1, range == null ? OK : PARTIAL_CONTENT);
 
         Chunk chunk = range == null
             ? allOf(length(track, lossless))
-            : chunk(range, length(track, lossless));
+            : chunk(range, length(track, lossless), !isVlc(req));
 
         response.headers()
-            .set(CONTENT_TYPE, lossless ? WebPath.AUDIO_FLAC : WebPath.AUDIO_AAC)
+            .set(CONTENT_TYPE, lossless ? Req.AUDIO_FLAC : Req.AUDIO_AAC)
             .set(ACCEPT_RANGES, BYTES)
             .set(CONTENT_RANGE, chunk.getRangeHeader())
             .set(CONTENT_LENGTH, chunk.getSize());
-        if (webPath.isKeepAlive()) {
+        if (req.isKeepAlive()) {
             response.headers().set(CONNECTION, KEEP_ALIVE);
         }
 
@@ -189,18 +185,23 @@ public abstract class Streamer extends NettyHandler {
         }
 
         try {
-            ChannelHandlerContext ctx = webPath.getCtx();
+            ChannelHandlerContext ctx = req.getCtx();
             ctx.write(response);
             ctx.write(content, ctx.newProgressivePromise()
-                .addListener(new ProgressListener(clock, webPath, track, range, chunk)));
+                .addListener(new ProgressListener(clock, req, track, range, chunk)));
             ChannelFuture lastContentFuture = ctx.writeAndFlush(EMPTY_LAST_CONTENT);
-            if (!webPath.isKeepAlive()) {
+            if (!req.isKeepAlive()) {
                 lastContentFuture.addListener(CLOSE);
             }
             return response;
         } finally {
-            webPath.getSession().streaming(chunk.getSize());
+            req.getSession().streaming(chunk.getSize());
         }
+    }
+
+    private static boolean isVlc(Req req) {
+
+        return req.header(USER_AGENT).startsWith("VLC");
     }
 
     private long length(Track track, boolean lossless) {

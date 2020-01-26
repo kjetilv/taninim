@@ -1,8 +1,10 @@
 package mediaserver.debug;
 
 import mediaserver.http.Handling;
-import mediaserver.http.WebPath;
+import mediaserver.http.Req;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
+import mediaserver.util.Print;
 
 @SuppressWarnings("unused")
 public final class Exchange {
@@ -21,22 +23,34 @@ public final class Exchange {
 
     private final String session;
 
+    private final String user;
+
+    private final String accessLevel;
+
+    private final String sessionShortId;
+
+    private static final String UNSESSION = "unsession";
+
+    private static final String UNKNOWN = "unknown";
+
     public Exchange(long sequenceNo, Handling handling) {
 
         this.sequenceNo = sequenceNo;
 
-        this.time = String.valueOf(handling.getWebPath().getTime());
+        this.time = String.valueOf(handling.getReq().getTime());
         this.handler = String.valueOf(handling.getHandler());
 
-        WebPath webPath = handling.getWebPath();
-        Session session = webPath.getSession();
-
-        this.session = session == null ? null : session.toString();
-        this.request = String.valueOf(webPath.getRequest());
+        Req req = handling.getReq();
+        Session session = req.getSession();
+        this.user = session == null ? UNKNOWN : session.getFbUser().getName();
+        this.session = session == null ? UNSESSION : this.user + '/' + Print.uuid(session.getCookie()) + ": " + session;
+        this.accessLevel = (session == null ? AccessLevel.NONE : session.getAccessLevel()).getDescription();
+        this.sessionShortId = session == null ? UNKNOWN : Print.uuid(session.getCookie());
+        this.request = String.valueOf(req.getRequest());
         this.response = String.valueOf(handling.getSentResponse());
         this.sessionStatus = session == null
             ? null
-            : session.toString() + " status: " + session.getCurrentStatus(webPath.getTime());
+            : session.toString() + " status: " + session.getCurrentStatus(req.getTime());
     }
 
     public String getTime() {
@@ -47,6 +61,21 @@ public final class Exchange {
     public String getHandler() {
 
         return handler;
+    }
+
+    public String getUser() {
+
+        return user;
+    }
+
+    public String getAccessLevel() {
+
+        return accessLevel;
+    }
+
+    public String getSessionShortId() {
+
+        return sessionShortId;
     }
 
     public String getSession() {

@@ -1,12 +1,14 @@
 // noinspection JSUnusedGlobalSymbols
 function fbLogin() {
+    // noinspection JSUnresolvedVariable
     FB.getLoginStatus(function (statusResponse) {
         if (statusResponse.status === 'connected') {
-            handleConnected(statusResponse.authResponse);
+            connected(statusResponse.authResponse)
         } else {
+            // noinspection JSUnresolvedVariable,JSUnresolvedFunction
             FB.login(function (loginResponse) {
                 if (loginResponse.status === 'connected') {
-                    handleConnected(loginResponse.authResponse);
+                    connected(loginResponse.authResponse)
                 } else {
                     alert("Login failed!")
                 }
@@ -15,12 +17,8 @@ function fbLogin() {
     });
 }
 
-async function handleConnected(authResponse) {
-    postData('/auth', authResponse).then(res => {
-        if (res.status === 200) {
-            window.location.href = '/'
-        }
-    })
+async function connected(authResponse) {
+    postData('/auth', authResponse).then(() => window.location.href = '/')
 }
 
 async function postData(url = '', data = {}) {

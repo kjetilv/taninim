@@ -4,7 +4,7 @@ import com.restfb.*;
 import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
 import mediaserver.externals.FacebookAuthResponse;
-import mediaserver.externals.FacebookUser;
+import mediaserver.externals.FbUser;
 import mediaserver.http.*;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Ids;
@@ -39,30 +39,30 @@ public final class FbAuth extends NettyHandler {
     }
 
     @Override
-    public Handling handleRequest(WebPath webPath) {
+    protected Handling handleRequest(Req req) {
 
-        return loginFacebookUser(webPath).flatMap(facebookUser -> {
-            AccessLevel accessLevel = ids.get().resolve(facebookUser);
+        return loginFacebookUser(req).flatMap(fbUser -> {
+            AccessLevel accessLevel = ids.get().resolve(fbUser);
             if (accessLevel.satisfies(AccessLevel.LOGIN)) {
-                UUID cookie = sessions.newSessionUUID(webPath, facebookUser, accessLevel);
+                UUID cookie = sessions.newSessionUUID(req, fbUser, accessLevel);
                 return Optional.of(
-                    respond(webPath, Netty.authCookieResponse(webPath, Netty.authCookie(cookie))));
+                    respond(req, Netty.authCookieResponse(req, Netty.authCookie(cookie))));
             }
-            log.warn("Unknown user {} attempted login with access level {}", facebookUser, accessLevel);
+            log.warn("Unknown user {} attempted login with access level {}", fbUser, accessLevel);
             return Optional.empty();
         }).orElseGet(() ->
-            handleBadRequest(webPath));
+            handleUnauthorized(req));
     }
 
-    private Optional<FacebookUser> loginFacebookUser(WebPath webPath) {
+    private Optional<FbUser> loginFacebookUser(Req req) {
 
-        return webPath.getContent().map(json -> {
+        return req.getContent().map(json -> {
             FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
             User facebookApiUser = lookup(authResponse);
-            FacebookUser facebookUser =
-                new FacebookUser(facebookApiUser.getName(), facebookApiUser.getId());
-            log.info("Facebook user logged in: {}", facebookUser);
-            return facebookUser;
+            FbUser fbUser =
+                new FbUser(facebookApiUser.getName(), facebookApiUser.getId());
+            log.info("Facebook user logged in: {}", fbUser);
+            return fbUser;
         });
     }
 

@@ -19,7 +19,7 @@ public final class Config {
     /**
      * Set to 0 to chunk according to requests.
      */
-    public static final int KILOS_PER_CHUNK = count("chunkKb", 1024);
+    public static final int MEGAS_PER_CHUNK = count("chunkMb", 2);
 
     public static final int LISTEN_GROUP = count("listenGroup", Runtime.getRuntime().availableProcessors());
 
@@ -32,6 +32,8 @@ public final class Config {
     public static final int KILOS_PER_SESSION = MEGAS_PER_SESSION * K;
 
     public static final int BYTES_PER_SESSION = KILOS_PER_SESSION * K;
+
+    public static final int KILOS_PER_CHUNK = MEGAS_PER_CHUNK * K;
 
     public static final int BYTES_PER_CHUNK = KILOS_PER_CHUNK * K;
 

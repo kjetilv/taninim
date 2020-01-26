@@ -1,6 +1,7 @@
 package mediaserver.gui;
 
 import mediaserver.http.*;
+import mediaserver.templates.Template;
 import mediaserver.toolkit.Templater;
 
 public abstract class TemplateEnabled extends NettyHandler {
@@ -32,8 +33,8 @@ public abstract class TemplateEnabled extends NettyHandler {
         return templater.template(albumPage);
     }
 
-    protected Handling respondHtml(WebPath webPath, Template template) {
+    protected Handling respondHtml(Req req, Template template) {
 
-        return respond(webPath, Netty.response(webPath, TEXT_HTML, template.bytes()));
+        return respond(req, Netty.response(req, TEXT_HTML, template.bytes()));
     }
 }

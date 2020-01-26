@@ -75,7 +75,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         Instant time = clock.instant();
         try {
 
-            getWebPath(ctx, request, time).ifPresentOrElse(
+            getReq(ctx, request, time).ifPresentOrElse(
                 path ->
                     handle(ctx, path),
                 () ->
@@ -113,36 +113,36 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private Optional<WebPath> getWebPath(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+    private Optional<Req> getReq(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
 
-        return WebPath.from(ctx, request, time).map(sessions::bind);
+        return Req.from(ctx, request, time).map(sessions::bind);
     }
 
-    private void handle(ChannelHandlerContext ctx, WebPath path) {
+    private void handle(ChannelHandlerContext ctx, Req req) {
 
-        if (path.isAllowed()) {
+        if (req.isAllowed()) {
 
-            handled(path).ifPresentOrElse(
+            handled(req).ifPresentOrElse(
                 this::logExchange,
                 () -> {
-                    log.info("Failed: {}", path);
+                    log.info("Failed: {}", req);
                     Netty.respond(ctx, BAD_REQUEST);
                 });
         } else {
 
-            handleUnauthorized(ctx, path);
+            handleUnauthorized(ctx, req);
         }
     }
 
-    private void handleUnauthorized(ChannelHandlerContext ctx, WebPath path) {
+    private void handleUnauthorized(ChannelHandlerContext ctx, Req req) {
 
-        if (loginAllowed(path)) {
+        if (loginAllowed(req)) {
 
-            log.info("Redirecteded: {}", path);
+            log.info("Redirecteded: {}", req);
             Netty.respond(ctx, Netty.redirectResponse(Page.LOGIN));
         } else {
 
-            log.info("Unauthorized: {}", path);
+            log.info("Unauthorized: {}", req);
             Netty.respond(ctx, UNAUTHORIZED);
         }
     }
@@ -153,18 +153,16 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         Netty.respond(ctx, BAD_REQUEST);
     }
 
-    private boolean loginAllowed(WebPath webPath) {
+    private boolean loginAllowed(Req req) {
 
-        return webPath.getPage() != Page.LOGIN && webPath.getPage().accessibleWith(AccessLevel.LOGIN);
+        return req.getPage() != Page.LOGIN && req.getPage().accessibleWith(AccessLevel.LOGIN);
     }
 
-    private Optional<Handling> handled(WebPath webPath) {
+    private Optional<Handling> handled(Req req) {
 
         return handlers.stream()
-            .filter(handler ->
-                handler.matches(webPath))
-            .map(handler ->
-                handler.handleRequest(webPath))
+            .flatMap(handler ->
+                handler.handledRequest(req).stream())
             .filter(
                 Handling::isHandled)
             .findFirst();

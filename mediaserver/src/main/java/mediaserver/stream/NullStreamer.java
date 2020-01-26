@@ -1,4 +1,4 @@
-package mediaserver.gui;
+package mediaserver.stream;
 
 import mediaserver.media.Track;
 import mediaserver.toolkit.Chunk;

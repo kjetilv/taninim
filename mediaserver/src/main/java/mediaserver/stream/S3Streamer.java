@@ -1,4 +1,4 @@
-package mediaserver.gui;
+package mediaserver.stream;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

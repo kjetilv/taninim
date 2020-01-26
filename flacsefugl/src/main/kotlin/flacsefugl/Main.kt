@@ -1,7 +1,7 @@
 package flacsefugl
 
-import mediaserver.gui.Template
-import mediaserver.http.QPar
+import mediaserver.templates.Template
+import mediaserver.templates.TPar
 import mediaserver.media.Media
 import mediaserver.media.PlaylistM3U
 import mediaserver.media.PlaylistYaml
@@ -118,7 +118,7 @@ fun main() {
                         Optional.ofNullable(mover.target(track))
                     }
             val template = Template(playlist.name, source)
-            val bytes = template.add(QPar.PLAYLIST, playlistM3U).bytes()
+            val bytes = template.add(TPar.PLAYLIST, playlistM3U).bytes()
             val replacedName =
                     playlist.name.replace('/', ' ') + ".M3U8"
             val target = musicDir.resolve(replacedName)
