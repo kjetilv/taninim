@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Year;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -31,6 +32,8 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     private final Collection<Playlist> playlists;
 
     private final Collection<Playlist> curations;
+
+    private final Map<UUID, Boolean> curatedTracks = new ConcurrentHashMap<>();
 
     private static final long serialVersionUID = -7165763549356996140L;
 
@@ -135,6 +138,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     @Override
     public Year getEndYear() {
+
         return albumStream(true)
             .map(album -> album.getContext().getYear())
             .filter(Objects::nonNull)
@@ -207,7 +211,9 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     @Override
     public boolean isCurated(Track track) {
 
-        return getCurations().stream().anyMatch(curation -> curation.contains(track));
+        return curatedTracks.computeIfAbsent(
+            track.getUuid(),
+            uuid -> getCurations().stream().anyMatch(curation -> curation.contains(track)));
     }
 
     @Override

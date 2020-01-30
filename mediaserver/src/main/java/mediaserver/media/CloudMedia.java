@@ -143,8 +143,8 @@ public final class CloudMedia {
     public static boolean updatedFromRemote(String name) {
 
         return S3Connector.get().map(s3 -> {
-            Sourced<String> localResource = IO.read(name);
-            if (localResource.source() == Sourced.Type.SOURCES) {
+            Sourced<String> localResource = IO.readUTF8(name);
+            if (localResource.sourceType() == Sourced.Type.SOURCES) {
                 Path localPath = localPath(localResource);
                 Instant lastModifiedTimeLocal = lastModifiedLocal(localPath);
                 Optional<Instant> remoteUpdate = s3.lastModifiedRemote(name)

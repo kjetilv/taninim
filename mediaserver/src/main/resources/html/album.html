@@ -51,14 +51,12 @@
             Data brukt: {user.mbStreamed}/{user.mbQuota}. Tilgangsniv&aring;: {user.prettyAccessLevel}
         </SMALL>
     </P>
-    <HR>
 </DIV>
 
-<DIV STYLE="padding-top: 10px">
-    <DIV STYLE="float: right">
+<DIV STYLE="float:left">
+    <DIV STYLE="float: right; padding: 1% 1% 1% 3%;">
         {if(album.series)}
-        <H3>I serie</H3>
-
+        <H4>I serie</H4>
         <UL>
             {album.series:{series|
             <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
@@ -66,7 +64,7 @@
         </UL>
         {endif}
         {if(playlists)}
-        <H3>I spilleliste</H3>
+        <H4>I spilleliste</H4>
         <UL>
             {playlists:{playlist|
             <LI><A HREF="/?playlist={playlist.uuid}">{playlist.name}</A></LI>
@@ -74,7 +72,7 @@
         </UL>
         {endif}
         {if(curations)}
-        <H3>I kuratert spilleliste</H3>
+        <H4>I kuratert spilleliste</H4>
         <UL>
             {curations:{curation|
             <LI><A HREF="/?curation={curation.uuid}">{curation.name}</A></LI>
@@ -82,130 +80,152 @@
         </UL>
         {endif}
     </DIV>
-
-    {if(album.context.discogCover)}
-    <DIV STYLE="float: left; padding-right: 20px">
-        <A HREF="{album.context.discogPage}"><IMG SRC="{album.context.discogCover}"></A>
-    </DIV>
-    {endif}
-
-    <H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
-
-    <H3>{album.artist.name}: <EM>{album.name}</EM>
-        {if(user.streamingPlaylists)}
-        <A HREF="/playlist/album/{album.uuid}">⏬</A>
-        {endif}
-    </H3>
-
     <DIV>
-        <P>
-            Spilletid {album.prettyDuration}{if(album.context.year)}. Kom i {album.context.year.value}.{endif}
-        </P>
-    </DIV>
+        {if(album.context.discogCover)}
+        <DIV STYLE="float: left; padding-right: 20px">
+            <A TARGET="_blank" HREF="{album.context.discogPage}"><IMG SRC="{album.context.discogCover}"></A>
+        </DIV>
+        {endif}
 
-    {if(playTrack)}
-    <DIV STYLE="clear: both">
-        <P><SMALL>{playTrack.prettyTrackNo}:</SMALL> <STRONG>{playTrack.name}</STRONG>
-            <SMALL>from</SMALL> <EM>{playTrack.album}</EM>
-            <SMALL>by</SMALL> <EM>{playTrack.artist.name}
-                <SMALL>
-                    ({playTrack.prettyDuration} [{playTrack.prettyCompressedSize}/{playTrack.prettySize})
-                </SMALL>
-            </EM>
-        </P>
+        <H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
 
-        <!--suppress HtmlUnknownAttribute -->
-        <AUDIO id="player" preload="none" controls src="/audio/{playTrack.uuid}.m4a" data-plyr-config=
-                '\{ "duration": {playTrack.seconds}, "autoplay": {if(autoplay)}true{else}false}{endif} }'>
-        </AUDIO>
+        <H3><A HREF="?artist={album.artist.uuid}">{album.artist.name}</A>: <EM>{album.name}</EM>
+            {if(user.streamingPlaylists)}
+            <A HREF="/playlist/album/{album.uuid}"><SMALL>⏬</SMALL></A>
+            {endif}
+        </H3>
 
-        <DIV STYLE="float: right">
-            {if(nextTrack)}
-            <A ID='play-next' HREF="?artist={album.artist.uuid}&album={album.uuid}&track={nextTrack.uuid}&autoplay={nextTrack.uuid}"></A>
-            <SMALL>
-                <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={nextTrack.uuid}">
-                    &nbsp;⏩&nbsp;{nextTrack.prettyTrackNo}: {nextTrack.name}</A>
-            </SMALL>
+        <DIV>
+            <DIV>
+                <P>
+                    Spilletid {album.prettyDuration}{if(album.context.year)}. Kom i {album.context.year.value}.{endif}
+                </P>
+            </DIV>
+            {if(selected)}
             {endif}
         </DIV>
-        {if(previousTrack)}
-        <SMALL>
-            <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={previousTrack.uuid}">
-                {previousTrack.prettyTrackNo}: {previousTrack.name}&nbsp;⏪&nbsp;</A>
-        </SMALL>
-        {endif}
 
-        {if(plyr)}
-        <SCRIPT src="/res/plyr.js"></SCRIPT>
-        <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
-        {endif}
-    </DIV>
-    {endif}
-
-    <DIV STYLE="width: 95%; clear: both">
-        <H3>Spor</H3>
-    </DIV>
-
-    <DIV STYLE="width: 95%; float: right; clear: both">
-
-        {album.albumParts:{albumPart |
-        <P>{if(albumPart.part)}Plate {albumPart.part}:{endif}</P>
-
-        {albumPart.tracks:{track |
-        {track.trackNo}
-        {if(user.streaming)}
-        <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">
-            <SMALL>&nbsp;▶&nbsp;</SMALL>{track.name}
-            <EM>
-                <SMALL>
-                    /{track.prettyDuration} [{track.prettyCompressedSize}/{track.prettySize}]
-                </SMALL>
-            </EM>
-        </A>
-        {else}
-        {track.name}
-        <EM>
-            <SMALL>
-                /{track.prettyDuration}
-            </SMALL>
-        </EM>
-        {endif}
-        {if(track.otherArtists)}
-        <UL>
-            {track.otherArtists:{otherArtist|
-            <LI>
-                [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
-                {if(user.streamingPlaylists)}
-                <A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
-                {endif}
-                ]
-            </LI>
-            }}
-        </UL>
-        {endif}
-        <BR>
-        }}
-        }}
-
-        {if(curations)}
         <DIV STYLE="clear: both">
-            <H3>Kuraterte spor</H3>
-            {curations:{curation|
-            {curation.tracks:{track|
-            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={track.uuid}">
-                <SMALL>&nbsp;▶&nbsp;</SMALL>{track.name}
-            </A>
-            <BR>
-            }}
-            }}
-        </DIV>
-        {endif}
-        <P>
-    </DIV>
+            {if(selected)}
+            <DIV STYLE="float: inside; text-align: center; padding:10px">
+                {selected.track.prettyTrackNo}:&nbsp;<STRONG>{selected.track.name}</STRONG>
+                <SMALL>
+                    <EM>{selected.track.prettyDuration}&nbsp;[{selected.track.prettyCompressedSize}]</EM>
+                </SMALL>
+            </DIV>
 
-    <DIV STYLE="clear: both">
+            <!--suppress HtmlUnknownAttribute -->
+            <AUDIO id="player" preload="none" controls src="/audio/{selected.track.uuid}.m4a"
+                   data-plyr-config='\{ "duration": {selected.track.seconds}, "autoplay": {if(selected.autoplay)}true{else}false}{endif} }'>
+            </AUDIO>
+
+            <DIV STYLE="float: right; text-align: end; width: 30%">
+                {if(selected.next)}
+                <A ID='play-next'
+                   HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}"></A>
+                <SMALL>
+                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}">
+                        {selected.next.prettyTrackNo}:&nbsp;{selected.next.name}&nbsp;⏩&nbsp;</A>
+                </SMALL>
+                {endif}
+            </DIV>
+
+            {if(selected.previous)}
+            <DIV STYLE="float:left; text-align: start; width: 30%">
+                <SMALL>
+                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.previous.uuid}">
+                        &nbsp;⏪&nbsp;{selected.previous.prettyTrackNo}:&nbsp;{selected.previous.name}</A>
+                </SMALL>
+            </DIV>
+            {endif}
+
+            {if(plyr)}
+            <SCRIPT src="/res/plyr.js"></SCRIPT>
+            <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
+            {endif}
+            {endif}
+        </DIV>
+
+        <DIV STYLE="padding-top: 1%; padding-left: 1%; clear: left">
+            {playableGroups:{playableGroup|
+            <DIV STYLE="padding-top: 2%">
+                <H4>{if(playableGroup.name)}Plate {playableGroup.name}:{endif}</H4>
+            </DIV>
+            {playableGroup.playables:{playable |
+            <!--suppress HtmlUnknownAttribute -->
+            <DIV STYLE="padding: 0.1%; clear: left" {if(playable.playable)}CLASS="playable-track" {endif}>
+                {if(playable.playable)}
+                <A href="?artist={album.artist.uuid}&album={album.uuid}&track={playable.track.uuid}">
+                    <DIV STYLE="float: left; width:10%; text-align: end; padding-right: 1%">
+                        <EM>{playable.track.prettyTrackNo}.</EM>
+                    </DIV>
+                    <DIV STYLE="width:5%; float: left">
+                        <SMALL>▶️</SMALL>
+                    </DIV>
+                    <DIV STYLE="width:30%; float: left">
+                        {playable.track.name}
+                    </DIV>
+                    <DIV STYLE="width:10%; float: right">
+                        <EM>
+                            <SMALL>
+                                {playable.track.prettyDuration}&nbsp;[{playable.track.prettyCompressedSize}]
+                            </SMALL>
+                        </EM>
+                    </DIV>
+                </A>
+                {else}
+                <DIV STYLE="float: left; width:10%; text-align: end; padding-right: 1%">
+                    <EM>{playable.track.prettyTrackNo}.</EM>
+                </DIV>
+                <DIV STYLE="width:30%; float: left">
+                    {playable.track.name}
+                </DIV>
+                <DIV STYLE="width:10%; float: right">
+                    <EM>
+                        <SMALL>
+                            {playable.track.prettyDuration}&nbsp;[{playable.track.prettyCompressedSize}]
+                        </SMALL>
+                    </EM>
+                </DIV>
+                {endif}
+                {if(playable.track.otherArtists)}
+                <UL>
+                    {playable.track.otherArtists:{otherArtist|
+                    <LI>
+                        [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
+                        {if(user.streamingPlaylists)}
+                        <A HREF="/playlist/artist/{otherArtist.uuid}"><SMALL>⏬</SMALL></A>
+                        {endif}
+                        ]
+                    </LI>
+                    }}
+                </UL>
+                {endif}
+            </DIV>
+            }}
+            }}
+            <P>
+        </DIV>
+    </DIV>
+    <DIV STYLE="clear: both; padding-top: 2%">
         <HR>
+    </DIV>
+    <DIV STYLE="">
         {if(album.context.credits.credits)}
+        <DIV STYLE="float: left">
+            <H3>Utøvere</H3>
+            <UL>
+                {album.context.credits.artistCredits:{credit |
+                <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
+                    [ <A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
+                    {if(user.streamingPlaylists)}
+                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}"><SMALL>⏬</SMALL></A>
+                    {endif}
+                    ]
+                </LI>
+                }}
+            </UL>
+        </DIV>
         <DIV STYLE="float: right">
             <H3>Andre involverte</H3>
 
@@ -215,21 +235,7 @@
                 }}
             </UL>
         </DIV>
-        <DIV>
-            <H3>Utøvere</H3>
 
-            <UL>
-                {album.context.credits.artistCredits:{credit |
-                <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
-                    [ <A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
-                    {if(user.streamingPlaylists)}
-                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
-                    {endif}
-                    ]
-                </LI>
-                }}
-            </UL>
-        </DIV>
         {endif}
     </DIV>
 
@@ -240,20 +246,23 @@
 
         {album.context.trackGroups:{trackGroup |
         <H4>{trackGroup.name}</H4>
-        {trackGroup.trackContexts:{trackContext |
         <UL>
+            {trackGroup.trackContexts:{trackContext |
             <LI>{trackContext.prettyTrackNo} {trackContext.title}
+                {if(trackContext.credits.artistCredits)}
                 <UL>
                     {trackContext.credits.artistCredits:{credit |
                     <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
                         [<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
                         {if(user.streamingPlaylists)}
-                        <A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
+                        <A HREF="/playlist/artist/{credit.artist.uuid}"><SMALL>⏬</SMALL></A>
                         {endif}
                         ]
                     </LI>
                     }}
                 </UL>
+                {endif}
+                {if(trackContext.credits.otherCredits)}
                 <UL>
                     {trackContext.credits.otherCredits:{credit |
                     <LI>
@@ -261,9 +270,10 @@
                     </LI>
                     }}
                 </UL>
+                {endif}
             </LI>
+            }}
         </UL>
-        }}
         }}
         {endif}
     </DIV>
@@ -275,7 +285,7 @@
         {album.artists:{artist|[
         <A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;
         {if(user.streamingPlaylists)}
-        <A HREF="/playlist/artist/{artist.uuid}">⏬</A>
+        <A HREF="/playlist/artist/{artist.uuid}"><SMALL>⏬</SMALL></A>
         {endif}
         ]
         }}
@@ -291,7 +301,7 @@
         {endif}
 
         {if(album.context.discogPage)}
-        <P>@ <A HREF="{album.context.discogPage}">Discogs</A></P>
+        <P>@ <A TARGET="_blank" HREF="{album.context.discogPage}">Discogs</A></P>
         {endif}
     </DIV>
 
@@ -301,8 +311,10 @@
     <A HREF="res/privacy.txt">Privacy stuff</A> <A HREF="res/terms.txt">Terms of disservice</A>
 </DIV>
 
-{if(nextTrack)}
+{if(selected)}
+{if(selected.next)}
 <SCRIPT src="/res/autonext.js"></SCRIPT>
+{endif}
 {endif}
 
 </BODY>

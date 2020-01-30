@@ -1,20 +1,19 @@
 body {
     background: #f7fafb;
-    color: #1a351a;
 }
 
-a {
-    color: #223529;
+a:link {
+    color: #22322A;
     text-decoration: none;
 }
 
 a:visited {
-    background-color: lightgrey;
+    color: #4e624c;
 }
 
-a:hover, a:active {
-    background-color: #d7ffe8;
+a:hover {
     color: #418141;
+    background-color: #d2f0e5;
 }
 
 hr {
@@ -40,4 +39,8 @@ h4 {
 
 h5 {
     color: #004000;
+}
+
+.playable-track:hover {
+    background-color: #d2f0e5;
 }

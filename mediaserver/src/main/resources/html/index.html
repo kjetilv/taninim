@@ -51,7 +51,6 @@
             Data brukt: {user.mbStreamed}/{user.mbQuota}. Tilgangsniv&aring;: {user.prettyAccessLevel}
         </SMALL>
     </P>
-    <HR>
 </DIV>
 
 <DIV STYLE="clear:both">
@@ -91,7 +90,7 @@
     {if(artist)}
     <P>Artist: <STRONG>{artist.name}
         {if(user.streamingPlaylists)}
-        <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}">⏬</A>
+        <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}"><SMALL>⏬</SMALL></A>
         {endif}
     </STRONG></P>
     {endif}
@@ -99,7 +98,7 @@
     {if(series)}
     <P>Serie: <STRONG>{series.name}
         {if(user.streamingPlaylists)}
-        <A TITLE="M3U" HREF="/playlist/series/{series.uuid}">⏬</A>
+        <A TITLE="M3U" HREF="/playlist/series/{series.uuid}"><SMALL>⏬</SMALL></A>
         {endif}
     </STRONG>
     </P>
@@ -109,7 +108,7 @@
     <P>Spilleliste:
         <STRONG>{playlist.name}
             {if(user.streamingPlaylists)}
-            <A TITLE="M3U" HREF="/playlist/{playlist.uuid}">⏬</A>
+            <A TITLE="M3U" HREF="/playlist/{playlist.uuid}"><SMALL>⏬</SMALL></A>
             {endif}
         </STRONG>
     </P>
@@ -120,7 +119,7 @@
     <P>Kuratert spilleliste:
         <STRONG>{curation.name}
             {if(user.streamingPlaylists)}
-            <A TITLE="M3U" HREF="/curation/{curation.uuid}">⏬</A>
+            <A TITLE="M3U" HREF="/curation/{curation.uuid}"><SMALL>⏬</SMALL></A>
             {endif}
         </STRONG>
     </P>
@@ -137,7 +136,7 @@
         {media.albums:{album|
         <LI>
             {if(user.streamingPlaylists)}
-            <A TITLE="M3U" HREF="/playlist/album/{album.uuid}">⏬</A>
+            <A TITLE="M3U" HREF="/playlist/album/{album.uuid}"><SMALL>⏬</SMALL></A>
             {endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
         </LI>

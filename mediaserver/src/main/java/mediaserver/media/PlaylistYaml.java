@@ -53,7 +53,7 @@ public final class PlaylistYaml {
 
     public static Collection<PlaylistYaml> categories(String resource) {
 
-        return IO.read(resource)
+        return IO.readUTF8(resource)
             .unpack(value ->
                 customCategories(null, readMap(resource, value))
                     .collect(Collectors.toList()))

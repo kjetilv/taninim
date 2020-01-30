@@ -46,7 +46,7 @@ public final class Main {
 
     public static final Clock CLOCK = Clock.system(TIMEZONE);
 
-    public static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::read);
+    public static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::readUTF8);
 
     public static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
 

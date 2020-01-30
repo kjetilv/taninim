@@ -3,7 +3,6 @@ package mediaserver.gui;
 import mediaserver.Config;
 import mediaserver.http.*;
 import mediaserver.media.*;
-import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 import mediaserver.stream.Streamer;
 import mediaserver.templates.TPar;
@@ -17,6 +16,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static mediaserver.sessions.AccessLevel.STREAM;
+import static mediaserver.sessions.AccessLevel.STREAM_CURATED;
 
 public final class GUI extends TemplateEnabled {
 
@@ -78,36 +80,63 @@ public final class GUI extends TemplateEnabled {
 
         return pars.get(QPar.ALBUM)
             .flatMap(media::getAlbum)
-            .map(album -> {
-
-                Collection<Track> tracks = playTracks(media, req, album);
-
-                Optional<Track> track = track(media, req, pars, QPar.TRACK);
-                Optional<Track> autoplay = track(media, req, pars, QPar.AUTOPLAY);
-                Optional<Track> previousTrack = track.flatMap(t -> previousTrack(t, tracks));
-                Optional<Track> nextTrack = track.flatMap(t -> nextTrack(t, tracks));
-
-
-                Template template = base(getTemplate(ALBUM_PAGE), req, media)
-                    .add(TPar.ALBUM, album)
-                    .add(TPar.PLAYLISTS, Playlist.playlistsWith(album))
-                    .add(TPar.PREVIOUS_TRACK, previousTrack.orElse(null))
-                    .add(TPar.PLAY_TRACK, track.orElse(null))
-                    .add(TPar.AUTOPLAY, track.equals(autoplay))
-                    .add(TPar.NEXT_TRACK, nextTrack.orElse(null))
-                    .add(TPar.PLAY_TRACKS, tracks);
-
-                return isCuratedAccessOnly(req.getSession())
-                    ? template.add(TPar.CURATIONS, Playlist.curationsWith(album))
-                    : template;
-            })
+            .map(album ->
+                albumTemplate(media, req, pars, album))
             .or(() -> {
-
                 log.warn("Was asked for {}", pars.get(QPar.ALBUM)
                     .map(unknown -> "unknown album " + unknown)
                     .orElse("unspecified album"));
                 return indexTemplate(req, media, pars);
             });
+    }
+
+    private Template albumTemplate(Media media, Req req, QPars pars, Album album) {
+
+        Optional<Selected> selectedTrack = track(media, req, pars, QPar.TRACK)
+            .flatMap(track ->
+                selected(media, req, pars, album, track));
+        return base(getTemplate(ALBUM_PAGE), req, media)
+            .add(TPar.ALBUM, album)
+            .add(TPar.SELECTED, selectedTrack)
+            .add(TPar.PLAYABLE_GROUPS, playableGroups(media, req, album))
+            .add(TPar.PLAYLISTS, Playlist.playlistsWith(album))
+            .add(TPar.CURATIONS, Playlist.curationsWith(album));
+    }
+
+    private Optional<Selected> selected(Media media, Req req, QPars pars, Album album, Track track) {
+
+        return Optional.ofNullable(req.getSession())
+            .filter(session ->
+                streamable(media, track, session))
+            .map(session ->
+                new Selected(
+                    track,
+                    autoplay(media, req, pars, track),
+                    previousTrack(track, album.getTracks()).orElse(null),
+                    nextTrack(track, album.getTracks()).orElse(null)));
+    }
+
+    private boolean streamable(Media media, Track track, Session session) {
+
+        return session.hasLevel(STREAM) || session.hasLevel(STREAM_CURATED) && media.isCurated(track);
+    }
+
+    private boolean autoplay(Media media, Req req, QPars pars, Track track) {
+
+        return track(media, req, pars, QPar.AUTOPLAY).filter(track::equals).isPresent();
+    }
+
+    private Collection<PlayableGroup> playableGroups(Media media, Req req, Album album) {
+
+        return album.getTracksByPart().entrySet().stream()
+            .map(e ->
+                new PlayableGroup(
+                    e.getKey(),
+                    e.getValue().stream()
+                        .map(t ->
+                            new Playable(t, streamable(media, t, req.getSession())))
+                        .collect(Collectors.toList())))
+            .collect(Collectors.toList());
     }
 
     private Optional<Track> track(Media media, Req req, QPars pars, QPar track1) {
@@ -182,18 +211,6 @@ public final class GUI extends TemplateEnabled {
     private Comparator<Track> trackNo() {
 
         return Comparator.comparing(Track::getTrackNo);
-    }
-
-    private Collection<Track> playTracks(Media media, Req req, Album album) {
-
-        return album.getTracks().stream()
-            .filter(Streamer.authorized(media, req))
-            .collect(Collectors.toList());
-    }
-
-    private boolean isCuratedAccessOnly(Session session) {
-
-        return session.hasLevel(AccessLevel.STREAM_CURATED) && !session.hasLevel(AccessLevel.STREAM);
     }
 
     private Template base(Template template, Req req, Media media) {

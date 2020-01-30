@@ -15,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class Template {
@@ -45,6 +46,12 @@ public final class Template {
     public byte[] bytes() {
 
         return this.bytes.get();
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public Template add(TPar param, Optional<?> value) {
+
+        return value.map(val -> add(param, val)).orElse(this);
     }
 
     public Template add(TPar param, Object value) {

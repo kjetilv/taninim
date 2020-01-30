@@ -23,15 +23,11 @@ public enum TPar {
 
     SERIES,
 
-    PLAY_TRACK("playTrack"),
+    SELECTED,
+
+    PLAYABLE_GROUPS("playableGroups"),
 
     AUTOPLAY,
-
-    NEXT_TRACK("nextTrack"),
-
-    PREVIOUS_TRACK("previousTrack"),
-
-    PLAY_TRACKS("playTracks"),
 
     USER,
 

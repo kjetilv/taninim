@@ -60,8 +60,12 @@ public abstract class Streamer extends NettyHandler {
 
     public static Predicate<Track> authorized(Media media, Req req) {
 
-        return track ->
-            authorized(req, track, () -> media);
+        return track -> authorized(media, req, track);
+    }
+
+    public static boolean authorized(Media media, Req req, Track track) {
+
+        return authorized(req, track, () -> media);
     }
 
     @Override

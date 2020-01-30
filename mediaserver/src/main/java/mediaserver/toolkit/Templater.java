@@ -19,6 +19,7 @@ public final class Templater {
         return cache.get(resource)
             .map(source ->
                 new Template(resource, source))
+            .unpack()
             .orElseThrow(() ->
                 new IllegalArgumentException("No such template resource: " + resource));
     }

@@ -31,7 +31,7 @@ public final class Sessions {
     private final boolean devLogin;
 
     private final Function<Req, Session> devSession = MostlyOnce.compute(req -> {
-        Session session = newSession(req, DEV_USER, AccessLevel.ADMIN);
+        Session session = newSession(req, DEV_USER, AccessLevel.STREAM_CURATED);
         log.warn("Established dev session: {}", session);
         return session;
     });
@@ -52,11 +52,10 @@ public final class Sessions {
     public UUID newSessionUUID(Req req, FbUser fbUser, AccessLevel accessLevel) {
 
         Session newSession = newSession(req, fbUser, accessLevel);
-        ejectedSessions(fbUser, newSession).forEach(
-            ejectedSession -> {
-                log.info("Ejected {} session for {}: {}",
-                    valid(req, ejectedSession) ? "live" : "expired", fbUser, ejectedSession);
-            });
+        ejectedSessions(fbUser, newSession).forEach(ejectedSession -> {
+            log.info("Ejected {} session for: {}",
+                valid(req, ejectedSession) ? "live" : "expired", ejectedSession);
+        });
         log.info("Session created for {}: {}", fbUser, newSession);
         return newSession.getCookie();
     }

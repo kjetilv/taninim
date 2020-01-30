@@ -53,11 +53,11 @@ public abstract class NettyHandler {
     protected final Handling handle(
         Req req,
         byte[] bytes,
-        Headers moreHeaders
+        Headers cacheable
     ) {
 
         try {
-            return respond(req, Netty.response(req, bytes, moreHeaders));
+            return respond(req, Netty.response(req, bytes, cacheable));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + req, e);
         }

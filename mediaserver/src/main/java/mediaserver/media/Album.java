@@ -21,8 +21,6 @@ public final class Album extends AbstractHashable
 
     private final Integer parts;
 
-    private final Integer part;
-
     private final List<Track> tracks;
 
     private final CategoryPath categoryPath;
@@ -53,7 +51,6 @@ public final class Album extends AbstractHashable
             artist,
             name.replaceAll("_", ":"),
             parts(tracks),
-            null,
             tracks,
             categoryPath,
             context);
@@ -63,7 +60,6 @@ public final class Album extends AbstractHashable
         Artist artist,
         String name,
         Integer parts,
-        Integer part,
         List<Track> tracks,
         CategoryPath categoryPath,
         AlbumContext context
@@ -73,7 +69,6 @@ public final class Album extends AbstractHashable
         this.context = context == null ? new AlbumContext(this) : context;
         this.name = single(Track::getAlbum, tracks).orElse(name);
         this.parts = parts;
-        this.part = part == null ? null : part + 1;
         this.tracks =
             Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
         this.categoryPath = categoryPath;
@@ -85,25 +80,29 @@ public final class Album extends AbstractHashable
     }
 
     @SuppressWarnings("unused") // StringTemplate
-    public List<Album> getAlbumParts() {
+    public Map<String, Collection<Track>> getTracksByPart() {
 
-        if (parts == null) {
-            return Collections.singletonList(this);
+        List<Integer> parts = tracks.stream()
+            .map(Track::getPart)
+            .filter(Objects::nonNull)
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+        if (parts.isEmpty()) {
+            return Map.of("", tracks);
         }
-        return IntStream.range(0, parts).mapToObj(part ->
-            new Album(
-                artist,
-                name,
-                parts,
-                part,
-                tracks.stream()
-                    .filter(track ->
-                        track.getPart() == part + 1)
-                    .sorted()
-                    .collect(Collectors.toList()),
-                categoryPath,
-                context
-            )).collect(Collectors.toList());
+
+        return parts.stream().collect(Collectors.toMap(
+            part ->
+                part < 0 ? "" : String.valueOf(part),
+            part ->
+                tracks.stream().filter(track ->
+                    part.equals(track.getPart())).collect(Collectors.toList()),
+            (o1, o2) -> {
+                throw new IllegalStateException("Failed combine: " + o1 + " / " + o2);
+            },
+            LinkedHashMap::new
+        ));
     }
 
     public Duration getDuration() {
@@ -161,11 +160,6 @@ public final class Album extends AbstractHashable
     public Integer getParts() {
 
         return parts;
-    }
-
-    public Integer getPart() {
-
-        return part;
     }
 
     public List<Track> getTracks() {
@@ -226,7 +220,6 @@ public final class Album extends AbstractHashable
             artist,
             name,
             parts,
-            part,
             tracks,
             categoryPath,
             albumContext);

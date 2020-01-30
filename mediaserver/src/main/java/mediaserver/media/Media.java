@@ -70,11 +70,7 @@ public interface Media {
 
     Optional<Playlist> getCuration(UUID uuid);
 
-    default boolean isCurated(Track track) {
-
-        return getCurations().stream().anyMatch(playlist ->
-            playlist.contains(track));
-    }
+    boolean isCurated(Track track);
 
     Duration getDuration();
 

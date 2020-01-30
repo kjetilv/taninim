@@ -57,7 +57,7 @@ public final class IO {
 
     public static ACL readLocalACL(String resource) {
 
-        return read(resource)
+        return readUTF8(resource)
             .unpack(res ->
                 read(ACL.class, resource, res))
             .orElseThrow(() ->
@@ -73,7 +73,7 @@ public final class IO {
         }
     }
 
-    public static Sourced<String> read(String resource) {
+    public static Sourced<String> readUTF8(String resource) {
 
         return readBytes(resource)
             .map(bytes ->

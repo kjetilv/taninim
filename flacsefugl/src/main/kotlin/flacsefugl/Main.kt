@@ -108,7 +108,7 @@ fun main() {
     println("Media: $media")
 
     if (Files.isDirectory(walkmanConnectDir)) {
-        val source = IO.read("playlist.m3u8").unpack().orElseThrow { ->
+        val source = IO.readUTF8("playlist.m3u8").unpack().orElseThrow { ->
             IllegalStateException("No source @ playlist.m3u8")
         }
         media.playlists.forEach { playlist ->

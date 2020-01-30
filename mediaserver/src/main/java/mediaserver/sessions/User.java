@@ -68,7 +68,7 @@ public class User extends AbstractHashable {
 
     public String getPrettyAccessLevel() {
 
-        return session.getAccessLevel().name().toLowerCase().replace('-', ' ');
+        return session.getAccessLevel().getDescription();
     }
 
     public String getId() {

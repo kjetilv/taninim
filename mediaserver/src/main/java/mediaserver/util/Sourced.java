@@ -8,14 +8,16 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static mediaserver.util.Sourced.Type.JAR;
 import static mediaserver.util.Sourced.Type.SOURCES;
 
 public final class Sourced<T> {
 
-    private final Type source;
+    private final Type type;
 
     private final T object;
 
@@ -25,9 +27,9 @@ public final class Sourced<T> {
 
     private static final String SRC_MAIN = "src/main";
 
-    private Sourced(Type source, T object, URL url) {
+    private Sourced(Type type, T object, URL url) {
 
-        this.source = Objects.requireNonNull(source, "source");
+        this.type = Objects.requireNonNull(type, "source");
         this.object = object;
         this.url = url;
     }
@@ -43,21 +45,33 @@ public final class Sourced<T> {
     }
 
     public <R> Sourced<R> map(Function<T, R> trans) {
+        return map((type1, t) -> trans.apply(t));
+    }
 
-        return new Sourced<>(source, object == null ? null : trans.apply(object), url);
+    public <R> Sourced<R> map(BiFunction<Type, T, R> trans) {
+
+        return new Sourced<>(type, object == null ? null : trans.apply(type, object), url);
+    }
+
+    public Sourced<T> sourcesRefreshed(Supplier<T> supplier) {
+
+        if (this.type == SOURCES) {
+            return Sourced.from(SOURCES, supplier.get(), url);
+        }
+        return this;
     }
 
     public <R> Optional<R> unpackTyped(Type type, Function<T, R> action) {
 
-        if (type == this.source) {
-            return Optional.ofNullable(source == null ? null : action.apply(object));
+        if (type == this.type) {
+            return Optional.ofNullable(this.type == null ? null : action.apply(object));
         }
         return Optional.empty();
     }
 
-    public Type source() {
+    public Type sourceType() {
 
-        return source;
+        return type;
     }
 
     public URL getUrl() {
@@ -135,6 +149,6 @@ public final class Sourced<T> {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + source + ": " + url + "]";
+        return getClass().getSimpleName() + "[" + type + ": " + url + "]";
     }
 }

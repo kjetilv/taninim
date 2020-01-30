@@ -17,17 +17,17 @@ public enum AccessLevel {
     ADMIN;
 
     public boolean satisfies(AccessLevel level) {
+
         return ordinal() >= Objects.requireNonNull(level, "level").ordinal();
     }
 
     public String getDescription() {
+
         return name().toLowerCase().replace('_', ' ');
     }
 
     public static AccessLevel get(String accessLevel) {
 
-        return valueOf(accessLevel
-            .toUpperCase()
-            .replaceAll("\\s+", "_"));
+        return valueOf(accessLevel.toUpperCase().replaceAll("\\s+", "_"));
     }
 }

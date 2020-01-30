@@ -3,13 +3,13 @@ package mediaserver.http;
 import mediaserver.util.Sourced;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-import static mediaserver.util.Sourced.Type.SOURCES;
-
 public final class WebCache<K, V> {
+
+    private final Map<K, Sourced.Type> cachedSourceTypes = new ConcurrentHashMap<>();
 
     private final Map<K, Sourced<V>> cache = new ConcurrentHashMap<>();
 
@@ -20,14 +20,19 @@ public final class WebCache<K, V> {
         this.loader = loader;
     }
 
-    public Optional<V> get(K key) {
+    public Sourced<V> get(K key) {
 
-        Sourced<V> cached = cache.computeIfAbsent(key, loader);
-        return cached
-            .unpackTyped(
-                SOURCES,
-                obj ->
-                    loader.apply(key).unpack())
-            .orElseGet(cached::unpack);
+        AtomicBoolean wasLoaded = new AtomicBoolean();
+        Sourced.Type type = cachedSourceTypes.computeIfAbsent(key, __ ->
+            cache.computeIfAbsent(key, k -> {
+                try {
+                    return loader.apply(k);
+                } finally {
+                    wasLoaded.set(true);
+                }
+            }).sourceType());
+        return type == Sourced.Type.SOURCES && !wasLoaded.get()
+            ? loader.apply(key)
+            : cache.computeIfAbsent(key, loader);
     }
 }
