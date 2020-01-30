@@ -31,7 +31,7 @@ public final class Sessions {
     private final boolean devLogin;
 
     private final Function<Req, Session> devSession = MostlyOnce.compute(req -> {
-        Session session = newSession(req, DEV_USER, AccessLevel.STREAM_CURATED);
+        Session session = newSession(req, DEV_USER, AccessLevel.ADMIN);
         log.warn("Established dev session: {}", session);
         return session;
     });

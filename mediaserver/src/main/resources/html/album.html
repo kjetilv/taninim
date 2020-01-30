@@ -156,34 +156,48 @@
             <DIV STYLE="padding: 0.1%; clear: left" {if(playable.playable)}CLASS="playable-track" {endif}>
                 {if(playable.playable)}
                 <A href="?artist={album.artist.uuid}&album={album.uuid}&track={playable.track.uuid}">
-                    <DIV STYLE="float: left; width:10%; text-align: end; padding-right: 1%">
+                    <DIV STYLE="float: left; width:6%; text-align: end; padding-right: 1%">
                         <EM>{playable.track.prettyTrackNo}.</EM>
                     </DIV>
-                    <DIV STYLE="width:5%; float: left">
+                    <DIV STYLE="width:3%; float: left; text-align: left">
                         <SMALL>▶️</SMALL>
                     </DIV>
                     <DIV STYLE="width:30%; float: left">
                         {playable.track.name}
                     </DIV>
-                    <DIV STYLE="width:10%; float: right">
+                    <DIV STYLE="width:5%; float: right">
                         <EM>
                             <SMALL>
-                                {playable.track.prettyDuration}&nbsp;[{playable.track.prettyCompressedSize}]
+                                {playable.track.prettyDuration}
+                            </SMALL>
+                        </EM>
+                    </DIV>
+                    <DIV STYLE="width:5%; float: right">
+                        <EM>
+                            <SMALL>
+                                {playable.track.prettyCompressedSize}
                             </SMALL>
                         </EM>
                     </DIV>
                 </A>
                 {else}
-                <DIV STYLE="float: left; width:10%; text-align: end; padding-right: 1%">
+                <DIV STYLE="float: left; width:6%; text-align: end; padding-right: 1%">
                     <EM>{playable.track.prettyTrackNo}.</EM>
                 </DIV>
                 <DIV STYLE="width:30%; float: left">
                     {playable.track.name}
                 </DIV>
-                <DIV STYLE="width:10%; float: right">
+                <DIV STYLE="width:5%; float: right">
                     <EM>
                         <SMALL>
-                            {playable.track.prettyDuration}&nbsp;[{playable.track.prettyCompressedSize}]
+                            {playable.track.prettyDuration}
+                        </SMALL>
+                    </EM>
+                </DIV>
+                <DIV STYLE="width:5%; float: right">
+                    <EM>
+                        <SMALL>
+                            {playable.track.prettyCompressedSize}
                         </SMALL>
                     </EM>
                 </DIV>
