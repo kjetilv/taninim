@@ -9,8 +9,8 @@ import io.netty.util.AsciiString;
 import mediaserver.Config;
 import mediaserver.gui.GUI;
 import mediaserver.sessions.AccessLevel;
-import mediaserver.sessions.User;
 import mediaserver.sessions.Session;
+import mediaserver.sessions.User;
 import mediaserver.util.MostlyOnce;
 import mediaserver.util.URLs;
 
@@ -124,11 +124,14 @@ public final class Req {
 
     public String getPath(boolean unslash) {
 
-        String p = path;
-        while (unslash && p.startsWith("/")) {
-            p = p.substring(1);
+        if (unslash) {
+            String p = path;
+            while (p.startsWith("/")) {
+                p = p.substring(1);
+            }
+            return p;
         }
-        return p;
+        return path;
     }
 
     public ChannelHandlerContext getCtx() {

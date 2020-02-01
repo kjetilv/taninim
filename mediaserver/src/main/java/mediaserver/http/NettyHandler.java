@@ -78,6 +78,11 @@ public abstract class NettyHandler {
         return handle(req, UNAUTHORIZED);
     }
 
+    protected Handling redirect(Req req, Page page) {
+
+        return respond(req, Netty.redirectResponse(page));
+    }
+
     private Handling handle(Req req, HttpResponseStatus status) {
 
         return respond(req, Netty.response(null, status, null, null));

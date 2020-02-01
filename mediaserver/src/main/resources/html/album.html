@@ -53,7 +53,7 @@
     </P>
 </DIV>
 
-<DIV STYLE="float:left">
+<DIV STYLE="float:left; width: 100%">
     <DIV STYLE="float: right; padding: 1% 1% 1% 3%;">
         {if(album.series)}
         <H4>I serie</H4>
@@ -116,7 +116,7 @@
 
             <!--suppress HtmlUnknownAttribute -->
             <AUDIO id="player" preload="none" controls src="/audio/{selected.track.uuid}.m4a"
-                   data-plyr-config='\{ "duration": {selected.track.seconds}, "autoplay": {if(selected.autoplay)}true{else}false}{endif} }'>
+                   data-plyr-config='\{ "duration": {selected.track.seconds}, "autoplay": {if(selected.autoplay)}true{else}false{endif} }'>
             </AUDIO>
 
             <DIV STYLE="float: right; text-align: end; width: 30%">
@@ -153,24 +153,17 @@
             </DIV>
             {playableGroup.playables:{playable |
             <!--suppress HtmlUnknownAttribute -->
-            <DIV STYLE="padding: 0.1%; clear: left" {if(playable.playable)}CLASS="playable-track" {endif}>
+            <DIV STYLE="padding: 0.2%; clear: both">
                 {if(playable.playable)}
                 <A href="?artist={album.artist.uuid}&album={album.uuid}&track={playable.track.uuid}">
                     <DIV STYLE="float: left; width:6%; text-align: end; padding-right: 1%">
-                        <EM>{playable.track.prettyTrackNo}.</EM>
+                        <EM><SMALL>{playable.track.prettyTrackNo}.</SMALL></EM>
                     </DIV>
-                    <DIV STYLE="width:3%; float: left; text-align: left">
-                        <SMALL>▶️</SMALL>
+                    <DIV STYLE="width:3%; float: left; text-align: left" class="playable-button">
+                        ▶️
                     </DIV>
-                    <DIV STYLE="width:30%; float: left">
+                    <DIV STYLE="width: fit-content; float: left" class="playable-track">
                         {playable.track.name}
-                    </DIV>
-                    <DIV STYLE="width:5%; float: right">
-                        <EM>
-                            <SMALL>
-                                {playable.track.prettyDuration}
-                            </SMALL>
-                        </EM>
                     </DIV>
                     <DIV STYLE="width:5%; float: right">
                         <EM>
@@ -179,20 +172,20 @@
                             </SMALL>
                         </EM>
                     </DIV>
+                    <DIV STYLE="width:5%; float: right">
+                        <EM>
+                            <SMALL>
+                                {playable.track.prettyDuration}
+                            </SMALL>
+                        </EM>
+                    </DIV>
                 </A>
                 {else}
-                <DIV STYLE="float: left; width:6%; text-align: end; padding-right: 1%">
+                <DIV STYLE="float: left; width:9%; text-align: end; padding-right: 1%">
                     <EM>{playable.track.prettyTrackNo}.</EM>
                 </DIV>
-                <DIV STYLE="width:30%; float: left">
+                <DIV STYLE="width: fit-content; float: left">
                     {playable.track.name}
-                </DIV>
-                <DIV STYLE="width:5%; float: right">
-                    <EM>
-                        <SMALL>
-                            {playable.track.prettyDuration}
-                        </SMALL>
-                    </EM>
                 </DIV>
                 <DIV STYLE="width:5%; float: right">
                     <EM>
@@ -201,8 +194,17 @@
                         </SMALL>
                     </EM>
                 </DIV>
+                <DIV STYLE="width:5%; float: right">
+                    <EM>
+                        <SMALL>
+                            {playable.track.prettyDuration}
+                        </SMALL>
+                    </EM>
+                </DIV>
                 {endif}
-                {if(playable.track.otherArtists)}
+            </DIV>
+            {if(playable.track.otherArtists)}
+            <DIV STYLE="clear: both;padding-left: 10%">
                 <UL>
                     {playable.track.otherArtists:{otherArtist|
                     <LI>
@@ -214,8 +216,8 @@
                     </LI>
                     }}
                 </UL>
-                {endif}
             </DIV>
+            {endif}
             }}
             }}
             <P>

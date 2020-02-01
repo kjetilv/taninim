@@ -8,10 +8,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Session {
 
@@ -104,10 +108,13 @@ public final class Session {
 
     public Collection<Status> getStatus(Instant time) {
 
-        return new HashSet<>(Arrays.asList(
-            sessionStatus(time),
-            activityStatus(time),
-            quotaStatus()));
+        return accessLevel.satisfies(AccessLevel.ADMIN) ? Collections.singleton(Status.OK) : Stream
+            .of(
+                sessionStatus(time),
+                activityStatus(time),
+                quotaStatus())
+            .distinct()
+            .collect(Collectors.toList());
     }
 
     public boolean isValid(Instant time) {
@@ -141,6 +148,16 @@ public final class Session {
         return bytesStreamed.get();
     }
 
+    public String getPrettyStreamedBytes() {
+
+        return Print.bytes(bytesStreamed.get());
+    }
+
+    public String getPrettyStreamQuota() {
+
+        return Print.bytes(bytesQuota);
+    }
+
     public long getStreamQuota() {
 
         return bytesQuota;
@@ -155,8 +172,10 @@ public final class Session {
 
     private Status activityStatus(Instant time) {
 
-        Duration inactivity =
-            Duration.between(lastAccessed.get(), time);
+        if (bytesStreamed.get() == 0L) {
+            return Status.OK;
+        }
+        Duration inactivity = Duration.between(lastAccessed.get(), time);
         return inactivity.toSeconds() > inactivityMax.toSeconds()
             ? Status.INACTIVITY_CUTOFF
             : Status.OK;

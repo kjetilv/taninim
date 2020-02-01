@@ -82,29 +82,50 @@ public final class Sessions {
             .orElse(req);
     }
 
+    public Optional<Session> close(UUID sessionId) {
+
+        Optional<Map.Entry<FbUser, Collection<Session>>> entry = sessionsMap.entrySet().stream()
+            .filter(e ->
+                e.getValue().stream().map(Session::getCookie).anyMatch(sessionId::equals))
+            .findFirst();
+        Optional<Session> session = entry.flatMap(e ->
+            e.getValue().stream()
+                .filter(s ->
+                    s.getCookie().equals(sessionId))
+                .findFirst());
+        session.ifPresent(s ->
+            entry.ifPresent(e ->
+                e.getValue().remove(s)));
+        entry.filter(e -> e.getValue().isEmpty())
+            .ifPresent(e -> sessionsMap.remove(e.getKey()));
+
+        return session;
+    }
+
     public Optional<Session> close(Req req) {
 
         return session(req, AccessLevel.NONE, true)
             .map(session -> {
                 FbUser fbUser = session.getFbUser();
-                Optional.of(sessionsMap.get(fbUser))
-                    .filter(sessions ->
-                        !sessions.isEmpty())
-                    .ifPresentOrElse(
-                        sessions -> {
-                            if (sessions.remove(session)) {
-                                if (sessions.isEmpty()) {
-                                    sessionsMap.remove(fbUser);
-                                }
-                                log.info("{} removed session, {} left: {}/{}",
-                                    this, sessions.size(), this.sessionsMap.size(), session);
-                            } else {
-                                log.warn("{} found no removable session: {}",
-                                    this, session);
-                            }
-                        },
-                        () ->
-                            log.info("No sessions to close for {}", fbUser));
+                Collection<Session> sessions = sessionsMap.get(fbUser);
+                if (sessions == null) {
+                    log.info("No sessions to close for {}", fbUser);
+                    return null;
+                }
+                if (sessions.isEmpty()) {
+                    log.info("No sessions to close for {}", fbUser);
+                    sessionsMap.remove(fbUser);
+                    return null;
+                }
+                if (sessions.remove(session)) {
+                    if (sessions.isEmpty()) {
+                        sessionsMap.remove(fbUser);
+                    }
+                    log.info("{} removed session, {} left: {}/{}",
+                        this, sessions.size(), this.sessionsMap.size(), session);
+                } else {
+                    log.warn("{} found no removable session: {}", this, session);
+                }
                 return session;
             });
     }

@@ -26,7 +26,7 @@ public enum Page {
 
     PLAYLIST(AccessLevel.STREAM, Method.GET),
 
-    ADMIN(AccessLevel.ADMIN, Method.GET),
+    ADMIN(AccessLevel.ADMIN, Method.GET, Method.POST),
 
     DEBUG(AccessLevel.ADMIN, Method.GET),
 

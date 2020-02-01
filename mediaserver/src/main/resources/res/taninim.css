@@ -12,8 +12,8 @@ a:visited {
 }
 
 a:hover {
-    color: #418141;
-    background-color: #d2f0e5;
+    color: #356a35;
+    background-color: #d1f0e6;
 }
 
 hr {
@@ -42,5 +42,13 @@ h5 {
 }
 
 .playable-track:hover {
-    background-color: #d2f0e5;
+    text-decoration: underline;
+}
+
+.playable-button {
+    font-size: medium;
+}
+
+.playable-button:hover {
+    text-effect: emboss;
 }
