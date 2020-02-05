@@ -1,6 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.P2;
 
 import java.io.File;
 import java.io.Serializable;
@@ -35,6 +36,8 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     private final Map<UUID, Boolean> curatedTracks = new ConcurrentHashMap<>();
 
+    private final Map<UUID, Album> trackIndex;
+
     private static final long serialVersionUID = -7165763549356996140L;
 
     public LocalMedia(Path root) {
@@ -52,6 +55,13 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             ? new CategoryPath()
             : categoryPath;
         this.albums = albums.collect(Collectors.toList());
+        this.trackIndex = this.albums.stream().flatMap(album ->
+            album.getTracks().stream().map(track ->
+                new AbstractMap.SimpleEntry<>(track.getUuid(), album)))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            ));
         this.categories = this.albums.stream()
             .map(Album::getCategoryPath)
             .flatMap(CategoryPath::subPaths)
@@ -254,15 +264,16 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
                 album.getContext().getDiscogCover() != null)
             .collect(Collectors.toCollection(ArrayList::new));
 
-        if (count < indexed.size()) {
-            Collection<Integer> indexes = new HashSet<>();
-            while (indexes.size() < count) {
-                indexes.add(RND.nextInt(indexed.size()));
-            }
-            return indexes.stream().map(indexed::get).collect(Collectors.toList());
+        if (count >= indexed.size()) {
+            Collections.shuffle(indexed);
+            return indexed;
         }
-        Collections.shuffle(indexed);
-        return indexed;
+
+        Collection<Integer> randomIndexes = new HashSet<>();
+        while (randomIndexes.size() < count) {
+            randomIndexes.add(RND.nextInt(indexed.size()));
+        }
+        return randomIndexes.stream().map(indexed::get).collect(Collectors.toList());
     }
 
     @Override
@@ -295,6 +306,20 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     public Optional<Album> getAlbum(UUID uuid) {
 
         return stream(true).filter(album -> album.getUuid().equals(uuid)).findFirst();
+    }
+
+    @Override
+    public Optional<Album> getAlbumWithTrack(UUID id) {
+
+        return Optional.ofNullable(trackIndex.get(id));
+    }
+
+    @Override
+    public P2<Album, UUID> getRandomTrack() {
+
+        List<UUID> uuids = new ArrayList<>(trackIndex.keySet());
+        UUID uuid = uuids.get(new Random().nextInt(uuids.size()));
+        return new P2<>(trackIndex.get(uuid), uuid);
     }
 
     @Override

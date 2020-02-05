@@ -1,13 +1,11 @@
 package mediaserver.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.AsciiString;
 import mediaserver.Config;
-import mediaserver.gui.GUI;
+import mediaserver.gui.IndexPage;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.User;
@@ -55,14 +53,14 @@ public final class Req {
 
     private final Supplier<Optional<String>> content;
 
-    private Supplier<Optional<String>> responseContentType;
+    private final Supplier<Optional<String>> responseContentType;
 
     private final FullHttpRequest request;
 
     private final Supplier<ConcurrentHashMap<String, Optional<String>>> headers =
         MostlyOnce.get(ConcurrentHashMap::new);
 
-    private Supplier<String> formattedTime;
+    private final Supplier<String> formattedTime;
 
     private Req(
         ChannelHandlerContext ctx,
@@ -109,7 +107,11 @@ public final class Req {
 
     public Req bind(Session session) {
 
-        return new Req(ctx, request, page, uri, Objects.requireNonNull(session, "session"), time);
+        try {
+            return new Req(ctx, request, page, uri, Objects.requireNonNull(session, "session"), time);
+        } finally {
+            session.setLastAccessed(this);
+        }
     }
 
     public Page getPage() {
@@ -207,6 +209,10 @@ public final class Req {
         return request;
     }
 
+    public String getReferer() {
+        return request.headers().getAsString(HttpHeaderNames.REFERER);
+    }
+
     public static Optional<Req> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
 
         return Stream.of(request)
@@ -273,7 +279,7 @@ public final class Req {
             .stream()
             .flatMap(Collection::stream)
             .filter(cookie ->
-                cookie.name().equalsIgnoreCase(GUI.ID_COOKIE))
+                cookie.name().equalsIgnoreCase(IndexPage.ID_COOKIE))
             .map(cookie ->
                 UUID.fromString(cookie.value()))
             .findFirst();

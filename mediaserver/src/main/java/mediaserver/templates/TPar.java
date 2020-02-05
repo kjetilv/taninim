@@ -1,9 +1,11 @@
 package mediaserver.templates;
 
+import mediaserver.http.Par;
+
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum TPar {
+public enum TPar implements Par {
 
     MEDIA,
 
@@ -25,9 +27,19 @@ public enum TPar {
 
     SELECTED,
 
+    RANDOM_ALBUMS("randomAlbums"),
+
+    HIGHLIGHTED_ALBUM("highlightedAlbum"),
+
+    HIGHLIGHTED,
+
+    TRACK_HIGHLIGHTED("trackHighlighted"),
+
+    HIGHLIGHTED_SELECTED("highlightedSelected"),
+
     PLAYABLE_GROUPS("playableGroups"),
 
-    AUTOPLAY,
+    ADMIN,
 
     USER,
 
@@ -52,6 +64,7 @@ public enum TPar {
         this.name = name == null ? this.name().toLowerCase() : name;
     }
 
+    @Override
     public String getName() {
         return name;
     }

@@ -2,22 +2,28 @@ package mediaserver.sessions;
 
 import mediaserver.externals.FbUser;
 import mediaserver.http.Req;
+import mediaserver.media.Album;
+import mediaserver.media.Track;
+import mediaserver.util.ExpiringState;
+import mediaserver.util.P2;
 import mediaserver.util.Print;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class Session {
+
+    private static final Logger log = LoggerFactory.getLogger(Session.class);
 
     private final Instant startTime;
 
@@ -37,9 +43,10 @@ public final class Session {
 
     private final AtomicLong bytesStreamed = new AtomicLong();
 
+    private final ExpiringState<P2<Album, Track>> randomTrack = new ExpiringState<>(Duration.ofHours(1));
+
     public Session(
         FbUser fbUser,
-        UUID cookie,
         Instant startTime,
         Instant sessionCutoff,
         Duration inactivityMax,
@@ -48,18 +55,18 @@ public final class Session {
     ) {
 
         this.fbUser = Objects.requireNonNull(fbUser, "fbUser");
-        this.cookie = Objects.requireNonNull(cookie, "cookie");
-        this.startTime = Objects.requireNonNull(startTime, "startTime").truncatedTo(ChronoUnit.SECONDS);
+        this.cookie = UUID.randomUUID();
+        this.startTime = Objects.requireNonNull(startTime, "startTime");
         this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
         this.bytesQuota = bytesQuota;
         this.lastAccessed.set(this.startTime);
-        this.sessionCutoff = Objects.requireNonNull(sessionCutoff, "cutoff").truncatedTo(ChronoUnit.SECONDS);
+        this.sessionCutoff = Objects.requireNonNull(sessionCutoff, "cutoff");
         this.inactivityMax = Objects.requireNonNull(inactivityMax, "inactivityMax");
     }
 
     public Instant getStartTime() {
 
-        return startTime;
+        return startTime.truncatedTo(ChronoUnit.SECONDS);
     }
 
     public UUID getCookie() {
@@ -77,26 +84,19 @@ public final class Session {
         return fbUser;
     }
 
-    public Session streaming(long bytes) {
-
-        bytesStreamed.addAndGet(bytes);
-        return this;
-    }
-
     public boolean isPrivileged() {
 
         return false;
     }
 
-    public Session accessedBy(Req req) {
+    public void addBytesStreamed(long bytes) {
 
-        lastAccessed.set(req.getTime());
-        return this;
+        bytesStreamed.addAndGet(bytes);
     }
 
-    public String getCurrentStatus() {
+    public void setLastAccessed(Req req) {
 
-        return getCurrentStatus(Instant.now());
+        lastAccessed.set(req.getTime());
     }
 
     public String getCurrentStatus(Instant time) {
@@ -140,7 +140,7 @@ public final class Session {
 
     public Temporal getEndTime() {
 
-        return sessionCutoff;
+        return sessionCutoff.truncatedTo(ChronoUnit.SECONDS);
     }
 
     public long getStreamedBytes() {
@@ -161,6 +161,25 @@ public final class Session {
     public long getStreamQuota() {
 
         return bytesQuota;
+    }
+
+    public Optional<P2<Album, Track>> setAccessibleTrack(Instant time, P2<Album, Track> accessibleTrack) {
+        if (randomTrack.set(time, accessibleTrack)) {
+            log.warn("Attempted new random track: {} <-> {}", randomTrack, accessibleTrack);
+        } else {
+            log.info("Accessible track for {}: {}", this, accessibleTrack);
+        }
+        return randomTrack.get(time);
+    }
+
+    public Optional<P2<Album, Track>> getRandomTrack(Instant time) {
+
+        return getRandomTrack(time, null);
+    }
+
+    public Optional<P2<Album, Track>> getRandomTrack(Instant time, Supplier<Optional<P2<Album, Track>>> newRandom) {
+
+        return randomTrack.get(time, newRandom);
     }
 
     private Status sessionStatus(Instant time) {

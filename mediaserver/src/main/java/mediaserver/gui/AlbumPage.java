@@ -1,15 +1,18 @@
 package mediaserver.gui;
 
 import mediaserver.Config;
+import mediaserver.Globals;
 import mediaserver.http.*;
-import mediaserver.media.*;
+import mediaserver.media.Album;
+import mediaserver.media.Media;
+import mediaserver.media.Playlist;
+import mediaserver.media.Track;
 import mediaserver.sessions.Session;
 import mediaserver.stream.Streamer;
 import mediaserver.templates.TPar;
 import mediaserver.templates.Template;
 import mediaserver.toolkit.Templater;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import mediaserver.util.P2;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -17,20 +20,15 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static mediaserver.sessions.AccessLevel.STREAM;
-import static mediaserver.sessions.AccessLevel.STREAM_CURATED;
+import static mediaserver.sessions.AccessLevel.*;
 
-public final class GUI extends TemplateEnabled {
-
-    public static final String ID_COOKIE = "taninim-id";
-
-    private static final Logger log = LoggerFactory.getLogger(GUI.class);
+public final class AlbumPage extends TemplateEnabled {
 
     private final Supplier<Media> media;
 
-    public GUI(Supplier<Media> media, Templater templater) {
+    public AlbumPage(Supplier<Media> media, Templater templater) {
 
-        super(templater, Page.INDEX, Page.ALBUM);
+        super(templater, Page.ALBUM);
         this.media = media;
     }
 
@@ -47,60 +45,53 @@ public final class GUI extends TemplateEnabled {
     private Optional<Template> template(Req req, Media media) {
 
         QPars pars = req.getQueryParameters();
-        if (req.isFor(Page.ALBUM)) {
-            return albumTemplate(media, req, pars);
-        }
-        return indexTemplate(req, media, pars);
-    }
-
-    private Optional<Template> indexTemplate(Req req, Media media, QPars pars) {
-
-        Artist artist =
-            pars.get(QPar.ARTIST).flatMap(media::getArtist).orElse(null);
-        Series series =
-            pars.get(QPar.SERIES).flatMap(media::getSeries).orElse(null);
-        Playlist curation =
-            pars.get(QPar.CURATION).flatMap(media::getCuration).orElse(null);
-        Playlist playlist = curation == null
-            ? pars.get(QPar.PLAYLIST).flatMap(media::getPlaylist).orElse(null)
-            : null;
-
-        return Optional.ofNullable(
-            media.subLibrary(null, artist, series, curation == null ? playlist : curation))
-            .filter(submedia -> !submedia.isEmpty())
-            .map(submedia ->
-                base(getTemplate(INDEX_PAGE), req, submedia)
-                    .add(TPar.ARTIST, artist)
-                    .add(TPar.SERIES, series)
-                    .add(TPar.PLAYLIST, playlist)
-                    .add(TPar.CURATION, curation));
-    }
-
-    private Optional<Template> albumTemplate(Media media, Req req, QPars pars) {
 
         return pars.get(QPar.ALBUM)
             .flatMap(media::getAlbum)
             .map(album ->
-                albumTemplate(media, req, pars, album))
-            .or(() -> {
-                log.warn("Was asked for {}", pars.get(QPar.ALBUM)
-                    .map(unknown -> "unknown album " + unknown)
-                    .orElse("unspecified album"));
-                return indexTemplate(req, media, pars);
-            });
+                albumTemplate(media, req, pars, album));
     }
 
     private Template albumTemplate(Media media, Req req, QPars pars, Album album) {
 
-        Optional<Selected> selectedTrack = track(media, req, pars, QPar.TRACK)
-            .flatMap(track ->
-                selected(media, req, pars, album, track));
+        Optional<Selected> selectedTrack = selectedTrack(media, req, pars, album);
         return base(getTemplate(ALBUM_PAGE), req, media)
+            .add(TPar.ADMIN, req.getSession().getAccessLevel().satisfies(ADMIN))
             .add(TPar.ALBUM, album)
             .add(TPar.SELECTED, selectedTrack)
+            .add(TPar.TRACK_HIGHLIGHTED, selectedTrack.filter(isHighlighted(req)).isPresent())
             .add(TPar.PLAYABLE_GROUPS, playableGroups(media, req, album))
             .add(TPar.PLAYLISTS, Playlist.playlistsWith(album))
             .add(TPar.CURATIONS, Playlist.curationsWith(album));
+    }
+
+    private Optional<Selected> selectedTrack(Media media, Req req, QPars pars, Album album) {
+
+        return track(media, req, pars, QPar.TRACK)
+            .flatMap(track ->
+                selected(media, req, pars, album, track));
+    }
+
+    private Predicate<Selected> isHighlighted(Req req) {
+
+        return selectedTrack ->
+            Optional.ofNullable(selectedTrack.getTrack())
+                .filter(st ->
+                    Globals.globalTrack(req).map(P2::getT2).filter(st::equals).isPresent())
+                .isPresent();
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static boolean isHighlighted(
+        Optional<P2<Album, Track>> accessibleTrack,
+        Optional<Selected> selectedTrack
+    ) {
+
+        return selectedTrack
+            .map(Selected::getTrack)
+            .map(st ->
+                accessibleTrack.map(P2::getT2).filter(st::equals))
+            .isPresent();
     }
 
     private Optional<Selected> selected(Media media, Req req, QPars pars, Album album, Track track) {
@@ -110,6 +101,7 @@ public final class GUI extends TemplateEnabled {
                 streamable(media, track, session))
             .map(session ->
                 new Selected(
+                    album,
                     track,
                     autoplay(media, req, pars, track),
                     previousTrack(track, album.getTracks()).orElse(null),

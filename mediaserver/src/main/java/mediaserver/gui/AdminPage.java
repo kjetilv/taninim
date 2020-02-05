@@ -5,11 +5,11 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.MixedAttribute;
+import mediaserver.Globals;
 import mediaserver.externals.ACL;
 import mediaserver.externals.S3;
-import mediaserver.http.Handling;
-import mediaserver.http.Page;
-import mediaserver.http.Req;
+import mediaserver.http.*;
+import mediaserver.media.Media;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
@@ -17,6 +17,7 @@ import mediaserver.templates.TPar;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.IO;
 import mediaserver.util.OnceEvery;
+import mediaserver.util.P2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +28,24 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public final class Admin extends TemplateEnabled {
+import static mediaserver.http.FPar.*;
+
+@SuppressWarnings("SameParameterValue")
+public final class AdminPage extends TemplateEnabled {
 
     public static final String FORM_URLENCODED = "application/x-www-form-urlencoded";
 
-    private static final Logger log = LoggerFactory.getLogger(Admin.class);
+    private static final Logger log = LoggerFactory.getLogger(AdminPage.class);
 
     private static final String ACTION_IDS = "ids";
 
     private static final String ACTION_EXTERMINATE = "exterminate";
+
+    private static final String ACTION_JUKEBOX = "jukebox";
+
+    private static final String ACTION_EXJUKE = "exjuke";
+
+    private final Supplier<Media> media;
 
     private final Supplier<Ids> ids;
 
@@ -43,13 +53,10 @@ public final class Admin extends TemplateEnabled {
 
     private final S3.Client s3;
 
-    private static final String PARAM_IDS = "ids";
-
-    private static final String PARAM_SESSION = "session";
-
-    public Admin(Supplier<Ids> ids, Sessions sessions, Templater templater, S3.Client s3) {
+    public AdminPage(Supplier<Media> media, Supplier<Ids> ids, Sessions sessions, Templater templater, S3.Client s3) {
 
         super(templater, Page.ADMIN);
+        this.media = media;
         this.ids = ids;
         this.sessions = sessions;
         this.s3 = s3;
@@ -61,7 +68,7 @@ public final class Admin extends TemplateEnabled {
         if (is(req, ACTION_IDS)) {
             if (s3 != null) {
                 try {
-                    params(req, PARAM_IDS)
+                    params(req, IDS)
                         .map(this::readIds)
                         .forEach(Ids::persist);
                 } finally {
@@ -70,15 +77,40 @@ public final class Admin extends TemplateEnabled {
             } else {
                 log.warn("Could not update, no S3 connection: {}", req);
             }
-            return redirect(req, Page.ADMIN);
+            return redirect(req, false);
         }
 
         if (is(req, ACTION_EXTERMINATE)) {
             return closedSession(req)
                 .map(closed ->
-                    redirect(req, Page.ADMIN))
+                    redirect(req, false))
                 .orElseGet(() ->
                     handleNotFound(req));
+        }
+
+        if (is(req, ACTION_EXJUKE)) {
+            Globals.get().unsetGlobalTrack();
+            return redirect(req, true);
+        }
+
+        if (is(req, ACTION_JUKEBOX)) {
+            Media media = this.media.get();
+            uuid(req, JUKEBOX_TRACK).flatMap(media::getTrack).ifPresentOrElse(
+                track ->
+                    uuid(req, JUKEBOX_ALBUM).flatMap(media::getAlbum).ifPresentOrElse(
+                        album -> {
+                            log.info("Global jukebox track: {} / {}", album, track);
+                            if (isTrue(req, JUKEBOX_CLEAR)) {
+                                Globals.get().unsetGlobalTrack();
+                            } else {
+                                Globals.get().setGlobalTrack(req.getTime(), new P2<>(album, track));
+                            }
+                        },
+                        () ->
+                            log.warn("Album not found: {}", uuid(req, JUKEBOX_ALBUM))),
+                () ->
+                    log.warn("Track not found: {}", uuid(req, JUKEBOX_TRACK)));
+            return redirect(req, true);
         }
 
         return Optional.of(getTemplate(ADMIN_PAGE)
@@ -91,30 +123,46 @@ public final class Admin extends TemplateEnabled {
                 handleNotFound(req));
     }
 
-    private Optional<Session> closedSession(Req req) {
+    private Optional<UUID> uuid(Req req, Par param) {
 
-        return params(req, PARAM_SESSION)
+        return params(req, param)
             .map(UUID::fromString)
-            .flatMap(session ->
-                sessions.close(session).stream())
-            .peek(closed -> {
-                log.info("Closed session: {}", closed);
-            })
             .findFirst();
     }
 
-    private Stream<String> params(Req req, String param) {
+    private boolean isTrue(Req req, Par param) {
+        return params(req, param).anyMatch(Boolean::parseBoolean);
+    }
+
+    private Handling redirect(Req req, boolean referer) {
+
+        return handle(req, referer ? Netty.redirect(req.getReferer()) : Netty.redirect(Page.ADMIN));
+    }
+
+    private Optional<Session> closedSession(Req req) {
+
+        return params(req, SESSION)
+            .map(UUID::fromString)
+            .flatMap(session ->
+                sessions.close(session).stream())
+            .peek(closed ->
+                log.info("Closed session: {}", closed))
+            .findFirst();
+    }
+
+    private Stream<String> params(Req req, Par param) {
 
         return new HttpPostRequestDecoder(req.getRequest()).getBodyHttpDatas().stream()
             .filter(isParam(param).and(MixedAttribute.class::isInstance))
             .map(MixedAttribute.class::cast)
             .map(MixedAttribute::content)
-            .map(this::print);
+            .map(this::print)
+            .filter(s -> !s.isBlank());
     }
 
-    private Predicate<InterfaceHttpData> isParam(String param) {
+    private Predicate<InterfaceHttpData> isParam(Par param) {
 
-        return data -> data.getName().equals(param);
+        return data -> data.getName().equals(param.getName());
     }
 
     private String print(ByteBuf c) {

@@ -13,7 +13,7 @@
 
 {sessions:{session|
 <H3>{session.fbUser.name} {session.cookie}</H3>
-<FORM ACTION="/admin/exterminate" METHOD="POST" AUTOCOMPLETE="off">
+<FORM ACTION="/admin/exterminate" METHOD="POST">
     <INPUT NAME="session" TYPE="hidden" VALUE="{session.cookie}">
     <UL>
         <LI>Access level: {session.accessLevel}</LI>

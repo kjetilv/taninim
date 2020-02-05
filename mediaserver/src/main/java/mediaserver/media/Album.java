@@ -38,7 +38,7 @@ public final class Album extends AbstractHashable
 
     private final List<Artist> allArtists;
 
-    private List<Series> series;
+    private final List<Series> series;
 
     Album(CategoryPath categoryPath, Artist artist, String name, List<Track> tracks) {
 

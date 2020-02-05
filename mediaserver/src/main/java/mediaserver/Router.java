@@ -51,16 +51,11 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     Router(Sessions sessions, Templater templater, Clock clock, NettyHandler... handlers) {
 
-        this(sessions, templater, clock, Arrays.asList(handlers));
-    }
-
-    Router(Sessions sessions, Templater templater, Clock clock, Collection<NettyHandler> handlers) {
-
         this.sessions = sessions;
         this.clock = clock;
         this.handlers = Stream.concat(
             Stream.of(new Debug(templater, latestExchanges::get)),
-            handlers.stream()
+            Arrays.stream(handlers)
         ).collect(Collectors.toList());
     }
 
@@ -71,16 +66,11 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             Netty.respond(ctx, CONTINUE);
             return;
         }
-
         Instant time = clock.instant();
         try {
-
             getReq(ctx, request, time).ifPresentOrElse(
-                path ->
-                    handle(ctx, path),
-                () ->
-                    error(ctx, request));
-
+                req -> handle(ctx, req),
+                () -> error(ctx, request));
         } catch (Throwable e) {
             logError(request, time, e);
             Netty.respond(ctx, INTERNAL_SERVER_ERROR);
@@ -121,7 +111,6 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     private void handle(ChannelHandlerContext ctx, Req req) {
 
         if (req.isAllowed()) {
-
             handled(req).ifPresentOrElse(
                 this::logExchange,
                 () -> {
@@ -129,7 +118,6 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                     Netty.respond(ctx, BAD_REQUEST);
                 });
         } else {
-
             handleUnauthorized(ctx, req);
         }
     }
@@ -137,12 +125,10 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     private void handleUnauthorized(ChannelHandlerContext ctx, Req req) {
 
         if (loginAllowed(req)) {
-
-            log.info("Redirecteded: {}", req);
-            Netty.respond(ctx, Netty.redirectResponse(Page.LOGIN));
+            log.info("Redirected to login: {}", req);
+            Netty.respond(ctx, Netty.redirect(Page.LOGIN));
         } else {
-
-            log.info("Unauthorized: {}", req);
+            log.info("Unauthorized to login: {}", req);
             Netty.respond(ctx, UNAUTHORIZED);
         }
     }

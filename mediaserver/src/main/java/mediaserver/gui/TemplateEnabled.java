@@ -22,7 +22,7 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     private static final String TEXT_HTML = "text/html";
 
-    protected TemplateEnabled(Templater templater, Page... prefix) {
+    protected TemplateEnabled(Templater templater, Page prefix) {
 
         super(prefix);
         this.templater = templater;
@@ -35,6 +35,6 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     protected Handling respondHtml(Req req, Template template) {
 
-        return respond(req, Netty.response(req, TEXT_HTML, template.bytes()));
+        return handle(req, Netty.response(req, TEXT_HTML, template.bytes()));
     }
 }

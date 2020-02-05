@@ -139,6 +139,19 @@
             </DIV>
             {endif}
 
+            {if(admin)}
+            <FORM ACTION="/admin/jukebox" METHOD="POST">
+                <DIV STYLE="clear:both; float: right">
+                    <INPUT TYPE="hidden" NAME="jukeboxTrack" value="{selected.track.uuid}">
+                    <INPUT TYPE="hidden" NAME="jukeboxAlbum" value="{selected.album.uuid}">
+                    <INPUT TYPE="hidden" NAME="jukeboxClear" value="{trackHighlighted}">
+                    <BUTTON VALUE="jukebox" TYPE="SUBMIT">
+                        {if(trackHighlighted)}Nuke{else}Juke{endif}
+                    </BUTTON>
+                </DIV>
+            </FORM>
+            {endif}
+
             {if(plyr)}
             <SCRIPT src="/res/plyr.js"></SCRIPT>
             <SCRIPT src="/res/plyr-setup.js"></SCRIPT>

@@ -3,6 +3,11 @@
 <HTML lang="no">
 <HEAD>
     <LINK REL="stylesheet" HREF="/res/taninim.css">
+    {if(highlighted)}
+    {if(plyr)}
+    <LINK REL="stylesheet" HREF="/res/plyr.css">
+    {endif}
+    {endif}
     <META charset="UTF-8">
     <TITLE>taninim</TITLE>
 </HEAD>
@@ -52,6 +57,38 @@
         </SMALL>
     </P>
 </DIV>
+
+{if(highlighted)}
+<DIV STYLE="float: inside; text-align: center; padding:10px">
+    {if(highlightedSelected)}Utvalgt spor:{else}Tilfeldig trall:{endif}
+    <STRONG>{highlighted.name}</STRONG>
+    <SMALL>
+        <EM>{highlighted.prettyDuration}&nbsp;[{highlighted.prettyCompressedSize}]</EM>
+    </SMALL>
+</DIV>
+
+<DIV STYLE="float:left; padding-right: 5px">
+    <A TARGET="_blank" HREF="{highlightedAlbum.context.discogPage}">
+        <IMG SRC="{highlightedAlbum.context.discogCover}" STYLE="width:50px ; height: 50px">
+    </A>
+</DIV>
+
+<!--suppress HtmlUnknownAttribute -->
+<AUDIO id="player" preload="none" controls src="/audio/{highlighted.uuid}.m4a"
+       data-plyr-config='\{ "duration": {highlighted.seconds} }'>
+</AUDIO>
+
+<DIV STYLE="float: inside; text-align: center; padding:10px">
+    <SMALL>Fra <A HREF="/album?album={highlightedAlbum.uuid}"><EM>{highlighted.album}</EM></A>
+        av
+        <A HREF="?artist={highlighted.artist.uuid}">{highlighted.artist.name}</A></SMALL>
+</DIV>
+
+{if(plyr)}
+<SCRIPT src="/res/plyr.js"></SCRIPT>
+<SCRIPT src="/res/plyr-setup.js"></SCRIPT>
+{endif}
+{endif}
 
 <DIV STYLE="clear:both">
     <DIV STYLE="float:left; padding: 15px">
@@ -144,15 +181,19 @@
     </UL>
 </DIV>
 
+<HR>
+
+{if(randomAlbums)}
 <H3>Tilfeldige plater</H3>
 
 <DIV STYLE="text-align: center">
-    {media.sevenRandomAlbums:{album|
+    {randomAlbums:{album|
     <A HREF="/album?album={album.uuid}">
         <IMG TITLE="{album.name}" ALT="{album.name}" SRC="{album.context.discogCover}">
     </A>
     }}
 </DIV>
+{endif}
 
 <DIV STYLE="clear: both">
     <P>

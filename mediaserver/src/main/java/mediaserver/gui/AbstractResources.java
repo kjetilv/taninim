@@ -7,12 +7,9 @@ public abstract class AbstractResources extends NettyHandler {
 
     protected final WebCache<String, byte[]> webCache;
 
-    public AbstractResources(
-        WebCache<String, byte[]> webCache,
-        Page... pages
-    ) {
+    public AbstractResources(WebCache<String, byte[]> webCache, Page page) {
 
-        super(pages);
+        super(page);
         this.webCache = webCache;
     }
 

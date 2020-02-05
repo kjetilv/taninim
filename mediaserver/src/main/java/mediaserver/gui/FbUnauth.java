@@ -25,6 +25,6 @@ public final class FbUnauth extends NettyHandler {
                 log.info("Session closed: {}", session),
             () ->
                 log.info("No session to close"));
-        return respond(req, Netty.unauthCookieResponse(Netty.unauthCookie()));
+        return handle(req, Netty.unauthCookieResponse(Netty.unauthCookie()));
     }
 }

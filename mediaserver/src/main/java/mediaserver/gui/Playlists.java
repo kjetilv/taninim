@@ -47,7 +47,7 @@ public final class Playlists extends TemplateEnabled {
                 .map(template ->
                     instrumented(template, req))
                 .map(template ->
-                    respond(req, response(req, template)))
+                    handle(req, response(req, template)))
                 .orElseGet(() ->
                     handleNotFound(req));
         }

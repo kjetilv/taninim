@@ -7,8 +7,6 @@ import mediaserver.externals.ACL;
 import mediaserver.externals.S3;
 import mediaserver.externals.S3Connector;
 import mediaserver.gui.*;
-import mediaserver.http.Fail;
-import mediaserver.http.NettyHandler;
 import mediaserver.http.WebCache;
 import mediaserver.media.CloudMedia;
 import mediaserver.media.Media;
@@ -33,8 +31,6 @@ import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.BooleanSupplier;
@@ -106,21 +102,20 @@ public final class Main {
         log.info("Streamer: {}", streamer);
         log.info("Binding to port {}", PORT);
 
-        Collection<NettyHandler> handlers = Arrays.asList(
+        NettyRunner nettyRunner = new NettyRunner(
+            LISTEN_GROUP, WORK_GROUP, THREAD_GROUP, THREAD_QUEUE, IO_TIMEOUT, CONNECT_TIMEOUT);
+
+        Router router = new Router(sessions, templater, CLOCK,
             streamer,
             new Favicon(RES_CACHE, FAVICON_ICO),
             new Login(templater),
             new FbAuth(sessions, ids, secretsProvider()),
             new Resources(RES_CACHE, RES),
-            new GUI(media, templater),
+            new IndexPage(media, templater),
+            new AlbumPage(media, templater),
             new Playlists(media, templater, sslPlaylists),
             new FbUnauth(sessions),
-            new Admin(ids, sessions, templater, s3),
-            new Fail());
-        Router router =
-            new Router(sessions, templater, CLOCK, handlers);
-        NettyRunner nettyRunner =
-            new NettyRunner(LISTEN_GROUP, WORK_GROUP, THREAD_GROUP, THREAD_QUEUE, IO_TIMEOUT, CONNECT_TIMEOUT);
+            new AdminPage(media, ids, sessions, templater, s3));
 
         nettyRunner.run(router, PORT, mockSslContext);
     }

@@ -5,9 +5,8 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,9 +19,14 @@ public abstract class NettyHandler {
     protected static final Headers CACHEABLE = headers ->
         headers.accept(HttpHeaderNames.CACHE_CONTROL, "public, max-age=" + Duration.ofDays(1).toSeconds());
 
-    protected NettyHandler(Page... pages) {
+    protected NettyHandler() {
 
-        this.pages = new HashSet<>(Arrays.asList(pages));
+        this(null);
+    }
+
+    protected NettyHandler(Page page) {
+
+        this.pages = page == null ? Collections.emptyList() : Collections.singleton(page);
     }
 
     public final Optional<Handling> handledRequest(Req req) {
@@ -33,11 +37,16 @@ public abstract class NettyHandler {
         return Optional.empty();
     }
 
+    protected final Handling handle(Req req, HttpResponseStatus status) {
+
+        return handle(req, Netty.response(null, status, null, null));
+    }
+
     protected abstract Handling handleRequest(Req req);
 
-    protected final Handling respond(Req req, HttpResponse response) {
+    protected final Handling handle(Req req, HttpResponse response) {
 
-        return handled(req, Netty.respond(req.getCtx(), response));
+        return Handling.sentResponse(this, req, Netty.respond(req.getCtx(), response));
     }
 
     protected final Handling handled(Req req, HttpResponse sentResponse) {
@@ -45,19 +54,10 @@ public abstract class NettyHandler {
         return Handling.sentResponse(this, req, sentResponse);
     }
 
-    protected final Handling handle(Req req, byte[] bytes) {
-
-        return handle(req, bytes, null);
-    }
-
-    protected final Handling handle(
-        Req req,
-        byte[] bytes,
-        Headers cacheable
-    ) {
+    protected final Handling handle(Req req, byte[] bytes, Headers cacheable) {
 
         try {
-            return respond(req, Netty.response(req, bytes, cacheable));
+            return handle(req, Netty.response(req, bytes, cacheable));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + req, e);
         }
@@ -76,16 +76,6 @@ public abstract class NettyHandler {
     protected final Handling handleUnauthorized(Req req) {
 
         return handle(req, UNAUTHORIZED);
-    }
-
-    protected Handling redirect(Req req, Page page) {
-
-        return respond(req, Netty.redirectResponse(page));
-    }
-
-    private Handling handle(Req req, HttpResponseStatus status) {
-
-        return respond(req, Netty.response(null, status, null, null));
     }
 
     @Override

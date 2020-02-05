@@ -6,12 +6,17 @@ import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Config;
-import mediaserver.http.*;
+import mediaserver.Globals;
+import mediaserver.http.Handling;
+import mediaserver.http.NettyHandler;
+import mediaserver.http.Page;
+import mediaserver.http.Req;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.toolkit.Chunk;
 import mediaserver.toolkit.Range;
+import mediaserver.util.P2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
@@ -75,7 +81,7 @@ public abstract class Streamer extends NettyHandler {
         if (method == HttpMethod.HEAD || method == HttpMethod.GET) {
             return getMediaTrack(req.getPath(true))
                 .map(track -> authorized(req, track, this.media)
-                    ? handled(req, respond(req, track))
+                    ? handle(req, track)
                     : handleUnauthorized(req))
                 .orElseGet(() ->
                     handleNotFound(req));
@@ -119,23 +125,34 @@ public abstract class Streamer extends NettyHandler {
     private static boolean authorized(Req req, Track track, Supplier<Media> media) {
 
         AccessLevel accessLevel = req.getAccessLevel();
+        if (globalPlayableTracks(req).anyMatch(track::equals)) {
+            return accessLevel.satisfies(AccessLevel.LOGIN);
+        }
         return accessLevel.satisfies(AccessLevel.STREAM) ||
             accessLevel.satisfies(AccessLevel.STREAM_CURATED) && media.get().isCurated(track);
     }
 
-    private HttpResponse respond(Req req, Track track) {
+    private static Stream<Track> globalPlayableTracks(Req req) {
+
+        return Stream.of(
+            Globals.get().getGlobalTrack(req.getTime()),
+            req.getSession().getRandomTrack(req.getTime())
+        ).flatMap(Optional::stream).map(P2::getT2);
+    }
+
+    private Handling handle(Req req, Track track) {
 
         boolean lossless = req.isFlac() && req.getSession().isPrivileged();
         if (req.getRequest().method() == HttpMethod.HEAD) {
-            return respondMeta(req, track, lossless);
+            return handledMeta(req, track, lossless);
         }
 
         Optional<Range> range = Range.read(req.header(RANGE), length(track, lossless)).findFirst();
         if (range.filter(Streamer::unsatisfiable).isPresent()) {
-            return respondUnsatisfiable(req);
+            return handle(req, REQUESTED_RANGE_NOT_SATISFIABLE);
         }
 
-        return respondPartial(req, track, lossless, range.orElse(null));
+        return handledPartial(req, track, lossless, range.orElse(null));
     }
 
     private static boolean unsatisfiable(Range r) {
@@ -143,7 +160,7 @@ public abstract class Streamer extends NettyHandler {
         return !r.isSatisfiable();
     }
 
-    private HttpResponse respondMeta(Req req, Track track, boolean lossless) {
+    private Handling handledMeta(Req req, Track track, boolean lossless) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         response.headers()
@@ -154,15 +171,10 @@ public abstract class Streamer extends NettyHandler {
             response.headers().set(CONNECTION, KEEP_ALIVE);
         }
         req.getCtx().writeAndFlush(response);
-        return response;
+        return handled(req, response);
     }
 
-    private HttpResponse respondUnsatisfiable(Req req) {
-
-        return Netty.respond(req.getCtx(), REQUESTED_RANGE_NOT_SATISFIABLE);
-    }
-
-    private HttpResponse respondPartial(Req req, Track track, boolean lossless, Range range) {
+    private Handling handledPartial(Req req, Track track, boolean lossless, Range range) {
 
         HttpResponse response =
             new DefaultHttpResponse(HTTP_1_1, range == null ? OK : PARTIAL_CONTENT);
@@ -197,9 +209,9 @@ public abstract class Streamer extends NettyHandler {
             if (!req.isKeepAlive()) {
                 lastContentFuture.addListener(CLOSE);
             }
-            return response;
+            return handled(req, response);
         } finally {
-            req.getSession().streaming(chunk.getSize());
+            req.getSession().addBytesStreamed(chunk.getSize());
         }
     }
 

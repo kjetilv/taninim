@@ -3,34 +3,26 @@ package mediaserver.http;
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum QPar implements Par {
+public enum FPar implements Par {
 
-    PLAYLIST,
+    JUKEBOX_ALBUM("jukeboxAlbum"),
 
-    CURATION,
+    JUKEBOX_TRACK("jukeboxTrack"),
 
-    ALBUM,
+    JUKEBOX_CLEAR("jukeboxClear"),
 
-    ARTIST,
+    IDS,
 
-    TRACK,
-
-    SERIES,
-
-    STREAMLEASE,
-
-    STREAM_HIHGLIGHTED("streamHighlighted"),
-
-    AUTOPLAY;
+    SESSION;
 
     private final String name;
 
-    QPar() {
+    FPar() {
 
         this(null);
     }
 
-    QPar(String name) {
+    FPar(String name) {
 
         this.name = name == null ? this.name().toLowerCase() : name;
     }
@@ -41,7 +33,7 @@ public enum QPar implements Par {
         return name;
     }
 
-    public static Optional<QPar> get(String substring) {
+    public static Optional<FPar> get(String substring) {
 
         return Arrays.stream(values())
             .filter(v ->

@@ -2,6 +2,7 @@ package mediaserver.media;
 
 import mediaserver.externals.*;
 import mediaserver.util.IO;
+import mediaserver.util.P2;
 import mediaserver.util.Print;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +22,6 @@ import java.util.stream.Stream;
 public interface Media {
 
     Logger log = LoggerFactory.getLogger(Media.class);
-
-    int SE7EN = 7;
 
     default Media subLibrary(Series series) {
 
@@ -102,11 +101,6 @@ public interface Media {
 
     Collection<Artist> getTrackCreditedArtists();
 
-    default Collection<Album> getSevenRandomAlbums() {
-
-        return getRandomAlbums(SE7EN);
-    }
-
     Collection<Album> getRandomAlbums(int count);
 
     default Collection<Album> allAlbums() {
@@ -136,6 +130,10 @@ public interface Media {
     Collection<Track> getTracks(boolean recurse);
 
     Optional<Album> getAlbum(UUID id);
+
+    Optional<Album> getAlbumWithTrack(UUID id);
+
+    P2<Album, UUID> getRandomTrack();
 
     Collection<Series> getSeries();
 

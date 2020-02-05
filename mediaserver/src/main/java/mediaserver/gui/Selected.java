@@ -1,8 +1,11 @@
 package mediaserver.gui;
 
+import mediaserver.media.Album;
 import mediaserver.media.Track;
 
 public final class Selected {
+
+    private final Album album;
 
     private final Track track;
 
@@ -12,12 +15,18 @@ public final class Selected {
 
     private final Track next;
 
-    public Selected(Track track, boolean autoplay, Track previous, Track next) {
+    public Selected(Album album, Track track, boolean autoplay, Track previous, Track next) {
 
+        this.album = album;
         this.track = track;
         this.autoplay = autoplay;
         this.previous = previous;
         this.next = next;
+    }
+
+    public Album getAlbum() {
+
+        return album;
     }
 
     public Track getTrack() {

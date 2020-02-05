@@ -164,13 +164,11 @@ public final class Sessions {
 
         return new Session(
             fbUser,
-            UUID.randomUUID(),
             req.getTime(),
             req.getTime().plus(sessionLength),
             inactivityMax,
             accessLevel,
-            bytesQuota
-        ).accessedBy(req);
+            bytesQuota);
     }
 
     private boolean valid(Req req, Session session) {

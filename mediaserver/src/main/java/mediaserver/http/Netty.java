@@ -7,7 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import mediaserver.gui.GUI;
+import mediaserver.gui.IndexPage;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -65,14 +65,24 @@ public final class Netty {
         return fullResponse(req, contentType, status, content, null);
     }
 
-    public static HttpResponse redirectResponse(Page page, Headers moreHeaders) {
+    public static HttpResponse redirect(Page page, Headers moreHeaders) {
+
+        return redirect(page.getPref(), moreHeaders);
+    }
+
+    public static HttpResponse redirect(String ref) {
+
+        return redirect(ref, null);
+    }
+
+    public static HttpResponse redirect(String ref, Headers moreHeaders) {
 
         HttpHeaders headers = new DefaultHttpHeaders();
         if (moreHeaders != null) {
             moreHeaders.accept(headers::set);
         }
         return new DefaultFullHttpResponse(
-            HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, page.getPref()), EmptyHttpHeaders.INSTANCE);
+            HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, ref), EmptyHttpHeaders.INSTANCE);
     }
 
     public static HttpResponse authCookieResponse(Req req, String cookie) {
@@ -82,14 +92,14 @@ public final class Netty {
 
     public static HttpResponse unauthCookieResponse(String cookie) {
 
-        return redirectResponse(Page.LOGIN, setCookie(cookie));
+        return redirect(Page.LOGIN, setCookie(cookie));
     }
 
     public static String authCookie(UUID uuid) {
 
         io.netty.handler.codec.http.cookie.Cookie cookie =
             new io.netty.handler.codec.http.cookie.DefaultCookie(
-                GUI.ID_COOKIE,
+                IndexPage.ID_COOKIE,
                 Objects.requireNonNull(uuid, "uuid").toString());
         cookie.setMaxAge(COOKIE_TIME);
         return ServerCookieEncoder.STRICT.encode(cookie);
@@ -97,24 +107,19 @@ public final class Netty {
 
     public static String unauthCookie() {
 
-        io.netty.handler.codec.http.cookie.Cookie cookie = new DefaultCookie(GUI.ID_COOKIE, "");
+        io.netty.handler.codec.http.cookie.Cookie cookie = new DefaultCookie(IndexPage.ID_COOKIE, "");
         cookie.setMaxAge(0);
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
-    public static HttpResponse redirectResponse(Page location) {
+    public static HttpResponse redirect(Page location) {
 
-        return redirectResponse(location, null);
+        return redirect(location, null);
     }
 
     protected static HttpResponse ok(Req req, byte[] content, Headers moreHeaders) {
 
         return fullResponse(req, null, null, content, moreHeaders);
-    }
-
-    protected static HttpResponse okCookieResponse(Req req, String cookieCookie) {
-
-        return ok(req, null, setCookie(cookieCookie));
     }
 
     private static HttpResponse fullResponse(
