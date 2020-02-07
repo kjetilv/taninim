@@ -5,40 +5,28 @@ import java.util.Optional;
 
 public enum QPar implements Par {
 
-    PLAYLIST,
+    playlist,
 
-    CURATION,
+    curation,
 
-    ALBUM,
+    album,
 
-    ARTIST,
+    artist,
 
-    TRACK,
+    track,
 
-    SERIES,
+    series,
 
-    STREAMLEASE,
+    streamlease,
 
-    STREAM_HIHGLIGHTED("streamHighlighted"),
+    streamHighlighted,
 
-    AUTOPLAY;
-
-    private final String name;
-
-    QPar() {
-
-        this(null);
-    }
-
-    QPar(String name) {
-
-        this.name = name == null ? this.name().toLowerCase() : name;
-    }
+    autoplay;
 
     @Override
     public String getName() {
 
-        return name;
+        return name();
     }
 
     public static Optional<QPar> get(String substring) {

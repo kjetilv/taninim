@@ -34,7 +34,7 @@ public final class Artist extends AbstractNameHashable {
             .collect(Collectors.toList());
     }
 
-    private Stream<String> s(String name, String rex) {
+    private static Stream<String> s(String name, String rex) {
 
         Stream<String> stringStream = name.contains(rex)
             ? Arrays.stream(name.split(rex))

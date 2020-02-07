@@ -4,7 +4,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.externals.ACL;
-import mediaserver.externals.S3;
+import mediaserver.externals.S3Client;
 import mediaserver.externals.S3Connector;
 import mediaserver.gui.*;
 import mediaserver.http.WebCache;
@@ -86,7 +86,7 @@ public final class Main {
             log.warn("Mock SSL context: {}", mockSslContext);
         }
 
-        S3.Client s3 = S3Connector.get().orElse(null);
+        S3Client s3 = S3Connector.get().orElse(null);
 
         log.info("Refreshing resources every {}", REFRESH_TIME);
 
@@ -127,14 +127,14 @@ public final class Main {
             .get(() -> retrieveMedia(local, args));
     }
 
-    private static Supplier<Ids> idsSupplier(String[] args, boolean local, S3.Client client) {
+    private static Supplier<Ids> idsSupplier(String[] args, boolean local, S3Client client) {
 
         return ONCE_EVERY.interval(REFRESH_TIME)
             .when(shouldRefresh(local, args))
             .get(() -> refreshIds(local, client));
     }
 
-    private static Ids refreshIds(boolean local, S3.Client s3) {
+    private static Ids refreshIds(boolean local, S3Client s3) {
 
         ACL sources = local
             ? IO.readLocalACL(Ids.IDS_RESOURCE)

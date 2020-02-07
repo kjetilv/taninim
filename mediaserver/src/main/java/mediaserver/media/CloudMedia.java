@@ -1,7 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.externals.ACL;
-import mediaserver.externals.S3;
+import mediaserver.externals.S3Client;
 import mediaserver.externals.S3Connector;
 import mediaserver.sessions.Ids;
 import mediaserver.util.IO;
@@ -25,6 +25,10 @@ public final class CloudMedia {
 
     private static final String MEDIA_SER = "media.ser";
 
+    private CloudMedia() {
+
+    }
+
     public static void main(String[] args) {
 
         main(args[0], args[1], args[2]);
@@ -36,7 +40,7 @@ public final class CloudMedia {
     }
 
     public static void uploadMissingRemote(
-        S3.Client s3,
+        S3Client s3,
         Map<String, Long> remoteSizes,
         File localFile,
         Predicate<Track> alsoInclude
@@ -104,7 +108,7 @@ public final class CloudMedia {
                 getFiles(f, predicate));
     }
 
-    public static void uploadMedia(File file, S3.Client s3) {
+    public static void uploadMedia(File file, S3Client s3) {
 
         s3.put(file, MEDIA_SER);
     }
@@ -272,17 +276,17 @@ public final class CloudMedia {
 
     }
 
-    private static void uploadCurations(S3.Client s3) {
+    private static void uploadCurations(S3Client s3) {
 
         uploadResource(s3, PlaylistYaml.CURATED_RESOURCE);
     }
 
-    private static void uploadIds(S3.Client s3) {
+    private static void uploadIds(S3Client s3) {
 
         uploadResource(s3, Ids.IDS_RESOURCE);
     }
 
-    private static void uploadResource(S3.Client s3, String res) {
+    private static void uploadResource(S3Client s3, String res) {
 
         Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource(res))
             .ifPresentOrElse(

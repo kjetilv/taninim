@@ -2,7 +2,7 @@ package mediaserver.sessions;
 
 import mediaserver.externals.ACL;
 import mediaserver.externals.FbUser;
-import mediaserver.externals.S3;
+import mediaserver.externals.S3Client;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +15,11 @@ public final class Ids {
 
     private final ACL acl;
 
-    private final S3.Client s3;
+    private final S3Client s3;
 
     private static final Logger log = LoggerFactory.getLogger(Ids.class);
 
-    public Ids(ACL acl, S3.Client s3) {
+    public Ids(ACL acl, S3Client s3) {
 
         this.acl = acl == null || acl.isEmpty() ? ACL.NONE : acl;
         this.s3 = s3;

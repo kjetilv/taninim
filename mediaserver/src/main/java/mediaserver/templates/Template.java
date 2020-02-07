@@ -24,23 +24,15 @@ public final class Template {
 
     private final String name;
 
-    private ST st;
+    private final ST st;
 
-    private Supplier<byte[]> bytes;
+    private final Supplier<byte[]> bytes;
 
     public Template(String name, String source) {
 
         this.name = name;
         this.st = new ST(source, '{', '}');
-        this.bytes = MostlyOnce.get(() -> {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            try (Writer out = new OutputStreamWriter(bytes, StandardCharsets.UTF_8)) {
-                st.write(new NoIndentWriter(out), new LoggingErrorListener(name));
-            } catch (IOException e) {
-                throw new IllegalStateException(this + " failed to write template: " + st, e);
-            }
-            return bytes.toByteArray();
-        });
+        this.bytes = MostlyOnce.get(this::toBytes);
     }
 
     public byte[] bytes() {
@@ -60,6 +52,17 @@ public final class Template {
             st.add(Objects.requireNonNull(param, "param").getName(), value);
         }
         return this;
+    }
+
+    private byte[] toBytes() {
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (Writer out = new OutputStreamWriter(bytes, StandardCharsets.UTF_8)) {
+            st.write(new NoIndentWriter(out), new LoggingErrorListener(this.name));
+        } catch (IOException e) {
+            throw new IllegalStateException(this + " failed to write template: " + st, e);
+        }
+        return bytes.toByteArray();
     }
 
     private static class LoggingErrorListener implements STErrorListener {

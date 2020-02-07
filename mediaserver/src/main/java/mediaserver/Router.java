@@ -122,7 +122,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private void handleUnauthorized(ChannelHandlerContext ctx, Req req) {
+    private static void handleUnauthorized(ChannelHandlerContext ctx, Req req) {
 
         if (loginAllowed(req)) {
             log.info("Redirected to login: {}", req);
@@ -133,13 +133,13 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private void error(ChannelHandlerContext ctx, FullHttpRequest request) {
+    private static void error(ChannelHandlerContext ctx, FullHttpRequest request) {
 
         log.info("Failed: {}", request);
         Netty.respond(ctx, BAD_REQUEST);
     }
 
-    private boolean loginAllowed(Req req) {
+    private static boolean loginAllowed(Req req) {
 
         return req.getPage() != Page.LOGIN && req.getPage().accessibleWith(AccessLevel.LOGIN);
     }
@@ -154,7 +154,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             .findFirst();
     }
 
-    private String summarize(Throwable cause) {
+    private static String summarize(Throwable cause) {
 
         return Throwables.causes(cause)
             .map(String::valueOf)
@@ -176,7 +176,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         return Duration.between(start, clock.instant()).toMillis();
     }
 
-    private String addr(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {
+    private static String addr(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {
 
         return Optional.of(ctx)
             .map(ChannelHandlerContext::channel)

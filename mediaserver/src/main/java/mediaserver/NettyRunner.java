@@ -106,7 +106,7 @@ final class NettyRunner {
         }
     }
 
-    private void init(ChannelPipeline channelPipeline, Router router) {
+    private static void init(ChannelPipeline channelPipeline, Router router) {
 
         channelPipeline
             .addLast("decoder", new HttpServerCodec())
@@ -121,7 +121,7 @@ final class NettyRunner {
             .addLast(router);
     }
 
-    private ThreadFactory countingThreadFactory(String prefix) {
+    private static ThreadFactory countingThreadFactory(String prefix) {
 
         LongAdder count = new LongAdder();
         return r -> {

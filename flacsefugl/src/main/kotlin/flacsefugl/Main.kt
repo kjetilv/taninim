@@ -1,10 +1,10 @@
 package flacsefugl
 
-import mediaserver.templates.Template
-import mediaserver.templates.TPar
 import mediaserver.media.Media
 import mediaserver.media.PlaylistM3U
 import mediaserver.media.PlaylistYaml
+import mediaserver.templates.TPar
+import mediaserver.templates.Template
 import mediaserver.util.IO
 import java.net.URI
 import java.nio.file.Files
@@ -89,7 +89,7 @@ fun main() {
                 Mover(flacDir, walkDir, playlists()),
                 Traverser(flacDir))
         val transfers =
-                walkmanTransfer.convert() { _: Int, _: Int, source: Path, target: Path ->
+                walkmanTransfer.convert { _: Int, _: Int, source: Path, target: Path ->
                     if (shouldUpdate(source, target)) {
                         println("$source -> $target")
                         Files.copy(source, target, COPY_ATTRIBUTES, REPLACE_EXISTING)
@@ -118,7 +118,7 @@ fun main() {
                         Optional.ofNullable(mover.target(track))
                     }
             val template = Template(playlist.name, source)
-            val bytes = template.add(TPar.PLAYLIST, playlistM3U).bytes()
+            val bytes = template.add(TPar.playlist, playlistM3U).bytes()
             val replacedName =
                     playlist.name.replace('/', ' ') + ".M3U8"
             val target = musicDir.resolve(replacedName)

@@ -11,13 +11,13 @@ public final class Pairs {
 
     }
 
-    public static <T> Collection<Pair<T>> pairs(Collection<T> t, T end) {
+    public static <T> Collection<Pair<T, T>> pairs(Collection<T> t, T end) {
 
         ArrayList<T> l = new ArrayList<>(t);
         int size = l.size();
         return IntStream.range(0, size)
             .mapToObj(i ->
-                new Pair<>(
+                Pair.of(
                     l.get(i),
                     i + 1 < size
                         ? l.get(i + 1)

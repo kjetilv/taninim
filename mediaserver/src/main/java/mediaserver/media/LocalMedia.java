@@ -1,7 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
-import mediaserver.util.P2;
+import mediaserver.util.Pair;
 
 import java.io.File;
 import java.io.Serializable;
@@ -315,11 +315,11 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public P2<Album, UUID> getRandomTrack() {
+    public Pair<Album, UUID> getRandomTrack() {
 
         List<UUID> uuids = new ArrayList<>(trackIndex.keySet());
         UUID uuid = uuids.get(new Random().nextInt(uuids.size()));
-        return new P2<>(trackIndex.get(uuid), uuid);
+        return Pair.of(trackIndex.get(uuid), uuid);
     }
 
     @Override
@@ -387,7 +387,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         return sb.append(albums.size()).append(" albums");
     }
 
-    private Optional<Playlist> getPlaylist(Collection<Playlist> playlists, UUID uuid) {
+    private static Optional<Playlist> getPlaylist(Collection<Playlist> playlists, UUID uuid) {
 
         return playlists.stream().filter(playlist -> playlist.getUuid().equals(uuid)).findFirst();
     }

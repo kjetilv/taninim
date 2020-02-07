@@ -2,8 +2,8 @@
 <!--suppress HtmlUnknownTarget -->
 <HTML lang="en">
 <HEAD>
-    <LINK REL="stylesheet" HREF="/res/taninim.css">
-    <LINK REL="stylesheet" HREF="/res/plyr.css">
+    <LINK HREF="/res/taninim.css" REL="stylesheet">
+    <LINK HREF="/res/plyr.css" REL="stylesheet">
     <META charset="utf-8">
     <TITLE>taninim: debug</TITLE>
 </HEAD>
@@ -37,9 +37,9 @@
 
 <H1>ids.json</H1>
 
-<FORM ACTION="/admin" METHOD="POST" AUTOCOMPLETE="off">
+<FORM ACTION="/admin" AUTOCOMPLETE="off" METHOD="POST">
     <LABEL>
-        <TEXTAREA NAME="ids" STYLE="width: 90%; height: 256px">{ids}</TEXTAREA>
+        <TEXTAREA NAME="updatedIds" STYLE="width: 90%; height: 256px">{ids}</TEXTAREA>
     </LABEL>
     <BR>
     <BUTTON TYPE="submit" value="Upload">Upload</BUTTON>

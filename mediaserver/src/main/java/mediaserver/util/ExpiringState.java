@@ -1,12 +1,14 @@
 package mediaserver.util;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ExpiringState<T> {
+public class ExpiringState<T> implements Function<Instant, Optional<T>>, Supplier<Optional<T>> {
 
     private final AtomicReference<T> state = new AtomicReference<>();
 
@@ -14,9 +16,17 @@ public class ExpiringState<T> {
 
     private final Duration duration;
 
+    private final Supplier<Instant> clock;
+
     public ExpiringState(Duration duration) {
 
+        this(duration, null);
+    }
+
+    public ExpiringState(Duration duration, Supplier<Instant> clock) {
+
         this.duration = duration;
+        this.clock = clock == null ? Clock.systemDefaultZone()::instant : clock;
     }
 
     public boolean set(Instant time, T value) {
@@ -27,9 +37,11 @@ public class ExpiringState<T> {
     public boolean set(Instant time, T value, boolean force) {
 
         synchronized (state) {
-            if (force || lastSet.get() == null || expiredAt(time)) {
+            if (force || expiredAt(time)) {
                 state.set(value);
-                lastSet.set(time);
+                if (value != null) {
+                    lastSet.set(time);
+                }
                 return true;
             }
             return false;
@@ -45,29 +57,59 @@ public class ExpiringState<T> {
 
         synchronized (state) {
             if (lastSet.get() == null || expiredAt(time)) {
-                if (newValue == null) {
-                    return Optional.empty();
-                }
-                newValue.get().ifPresent(t -> set(time, t, true));
+                T value = Optional.ofNullable(newValue).flatMap(Supplier::get).orElse(null);
+                set(time, value, true);
             }
             return Optional.ofNullable(state.get());
         }
     }
 
-    public void expire() {
+    public Optional<Duration> getRemaining(Instant time) {
 
         synchronized (state) {
-            state.set(null);
-            lastSet.set(null);
+            return expiredAt(time) ? Optional.empty() : remaining(time);
         }
+    }
+
+    public boolean expire() {
+
+        synchronized (state) {
+            T oldValue = state.getAndSet(null);
+            lastSet.set(null);
+            return oldValue == null;
+        }
+    }
+
+    @Override
+    public Optional<T> apply(Instant instant) {
+
+        return get(instant);
+    }
+
+    @Override
+    public Optional<T> get() {
+
+        return get(clock.get());
     }
 
     private boolean expiredAt(Instant time) {
 
         synchronized (state) {
-            Instant set = lastSet.get();
-            return set != null && time.isAfter(set.plus(duration));
+            Instant lastSetTime = lastSet.get();
+            return lastSetTime == null || now(time).isAfter(lastSetTime.plus(duration));
         }
+    }
+
+    private Optional<Duration> remaining(Instant time) {
+
+        return Optional.of(lastSet.get())
+            .map(ins -> ins.plus(duration))
+            .map(exp -> Duration.between(time, exp));
+    }
+
+    private Instant now(Instant time) {
+
+        return time == null ? clock.get() : time;
     }
 
     @Override

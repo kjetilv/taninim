@@ -40,14 +40,16 @@ public class User extends AbstractHashable {
 
     public String getTimeLeft() {
 
-        return Print.pretty(Duration.between(time, session.getEndTime()));
+        return Print.prettyLongTime(Duration.between(time, session.getEndTime()));
     }
 
     public String getMbStreamed() {
+
         return Print.bytes(session.getStreamedBytes());
     }
 
     public String getMbQuota() {
+
         return Print.bytes(session.getStreamQuota());
     }
 

@@ -7,69 +7,64 @@ import java.util.Optional;
 
 public enum TPar implements Par {
 
-    MEDIA,
+    media,
 
-    PLYR,
+    plyr,
 
-    PLAYLIST,
+    playlist,
 
-    PLAYLISTS,
+    playlists,
 
-    CURATION,
+    curation,
 
-    CURATIONS,
+    curations,
 
-    ALBUM,
+    album,
 
-    ARTIST,
+    artist,
 
-    SERIES,
+    series,
 
-    SELECTED,
+    selected,
 
-    RANDOM_ALBUMS("randomAlbums"),
+    randomAlbums,
 
-    HIGHLIGHTED_ALBUM("highlightedAlbum"),
+    highlightedAlbum,
 
-    HIGHLIGHTED,
+    highlighted,
 
-    TRACK_HIGHLIGHTED("trackHighlighted"),
+    trackHighlighted,
 
-    HIGHLIGHTED_SELECTED("highlightedSelected"),
+    highlightedSelected,
 
-    PLAYABLE_GROUPS("playableGroups"),
+    highlightedRemaining,
 
-    ADMIN,
+    playableGroups,
 
-    USER,
+    admin,
 
-    HOST,
+    user,
 
-    PROTOCOL,
+    host,
 
-    IDS,
+    protocol,
 
-    SESSIONS,
+    ids,
 
-    STREAMLEASE,
+    sessions,
 
-    EXCHANGES;
+    streamlease,
 
-    private final String name;
-
-    TPar() {
-        this(null);
-    }
-    TPar(String name) {
-        this.name = name == null ? this.name().toLowerCase() : name;
-    }
+    exchanges;
 
     @Override
     public String getName() {
-        return name;
+
+        return name();
     }
 
     public static Optional<TPar> get(String substring) {
+
         return Arrays.stream(values())
             .filter(v ->
                 v.name().equalsIgnoreCase(substring))

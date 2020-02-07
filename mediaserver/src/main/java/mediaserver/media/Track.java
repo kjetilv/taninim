@@ -105,7 +105,7 @@ public final class Track extends AbstractHashable
         }
     }
 
-    public Optional<Artist> getAlbumArtist(FlacTags tags, boolean compilation) {
+    public static Optional<Artist> getAlbumArtist(FlacTags tags, boolean compilation) {
 
         return compilation ? Optional.empty() : Optional.ofNullable(tags.getComments("albumartist"))
             .filter(c ->
@@ -151,10 +151,12 @@ public final class Track extends AbstractHashable
     }
 
     public String getPrettyCompressedSize() {
+
         return Print.bytes(compressedSize);
     }
 
     public String getPrettySize() {
+
         return Print.bytes(fileSize);
     }
 
@@ -188,7 +190,7 @@ public final class Track extends AbstractHashable
 
     public String getPrettyDuration() {
 
-        return Print.pretty(this.duration);
+        return Print.prettyTrackTime(this.duration);
     }
 
     public boolean sameAlbum(Track track) {
@@ -219,7 +221,7 @@ public final class Track extends AbstractHashable
             .append(". ").append(name);
     }
 
-    private Integer part(String name) {
+    private static Integer part(String name) {
 
         if (name == null) {
             return null;
@@ -231,18 +233,18 @@ public final class Track extends AbstractHashable
         return null;
     }
 
-    private int trackNo(String fileName) {
+    private static int trackNo(String fileName) {
 
         return Integer.parseInt(pick(fileName, 2, 1));
     }
 
-    private String trackName(String fileName) {
+    private static String trackName(String fileName) {
 
         String name = pick(fileName, 3, 2);
         return name.endsWith(".flac") ? name.substring(0, name.length() - ".flac".length()) : name;
     }
 
-    private String pick(String name, int partIndex, int noPartIndex) {
+    private static String pick(String name, int partIndex, int noPartIndex) {
 
         Matcher partMatcher = PART_TRACK_NAME.matcher(name);
         if (partMatcher.matches()) {

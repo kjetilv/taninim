@@ -1,7 +1,10 @@
 package mediaserver.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.AsciiString;
 import mediaserver.Config;
@@ -210,6 +213,7 @@ public final class Req {
     }
 
     public String getReferer() {
+
         return request.headers().getAsString(HttpHeaderNames.REFERER);
     }
 
@@ -267,10 +271,10 @@ public final class Req {
 
     private Optional<UUID> authentication(HttpRequest req) {
 
-        return cookieUUID(req).or(() -> getUUIDParameter(QPar.STREAMLEASE));
+        return cookieUUID(req).or(() -> getUUIDParameter(QPar.streamlease));
     }
 
-    private Optional<UUID> cookieUUID(HttpRequest req) {
+    private static Optional<UUID> cookieUUID(HttpRequest req) {
 
         return Optional.of(req.headers())
             .map(headers ->

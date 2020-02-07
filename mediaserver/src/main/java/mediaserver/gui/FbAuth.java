@@ -66,7 +66,7 @@ public final class FbAuth extends NettyHandler {
         });
     }
 
-    private Optional<URL> picture(User facebookApiUser) {
+    private static Optional<URL> picture(User facebookApiUser) {
 
         return Optional.ofNullable(facebookApiUser.getPicture())
             .map(ProfilePictureSource::getUrl)

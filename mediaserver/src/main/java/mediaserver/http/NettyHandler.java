@@ -44,16 +44,6 @@ public abstract class NettyHandler {
 
     protected abstract Handling handleRequest(Req req);
 
-    protected final Handling handle(Req req, HttpResponse response) {
-
-        return Handling.sentResponse(this, req, Netty.respond(req.getCtx(), response));
-    }
-
-    protected final Handling handled(Req req, HttpResponse sentResponse) {
-
-        return Handling.sentResponse(this, req, sentResponse);
-    }
-
     protected final Handling handle(Req req, byte[] bytes, Headers cacheable) {
 
         try {
@@ -61,6 +51,16 @@ public abstract class NettyHandler {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond to " + req, e);
         }
+    }
+
+    protected final Handling handle(Req req, HttpResponse response) {
+
+        return handled(req, Netty.respond(req.getCtx(), response));
+    }
+
+    protected final Handling handled(Req req, HttpResponse sentResponse) {
+
+        return Handling.sentResponse(this, req, sentResponse);
     }
 
     protected final Handling handleBadRequest(Req req) {

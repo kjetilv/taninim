@@ -3,7 +3,7 @@ package mediaserver.stream;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
-import mediaserver.externals.S3;
+import mediaserver.externals.S3Client;
 import mediaserver.externals.S3Connector;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
@@ -24,12 +24,20 @@ public final class S3Streamer extends Streamer {
 
     private static final Logger log = LoggerFactory.getLogger(S3Streamer.class);
 
-    private final S3.Client client;
+    private final S3Client client;
 
-    public S3Streamer(Clock clock, Supplier<Media> media, S3.Client client, int bytesPerChunk) {
+    public S3Streamer(Clock clock, Supplier<Media> media, S3Client client, int bytesPerChunk) {
 
         super(clock, media, bytesPerChunk);
         this.client = client;
+    }
+
+    @Override
+    protected Object content(Track track, Chunk chunk, boolean lossless) {
+
+        String type = type(lossless);
+        ByteBuf byteBuf = data(track, type, chunk);
+        return new DefaultHttpContent(byteBuf);
     }
 
     @Override
@@ -41,20 +49,12 @@ public final class S3Streamer extends Streamer {
                 new IllegalStateException("Failed to assess length of " + track));
     }
 
-    @Override
-    protected Object content(Track track, Chunk chunk, boolean lossless) {
-
-        String type = type(lossless);
-        ByteBuf byteBuf = data(track, type, chunk);
-        return new DefaultHttpContent(byteBuf);
-    }
-
-    private String type(boolean lossless) {
+    private static String type(boolean lossless) {
 
         return lossless ? FLAC : M4A;
     }
 
-    private ByteBuf data(Track track, String type, Chunk chunk) {
+    private static ByteBuf data(Track track, String type, Chunk chunk) {
 
         ByteBuf buffer = Unpooled.buffer((int) chunk.getSize());
         try (InputStream input = jetStream(track, chunk.getStart(), chunk.getEnd(), type)) {
@@ -78,7 +78,7 @@ public final class S3Streamer extends Streamer {
         return buffer;
     }
 
-    private InputStream jetStream(Track track, Long offset, Long length, String type) {
+    private static InputStream jetStream(Track track, Long offset, Long length, String type) {
 
         return S3Connector.get().map(s3 -> {
             try {
@@ -93,7 +93,7 @@ public final class S3Streamer extends Streamer {
             new IllegalStateException("No S3 connection"));
     }
 
-    private int intValue(long partialLength) {
+    private static int intValue(long partialLength) {
 
         if (partialLength > Integer.MAX_VALUE) {
             throw new IllegalStateException("Unexpected length: " + partialLength);

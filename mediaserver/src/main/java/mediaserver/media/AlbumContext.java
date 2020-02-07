@@ -215,7 +215,7 @@ public final class AlbumContext implements Serializable {
             trackContexts);
     }
 
-    private String name(Collection<TrackContext> headingEntries, Pair<Integer> pair) {
+    private static String name(Collection<TrackContext> headingEntries, Pair<Integer, Integer> pair) {
 
         if (headingEntries.isEmpty()) {
             return "Tracks " + pair.getT1() + "-" + (pair.getT2() - 1);
@@ -224,7 +224,7 @@ public final class AlbumContext implements Serializable {
             Collectors.joining(" / "));
     }
 
-    private Collection<TrackContext> headingEntries(Pair<Integer> pair) {
+    private Collection<TrackContext> headingEntries(Pair<Integer, Integer> pair) {
 
         List<TrackContext> headingEntries =
             IntStream.range(0, pair.getT1() + 1)

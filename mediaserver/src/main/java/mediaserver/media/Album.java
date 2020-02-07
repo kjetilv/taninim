@@ -112,7 +112,7 @@ public final class Album extends AbstractHashable
 
     public String getPrettyDuration() {
 
-        return Print.pretty(getDuration());
+        return Print.prettyTrackTime(getDuration());
     }
 
     @SuppressWarnings("NullableProblems")

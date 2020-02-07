@@ -17,18 +17,18 @@ public final class S3Connector {
 
     private static final String AWS_KEY_ENV = "AWS_KEY";
 
-    private static final Supplier<Optional<mediaserver.externals.S3.Client>> S3 = MostlyOnce.get(S3Connector::s3);
+    private static final Supplier<Optional<S3Client>> S3 = MostlyOnce.get(S3Connector::s3);
 
     private S3Connector() {
 
     }
 
-    public static Optional<mediaserver.externals.S3.Client> get() {
+    public static Optional<S3Client> get() {
 
         return S3.get();
     }
 
-    private static Optional<mediaserver.externals.S3.Client> s3() {
+    private static Optional<S3Client> s3() {
 
         String awsKey = getProperty(AWS_KEY, AWS_KEY_ENV, true);
         String awsSecret = getProperty(AWS_SECRET, AWS_SECRET_ENV, true);

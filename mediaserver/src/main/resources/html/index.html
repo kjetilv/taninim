@@ -2,22 +2,23 @@
 <!--suppress HtmlUnknownTarget -->
 <HTML lang="no">
 <HEAD>
-    <LINK REL="stylesheet" HREF="/res/taninim.css">
+    <LINK HREF="/res/taninim.css" REL="stylesheet">
     {if(highlighted)}
     {if(plyr)}
-    <LINK REL="stylesheet" HREF="/res/plyr.css">
+    <LINK HREF="/res/plyr.css" REL="stylesheet">
     {endif}
     {endif}
     <META charset="UTF-8">
-    <TITLE>taninim</TITLE>
+    <TITLE>
+        taninim[{if(artist)}{artist.name}{else}{if(playlist)}{playlist.name}{else}{if(series)}{series.name}{endif}{endif}{endif}]</TITLE>
 </HEAD>
 
 <BODY>
 
 <DIV STYLE="float: right">
-    <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-         width="120pt" height="130pt" viewBox="0 0 150 150">
-        <g transform="translate(-20,175) scale(0.10,-0.10)" fill="#708070">
+    <svg height="130pt" version="1.0"
+         viewBox="0 0 150 150" width="120pt" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#708070" transform="translate(-20,175) scale(0.10,-0.10)">
             <path d="M889 1595 l-112 -195 -228 0 c-126 0 -229 -3 -229 -6 0 -4 49 -93
     110 -199 61 -106 110 -195 110 -198 0 -3 -51 -93 -113 -200 l-114 -194 81 -7
     c45 -3 127 -6 182 -6 l101 0 259 437 c143 240 258 442 256 447 -8 24 -177 316
@@ -64,18 +65,19 @@
     <STRONG>{highlighted.name}</STRONG>
     <SMALL>
         <EM>{highlighted.prettyDuration}&nbsp;[{highlighted.prettyCompressedSize}]</EM>
+        (Tilgjengelig i {highlightedRemaining})
     </SMALL>
 </DIV>
 
 <DIV STYLE="float:left; padding-right: 5px">
-    <A TARGET="_blank" HREF="{highlightedAlbum.context.discogPage}">
+    <A HREF="{highlightedAlbum.context.discogPage}" TARGET="_blank">
         <IMG SRC="{highlightedAlbum.context.discogCover}" STYLE="width:50px ; height: 50px">
     </A>
 </DIV>
 
 <!--suppress HtmlUnknownAttribute -->
-<AUDIO id="player" preload="none" controls src="/audio/{highlighted.uuid}.m4a"
-       data-plyr-config='\{ "duration": {highlighted.seconds} }'>
+<AUDIO controls data-plyr-config='\{ "duration": {highlighted.seconds} }' id="player" preload="none"
+       src="/audio/{highlighted.uuid}.m4a">
 </AUDIO>
 
 <DIV STYLE="float: inside; text-align: center; padding:10px">
@@ -127,7 +129,7 @@
     {if(artist)}
     <P>Artist: <STRONG>{artist.name}
         {if(user.streamingPlaylists)}
-        <A TITLE="M3U" HREF="/playlist/artist/{artist.uuid}"><SMALL>⏬</SMALL></A>
+        <A HREF="/playlist/artist/{artist.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
         {endif}
     </STRONG></P>
     {endif}
@@ -135,7 +137,7 @@
     {if(series)}
     <P>Serie: <STRONG>{series.name}
         {if(user.streamingPlaylists)}
-        <A TITLE="M3U" HREF="/playlist/series/{series.uuid}"><SMALL>⏬</SMALL></A>
+        <A HREF="/playlist/series/{series.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
         {endif}
     </STRONG>
     </P>
@@ -145,7 +147,7 @@
     <P>Spilleliste:
         <STRONG>{playlist.name}
             {if(user.streamingPlaylists)}
-            <A TITLE="M3U" HREF="/playlist/{playlist.uuid}"><SMALL>⏬</SMALL></A>
+            <A HREF="/playlist/playlist/{playlist.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
             {endif}
         </STRONG>
     </P>
@@ -156,7 +158,7 @@
     <P>Kuratert spilleliste:
         <STRONG>{curation.name}
             {if(user.streamingPlaylists)}
-            <A TITLE="M3U" HREF="/curation/{curation.uuid}"><SMALL>⏬</SMALL></A>
+            <A HREF="/playlist/curation/{curation.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
             {endif}
         </STRONG>
     </P>
@@ -173,7 +175,7 @@
         {media.albums:{album|
         <LI>
             {if(user.streamingPlaylists)}
-            <A TITLE="M3U" HREF="/playlist/album/{album.uuid}"><SMALL>⏬</SMALL></A>
+            <A HREF="/playlist/album/{album.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
             {endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
         </LI>
@@ -189,7 +191,7 @@
 <DIV STYLE="text-align: center">
     {randomAlbums:{album|
     <A HREF="/album?album={album.uuid}">
-        <IMG TITLE="{album.name}" ALT="{album.name}" SRC="{album.context.discogCover}">
+        <IMG ALT="{album.name}" SRC="{album.context.discogCover}" TITLE="{album.name}">
     </A>
     }}
 </DIV>

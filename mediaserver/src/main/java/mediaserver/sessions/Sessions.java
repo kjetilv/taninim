@@ -171,7 +171,7 @@ public final class Sessions {
             bytesQuota);
     }
 
-    private boolean valid(Req req, Session session) {
+    private static boolean valid(Req req, Session session) {
 
         if (session.isValid(req.getTime())) {
             return true;
@@ -182,7 +182,7 @@ public final class Sessions {
         return false;
     }
 
-    private Predicate<Session> withCookie(UUID uuid) {
+    private static Predicate<Session> withCookie(UUID uuid) {
 
         return session ->
             Objects.equals(session.getCookie(), uuid);

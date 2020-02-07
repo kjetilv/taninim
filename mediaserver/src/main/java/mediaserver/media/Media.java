@@ -2,7 +2,7 @@ package mediaserver.media;
 
 import mediaserver.externals.*;
 import mediaserver.util.IO;
-import mediaserver.util.P2;
+import mediaserver.util.Pair;
 import mediaserver.util.Print;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public interface Media {
 
     default String getPrettyDuration() {
 
-        return Print.pretty(getDuration());
+        return Print.prettyLongTime(getDuration());
     }
 
     default Collection<Artist> getAlbumArtists() {
@@ -133,7 +133,7 @@ public interface Media {
 
     Optional<Album> getAlbumWithTrack(UUID id);
 
-    P2<Album, UUID> getRandomTrack();
+    Pair<Album, UUID> getRandomTrack();
 
     Collection<Series> getSeries();
 
@@ -289,7 +289,7 @@ public interface Media {
     static iTunesLibrary iTunesLibrary(Path libraryPath) {
 
         try {
-            Map<String, ?> plist = IO.readFromStream(libraryPath, new IOSMapParser()::convert);
+            Map<String, ?> plist = IO.readFromStream(libraryPath, IOSMapParser::convert);
             return IO.OM.readerFor(iTunesLibrary.class)
                 .readValue(IO.OM.writerFor(Map.class)
                     .writeValueAsBytes(plist));

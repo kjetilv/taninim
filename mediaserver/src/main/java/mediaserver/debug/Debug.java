@@ -36,7 +36,7 @@ public final class Debug extends TemplateEnabled {
                 Exchange::getSession,
                 Collectors.toCollection(ArrayList::new)));
         return respondHtml(req, getTemplate(DEBUG_PAGE).add(
-            TPar.EXCHANGES,
+            TPar.exchanges,
             exchanges.entrySet()));
     }
 }

@@ -19,21 +19,9 @@ public final class PlaylistM3U extends AbstractHashable {
 
     private static final long serialVersionUID = -6198219291681770060L;
 
-    public PlaylistM3U(Album album) {
-
-        this(album.getArtist().getName() + ": " + album.getName(), album.getTracks());
-    }
-
     public PlaylistM3U(String name, Collection<Track> tracks) {
 
-        this(name, Objects.requireNonNull(tracks, "tracks"), tracks.stream().collect(Collectors.toMap(
-            track -> track.getFile().toPath(),
-            track -> track,
-            (track1, track2) -> {
-                throw new IllegalStateException(track1 + " / " + track2);
-            },
-            LinkedHashMap::new
-        )));
+        this(name, Objects.requireNonNull(tracks, "tracks"), map(tracks));
     }
 
     public PlaylistM3U(String name, Collection<Track> tracks, Map<Path, Track> locatedTracks) {
@@ -84,7 +72,21 @@ public final class PlaylistM3U extends AbstractHashable {
         return sb.append(name).append(" [").append(tracks.size()).append("]");
     }
 
-    private Map<Path, Track> relocate(
+    private static Map<Path, Track> map(Collection<Track> tracks) {
+
+        return tracks.stream()
+            .collect(Collectors.toMap(
+                track ->
+                    track.getFile().toPath(),
+                Function.identity(),
+                (track1, track2) -> {
+                    throw new IllegalStateException(track1 + " / " + track2);
+                },
+                LinkedHashMap::new
+            ));
+    }
+
+    private static Map<Path, Track> relocate(
         Path to,
         Function<Path, Optional<Path>> dist,
         Map<Path, Track> locatedTracks

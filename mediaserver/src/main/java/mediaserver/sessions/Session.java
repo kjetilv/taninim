@@ -5,7 +5,7 @@ import mediaserver.http.Req;
 import mediaserver.media.Album;
 import mediaserver.media.Track;
 import mediaserver.util.ExpiringState;
-import mediaserver.util.P2;
+import mediaserver.util.Pair;
 import mediaserver.util.Print;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public final class Session {
 
     private final AtomicLong bytesStreamed = new AtomicLong();
 
-    private final ExpiringState<P2<Album, Track>> randomTrack = new ExpiringState<>(Duration.ofHours(1));
+    private final ExpiringState<Pair<Album, Track>> randomTrack = new ExpiringState<>(Duration.ofHours(1));
 
     public Session(
         FbUser fbUser,
@@ -84,7 +84,7 @@ public final class Session {
         return fbUser;
     }
 
-    public boolean isPrivileged() {
+    public static boolean isPrivileged() {
 
         return false;
     }
@@ -163,8 +163,9 @@ public final class Session {
         return bytesQuota;
     }
 
-    public Optional<P2<Album, Track>> setAccessibleTrack(Instant time, P2<Album, Track> accessibleTrack) {
-        if (randomTrack.set(time, accessibleTrack)) {
+    public Optional<Pair<Album, Track>> setAccessibleTrack(Instant time, Pair<Album, Track> accessibleTrack) {
+
+        if (!randomTrack.set(time, accessibleTrack)) {
             log.warn("Attempted new random track: {} <-> {}", randomTrack, accessibleTrack);
         } else {
             log.info("Accessible track for {}: {}", this, accessibleTrack);
@@ -172,12 +173,17 @@ public final class Session {
         return randomTrack.get(time);
     }
 
-    public Optional<P2<Album, Track>> getRandomTrack(Instant time) {
+    public Optional<Duration> getRandomTrackRemaining(Instant time) {
+
+        return randomTrack.getRemaining(time);
+    }
+
+    public Optional<Pair<Album, Track>> getRandomTrack(Instant time) {
 
         return getRandomTrack(time, null);
     }
 
-    public Optional<P2<Album, Track>> getRandomTrack(Instant time, Supplier<Optional<P2<Album, Track>>> newRandom) {
+    public Optional<Pair<Album, Track>> getRandomTrack(Instant time, Supplier<Optional<Pair<Album, Track>>> newRandom) {
 
         return randomTrack.get(time, newRandom);
     }

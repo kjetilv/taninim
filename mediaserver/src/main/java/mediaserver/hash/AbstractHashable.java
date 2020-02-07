@@ -34,6 +34,8 @@
 
 package mediaserver.hash;
 
+import mediaserver.util.Print;
+
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -113,8 +115,7 @@ public abstract class AbstractHashable
 
     private StringBuilder withStringIdentifier(StringBuilder sb) {
 
-        String hash = getUuid().toString();
-        return sb.append(hash, 0, hash.indexOf("-"));
+        return sb.append(Print.uuid(getUuid()));
     }
 
     private UUID uuid() {

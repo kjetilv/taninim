@@ -65,6 +65,17 @@ public final class Netty {
         return fullResponse(req, contentType, status, content, null);
     }
 
+    public static HttpResponse response(
+        Req req,
+        String contentType,
+        HttpResponseStatus status,
+        byte[] content,
+        Headers headers
+    ) {
+
+        return fullResponse(req, contentType, status, content, headers);
+    }
+
     public static HttpResponse redirect(Page page, Headers moreHeaders) {
 
         return redirect(page.getPref(), moreHeaders);

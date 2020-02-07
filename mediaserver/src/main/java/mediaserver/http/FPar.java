@@ -5,32 +5,20 @@ import java.util.Optional;
 
 public enum FPar implements Par {
 
-    JUKEBOX_ALBUM("jukeboxAlbum"),
+    jukeboxAlbum,
 
-    JUKEBOX_TRACK("jukeboxTrack"),
+    jukeboxTrack,
 
-    JUKEBOX_CLEAR("jukeboxClear"),
+    jukeboxClear,
 
-    IDS,
+    updatedIds,
 
-    SESSION;
-
-    private final String name;
-
-    FPar() {
-
-        this(null);
-    }
-
-    FPar(String name) {
-
-        this.name = name == null ? this.name().toLowerCase() : name;
-    }
+    session;
 
     @Override
     public String getName() {
 
-        return name;
+        return name();
     }
 
     public static Optional<FPar> get(String substring) {

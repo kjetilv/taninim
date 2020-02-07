@@ -12,9 +12,10 @@ public class URLsTest {
 
     @Test
     public void testPars() {
+
         Map<QPar, String> params = URLs.queryParams("artist=foo&album=bar&zip=zot");
         assertThat(params.size(), is(2));
-        assertThat(params.get(QPar.ARTIST), is("foo"));
-        assertThat(params.get(QPar.ALBUM), is("bar"));
+        assertThat(params.get(QPar.artist), is("foo"));
+        assertThat(params.get(QPar.album), is("bar"));
     }
 }

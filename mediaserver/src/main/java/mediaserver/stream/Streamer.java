@@ -14,9 +14,10 @@ import mediaserver.http.Req;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
+import mediaserver.sessions.Session;
 import mediaserver.toolkit.Chunk;
 import mediaserver.toolkit.Range;
-import mediaserver.util.P2;
+import mediaserver.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,7 @@ public abstract class Streamer extends NettyHandler {
 
     protected abstract long trackLength(Track track, boolean lossless);
 
-    protected Chunk allOf(long length) {
+    protected static Chunk allOf(long length) {
 
         return new Chunk(length);
     }
@@ -125,24 +126,24 @@ public abstract class Streamer extends NettyHandler {
     private static boolean authorized(Req req, Track track, Supplier<Media> media) {
 
         AccessLevel accessLevel = req.getAccessLevel();
-        if (globalPlayableTracks(req).anyMatch(track::equals)) {
-            return accessLevel.satisfies(AccessLevel.LOGIN);
+        if (singlePlayableTrack(req).anyMatch(track::equals)) {
+            return accessLevel.satisfies(AccessLevel.STREAM_SINGLE);
         }
         return accessLevel.satisfies(AccessLevel.STREAM) ||
             accessLevel.satisfies(AccessLevel.STREAM_CURATED) && media.get().isCurated(track);
     }
 
-    private static Stream<Track> globalPlayableTracks(Req req) {
+    private static Stream<Track> singlePlayableTrack(Req req) {
 
         return Stream.of(
             Globals.get().getGlobalTrack(req.getTime()),
             req.getSession().getRandomTrack(req.getTime())
-        ).flatMap(Optional::stream).map(P2::getT2);
+        ).flatMap(Optional::stream).map(Pair::getT2);
     }
 
     private Handling handle(Req req, Track track) {
 
-        boolean lossless = req.isFlac() && req.getSession().isPrivileged();
+        boolean lossless = req.isFlac() && Session.isPrivileged();
         if (req.getRequest().method() == HttpMethod.HEAD) {
             return handledMeta(req, track, lossless);
         }

@@ -29,7 +29,11 @@ public final class IOSMapParser {
 
     private static final String ARRAY = "array";
 
-    public Map<String, ?> convert(InputStream inputStream) {
+    private IOSMapParser() {
+
+    }
+
+    public static Map<String, ?> convert(InputStream inputStream) {
 
         XmlPullParser parser = parser(inputStream);
         LinkedList<Map<String, Object>> maps = new LinkedList<>();
@@ -46,7 +50,7 @@ public final class IOSMapParser {
                 if (skip) {
                     if (node == END_TAG && is(ARRAY, parser.getName())) {
                         skip = false;
-                    } else{
+                    } else {
                         continue;
                     }
                 }
@@ -118,17 +122,17 @@ public final class IOSMapParser {
         }
     }
 
-    private boolean is(String string, String tag) {
+    private static boolean is(String string, String tag) {
 
         return string.equalsIgnoreCase(tag);
     }
 
-    private void addValue(LinkedList<Map<String, Object>> mapPath, String key, Object value) {
+    private static void addValue(LinkedList<Map<String, Object>> mapPath, String key, Object value) {
 
         mapPath.getLast().put(Objects.requireNonNull(key, "key => " + value), value);
     }
 
-    private XmlPullParser parser(InputStream inputStream) {
+    private static XmlPullParser parser(InputStream inputStream) {
 
         try {
             XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
