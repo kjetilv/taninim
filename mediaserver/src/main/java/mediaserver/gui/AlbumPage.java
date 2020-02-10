@@ -28,7 +28,7 @@ public final class AlbumPage extends TemplateEnabled {
 
     public AlbumPage(Supplier<Media> media, Templater templater) {
 
-        super(templater, Page.ALBUM);
+        super(templater, Route.ALBUM);
         this.media = media;
     }
 

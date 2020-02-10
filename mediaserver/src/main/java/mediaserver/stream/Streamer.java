@@ -9,7 +9,7 @@ import mediaserver.Config;
 import mediaserver.Globals;
 import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
-import mediaserver.http.Page;
+import mediaserver.http.Route;
 import mediaserver.http.Req;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
@@ -56,8 +56,7 @@ public abstract class Streamer extends NettyHandler {
 
     Streamer(Clock clock, Supplier<Media> media, int bytesPerChunk) {
 
-        super(Page.AUDIO);
-
+        super(Route.AUDIO);
         this.clock = clock;
         this.media = media;
         this.bytesPerChunk = bytesPerChunk;

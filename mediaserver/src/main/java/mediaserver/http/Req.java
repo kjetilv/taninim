@@ -36,7 +36,7 @@ public final class Req {
 
     private final ChannelHandlerContext ctx;
 
-    private final Page page;
+    private final Route route;
 
     private final String path;
 
@@ -68,7 +68,7 @@ public final class Req {
     private Req(
         ChannelHandlerContext ctx,
         FullHttpRequest request,
-        Page page,
+        Route route,
         String uri,
         Session session,
         Instant time
@@ -76,7 +76,7 @@ public final class Req {
 
         this.ctx = ctx;
 
-        this.page = Objects.requireNonNull(page, "page");
+        this.route = Objects.requireNonNull(route, "page");
         this.uri = Objects.requireNonNull(uri, "uri");
         this.request = Objects.requireNonNull(request, "req");
         this.session = session;
@@ -105,21 +105,25 @@ public final class Req {
 
     public boolean isAllowed() {
 
-        return page.accessibleBy(request.method().toString()) && page.accessibleIn(session);
+        return route.accessibleBy(request.method().toString()) && route.accessibleIn(session);
     }
 
     public Req bind(Session session) {
 
         try {
-            return new Req(ctx, request, page, uri, Objects.requireNonNull(session, "session"), time);
+            return new Req(ctx, request, route, uri, Objects.requireNonNull(session, "session"), time);
         } finally {
             session.setLastAccessed(this);
         }
     }
 
-    public Page getPage() {
+    public boolean isBound() {
+        return session != null;
+    }
 
-        return page;
+    public Route getRoute() {
+
+        return route;
     }
 
     public String getPath() {
@@ -197,9 +201,9 @@ public final class Req {
         return content.get();
     }
 
-    public boolean isFor(Page page) {
+    public boolean isFor(Route page) {
 
-        return this.page == page;
+        return this.route == page;
     }
 
     public Optional<UUID> getAuthentication() {
@@ -226,7 +230,7 @@ public final class Req {
             .map(uri ->
                 URLDecoder.decode(uri, StandardCharsets.UTF_8))
             .flatMap(uri ->
-                Page.get(uri).map(page ->
+                Route.get(uri).map(page ->
                     new Req(ctx, request, page, page.resolve(uri), null, time)))
             .findFirst();
     }
@@ -292,6 +296,6 @@ public final class Req {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + page.getPref() + path + "@" + formattedTime.get() + "]";
+        return getClass().getSimpleName() + "[" + route.getPref() + path + "@" + formattedTime.get() + "]";
     }
 }

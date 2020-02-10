@@ -1,5 +1,7 @@
 package mediaserver.sessions;
 
+import mediaserver.externals.ACL;
+
 import java.util.Objects;
 
 public enum AccessLevel {

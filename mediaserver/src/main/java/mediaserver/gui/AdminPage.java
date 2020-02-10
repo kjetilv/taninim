@@ -55,7 +55,7 @@ public final class AdminPage extends TemplateEnabled {
 
     public AdminPage(Supplier<Media> media, Supplier<Ids> ids, Sessions sessions, Templater templater, S3Client s3) {
 
-        super(templater, Page.ADMIN);
+        super(templater, Route.ADMIN);
         this.media = media;
         this.ids = ids;
         this.sessions = sessions;
@@ -141,7 +141,7 @@ public final class AdminPage extends TemplateEnabled {
 
     private Handling redirect(Req req, boolean referer) {
 
-        return handle(req, referer ? Netty.redirect(req.getReferer()) : Netty.redirect(Page.ADMIN));
+        return handle(req, referer ? Netty.redirect(req.getReferer()) : Netty.redirect(Route.ADMIN));
     }
 
     private Optional<Session> closedSession(Req req) {

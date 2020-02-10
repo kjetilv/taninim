@@ -1,7 +1,7 @@
 package mediaserver.gui;
 
 import mediaserver.http.Handling;
-import mediaserver.http.Page;
+import mediaserver.http.Route;
 import mediaserver.http.Req;
 import mediaserver.toolkit.Templater;
 
@@ -9,7 +9,7 @@ public final class Login extends TemplateEnabled {
 
     public Login(Templater templater) {
 
-        super(templater, Page.LOGIN);
+        super(templater, Route.LOGIN);
     }
 
     @Override

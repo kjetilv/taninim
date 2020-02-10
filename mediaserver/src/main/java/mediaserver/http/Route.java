@@ -6,7 +6,7 @@ import mediaserver.sessions.Session;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-public enum Page {
+public enum Route {
 
     LOGIN(AccessLevel.NONE, Method.GET),
 
@@ -40,12 +40,12 @@ public enum Page {
 
     private final int length;
 
-    Page(AccessLevel accessLevel, Method... methods) {
+    Route(AccessLevel accessLevel, Method... methods) {
 
         this(null, accessLevel, methods);
     }
 
-    Page(String pref, AccessLevel accessLevel, Method... methods) {
+    Route(String pref, AccessLevel accessLevel, Method... methods) {
 
         this.pref = "/" + (pref == null ? name().toLowerCase() : pref);
         this.accessLevel = accessLevel;
@@ -84,7 +84,7 @@ public enum Page {
         return accessLevel.ordinal() >= this.accessLevel.ordinal();
     }
 
-    public static Stream<Page> get(String uri) {
+    public static Stream<Route> get(String uri) {
 
         return Arrays.stream(values()).filter(page -> page.resolves(uri)).limit(1);
     }

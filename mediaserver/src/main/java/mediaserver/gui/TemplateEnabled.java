@@ -22,9 +22,9 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     private static final String TEXT_HTML = "text/html";
 
-    protected TemplateEnabled(Templater templater, Page prefix) {
+    protected TemplateEnabled(Templater templater, Route page) {
 
-        super(prefix);
+        super(page);
         this.templater = templater;
     }
 

@@ -38,7 +38,7 @@ public final class Playlists extends TemplateEnabled {
 
     public Playlists(Supplier<Media> media, Templater templater, boolean https) {
 
-        super(templater, Page.PLAYLIST);
+        super(templater, Route.PLAYLIST);
         this.media = media;
         this.https = https;
     }

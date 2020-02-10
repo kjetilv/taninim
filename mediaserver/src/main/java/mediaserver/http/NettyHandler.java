@@ -5,36 +5,33 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public abstract class NettyHandler {
 
-    private final Collection<Page> pages;
-
     protected static final Headers CACHEABLE = headers ->
         headers.accept(HttpHeaderNames.CACHE_CONTROL, "public, max-age=" + Duration.ofDays(1).toSeconds());
 
-    protected NettyHandler() {
+    private final Route route;
 
-        this(null);
+    protected NettyHandler(Route route) {
+
+        this.route = Objects.requireNonNull(route, "page");
     }
 
-    protected NettyHandler(Page page) {
+    public Route getRoute() {
 
-        this.pages = page == null ? Collections.emptyList() : Collections.singleton(page);
+        return route;
     }
 
-    public final Optional<Handling> handledRequest(Req req) {
+    public final Handling handledRequest(Req req) {
 
-        if (pages.isEmpty() || pages.stream().anyMatch(req::isFor)) {
-            return Optional.of(handleRequest(req));
+        if (req.isFor(route)) {
+            return handledRequest(req);
         }
-        return Optional.empty();
+        throw new IllegalArgumentException(this + " cannot serve " + req);
     }
 
     protected final Handling handle(Req req, HttpResponseStatus status) {
@@ -81,7 +78,6 @@ public abstract class NettyHandler {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "" +
-            "[" + pages.stream().map(Page::getPref).collect(Collectors.joining(" ")) + "]";
+        return getClass().getSimpleName() + '[' + route + ']';
     }
 }

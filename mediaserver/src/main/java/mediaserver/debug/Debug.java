@@ -2,7 +2,7 @@ package mediaserver.debug;
 
 import mediaserver.gui.TemplateEnabled;
 import mediaserver.http.Handling;
-import mediaserver.http.Page;
+import mediaserver.http.Route;
 import mediaserver.http.Req;
 import mediaserver.templates.TPar;
 import mediaserver.toolkit.Templater;
@@ -21,7 +21,7 @@ public final class Debug extends TemplateEnabled {
 
     public Debug(Templater templater, Supplier<Collection<Exchange>> latestExchanges) {
 
-        super(templater, Page.DEBUG);
+        super(templater, Route.DEBUG);
         this.latestExchanges = latestExchanges;
     }
 

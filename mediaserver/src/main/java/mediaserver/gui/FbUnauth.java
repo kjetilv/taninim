@@ -13,7 +13,7 @@ public final class FbUnauth extends NettyHandler {
 
     public FbUnauth(Sessions sessions) {
 
-        super(Page.UNAUTH);
+        super(Route.UNAUTH);
         this.sessions = sessions;
     }
 

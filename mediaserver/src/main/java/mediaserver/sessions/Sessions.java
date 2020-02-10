@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +22,8 @@ public final class Sessions {
     private static final Logger log = LoggerFactory.getLogger(Sessions.class);
 
     private final Map<FbUser, Collection<Session>> sessionsMap = new ConcurrentHashMap<>();
+
+    private final Supplier<Ids> ids;
 
     private final Duration sessionLength;
 
@@ -38,8 +41,15 @@ public final class Sessions {
 
     private static final FbUser DEV_USER = new FbUser("dev", "dev");
 
-    public Sessions(Duration sessionLength, Duration inactivityMax, long bytesQuota, boolean devLogin) {
+    public Sessions(
+        Supplier<Ids> ids,
+        Duration sessionLength,
+        Duration inactivityMax,
+        long bytesQuota,
+        boolean devLogin
+    ) {
 
+        this.ids = ids;
         this.sessionLength = sessionLength;
         this.inactivityMax = inactivityMax;
         this.bytesQuota = bytesQuota;
@@ -49,15 +59,19 @@ public final class Sessions {
         }
     }
 
-    public UUID newSessionUUID(Req req, FbUser fbUser, AccessLevel accessLevel) {
+    public Session create(Req req, FbUser user) {
 
-        Session newSession = newSession(req, fbUser, accessLevel);
-        ejectedSessions(fbUser, newSession).forEach(ejectedSession -> {
-            log.info("Ejected {} session for: {}",
-                valid(req, ejectedSession) ? "live" : "expired", ejectedSession);
-        });
-        log.info("Session created for {}: {}", fbUser, newSession);
-        return newSession.getCookie();
+        AccessLevel accessLevel = ids.get().resolve(user);
+        if (accessLevel.satisfies(AccessLevel.LOGIN)) {
+            Session newSession = newSession(req, user, accessLevel);
+            ejectedSessions(user, newSession).forEach(ejectedSession -> {
+                log.info("Ejected {} session for: {}",
+                    valid(req, ejectedSession) ? "live" : "expired", ejectedSession);
+            });
+            log.info("Session created for {}: {}", user, newSession);
+            return newSession;
+        }
+        throw new IllegalArgumentException("Unauthorized: " + user);
     }
 
     public Stream<Session> ejectedSessions(FbUser fbUser, Session session) {
@@ -77,7 +91,7 @@ public final class Sessions {
 
     public Req bind(Req req) {
 
-        return session(req, AccessLevel.LOGIN, false)
+        return getExistingSession(req, AccessLevel.LOGIN, false)
             .map(req::bind)
             .orElse(req);
     }
@@ -104,30 +118,30 @@ public final class Sessions {
 
     public Optional<Session> close(Req req) {
 
-        return session(req, AccessLevel.NONE, true)
-            .map(session -> {
-                FbUser fbUser = session.getFbUser();
-                Collection<Session> sessions = sessionsMap.get(fbUser);
-                if (sessions == null) {
-                    log.info("No sessions to close for {}", fbUser);
-                    return null;
-                }
+        return getExistingSession(req, AccessLevel.NONE, true).map(session -> {
+            FbUser fbUser = session.getFbUser();
+            Collection<Session> sessions = sessionsMap.get(fbUser);
+            if (sessions == null) {
+                log.info("No sessions to close for {}", fbUser);
+                return null;
+            }
+            if (sessions.isEmpty()) {
+                log.info("No sessions to close for {}", fbUser);
+                sessionsMap.remove(fbUser);
+                return null;
+            }
+            if (sessions.remove(session)) {
                 if (sessions.isEmpty()) {
-                    log.info("No sessions to close for {}", fbUser);
                     sessionsMap.remove(fbUser);
-                    return null;
                 }
-                if (sessions.remove(session)) {
-                    if (sessions.isEmpty()) {
-                        sessionsMap.remove(fbUser);
-                    }
-                    log.info("{} removed session, {} left: {}/{}",
-                        this, sessions.size(), this.sessionsMap.size(), session);
-                } else {
-                    log.warn("{} found no removable session: {}", this, session);
-                }
-                return session;
-            });
+                log.info("{} removed session {}, {} left: {}/{}",
+                    this, session, sessions.size(),
+                    this.sessionsMap.size(), this.sessionsMap.values().stream().flatMap(Collection::stream).count());
+            } else {
+                log.warn("{} found no removable session: {}", this, session);
+            }
+            return session;
+        });
     }
 
     public Collection<Session> list() {
@@ -138,7 +152,7 @@ public final class Sessions {
             .collect(Collectors.toList());
     }
 
-    private Optional<Session> session(Req req, AccessLevel accessLevel, boolean includeInvalid) {
+    private Optional<Session> getExistingSession(Req req, AccessLevel accessLevel, boolean includeInvalid) {
 
         return req.getAuthentication()
             .flatMap(uuid ->
@@ -162,13 +176,16 @@ public final class Sessions {
 
     private Session newSession(Req req, FbUser fbUser, AccessLevel accessLevel) {
 
-        return new Session(
-            fbUser,
-            req.getTime(),
-            req.getTime().plus(sessionLength),
-            inactivityMax,
-            accessLevel,
-            bytesQuota);
+        if (accessLevel.satisfies(AccessLevel.LOGIN)) {
+            return new Session(
+                fbUser,
+                req.getTime(),
+                req.getTime().plus(sessionLength),
+                inactivityMax,
+                accessLevel,
+                bytesQuota);
+        }
+        throw new IllegalArgumentException("Invalid access level: " + accessLevel);
     }
 
     private static boolean valid(Req req, Session session) {

@@ -62,19 +62,10 @@ public final class Main {
 
     public static void main(String[] args) {
 
-        Sessions sessions =
-            new Sessions(SESSION_LENGTH, INACTIVITY_MAX, BYTES_PER_SESSION, DEV_LOGIN);
-
         boolean local = local(args);
         boolean devLogin = local && DEV_LOGIN;
         boolean noStream = NEUTER;
         boolean sslPlaylists = PRETEND_SSL || !devLogin && !local;
-
-        log.info(
-            "{}: Running in {}, streaming {}abled",
-            sessions,
-            local ? "local mode" : "the cloud",
-            noStream ? "dis" : "en");
 
         if (local) {
             CloudMedia.updateLocals(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE, PlaylistYaml.PLAYLISTS_RESOURCE);
@@ -102,6 +93,9 @@ public final class Main {
         log.info("Streamer: {}", streamer);
         log.info("Binding to port {}", PORT);
 
+        Sessions sessions =
+            new Sessions(ids, SESSION_LENGTH, INACTIVITY_MAX, BYTES_PER_SESSION, DEV_LOGIN);
+
         NettyRunner nettyRunner = new NettyRunner(
             LISTEN_GROUP, WORK_GROUP, THREAD_GROUP, THREAD_QUEUE, IO_TIMEOUT, CONNECT_TIMEOUT);
 
@@ -116,6 +110,12 @@ public final class Main {
             new Playlists(media, templater, sslPlaylists),
             new FbUnauth(sessions),
             new AdminPage(media, ids, sessions, templater, s3));
+
+        log.info(
+            "{}: Running in {}, streaming {}abled",
+            sessions,
+            local ? "local mode" : "the cloud",
+            noStream ? "dis" : "en");
 
         nettyRunner.run(router, PORT, mockSslContext);
     }

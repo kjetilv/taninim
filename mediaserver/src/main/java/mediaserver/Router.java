@@ -22,7 +22,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,7 +43,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final Clock clock;
 
-    private final Collection<NettyHandler> handlers;
+    private final Map<Route, NettyHandler> handlers;
 
     private final RingBuffer<Exchange> latestExchanges = new RingBuffer<>(EXCHANGES_REMEMBERED);
 
@@ -56,7 +56,10 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         this.handlers = Stream.concat(
             Stream.of(new Debug(templater, latestExchanges::get)),
             Arrays.stream(handlers)
-        ).collect(Collectors.toList());
+        ).collect(Collectors.toMap(
+            NettyHandler::getRoute,
+            Function.identity()
+        ));
     }
 
     @Override
@@ -67,10 +70,32 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             return;
         }
         Instant time = clock.instant();
+
         try {
-            getReq(ctx, request, time).ifPresentOrElse(
-                req -> handle(ctx, req),
-                () -> error(ctx, request));
+            Req.from(ctx, request, time)
+                .map(sessions::bind)
+                .ifPresentOrElse(
+                    req -> {
+                        try {
+                            if (req.isAllowed()) {
+                                Handling handled = handled(req);
+                                logExchange(handled);
+                            } else if (!req.isBound() && req.getRoute().accessibleWith(AccessLevel.LOGIN)) {
+                                log.info("Redirected to login: {}", req);
+                                Netty.respond(ctx, Netty.redirect(Route.LOGIN));
+                            } else {
+                                log.info("Unauthorized to login: {}", req);
+                                Netty.respond(ctx, UNAUTHORIZED);
+                            }
+                        } catch (Throwable e) {
+                            logError(req, time, e);
+                            Netty.respond(ctx, BAD_REQUEST);
+                        }
+                    },
+                    () -> {
+                        log.info("Failed: {}", request);
+                        Netty.respond(ctx, UNAUTHORIZED);
+                    });
         } catch (Throwable e) {
             logError(request, time, e);
             Netty.respond(ctx, INTERNAL_SERVER_ERROR);
@@ -103,55 +128,13 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         }
     }
 
-    private Optional<Req> getReq(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+    private Handling handled(Req req) {
 
-        return Req.from(ctx, request, time).map(sessions::bind);
-    }
-
-    private void handle(ChannelHandlerContext ctx, Req req) {
-
-        if (req.isAllowed()) {
-            handled(req).ifPresentOrElse(
-                this::logExchange,
-                () -> {
-                    log.info("Failed: {}", req);
-                    Netty.respond(ctx, BAD_REQUEST);
-                });
-        } else {
-            handleUnauthorized(ctx, req);
+        NettyHandler nettyHandler = handlers.get(req.getRoute());
+        if (nettyHandler == null) {
+            throw new IllegalArgumentException("No handler for " + req);
         }
-    }
-
-    private static void handleUnauthorized(ChannelHandlerContext ctx, Req req) {
-
-        if (loginAllowed(req)) {
-            log.info("Redirected to login: {}", req);
-            Netty.respond(ctx, Netty.redirect(Page.LOGIN));
-        } else {
-            log.info("Unauthorized to login: {}", req);
-            Netty.respond(ctx, UNAUTHORIZED);
-        }
-    }
-
-    private static void error(ChannelHandlerContext ctx, FullHttpRequest request) {
-
-        log.info("Failed: {}", request);
-        Netty.respond(ctx, BAD_REQUEST);
-    }
-
-    private static boolean loginAllowed(Req req) {
-
-        return req.getPage() != Page.LOGIN && req.getPage().accessibleWith(AccessLevel.LOGIN);
-    }
-
-    private Optional<Handling> handled(Req req) {
-
-        return handlers.stream()
-            .flatMap(handler ->
-                handler.handledRequest(req).stream())
-            .filter(
-                Handling::isHandled)
-            .findFirst();
+        return nettyHandler.handledRequest(req);
     }
 
     private static String summarize(Throwable cause) {
@@ -166,7 +149,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         latestExchanges.add(new Exchange(sequence.getAndIncrement(), handling));
     }
 
-    private void logError(FullHttpRequest req, Instant time, Throwable e) {
+    private void logError(Object req, Instant time, Throwable e) {
 
         log.error("Failure situation: {} [{}ms]: {}", "Handling of request failed", durationSince(time), req, e);
     }

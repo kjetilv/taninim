@@ -166,9 +166,9 @@ public final class Session {
     public Optional<Pair<Album, Track>> setAccessibleTrack(Instant time, Pair<Album, Track> accessibleTrack) {
 
         if (!randomTrack.set(time, accessibleTrack)) {
-            log.warn("Attempted new random track: {} <-> {}", randomTrack, accessibleTrack);
+            log.warn("Accessible track for {} is still {}, rejected: {}", this, randomTrack, accessibleTrack);
         } else {
-            log.info("Accessible track for {}: {}", this, accessibleTrack);
+            log.info("Accessible track for {} is now {}", this, accessibleTrack);
         }
         return randomTrack.get(time);
     }

@@ -76,7 +76,7 @@ public final class Netty {
         return fullResponse(req, contentType, status, content, headers);
     }
 
-    public static HttpResponse redirect(Page page, Headers moreHeaders) {
+    public static HttpResponse redirect(Route page, Headers moreHeaders) {
 
         return redirect(page.getPref(), moreHeaders);
     }
@@ -103,7 +103,7 @@ public final class Netty {
 
     public static HttpResponse unauthCookieResponse(String cookie) {
 
-        return redirect(Page.LOGIN, setCookie(cookie));
+        return redirect(Route.LOGIN, setCookie(cookie));
     }
 
     public static String authCookie(UUID uuid) {
@@ -123,7 +123,7 @@ public final class Netty {
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
-    public static HttpResponse redirect(Page location) {
+    public static HttpResponse redirect(Route location) {
 
         return redirect(location, null);
     }

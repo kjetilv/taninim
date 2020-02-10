@@ -1,23 +1,19 @@
 package mediaserver.gui;
 
 import com.restfb.*;
-import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
 import mediaserver.externals.FacebookAuthResponse;
 import mediaserver.externals.FbUser;
 import mediaserver.http.*;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Ids;
+import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public final class FbAuth extends NettyHandler {
@@ -32,7 +28,7 @@ public final class FbAuth extends NettyHandler {
 
     public FbAuth(Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret) {
 
-        super(Page.AUTH);
+        super(Route.AUTH);
         this.sessions = sessions;
         this.appSecret = appSecret;
         this.ids = ids;
@@ -41,50 +37,38 @@ public final class FbAuth extends NettyHandler {
     @Override
     protected Handling handleRequest(Req req) {
 
-        return loginFacebookUser(req).flatMap(fbUser -> {
-            AccessLevel accessLevel = ids.get().resolve(fbUser);
-            if (accessLevel.satisfies(AccessLevel.LOGIN)) {
-                UUID cookie = sessions.newSessionUUID(req, fbUser, accessLevel);
-                return Optional.of(
-                    handle(req, Netty.authCookieResponse(req, Netty.authCookie(cookie))));
-            }
-            log.warn("Unknown user {} attempted login with access level {}", fbUser, accessLevel);
-            return Optional.empty();
-        }).orElseGet(() ->
-            handleUnauthorized(req));
+        return req.getContent()
+            .map(json ->
+                IO.readObject(FacebookAuthResponse.class, json))
+            .flatMap(this::authenticate)
+            .map(user ->
+                ids.get().resolve(user).satisfies(AccessLevel.LOGIN)
+                    ? handleNewSession(req, user)
+                    : handleRejection(req, user))
+            .orElseGet(() ->
+                handleBadRequest(req));
     }
 
-    private Optional<FbUser> loginFacebookUser(Req req) {
+    private Handling handleRejection(Req req, FbUser user) {
 
-        return req.getContent().map(json -> {
-            FacebookAuthResponse authResponse = IO.readObject(FacebookAuthResponse.class, json);
-            User facebookApiUser = lookup(authResponse);
-            FbUser fbUser =
-                new FbUser(facebookApiUser.getName(), facebookApiUser.getId());
-            log.info("Facebook user logged in: {}", fbUser);
-            return fbUser;
-        });
+        log.warn("Unknown user attempted login: {}", user);
+        return handleUnauthorized(req);
     }
 
-    private static Optional<URL> picture(User facebookApiUser) {
+    private Handling handleNewSession(Req req, FbUser user) {
 
-        return Optional.ofNullable(facebookApiUser.getPicture())
-            .map(ProfilePictureSource::getUrl)
-            .map(URI::create)
-            .flatMap(uri -> {
-                try {
-                    return Optional.of(uri.toURL());
-                } catch (MalformedURLException e) {
-                    log.warn("{} had invalid picture: {}", facebookApiUser, uri, e);
-                    return Optional.empty();
-                }
-            });
+        Session session = sessions.create(req, user);
+        log.info("{} logged in: {}", user, session);
+        return handle(req, Netty.authCookieResponse(req, Netty.authCookie(session.getCookie())));
     }
 
-    private User lookup(FacebookAuthResponse authResponse) {
+    private Optional<FbUser> authenticate(FacebookAuthResponse authResponse) {
 
         try {
-            return facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class);
+            return Optional.of(
+                facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class)
+            ).map(user ->
+                new FbUser(user.getName(), user.getId()));
         } catch (Exception e) {
             throw new IllegalStateException("Login failed for user: " + authResponse.getUserID(), e);
         }

@@ -1,7 +1,7 @@
 package mediaserver.gui;
 
 import mediaserver.http.Handling;
-import mediaserver.http.Page;
+import mediaserver.http.Route;
 import mediaserver.http.WebCache;
 import mediaserver.http.Req;
 
@@ -11,7 +11,7 @@ public final class Resources extends AbstractResources {
 
     public Resources(WebCache<String, byte[]> webCache, String resourcePrefix) {
 
-        super(webCache, Page.RES);
+        super(webCache, Route.RES);
         this.resourcePrefix = resourcePrefix;
     }
 
