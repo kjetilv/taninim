@@ -41,9 +41,9 @@ public final class AdminPage extends TemplateEnabled {
 
     private static final String ACTION_EXTERMINATE = "exterminate";
 
-    private static final String ACTION_JUKEBOX = "jukebox";
+    private static final String ACTION_JUKE = "juke";
 
-    private static final String ACTION_EXJUKE = "exjuke";
+    private static final String ACTION_NUKE = "nuke";
 
     private final Supplier<Media> media;
 
@@ -63,7 +63,7 @@ public final class AdminPage extends TemplateEnabled {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         if (is(req, ACTION_IDS)) {
             if (s3 != null) {
@@ -88,7 +88,7 @@ public final class AdminPage extends TemplateEnabled {
                     handleNotFound(req));
         }
 
-        if (is(req, ACTION_EXJUKE)) {
+        if (is(req, ACTION_NUKE)) {
             if (Globals.get().unsetGlobalTrack()) {
                 log.info("Reset global jukebox track");
             } else {
@@ -97,7 +97,7 @@ public final class AdminPage extends TemplateEnabled {
             return redirect(req, true);
         }
 
-        if (is(req, ACTION_JUKEBOX)) {
+        if (is(req, ACTION_JUKE)) {
             Media media = this.media.get();
             uuid(req, jukeboxTrack).flatMap(media::getTrack).ifPresentOrElse(
                 track ->
@@ -178,8 +178,8 @@ public final class AdminPage extends TemplateEnabled {
     private static boolean is(Req req, String action) {
 
         return HttpMethod.POST.equals(req.getRequest().method())
-            && req.getPath().contains('/' + action)
-            && FORM_URLENCODED.equals(req.header("Content-Type"));
+            && FORM_URLENCODED.equals(req.header("Content-Type"))
+            && req.getPath().contains('/' + action);
     }
 
     private static String map(Ids ids) {

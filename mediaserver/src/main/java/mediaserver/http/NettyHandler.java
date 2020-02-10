@@ -26,10 +26,10 @@ public abstract class NettyHandler {
         return route;
     }
 
-    public final Handling handledRequest(Req req) {
+    public final Handling handleRequest(Req req) {
 
         if (req.isFor(route)) {
-            return handledRequest(req);
+            return handle(req);
         }
         throw new IllegalArgumentException(this + " cannot serve " + req);
     }
@@ -39,7 +39,7 @@ public abstract class NettyHandler {
         return handle(req, Netty.response(null, status, null, null));
     }
 
-    protected abstract Handling handleRequest(Req req);
+    protected abstract Handling handle(Req req);
 
     protected final Handling handle(Req req, byte[] bytes, Headers cacheable) {
 

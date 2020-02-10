@@ -44,7 +44,7 @@ public final class Playlists extends TemplateEnabled {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         if (req.getSession().hasLevel(AccessLevel.STREAM)) {
             String resource = req.getUri();

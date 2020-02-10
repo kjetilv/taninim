@@ -76,7 +76,7 @@ public class ExpiringState<T> implements Function<Instant, Optional<T>>, Supplie
         synchronized (state) {
             T oldValue = state.getAndSet(null);
             lastSet.set(null);
-            return oldValue == null;
+            return oldValue != null;
         }
     }
 

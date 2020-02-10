@@ -35,7 +35,7 @@ public final class FbAuth extends NettyHandler {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         return req.getContent()
             .map(json ->

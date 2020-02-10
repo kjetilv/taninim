@@ -26,7 +26,7 @@ public final class Debug extends TemplateEnabled {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         log.info("Request receieved @ {}: {}", req, req.getRequest());
         Map<String, List<Exchange>> exchanges = latestExchanges.get().stream()

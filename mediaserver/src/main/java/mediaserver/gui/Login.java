@@ -13,7 +13,7 @@ public final class Login extends TemplateEnabled {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         return respondHtml(req, getTemplate(LOGIN_PAGE));
     }

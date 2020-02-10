@@ -33,7 +33,7 @@ public final class AlbumPage extends TemplateEnabled {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         return template(req, media.get())
             .map(template ->

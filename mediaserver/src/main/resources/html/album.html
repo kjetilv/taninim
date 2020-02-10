@@ -140,13 +140,13 @@
             {endif}
 
             {if(admin)}
-            <FORM ACTION="/admin/jukebox" METHOD="POST">
+            <FORM ACTION="/admin/{if(trackHighlighted)}n{else}j{endif}uke" METHOD="POST">
                 <DIV STYLE="clear:both; float: right">
                     <INPUT NAME="jukeboxTrack" TYPE="hidden" value="{selected.track.uuid}">
                     <INPUT NAME="jukeboxAlbum" TYPE="hidden" value="{selected.album.uuid}">
                     <INPUT NAME="jukeboxClear" TYPE="hidden" value="{trackHighlighted}">
                     <BUTTON TYPE="SUBMIT" VALUE="jukebox">
-                        {if(trackHighlighted)}Nuke{else}Juke{endif}
+                        {if(trackHighlighted)}N{else}J{endif}uke!
                     </BUTTON>
                 </DIV>
             </FORM>

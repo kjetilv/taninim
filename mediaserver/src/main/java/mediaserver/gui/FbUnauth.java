@@ -18,7 +18,7 @@ public final class FbUnauth extends NettyHandler {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         sessions.close(req).ifPresentOrElse(
             session ->

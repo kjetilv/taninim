@@ -134,7 +134,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         if (nettyHandler == null) {
             throw new IllegalArgumentException("No handler for " + req);
         }
-        return nettyHandler.handledRequest(req);
+        return nettyHandler.handleRequest(req);
     }
 
     private static String summarize(Throwable cause) {

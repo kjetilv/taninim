@@ -16,7 +16,7 @@ public final class Resources extends AbstractResources {
     }
 
     @Override
-    protected Handling handleRequest(Req req) {
+    protected Handling handle(Req req) {
 
         return handle(req, resourcePrefix + req.getPath());
     }
