@@ -16,6 +16,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class Template {
@@ -40,10 +42,20 @@ public final class Template {
         return this.bytes.get();
     }
 
+    public Function<Object, Template> adder(TPar param) {
+
+        return value -> add(param, value);
+    }
+
+    public Object get(TPar param) {
+
+        return st.getAttribute(param.getName());
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public Template add(TPar param, Optional<?> value) {
 
-        return value.map(val -> add(param, val)).orElse(this);
+        return value.map(adder(param)).orElse(this);
     }
 
     public Template add(TPar param, Object value) {

@@ -1,6 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.externals.*;
+import mediaserver.util.DAC;
 import mediaserver.util.IO;
 import mediaserver.util.Pair;
 import mediaserver.util.Print;
@@ -18,44 +19,46 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("unused")
 public interface Media {
 
     Logger log = LoggerFactory.getLogger(Media.class);
 
     default Media subLibrary(Series series) {
 
-        return subLibrary(null, null, series, null);
-    }
-
-    default Media subLibrary(Artist artist) {
-
-        return subLibrary(null, artist, null, null);
+        return subLibrary(null, null, Collections.singleton(series), null, null);
     }
 
     default Media subLibrary(Playlist playlist) {
 
-        return subLibrary(null, null, null, playlist);
+        return subLibrary(null, null, null, Collections.singletonList(playlist), null);
     }
 
-    Media subLibrary(CategoryPath categoryPath, Artist artist, Series series, Playlist playlist);
+    Media subLibrary(
+        CategoryPath categoryPath,
+        Collection<Artist> artist,
+        Collection<Series> series,
+        Collection<Playlist> playlist,
+        Collection<Playlist> curations
+    );
 
     Media withAlbumContext(UUID albumId, AlbumContext albumContext);
 
-    Optional<Track> getTrack(UUID uuid);
+    Stream<Track> getTrack(UUID uuid);
 
     default boolean isSubCategories() {
 
         return !getTopCategories().isEmpty();
     }
 
+    @DAC
     Year getStartYear();
 
+    @DAC
     Year getEndYear();
 
     CategoryPath getCategoryPath();
 
-    Optional<CategoryPath> getCategoryPath(UUID uuid);
+    Stream<CategoryPath> getCategoryPath(UUID uuid);
 
     Collection<CategoryPath> getTopCategories();
 
@@ -63,11 +66,11 @@ public interface Media {
 
     Collection<Playlist> getPlaylists();
 
-    Optional<Playlist> getPlaylist(UUID uuid);
+    Stream<Playlist> getPlaylist(UUID uuid);
 
     Collection<Playlist> getCurations();
 
-    Optional<Playlist> getCuration(UUID uuid);
+    Stream<Playlist> getCuration(UUID uuid);
 
     boolean isCurated(Track track);
 
@@ -125,11 +128,11 @@ public interface Media {
         return getTracks(true);
     }
 
-    Collection<Track> getTracksFeaturing(Artist artist);
+    Stream<Track> getTracksFeaturing(Artist artist);
 
     Collection<Track> getTracks(boolean recurse);
 
-    Optional<Album> getAlbum(UUID id);
+    Stream<Album> getAlbum(UUID id);
 
     Optional<Album> getAlbumWithTrack(UUID id);
 
@@ -139,13 +142,13 @@ public interface Media {
 
     Collection<Album> getAlbumsFeaturing(Artist id);
 
-    Optional<Artist> getArtist(UUID id);
+    Stream<Artist> getArtist(UUID id);
 
-    Optional<Series> getSeries(UUID id);
+    Stream<Series> getSeries(UUID id);
 
-    Optional<Artist> getArtist(String name);
+    Stream<Artist> getArtist(String name);
 
-    Optional<Album> getAlbum(String albumName);
+    Stream<Album> getAlbum(String albumName);
 
     static Media local(Path mediaPath, Path libraryPath, Path resourcesPath) {
 
@@ -183,7 +186,6 @@ public interface Media {
 
         return (media, album) ->
             discogsData.getDiscogRelease(album).map(release -> {
-
                 AlbumContext context = Stream.of(release.getArtists(), release.getExtraartists())
                     .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
@@ -202,19 +204,9 @@ public interface Media {
                                 dad.getUri(),
                                 dad.getRole()),
                         noCombine());
-                List<TrackContext> trackContexts = release.getTracklist().stream().map(
-                    track -> {
-                        Credits trackCredits = Optional.ofNullable(track.getExtraartists()).stream().flatMap(
-                            Collection::stream).reduce(
-                            new Credits(),
-                            (credits, dad) ->
-                                credits.credit(dad.getName(), dad.getUri(), dad.getRole()),
-                            noCombine());
-                        return new TrackContext(
-                            track.getPosition(),
-                            track.getTitle(),
-                            trackCredits);
-                    })
+                List<TrackContext> trackContexts = release.getTracklist().stream()
+                    .map(track ->
+                        new TrackContext(track.getPosition(), track.getTitle(), trackCredits(track)))
                     .collect(Collectors.toList());
                 List<TrackContext> applicableTrackContexts = trackContexts.stream().map(trackContext ->
                     trackContext.getTrackNo().flatMap(trackNo ->
@@ -228,6 +220,16 @@ public interface Media {
                 return media.withAlbumContext(
                     album.getUuid(), context.withTrackContexts(trackContexts));
             }).orElse(media);
+    }
+
+    static Credits trackCredits(DiscogTrackDigest track) {
+
+        return Optional.ofNullable(track.getExtraartists()).stream().flatMap(
+            Collection::stream).reduce(
+            new Credits(),
+            (credits, dad) ->
+                credits.credit(dad.getName(), dad.getUri(), dad.getRole()),
+            noCombine());
     }
 
     static List<Video> videos(DiscogReleaseDigest release) {
@@ -275,13 +277,12 @@ public interface Media {
                 Optional.ofNullable(track.getComments()).filter(comments ->
                     comments.contains("discogs"))
                     .isPresent())
-            .map(track ->
+            .flatMap(track ->
                 media.getAlbum(track.getAlbum())
                     .map(album ->
                         new DiscogConnection(
                             album,
                             URI.create(track.getComments().trim()))))
-            .filter(Optional::isPresent).map(Optional::get)
             .distinct()
             .collect(Collectors.toList());
     }

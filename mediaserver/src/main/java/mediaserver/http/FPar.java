@@ -2,8 +2,9 @@ package mediaserver.http;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public enum FPar implements Par {
+public enum FPar implements Par<Req, String> {
 
     jukeboxAlbum,
 
@@ -13,7 +14,9 @@ public enum FPar implements Par {
 
     updatedIds,
 
-    session;
+    session,
+
+    ids;
 
     @Override
     public String getName() {
@@ -27,5 +30,10 @@ public enum FPar implements Par {
             .filter(v ->
                 v.name().equalsIgnoreCase(substring))
             .findFirst();
+    }
+
+    @Override
+    public Stream<String> params(Req req) {
+        return req.getFormParameters().get(this);
     }
 }

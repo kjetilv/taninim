@@ -17,12 +17,14 @@ public final class OnceEvery {
         this.service = Objects.requireNonNull(service);
     }
 
-    public static <T> void refresh(Supplier<T> supplier) {
+    public static void actuallyJustRefresh(Supplier<?>... suppliers) {
 
-        if (supplier instanceof Supp<?>) {
-            ((Supp<?>) supplier).refresh();
-        } else {
-            throw new IllegalStateException("Not a refreshable: " + supplier);
+        for (Supplier<?> supplier : suppliers) {
+            if (supplier instanceof Supp<?>) {
+                ((Supp<?>) supplier).refresh();
+            } else {
+                throw new IllegalStateException("Not a refreshable: " + supplier);
+            }
         }
     }
 

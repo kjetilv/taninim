@@ -1,6 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.DAC;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -46,7 +47,7 @@ public final class PlaylistM3U extends AbstractHashable {
         return tracks;
     }
 
-    @SuppressWarnings("unused")
+    @DAC
     public Collection<Entry<String, Track>> getLocatedTracks() {
 
         return locatedTracks.entrySet().stream().collect(Collectors.toMap(

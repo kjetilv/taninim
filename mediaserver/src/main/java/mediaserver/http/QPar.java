@@ -2,8 +2,9 @@ package mediaserver.http;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public enum QPar implements Par {
+public enum QPar implements Par<Req, String> {
 
     playlist,
 
@@ -12,6 +13,8 @@ public enum QPar implements Par {
     album,
 
     artist,
+
+    unartist,
 
     track,
 
@@ -27,6 +30,12 @@ public enum QPar implements Par {
     public String getName() {
 
         return name();
+    }
+
+    @Override
+    public Stream<String> params(Req req) {
+
+        return req.getQueryParameters().get(this);
     }
 
     public static Optional<QPar> get(String substring) {

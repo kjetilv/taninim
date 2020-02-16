@@ -4,8 +4,9 @@ import mediaserver.http.Par;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public enum TPar implements Par {
+public enum TPar implements Par<Template, Object> {
 
     media,
 
@@ -19,9 +20,19 @@ public enum TPar implements Par {
 
     curations,
 
+    mediaCurations,
+
+    mediaSeries,
+
+    mediaPlaylists,
+
     album,
 
     artist,
+
+    artists,
+
+    albumArtists,
 
     series,
 
@@ -30,6 +41,8 @@ public enum TPar implements Par {
     randomAlbums,
 
     highlightedAlbum,
+
+    highlightedArtist,
 
     highlighted,
 
@@ -61,6 +74,12 @@ public enum TPar implements Par {
     public String getName() {
 
         return name();
+    }
+
+    @Override
+    public Stream<Object> params(Template template) {
+
+        return Stream.of(template.get(this));
     }
 
     public static Optional<TPar> get(String substring) {

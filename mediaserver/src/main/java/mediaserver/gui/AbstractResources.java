@@ -5,9 +5,9 @@ import mediaserver.util.Sourced;
 
 public abstract class AbstractResources extends NettyHandler {
 
-    protected final WebCache<String, byte[]> webCache;
+    private final WebCache<String, byte[]> webCache;
 
-    public AbstractResources(WebCache<String, byte[]> webCache, Route page) {
+    AbstractResources(WebCache<String, byte[]> webCache, Route page) {
 
         super(page);
         this.webCache = webCache;

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,6 +40,8 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     private final Map<UUID, Album> trackIndex;
 
     private static final long serialVersionUID = -7165763549356996140L;
+
+    private static final Pattern UNDERSCORE = Pattern.compile("_");
 
     public LocalMedia(Path root) {
 
@@ -87,25 +90,40 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public Media subLibrary(CategoryPath categoryPath, Artist artist, Series series, Playlist playlist) {
+    public Media subLibrary(
+        CategoryPath categoryPath,
+        Collection<Artist> artists,
+        Collection<Series> series,
+        Collection<Playlist> playlists,
+        Collection<Playlist> curations
+    ) {
 
         CategoryPath sub = categoryPath == null
             ? this.categoryPath
             : this.categoryPath.sub(categoryPath);
-        Predicate<Album> categorized = album ->
-            album.isIn(sub);
-        Predicate<Album> forArtist = album ->
-            artist == null || album.isBy(artist) || album.hasTracksBy(artist) || album.features(artist);
-        Predicate<Album> inSeries = series == null
-            ? album -> true
-            : album -> album.getSeries().contains(series);
-        Predicate<Album> inPlaylist = playlist == null
-            ? album -> true
-            : playlist::contains;
+
+        Predicate<Album> categorized = album -> album.isIn(sub);
+
+        Predicate<Album> forArtist = artists == null || artists.isEmpty() ? album -> true :
+            album ->
+                artists.stream().allMatch(artist ->
+                    album.isBy(artist) || album.hasTracksBy(artist) || album.features(artist));
+
+        Predicate<Album> inSeries = series == null || series.isEmpty() ? album -> true :
+            album ->
+                album.getSeries().containsAll(series);
+
+        Predicate<Album> inPlaylist = playlists == null || playlists.isEmpty() ? album -> true :
+            album ->
+                playlists.stream().allMatch(playlist -> playlist.contains(album));
+
+        Predicate<Album> curated = curations == null || curations.isEmpty() ? album -> true :
+            album ->
+                curations.stream().allMatch(curation -> curation.contains(album));
 
         return new LocalMedia(
             sub,
-            stream(true).filter(categorized.and(forArtist).and(inSeries).and(inPlaylist)),
+            stream(true).filter(categorized.and(forArtist).and(inSeries).and(inPlaylist).and(curated)),
             albumContexts);
     }
 
@@ -124,16 +142,16 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
                 albums.stream().map(a ->
                     a.equals(album) ? expanded : a),
                 copy);
-        }).orElseThrow(() ->
+        }).findFirst().orElseThrow(() ->
             new IllegalArgumentException("Unknown album: " + albumId));
     }
 
     @Override
-    public Optional<Track> getTrack(UUID uuid) {
+    public Stream<Track> getTrack(UUID uuid) {
 
         return trackStream(true)
             .filter(track ->
-                track.getUuid().equals(uuid)).findFirst();
+                track.getUuid().equals(uuid));
     }
 
     @Override
@@ -163,9 +181,9 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public Optional<CategoryPath> getCategoryPath(UUID uuid) {
+    public Stream<CategoryPath> getCategoryPath(UUID uuid) {
 
-        return getCategories().stream().filter(category -> category.getUuid().equals(uuid)).findFirst();
+        return getCategories().stream().filter(category -> category.getUuid().equals(uuid));
     }
 
     @Override
@@ -201,7 +219,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public Optional<Playlist> getPlaylist(UUID uuid) {
+    public Stream<Playlist> getPlaylist(UUID uuid) {
 
         return getPlaylist(this.playlists, uuid);
     }
@@ -213,7 +231,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public Optional<Playlist> getCuration(UUID uuid) {
+    public Stream<Playlist> getCuration(UUID uuid) {
 
         return getPlaylist(this.curations, uuid);
     }
@@ -283,7 +301,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public Collection<Track> getTracksFeaturing(Artist artist) {
+    public Stream<Track> getTracksFeaturing(Artist artist) {
 
         Objects.requireNonNull(artist, "artist");
         return albumStream(true)
@@ -292,8 +310,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             .filter(track ->
                 artist.equals(track.getArtist()) ||
                     track.getArtists().stream().anyMatch(artist::equals) ||
-                    track.getOtherArtists().stream().anyMatch(artist::equals))
-            .collect(Collectors.toList());
+                    track.getOtherArtists().stream().anyMatch(artist::equals));
     }
 
     @Override
@@ -303,9 +320,9 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public Optional<Album> getAlbum(UUID uuid) {
+    public Stream<Album> getAlbum(UUID uuid) {
 
-        return stream(true).filter(album -> album.getUuid().equals(uuid)).findFirst();
+        return stream(true).filter(album -> album.getUuid().equals(uuid));
     }
 
     @Override
@@ -341,32 +358,30 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
-    public Optional<Artist> getArtist(UUID id) {
+    public Stream<Artist> getArtist(UUID id) {
 
-        return getTrackCreditedArtists().stream().filter(artist -> artist.getUuid().equals(id)).findFirst();
+        return getTrackCreditedArtists().stream().filter(artist -> artist.getUuid().equals(id));
     }
 
     @Override
-    public Optional<Series> getSeries(UUID id) {
+    public Stream<Series> getSeries(UUID id) {
 
-        return getSeries().stream().filter(series -> series.getUuid().equals(id)).findFirst();
+        return getSeries().stream().filter(series -> series.getUuid().equals(id));
     }
 
     @Override
-    public Optional<Artist> getArtist(String name) {
+    public Stream<Artist> getArtist(String name) {
 
         return getArtists(true).stream()
-            .filter(artist -> artist.getName().equalsIgnoreCase(name))
-            .findFirst();
+            .filter(artist -> artist.getName().equalsIgnoreCase(name));
     }
 
     @Override
-    public Optional<Album> getAlbum(String albumName) {
+    public Stream<Album> getAlbum(String albumName) {
 
         return getAlbums(true).stream()
             .filter(album ->
-                album.getName().equalsIgnoreCase(albumName))
-            .findFirst();
+                album.getName().equalsIgnoreCase(albumName));
     }
 
     @Override
@@ -387,9 +402,11 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         return sb.append(albums.size()).append(" albums");
     }
 
-    private static Optional<Playlist> getPlaylist(Collection<Playlist> playlists, UUID uuid) {
+    private static Stream<Playlist> getPlaylist(Collection<Playlist> playlists, UUID uuid) {
 
-        return playlists.stream().filter(playlist -> playlist.getUuid().equals(uuid)).findFirst();
+        return playlists.stream()
+            .filter(playlist ->
+                playlist.getUuid().equals(uuid));
     }
 
     private Collection<Artist> collectArtists(Function<Album, Collection<Artist>> getAllArtists) {
@@ -487,6 +504,6 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     private static Artist artist(File dir) {
 
-        return Artist.get(dir.getParentFile().getName().replaceAll("_", ":"));
+        return Artist.get(UNDERSCORE.matcher(dir.getParentFile().getName()).replaceAll(":"));
     }
 }

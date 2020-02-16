@@ -6,11 +6,11 @@ import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Config;
-import mediaserver.Globals;
+import mediaserver.GlobalState;
 import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
-import mediaserver.http.Route;
 import mediaserver.http.Req;
+import mediaserver.http.Route;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
@@ -80,9 +80,11 @@ public abstract class Streamer extends NettyHandler {
         HttpMethod method = req.getRequest().method();
         if (method == HttpMethod.HEAD || method == HttpMethod.GET) {
             return getMediaTrack(req.getPath(true))
-                .map(track -> authorized(req, track, this.media)
-                    ? handle(req, track)
-                    : handleUnauthorized(req))
+                .findFirst()
+                .map(track ->
+                    authorized(req, track, this.media)
+                        ? handle(req, track)
+                        : handleUnauthorized(req))
                 .orElseGet(() ->
                     handleNotFound(req));
         }
@@ -135,8 +137,8 @@ public abstract class Streamer extends NettyHandler {
     private static Stream<Track> singlePlayableTrack(Req req) {
 
         return Stream.of(
-            Globals.get().getGlobalTrack(req.getTime()),
-            req.getSession().getRandomTrack(req.getTime())
+            GlobalState.get().getGlobalTrack(req.getTime()),
+            req.getSession().getSessionState().getRandomTrack(req.getTime())
         ).flatMap(Optional::stream).map(Pair::getT2);
     }
 
@@ -225,7 +227,7 @@ public abstract class Streamer extends NettyHandler {
         return (lossless ? longLengths : shortLengths).computeIfAbsent(track, t -> trackLength(track, lossless));
     }
 
-    private Optional<Track> getMediaTrack(String path) {
+    private Stream<Track> getMediaTrack(String path) {
 
         return media.get().getTrack(uuid(path));
     }

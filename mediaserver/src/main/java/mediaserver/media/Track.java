@@ -1,12 +1,11 @@
 package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.DAC;
 import mediaserver.util.Print;
 import org.gagravarr.flac.FlacFile;
 import org.gagravarr.flac.FlacInfo;
 import org.gagravarr.flac.FlacTags;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,11 +16,8 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("unused")
 public final class Track extends AbstractHashable
     implements Comparable<Track>, Serializable {
-
-    private static final Logger log = LoggerFactory.getLogger(Track.class);
 
     private final Artist artist;
 
@@ -46,9 +42,6 @@ public final class Track extends AbstractHashable
     private static final Comparator<Track> TRACK_COMPARATOR =
         Comparator.comparing(Track::getTrackNo);
 
-    private static final Comparator<Track> PART_TRACK_COMPARATOR =
-        Comparator.comparing(Track::getPart).thenComparing(Track::getTrackNo);
-
     private final Duration duration;
 
     private final byte[] signature;
@@ -60,6 +53,10 @@ public final class Track extends AbstractHashable
     private final long fileSize;
 
     private final File compressedFile;
+
+    private static final Pattern FLAC = Pattern.compile("FLAC");
+
+    private static final Pattern DOT_FLAC = Pattern.compile(".flac");
 
     private final long compressedSize;
 
@@ -93,26 +90,18 @@ public final class Track extends AbstractHashable
         this.fileSize = file.length();
 
         try {
-            this.compressedFile = new File(file.getCanonicalPath()
-                .replaceAll("FLAC", "M4A")
-                .replaceAll(".flac", ".m4a"));
-            this.compressedSize = this.compressedFile.length();
+            this.compressedFile = new File(
+                DOT_FLAC.matcher(
+                    FLAC.matcher(file.getCanonicalPath())
+                        .replaceAll("M4A"))
+                    .replaceAll(".m4a"));
+            compressedSize = this.compressedFile.length();
         } catch (IOException e) {
             throw new IllegalStateException("Unhandled compressed file: " + file, e);
         }
         if (!this.compressedFile.exists()) {
             throw new IllegalStateException(this + " has no compressed version");
         }
-    }
-
-    public static Optional<Artist> getAlbumArtist(FlacTags tags, boolean compilation) {
-
-        return compilation ? Optional.empty() : Optional.ofNullable(tags.getComments("albumartist"))
-            .filter(c ->
-                !c.isEmpty())
-            .map(c ->
-                c.get(0))
-            .map(Artist::get);
     }
 
     public Artist getArtist() {
@@ -125,6 +114,7 @@ public final class Track extends AbstractHashable
         return artists;
     }
 
+    @DAC
     public Collection<Artist> getOtherArtists() {
 
         return albumArtists.containsAll(artists) ? Collections.emptyList() : artists;
@@ -150,16 +140,7 @@ public final class Track extends AbstractHashable
         return trackNo;
     }
 
-    public String getPrettyCompressedSize() {
-
-        return Print.bytes(compressedSize);
-    }
-
-    public String getPrettySize() {
-
-        return Print.bytes(fileSize);
-    }
-
+    @DAC
     public String getPrettyTrackNo() {
 
         return part == null ? String.valueOf(trackNo) : part + "-" + trackNo;
@@ -188,14 +169,15 @@ public final class Track extends AbstractHashable
         return duration.toSeconds();
     }
 
+    @DAC
     public String getPrettyDuration() {
 
         return Print.prettyTrackTime(this.duration);
     }
 
-    public boolean sameAlbum(Track track) {
-
-        return Objects.equals(track.getArtist(), artist) && Objects.equals(track.getAlbum(), album);
+    @DAC
+    public String getPrettyCompressedSize() {
+        return Print.bytes(compressedSize);
     }
 
     @SuppressWarnings("NullableProblems")
@@ -221,6 +203,16 @@ public final class Track extends AbstractHashable
             .append(". ").append(name);
     }
 
+    private static Optional<Artist> getAlbumArtist(FlacTags tags, boolean compilation) {
+
+        return compilation ? Optional.empty() : Optional.ofNullable(tags.getComments("albumartist"))
+            .filter(c ->
+                !c.isEmpty())
+            .map(c ->
+                c.get(0))
+            .map(Artist::get);
+    }
+
     private static Integer part(String name) {
 
         if (name == null) {
@@ -235,24 +227,18 @@ public final class Track extends AbstractHashable
 
     private static int trackNo(String fileName) {
 
-        return Integer.parseInt(pick(fileName, 2, 1));
+        return Integer.parseInt(pick(fileName));
     }
 
-    private static String trackName(String fileName) {
-
-        String name = pick(fileName, 3, 2);
-        return name.endsWith(".flac") ? name.substring(0, name.length() - ".flac".length()) : name;
-    }
-
-    private static String pick(String name, int partIndex, int noPartIndex) {
+    private static String pick(String name) {
 
         Matcher partMatcher = PART_TRACK_NAME.matcher(name);
         if (partMatcher.matches()) {
-            return partMatcher.group(partIndex);
+            return partMatcher.group(2);
         }
         Matcher matcher = TRACK_NAME.matcher(name);
         if (matcher.matches()) {
-            return matcher.group(noPartIndex);
+            return matcher.group(1);
         }
         throw new IllegalArgumentException("Bad track name: " + name);
     }

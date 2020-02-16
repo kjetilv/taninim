@@ -1,7 +1,8 @@
 package mediaserver.gui;
 
 import mediaserver.Config;
-import mediaserver.Globals;
+import mediaserver.GlobalState;
+import mediaserver.hash.Hashable;
 import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.AccessLevel;
@@ -10,11 +11,15 @@ import mediaserver.templates.Template;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.Pair;
 import mediaserver.util.Print;
-import mediaserver.util.R;
+import mediaserver.util.Ran;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class IndexPage extends TemplateEnabled {
 
@@ -28,89 +33,114 @@ public final class IndexPage extends TemplateEnabled {
         this.media = media;
     }
 
-    public static Optional<Pair<Album, Track>> resolveRandomTrack(Req req, Media submedia) {
-
-        return req.getSession().getRandomTrack(req.getTime(), () -> randomAlbumTrack(submedia));
-    }
-
     @Override
     protected Handling handle(Req req) {
 
-        return template(req, media.get())
-            .map(template ->
-                respondHtml(req, template))
-            .orElseGet(() ->
-                handleNotFound(req));
+        Template template = template(req, media.get());
+        return respondHtml(req, template);
     }
 
-    private Optional<Template> template(Req req, Media media) {
+    private Template template(Req req, Media media) {
 
-        QPars pars = req.getQueryParameters();
+        Collection<Artist> currentArtists = QPar.artist.id(req)
+            .flatMap(media::getArtist)
+            .collect(Collectors.toList());
 
-        Artist artist =
-            pars.get(QPar.artist).flatMap(media::getArtist).orElse(null);
-        Series series =
-            pars.get(QPar.series).flatMap(media::getSeries).orElse(null);
-        Playlist curation =
-            pars.get(QPar.curation).flatMap(media::getCuration).orElse(null);
-        Playlist playlist = curation == null
-            ? pars.get(QPar.playlist).flatMap(media::getPlaylist).orElse(null)
-            : null;
+        Collection<Series> currentSeries = QPar.series.id(req)
+            .flatMap(media::getSeries)
+            .collect(Collectors.toList());
 
-        return Optional.ofNullable(
-            media.subLibrary(null, artist, series, curation == null ? playlist : curation))
-            .filter(submedia -> !submedia.isEmpty())
-            .map(submedia -> {
+        Collection<Playlist> currentCurations = QPar.curation.id(req)
+            .flatMap(media::getCuration)
+            .collect(Collectors.toList());
 
-                boolean streamSingle = req.getSession().getAccessLevel().satisfies(AccessLevel.STREAM_SINGLE);
-                Optional<Pair<Album, Track>> globalTrack =
-                    streamSingle ? Globals.get().getGlobalTrack(req.getTime()) : Optional.empty();
-                Optional<Pair<Album, Track>> accessible =
-                    streamSingle ? globalTrack.or(() -> resolveRandomTrack(req, submedia)) : Optional.empty();
+        Collection<Playlist> currentPlaylists =  QPar.playlist.id(req)
+            .flatMap(media::getPlaylist)
+            .collect(Collectors.toList());
 
-                Optional<Album> accessibleAlbum = accessible.map(Pair::getT1);
-                Optional<Track> accessibleTrack = accessible.map(Pair::getT2);
+        QueryParametersTracker tracker = new QueryParametersTracker()
+            .set(QPar.artist, currentArtists)
+            .set(QPar.series, currentSeries)
+            .set(QPar.playlist, currentPlaylists)
+            .set(QPar.curation, currentCurations);
 
-                return getTemplate(INDEX_PAGE)
-                    .add(TPar.plyr, Config.PLYR)
-                    .add(TPar.highlightedAlbum, accessibleAlbum)
-                    .add(TPar.highlighted, accessibleTrack)
-                    .add(TPar.highlightedSelected, globalTrack.isPresent())
-                    .add(
-                        TPar.highlightedRemaining,
-                        remainingTime(req, globalTrack, accessibleTrack).map(Print::prettyLongTime))
-                    .add(TPar.randomAlbums, submedia.getRandomAlbums(7))
-                    .add(TPar.user, req.getSession().getActiveUser(req))
-                    .add(TPar.media, submedia)
-                    .add(TPar.artist, artist)
-                    .add(TPar.series, series)
-                    .add(TPar.playlist, playlist)
-                    .add(TPar.curation, curation);
-            });
+        Media submedia =
+            media.subLibrary(null, currentArtists, currentSeries, currentPlaylists, currentCurations);
+
+        Collection<Link<Artist>> artistLinks = links(currentArtists, linker(QPar.artist, tracker));
+        Collection<Link<Series>> seriesLinks = links(currentSeries, linker(QPar.series, tracker));
+        Collection<Link<Playlist>> playlistLinks = links(currentPlaylists, linker(QPar.playlist, tracker));
+        Collection<Link<Playlist>> curationLinks = links(currentCurations, linker(QPar.curation, tracker));
+
+        Collection<Link<Artist>> albumArtistsLinks = links(submedia.getAllAlbumArtists(), linker(QPar.artist, tracker));
+        Collection<Link<Series>> mediaSeriesLinks = links(submedia.getSeries(), linker(QPar.series, tracker));
+        Collection<Link<Playlist>> mediaPlaylistLinks = links(submedia.getPlaylists(), linker(QPar.playlist, tracker));
+        Collection<Link<Playlist>> mediaCurationLinks = links(submedia.getCurations(), linker(QPar.curation, tracker));
+
+        boolean streamHighlighted = req.getSession().getAccessLevel().satisfies(AccessLevel.STREAM_SINGLE);
+
+        Instant time = req.getTime();
+
+        Optional<Pair<Album, Track>> globalTrack = streamHighlighted
+            ? GlobalState.get().getGlobalTrack(time)
+            : Optional.empty();
+
+        Optional<Pair<Album, Track>> highlightedAlbumAndTrack = streamHighlighted
+            ? globalTrack.or(
+            () -> req.getSession().getSessionState().getRandomTrack(time, () -> randomAlbumTrack(submedia)))
+            : Optional.empty();
+
+        Optional<Duration> highlightedTimeRemaining = highlightedAlbumAndTrack.isEmpty() ? Optional.empty()
+            : globalTrack.isPresent() ? GlobalState.get().getGlobalTrackRemaining(time)
+            : req.getSession().getSessionState().getRandomTrackRemaining(time);
+
+        Optional<Album> highlightedAlbum = highlightedAlbumAndTrack.map(Pair::getT1);
+        Optional<Track> highlightedTrack = highlightedAlbumAndTrack.map(Pair::getT2);
+
+        return getTemplate(INDEX_PAGE)
+            .add(TPar.plyr, Config.PLYR)
+            .add(TPar.highlightedAlbum, highlightedAlbum)
+            .add(TPar.highlightedArtist, highlightedAlbum.map(Album::getArtist).map(linker(QPar.artist, tracker)))
+            .add(TPar.highlighted, highlightedTrack)
+            .add(TPar.highlightedSelected, globalTrack.isPresent())
+            .add(
+                TPar.highlightedRemaining,
+                highlightedTimeRemaining.map(Print::prettyLongTime))
+            .add(TPar.randomAlbums, submedia.getRandomAlbums(7))
+            .add(TPar.user, req.getSession().getActiveUser(req))
+            .add(TPar.media, submedia)
+            .add(TPar.artist, artistLinks.stream().findFirst().orElse(null))
+            .add(TPar.artists, artistLinks)
+            .add(TPar.albumArtists, albumArtistsLinks)
+            .add(TPar.series, seriesLinks)
+            .add(TPar.playlists, playlistLinks)
+            .add(TPar.curations, curationLinks)
+            .add(TPar.mediaSeries, mediaSeriesLinks)
+            .add(TPar.mediaPlaylists, mediaPlaylistLinks)
+            .add(TPar.mediaCurations, mediaCurationLinks);
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private static Optional<Duration> remainingTime(
-        Req req,
-        Optional<Pair<Album, Track>> globalTrack,
-        Optional<Track> accessibleTrack
+    private static <T extends Hashable> Collection<Link<T>> links(
+        Collection<T> currentArtists,
+        Function<T, Link<T>> linker
     ) {
 
-        if (accessibleTrack.isEmpty()) {
-            return Optional.empty();
-        }
-        if (globalTrack.isPresent()) {
-            return Globals.get().getGlobalTrackRemaining(req.getTime());
-        }
-        return req.getSession().getRandomTrackRemaining(req.getTime());
+        return currentArtists.stream().map(linker).collect(Collectors.toList());
+    }
+
+    private static <T extends Hashable> Function<T, Link<T>> linker(
+        QPar qpar,
+        QueryParametersTracker tracker
+    ) {
+
+        return t ->
+            new Link<>(t, tracker.add(qpar, t), tracker.remove(qpar, t), tracker.focus(qpar, t));
     }
 
     private static Optional<Pair<Album, Track>> randomAlbumTrack(Media submedia) {
 
-        return R.nd(submedia.getRandomAlbums(20))
-            .flatMap(album ->
-                R.nd(album.getTracks())
-                    .map(track ->
-                        Pair.of(album, track)));
+        return Ran.dom(submedia.getRandomAlbums(20)).flatMap(album ->
+            Ran.dom(album.getTracks()).map(track ->
+                Pair.of(album, track)));
     }
 }

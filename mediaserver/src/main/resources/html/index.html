@@ -10,13 +10,13 @@
     {endif}
     <META charset="UTF-8">
     <TITLE>
-        taninim[{if(artist)}{artist.name}{else}{if(playlist)}{playlist.name}{else}{if(series)}{series.name}{endif}{endif}{endif}]</TITLE>
+        taninim[{if(artist)}{artist.target.name}{else}{if(playlist)}{playlist.name}{else}{if(series)}{series.name}{endif}{endif}{endif}]</TITLE>
 </HEAD>
 
 <BODY>
 
 <DIV STYLE="float: right">
-    <svg height="130pt" version="1.0"
+    <svg height="130pt"
          viewBox="0 0 150 150" width="120pt" xmlns="http://www.w3.org/2000/svg">
         <g fill="#708070" transform="translate(-20,175) scale(0.10,-0.10)">
             <path d="M889 1595 l-112 -195 -228 0 c-126 0 -229 -3 -229 -6 0 -4 49 -93
@@ -83,7 +83,7 @@
 <DIV STYLE="float: inside; text-align: center; padding:10px">
     <SMALL>Fra <A HREF="/album?album={highlightedAlbum.uuid}"><EM>{highlighted.album}</EM></A>
         av
-        <A HREF="?artist={highlighted.artist.uuid}">{highlighted.artist.name}</A></SMALL>
+        <A HREF="/?{highlightedArtist.add}">{highlightedArtist.target.name}</A></SMALL>
 </DIV>
 
 {if(plyr)}
@@ -93,75 +93,91 @@
 {endif}
 
 <DIV STYLE="clear:both">
+    {if(mediaSeries)}
     <DIV STYLE="float:left; padding: 15px">
         <H3>Serier</H3>
         <UL>
-            {media.series:{series|
-            <LI><A HREF="?series={series.uuid}">{series.name}</A></LI>
+            {mediaSeries:{series|
+            <LI><A HREF="/?{series.add}">{series.target.name}</A></LI>
             }}
         </UL>
     </DIV>
+    {endif}
 
+    {if(mediaCurations)}
     <DIV STYLE="float:left; padding: 15px">
-        {if(media.curations)}
         <H3>Kuraterte spillelister</H3>
         <UL>
-            {media.curations:{curation|
-            <LI><A HREF="?curation={curation.uuid}">{curation.name}</A></LI>
+            {mediaCurations:{curation|
+            <LI><A HREF="/?{curation.add}">{curation.target.name}</A></LI>
             }}
         </UL>
-        {endif}
     </DIV>
+    {endif}
 
+    {if(mediaPlaylists)}
     <DIV STYLE="float:left; padding: 15px">
-        {if(media.playlists)}
         <H3>Spillelister</H3>
         <UL>
-            {media.playlists:{playlist|
-            <LI><A HREF="/?playlist={playlist.uuid}">{playlist.name}</A></LI>
+            {mediaPlaylists:{playlist|
+            <LI><A HREF="/?{playlist.add}">{playlist.target.name}</A></LI>
             }}
         </UL>
-        {endif}
     </DIV>
+    {endif}
 </DIV>
 
 <DIV STYLE="clear:both">
-    {if(artist)}
-    <P>Artist: <STRONG>{artist.name}
+    {if(artists)}
+    {artists:{artist|
+    <P>Artist: <STRONG>{artist.target.name}</STRONG>
         {if(user.streamingPlaylists)}
-        <A HREF="/playlist/artist/{artist.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
+        <A HREF="/playlist/artist/{artist.target.uuid}" TITLE="Spilleliste for {artist.target.name}">⏬</A>
         {endif}
-    </STRONG></P>
+        <A HREF="/?{artist.focus}" TITLE="Vis bare denne">⏺</A>
+        <A HREF="/?{artist.remove}" TITLE="Fjern denne">⏹</A>
+    </P>
+    }}
     {endif}
 
     {if(series)}
-    <P>Serie: <STRONG>{series.name}
+    {series:{serie|
+    <P>Serie: <STRONG>{series.target.name}</STRONG>
         {if(user.streamingPlaylists)}
-        <A HREF="/playlist/series/{series.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
+        <A HREF="/playlist/series/{serie.target.uuid}" TITLE="Spilleliste: {series.target.name}">⏬</A>
         {endif}
-    </STRONG>
+        <A HREF="/?{serie.focus}" TITLE="Vis bare denne">⏺</A>
+        <A HREF="/?{serie.remove}" TITLE="Fjern denne">⏹</A>
     </P>
+    }}
     {endif}
 
-    {if(playlist)}
+    {if(playlists)}
+    {playlists:{playlist|
     <P>Spilleliste:
-        <STRONG>{playlist.name}
-            {if(user.streamingPlaylists)}
-            <A HREF="/playlist/playlist/{playlist.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
-            {endif}
-        </STRONG>
+        <STRONG>{playlist.target.name}</STRONG>
+        {if(user.streamingPlaylists)}
+        <A HREF="/playlist/playlist/{playlist.target.uuid}" TITLE="Spilleliste {playlist.target.name}">⏬</A>
+        {endif}
+        <A HREF="/?{playlist.focus}" TITLE="Vis bare denne">⏺</A>
+        <A HREF="/?{playlist.remove}" TITLE="Fjern denne">⏹</A>
     </P>
+    }}
     {endif}
 
-    {if(curation)}
+    {if(curations)}
     {if(user.streamingCurated)}
+    {curations:{curation|
     <P>Kuratert spilleliste:
-        <STRONG>{curation.name}
-            {if(user.streamingPlaylists)}
-            <A HREF="/playlist/curation/{curation.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
-            {endif}
-        </STRONG>
+        <STRONG>{curation.target.name}</STRONG>
+
+        {if(user.streamingPlaylists)}
+        <A HREF="/playlist/curation/{curation.target.uuid}" TITLE="Spilleliste {curation.target.name}">⏬</A>
+        {endif}
+        <A HREF="/?{curation.focus}" TITLE="Vis bare denne">⏺</A>
+        <A HREF="/?{curation.remove}" TITLE="Fjern denne">⏹</A>
     </P>
+    }}
     {endif}
     {endif}
 </DIV>
@@ -175,7 +191,7 @@
         {media.albums:{album|
         <LI>
             {if(user.streamingPlaylists)}
-            <A HREF="/playlist/album/{album.uuid}" TITLE="M3U"><SMALL>⏬</SMALL></A>
+            <A HREF="/playlist/album/{album.uuid}" TITLE="Spilleliste: {album.name}">⏬</A>
             {endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
         </LI>
@@ -207,8 +223,8 @@
         Artister [{length(media.allAlbumArtists)}]
     </H3>
 
-    {media.allAlbumArtists:{artist|
-    <SPAN>[<A HREF="/?artist={artist.uuid}">{artist.name}</A>]</SPAN>
+    {albumArtists:{artist|
+    [<A HREF="/?{artist.add}">{artist.target.name}</A>]
     }}
 </DIV>
 
@@ -219,6 +235,5 @@
 </DIV>
 
 </BODY>
-
 </HTML>
 

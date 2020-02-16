@@ -1,11 +1,6 @@
 package mediaserver.gui;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import io.netty.handler.codec.http.multipart.MixedAttribute;
-import mediaserver.Globals;
+import mediaserver.GlobalState;
 import mediaserver.externals.ACL;
 import mediaserver.externals.S3Client;
 import mediaserver.http.*;
@@ -20,44 +15,54 @@ import mediaserver.util.OnceEvery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
+import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED;
+import static io.netty.handler.codec.http.HttpMethod.POST;
 import static mediaserver.http.FPar.*;
 import static mediaserver.templates.TPar.user;
 
-@SuppressWarnings("SameParameterValue")
 public final class AdminPage extends TemplateEnabled {
-
-    public static final String FORM_URLENCODED = "application/x-www-form-urlencoded";
 
     private static final Logger log = LoggerFactory.getLogger(AdminPage.class);
 
-    private static final String ACTION_IDS = "ids";
+    private final Supplier<Media> mediaSupplier;
 
-    private static final String ACTION_EXTERMINATE = "exterminate";
-
-    private static final String ACTION_JUKE = "juke";
-
-    private static final String ACTION_NUKE = "nuke";
-
-    private final Supplier<Media> media;
-
-    private final Supplier<Ids> ids;
+    private final Supplier<Ids> idsSupplier;
 
     private final Sessions sessions;
 
     private final S3Client s3;
 
-    public AdminPage(Supplier<Media> media, Supplier<Ids> ids, Sessions sessions, Templater templater, S3Client s3) {
+    private final Map<Action, Function<Req, Optional<Handling>>> actions = Map.of(
+        Action.ids, this::updateIds,
+        Action.exterminate, this::closeSession,
+        Action.juke, this::juke,
+        Action.nuke, this::nuke,
+        Action.reload, this::reload);
+
+    private static final Predicate<Req> IS_FORM = r ->
+        APPLICATION_X_WWW_FORM_URLENCODED.contentEquals(r.header("Content-Type"));
+
+    private static final Predicate<Req> IS_POST = r ->
+        POST.equals(r.getRequest().method());
+
+    public AdminPage(
+        Supplier<Media> mediaSupplier,
+        Supplier<Ids> idsSupplier,
+        Sessions sessions,
+        Templater templater,
+        S3Client s3
+    ) {
 
         super(templater, Route.ADMIN);
-        this.media = media;
-        this.ids = ids;
+        this.mediaSupplier = mediaSupplier;
+        this.idsSupplier = idsSupplier;
         this.sessions = sessions;
         this.s3 = s3;
     }
@@ -65,78 +70,91 @@ public final class AdminPage extends TemplateEnabled {
     @Override
     protected Handling handle(Req req) {
 
-        if (is(req, ACTION_IDS)) {
-            if (s3 != null) {
-                try {
-                    params(req, TPar.ids)
-                        .map(this::readIds)
-                        .forEach(Ids::persist);
-                } finally {
-                    OnceEvery.refresh(ids);
-                }
-            } else {
-                log.warn("Could not update, no S3 connection: {}", req);
-            }
-            return redirect(req, false);
-        }
+        return action(req)
+            .map(actions::get)
+            .flatMap(action ->
+                action.apply(req))
+            .orElseGet(() ->
+                respondHtml(req, getTemplate(ADMIN_PAGE)
+                    .add(user, req.getSession().getActiveUser(req))
+                    .add(TPar.sessions, sessions.list())
+                    .add(TPar.ids, map(idsSupplier.get()))));
+    }
 
-        if (is(req, ACTION_EXTERMINATE)) {
-            return closedSession(req)
-                .map(closed ->
-                    redirect(req, false))
-                .orElseGet(() ->
-                    handleNotFound(req));
-        }
+    private Optional<Handling> reload(Req req) {
 
-        if (is(req, ACTION_NUKE)) {
-            if (Globals.get().unsetGlobalTrack()) {
-                log.info("Reset global jukebox track");
-            } else {
-                log.warn("Was asked to reset global jukebox track, was not set");
-            }
-            return redirect(req, true);
-        }
+        OnceEvery.actuallyJustRefresh(AdminPage.this.idsSupplier, AdminPage.this.mediaSupplier);
+        return Optional.of(redirect(req, true));
+    }
 
-        if (is(req, ACTION_JUKE)) {
-            Media media = this.media.get();
-            uuid(req, jukeboxTrack).flatMap(media::getTrack).ifPresentOrElse(
-                track ->
-                    uuid(req, jukeboxAlbum).flatMap(media::getAlbum).ifPresentOrElse(
+    private Optional<Handling> nuke(Req req) {
+
+        if (GlobalState.get().unsetGlobalTrack()) {
+            log.info("Reset global jukebox track");
+        } else {
+            log.warn("Was asked to reset global jukebox track, was not set");
+        }
+        return Optional.of(redirect(req, true));
+    }
+
+    private Optional<Handling> juke(Req req) {
+
+        GlobalState globalState = GlobalState.get();
+
+        Media media = AdminPage.this.mediaSupplier.get();
+        jukeboxTrack.id(req).flatMap(media::getTrack).findFirst().ifPresentOrElse(
+            track ->
+                jukeboxAlbum.id(req)
+                    .flatMap(media::getAlbum)
+                    .findFirst()
+                    .ifPresentOrElse(
                         album -> {
-                            log.info("Global jukebox track: {} / {}", album, track);
-                            if (isTrue(req, jukeboxClear)) {
-                                Globals.get().unsetGlobalTrack();
+                            if (jukeboxClear.isTrue(req)) {
+                                globalState.unsetGlobalTrack();
+                                log.info("Global jukebox track cleared");
                             } else {
-                                Globals.get().setGlobalTrack(req.getTime(), album, track);
+                                log.info("Global jukebox track: {} / {}", album, track);
+                                globalState.setGlobalTrack(req.getTime(), album, track);
                             }
                         },
                         () ->
-                            log.warn("Album not found: {}", uuid(req, jukeboxAlbum))),
-                () ->
-                    log.warn("Track not found: {}", uuid(req, jukeboxTrack)));
-            return redirect(req, true);
+                            log.warn("Album not found: {}", jukeboxAlbum.id(req))),
+            () ->
+                log.warn("Track not found: {}", jukeboxTrack.id(req)));
+        return Optional.of(redirect(req, true));
+    }
+
+    private Optional<Handling> closeSession(Req req) {
+
+        closedSession(req)
+            .map(closed -> redirect(req, false))
+            .orElseGet(() -> handleNotFound(req));
+        return Optional.empty();
+    }
+
+    private Optional<Handling> updateIds(Req req) {
+
+        if (AdminPage.this.s3 != null) {
+            try {
+                FPar.ids.get(req)
+                    .map(this::readIds)
+                    .forEach(Ids::persist);
+            } finally {
+                OnceEvery.actuallyJustRefresh(AdminPage.this.idsSupplier);
+            }
+        } else {
+            log.warn("Could not update, no S3 connection: {}", req);
         }
-
-        return Optional.of(getTemplate(ADMIN_PAGE)
-            .add(user, req.getSession().getActiveUser(req))
-            .add(TPar.sessions, sessions.list())
-            .add(TPar.ids, map(ids.get())))
-            .map(template ->
-                respondHtml(req, template))
-            .orElseGet(() ->
-                handleNotFound(req));
+        return Optional.of(redirect(req, false));
     }
 
-    private static Optional<UUID> uuid(Req req, Par param) {
+    private Ids readIds(String ids) {
 
-        return params(req, param)
-            .map(UUID::fromString)
-            .findFirst();
-    }
-
-    private static boolean isTrue(Req req, Par param) {
-
-        return params(req, param).anyMatch(Boolean::parseBoolean);
+        try {
+            return new Ids(IO.OM.readerFor(ACL.class).readValue(ids), s3);
+        } catch (Exception e) {
+            throw new IllegalStateException("No map", e);
+        }
     }
 
     private Handling redirect(Req req, boolean referer) {
@@ -146,8 +164,7 @@ public final class AdminPage extends TemplateEnabled {
 
     private Optional<Session> closedSession(Req req) {
 
-        return params(req, session)
-            .map(UUID::fromString)
+        return FPar.session.id(req)
             .flatMap(session ->
                 sessions.close(session).stream())
             .peek(closed ->
@@ -155,31 +172,12 @@ public final class AdminPage extends TemplateEnabled {
             .findFirst();
     }
 
-    private static Stream<String> params(Req req, Par param) {
+    private static Optional<Action> action(Req req) {
 
-        return new HttpPostRequestDecoder(req.getRequest()).getBodyHttpDatas().stream()
-            .filter(isParam(param).and(MixedAttribute.class::isInstance))
-            .map(MixedAttribute.class::cast)
-            .map(MixedAttribute::content)
-            .map(AdminPage::print)
-            .filter(s -> !s.isBlank());
-    }
-
-    private static Predicate<InterfaceHttpData> isParam(Par param) {
-
-        return data -> data.getName().equals(param.getName());
-    }
-
-    private static String print(ByteBuf c) {
-
-        return c.toString(StandardCharsets.UTF_8);
-    }
-
-    private static boolean is(Req req, String action) {
-
-        return HttpMethod.POST.equals(req.getRequest().method())
-            && FORM_URLENCODED.equals(req.header("Content-Type"))
-            && req.getPath().contains('/' + action);
+        return Optional.ofNullable(req)
+            .filter(IS_POST.and(IS_FORM))
+            .flatMap(r ->
+                Arrays.stream(Action.values()).filter(action -> r.getPath().startsWith(action.path())).findFirst());
     }
 
     private static String map(Ids ids) {
@@ -191,12 +189,13 @@ public final class AdminPage extends TemplateEnabled {
         }
     }
 
-    private Ids readIds(String ids) {
+    enum Action {
 
-        try {
-            return new Ids(IO.OM.readerFor(ACL.class).readValue(ids), s3);
-        } catch (Exception e) {
-            throw new IllegalStateException("No map", e);
+        ids, exterminate, juke, nuke, reload;
+
+        String path() {
+
+            return '/' + name();
         }
     }
 }

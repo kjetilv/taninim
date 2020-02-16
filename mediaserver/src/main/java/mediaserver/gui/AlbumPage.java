@@ -1,7 +1,7 @@
 package mediaserver.gui;
 
 import mediaserver.Config;
-import mediaserver.Globals;
+import mediaserver.GlobalState;
 import mediaserver.http.*;
 import mediaserver.media.Album;
 import mediaserver.media.Media;
@@ -36,40 +36,41 @@ public final class AlbumPage extends TemplateEnabled {
     protected Handling handle(Req req) {
 
         return template(req, media.get())
+            .findFirst()
             .map(template ->
                 respondHtml(req, template))
             .orElseGet(() ->
                 handleNotFound(req));
     }
 
-    private Optional<Template> template(Req req, Media media) {
+    private Stream<Template> template(Req req, Media media) {
 
-        QPars pars = req.getQueryParameters();
-
-        return pars.get(QPar.album)
+        return QPar.album.id(req)
             .flatMap(media::getAlbum)
             .map(album ->
-                albumTemplate(media, req, pars, album));
+                albumTemplate(media, req, album));
     }
 
-    private Template albumTemplate(Media media, Req req, QPars pars, Album album) {
+    private Template albumTemplate(Media media, Req req, Album album) {
 
-        Optional<Selected> selectedTrack = selectedTrack(media, req, pars, album);
+        Optional<Selected> selectedTrack = selectedTrack(media, req, album).findFirst();
+        Optional<Selected> highlightedTrack = selectedTrack.filter(isHighlighted(req));
+
         return base(getTemplate(ALBUM_PAGE), req, media)
             .add(TPar.admin, req.getSession().getAccessLevel().satisfies(ADMIN))
             .add(TPar.album, album)
             .add(TPar.selected, selectedTrack)
-            .add(TPar.trackHighlighted, selectedTrack.filter(isHighlighted(req)).isPresent())
+            .add(TPar.trackHighlighted, highlightedTrack)
             .add(TPar.playableGroups, playableGroups(media, req, album))
             .add(TPar.playlists, Playlist.playlistsWith(album))
             .add(TPar.curations, Playlist.curationsWith(album));
     }
 
-    private Optional<Selected> selectedTrack(Media media, Req req, QPars pars, Album album) {
+    private static Stream<Selected> selectedTrack(Media media, Req req, Album album) {
 
-        return track(media, req, pars, QPar.track)
+        return track(media, req, QPar.track)
             .flatMap(track ->
-                selected(media, req, pars, album, track));
+                selected(media, req, album, track));
     }
 
     private static Predicate<Selected> isHighlighted(Req req) {
@@ -77,33 +78,20 @@ public final class AlbumPage extends TemplateEnabled {
         return selectedTrack ->
             Optional.ofNullable(selectedTrack.getTrack())
                 .filter(st ->
-                    Globals.get().getGlobalTrack(req.getTime()).map(Pair::getT2).filter(st::equals).isPresent())
+                    GlobalState.get().getGlobalTrack(req.getTime()).map(Pair::getT2).filter(st::equals).isPresent())
                 .isPresent();
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private static boolean isHighlighted(
-        Optional<Pair<Album, Track>> accessibleTrack,
-        Optional<Selected> selectedTrack
-    ) {
+    private static Stream<Selected> selected(Media media, Req req, Album album, Track track) {
 
-        return selectedTrack
-            .map(Selected::getTrack)
-            .map(st ->
-                accessibleTrack.map(Pair::getT2).filter(st::equals))
-            .isPresent();
-    }
-
-    private static Optional<Selected> selected(Media media, Req req, QPars pars, Album album, Track track) {
-
-        return Optional.ofNullable(req.getSession())
+        return Stream.of(req.getSession())
             .filter(session ->
                 streamable(media, track, session))
             .map(session ->
                 new Selected(
                     album,
                     track,
-                    autoplay(media, req, pars, track),
+                    autoplay(media, req, track),
                     previousTrack(track, album.getTracks()).orElse(null),
                     nextTrack(track, album.getTracks()).orElse(null)));
     }
@@ -113,9 +101,10 @@ public final class AlbumPage extends TemplateEnabled {
         return session.hasLevel(STREAM) || session.hasLevel(STREAM_CURATED) && media.isCurated(track);
     }
 
-    private static boolean autoplay(Media media, Req req, QPars pars, Track track) {
+    private static boolean autoplay(Media media, Req req, Track track) {
 
-        return track(media, req, pars, QPar.autoplay).filter(track::equals).isPresent();
+        return track(media, req, QPar.autoplay)
+            .anyMatch(track::equals);
     }
 
     private static Collection<PlayableGroup> playableGroups(Media media, Req req, Album album) {
@@ -131,9 +120,9 @@ public final class AlbumPage extends TemplateEnabled {
             .collect(Collectors.toList());
     }
 
-    private static Optional<Track> track(Media media, Req req, QPars pars, QPar track1) {
+    private static Stream<Track> track(Media media, Req req, QPar track) {
 
-        return pars.get(track1)
+        return track.id(req)
             .flatMap(media::getTrack)
             .filter(Streamer.authorized(media, req));
     }
@@ -157,6 +146,7 @@ public final class AlbumPage extends TemplateEnabled {
                     .filter(t ->
                         previousPart.equals(t.getPart()))
                     .max(trackNo()));
+
     }
 
     private static Optional<Track> nextTrack(Track track, Collection<Track> tracks) {
@@ -181,8 +171,7 @@ public final class AlbumPage extends TemplateEnabled {
 
     private static Predicate<Track> samePart(Track track) {
 
-        return t ->
-            Objects.equals(track.getPart(), t.getPart());
+        return t -> Objects.equals(track.getPart(), t.getPart());
     }
 
     private static Stream<Integer> parts(Collection<Track> tracks) {

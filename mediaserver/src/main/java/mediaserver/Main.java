@@ -46,7 +46,8 @@ public final class Main {
 
     public static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
 
-    private static final OnceEvery ONCE_EVERY = new OnceEvery(Executors.newSingleThreadScheduledExecutor());
+    private static final OnceEvery.TimingBuilder PERIODICALLY =
+        new OnceEvery(Executors.newSingleThreadScheduledExecutor()).interval(REFRESH_TIME);
 
     private static final String RES = "res";
 
@@ -122,16 +123,18 @@ public final class Main {
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
 
-        return ONCE_EVERY.interval(REFRESH_TIME)
+        return PERIODICALLY
             .when(shouldRefresh(local, args))
-            .get(() -> retrieveMedia(local, args));
+            .get(() ->
+                retrieveMedia(local, args));
     }
 
     private static Supplier<Ids> idsSupplier(String[] args, boolean local, S3Client client) {
 
-        return ONCE_EVERY.interval(REFRESH_TIME)
+        return PERIODICALLY
             .when(shouldRefresh(local, args))
-            .get(() -> refreshIds(local, client));
+            .get(() ->
+                refreshIds(local, client));
     }
 
     private static Ids refreshIds(boolean local, S3Client s3) {

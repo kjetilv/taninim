@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public final class TrackContext implements Serializable {
 
@@ -19,6 +20,12 @@ public final class TrackContext implements Serializable {
     private final Credits credits;
 
     private static final long serialVersionUID = -1080380514657171993L;
+
+    private static final Pattern WS = Pattern.compile("\\s+");
+
+    private static final String NONE = "";
+
+    private static final Pattern NO_NUMS = Pattern.compile("[^\\d]?");
 
     public TrackContext(String position, String title, Credits credits) {
 
@@ -35,8 +42,8 @@ public final class TrackContext implements Serializable {
 
     public TrackContext withTrack(Track track) {
 
-        String name = track.getName().toLowerCase().replaceAll("\\s+", "");
-        String title = this.title.toLowerCase().replaceAll("\\s+", "");
+        String name = WS.matcher(track.getName().toLowerCase()).replaceAll(NONE);
+        String title = WS.matcher(this.title.toLowerCase()).replaceAll(NONE);
         if (!(name.equalsIgnoreCase(title) || name.contains(title) || title.contains(name))) {
             log.debug("{} /= {}", track, this.title);
         }
@@ -113,7 +120,7 @@ public final class TrackContext implements Serializable {
             return Optional.of(Integer.parseInt(substring));
         } catch (NumberFormatException e) {
             log.debug("Bogus int {}", substring);
-            String pruned = substring.replaceAll("[^\\d]?", "");
+            String pruned = NO_NUMS.matcher(substring).replaceAll(NONE);
             return pruned.isBlank() ? Optional.empty() : toInt(pruned);
         }
     }

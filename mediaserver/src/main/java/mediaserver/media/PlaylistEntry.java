@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class PlaylistEntry {
@@ -16,11 +17,13 @@ public final class PlaylistEntry {
 
     private final Collection<Matcher> trackSpecs;
 
+    private static final Pattern AND = Pattern.compile("\\s+&&\\s+");
+
     public PlaylistEntry(String spec) {
 
-        Collection<Matcher> specs = Arrays.stream(Objects.requireNonNull(spec, "spec")
-            .split("\\s+&&\\s+")
-        ).map(Matcher::new).collect(Collectors.toList());
+        Collection<Matcher> specs = Arrays.stream(AND.split(Objects.requireNonNull(spec, "spec")))
+            .map(Matcher::new)
+            .collect(Collectors.toList());
         this.artistSpecs = specs(specs, MatchType.ARTIST);
         this.albumSpecs = specs(specs, MatchType.ALBUM);
         this.trackSpecs = specs(specs, MatchType.TRACK);
@@ -51,16 +54,6 @@ public final class PlaylistEntry {
     private static String artist(Path path) {
 
         return path.getParent().getParent().getFileName().toString();
-    }
-
-    @Override
-    public String toString() {
-
-        return getClass().getSimpleName() +
-            "[art:" + artistSpecs +
-            " alb:" + albumSpecs +
-            " trl:" + trackSpecs +
-            "]";
     }
 
     private static List<Matcher> specs(Collection<Matcher> spec, MatchType matchType) {
@@ -128,5 +121,15 @@ public final class PlaylistEntry {
 
             return getClass().getSimpleName() + "[" + type + " " + matchValue + "]";
         }
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() +
+            "[art:" + artistSpecs +
+            " alb:" + albumSpecs +
+            " trl:" + trackSpecs +
+            "]";
     }
 }

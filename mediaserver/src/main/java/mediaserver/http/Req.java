@@ -1,11 +1,10 @@
 package mediaserver.http;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.MixedAttribute;
 import io.netty.util.AsciiString;
 import mediaserver.Config;
 import mediaserver.gui.IndexPage;
@@ -23,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
@@ -50,7 +50,9 @@ public final class Req {
 
     private final Supplier<Optional<UUID>> uuid;
 
-    private final Supplier<QPars> qpars;
+    private final Supplier<Pars<QPar, Req, String>> qpars;
+
+    private final Supplier<Pars<FPar, Req, String>> fpars;
 
     private final Supplier<Boolean> keepAlive;
 
@@ -82,14 +84,15 @@ public final class Req {
         this.session = session;
         this.time = Objects.requireNonNull(time, "time");
 
-        int pathIndex = this.uri.indexOf("?");
+        int pathIndex = this.uri.indexOf('?');
         this.path = pathIndex > 0 ? this.uri.substring(0, pathIndex) : this.uri;
 
         this.responseContentType = MostlyOnce.get(this::contentType);
-        this.uuid = MostlyOnce.get(() ->
-            authentication(this.request));
+        this.uuid = MostlyOnce.get(this::authentication);
         this.qpars = MostlyOnce.get(() ->
-            new QPars(params(this.uri, this.uri.indexOf("?"))));
+            new Pars<>(qparams(this.uri, this.uri.indexOf('?'))));
+        this.fpars = MostlyOnce.get(() ->
+            new Pars<>(fparams(request)));
         this.keepAlive = MostlyOnce.get(() ->
             HttpUtil.isKeepAlive(this.request));
         this.content = MostlyOnce.get(() ->
@@ -117,7 +120,13 @@ public final class Req {
         }
     }
 
+    public boolean isPost() {
+
+        return request.method().equals(HttpMethod.POST);
+    }
+
     public boolean isBound() {
+
         return session != null;
     }
 
@@ -177,33 +186,13 @@ public final class Req {
 
         return headers.get()
             .computeIfAbsent(header, __ ->
-                Optional.ofNullable(request.headers().getAsString(header)))
+                Optional.ofNullable(request.headers().get(header)))
             .orElse(null);
-    }
-
-    public Optional<String> getResponseContentType() {
-
-        return responseContentType.get();
-    }
-
-    public Optional<UUID> getUUIDParameter(QPar queryParameter) {
-
-        return getQueryParameters().get(queryParameter);
-    }
-
-    public QPars getQueryParameters() {
-
-        return qpars.get();
     }
 
     public Optional<String> getContent() {
 
         return content.get();
-    }
-
-    public boolean isFor(Route page) {
-
-        return this.route == page;
     }
 
     public Optional<UUID> getAuthentication() {
@@ -260,6 +249,26 @@ public final class Req {
         return session.getActiveUser(this);
     }
 
+    Pars<QPar, Req, String> getQueryParameters() {
+
+        return qpars.get();
+    }
+
+    Pars<FPar, Req, String> getFormParameters() {
+
+        return fpars.get();
+    }
+
+    Optional<String> getResponseContentType() {
+
+        return responseContentType.get();
+    }
+
+    boolean isFor(Route page) {
+
+        return this.route == page;
+    }
+
     private Optional<String> contentType() {
 
         return Optional.ofNullable(path.endsWith(".css") ? "text/css"
@@ -268,17 +277,29 @@ public final class Req {
             : null);
     }
 
-    private static Map<QPar, String> params(String uri, int queryIndex) {
+    private static Map<FPar, Collection<String>> fparams(HttpRequest request) {
+
+        return new HttpPostRequestDecoder(request).getBodyHttpDatas().stream()
+            .filter(MixedAttribute.class::isInstance)
+            .map(MixedAttribute.class::cast)
+            .collect(Collectors.toMap(
+                attr ->
+                    FPar.valueOf(attr.getName()),
+                attr ->
+                    Collections.singleton(attr.content().toString(StandardCharsets.UTF_8))));
+    }
+
+    private static Map<QPar, Collection<String>> qparams(String uri, int queryIndex) {
 
         return queryIndex < 0 ? Collections.emptyMap() : URLs.queryParams(uri.substring(queryIndex + 1));
     }
 
-    private Optional<UUID> authentication(HttpRequest req) {
+    private Optional<UUID> authentication() {
 
-        return cookieUUID(req).or(() -> getUUIDParameter(QPar.streamlease));
+        return Stream.concat(cookieUUID(request), QPar.streamlease.id(this)).findFirst();
     }
 
-    private static Optional<UUID> cookieUUID(HttpRequest req) {
+    private static Stream<UUID> cookieUUID(HttpRequest req) {
 
         return Optional.of(req.headers())
             .map(headers ->
@@ -289,8 +310,7 @@ public final class Req {
             .filter(cookie ->
                 cookie.name().equalsIgnoreCase(IndexPage.ID_COOKIE))
             .map(cookie ->
-                UUID.fromString(cookie.value()))
-            .findFirst();
+                UUID.fromString(cookie.value()));
     }
 
     @Override

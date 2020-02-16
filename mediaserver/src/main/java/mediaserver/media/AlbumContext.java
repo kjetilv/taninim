@@ -91,7 +91,7 @@ public final class AlbumContext implements Serializable {
             .collect(Collectors.toList());
         if (headings.isEmpty()) {
             this.trackGroups =
-                Collections.singletonList(new TrackGroup("N/A", this.trackContexts));
+                Collections.singletonList(new TrackGroup("", this.trackContexts));
         } else {
             this.trackGroups =
                 Pairs.pairs(headings, this.trackContexts.size()).stream()

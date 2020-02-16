@@ -10,17 +10,17 @@ import java.time.Instant;
 import java.util.Optional;
 
 @SuppressWarnings("UnusedReturnValue")
-public final class Globals {
+public final class GlobalState {
 
-    private static final Globals INSTANCE = new Globals();
+    private static final GlobalState INSTANCE = new GlobalState();
 
     private final ExpiringState<Pair<Album, Track>> globalTrack = new ExpiringState<>(Duration.ofDays(1));
 
-    private Globals() {
+    private GlobalState() {
 
     }
 
-    public static Globals get() {
+    public static GlobalState get() {
 
         return INSTANCE;
     }

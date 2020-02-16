@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static mediaserver.gui.Playlists.PlaylistProvider.*;
@@ -26,7 +27,7 @@ public final class Playlists extends TemplateEnabled {
 
     private final boolean https;
 
-    private final Map<PlaylistProvider, Function<UUID, Optional<Pair<String, Template>>>> providers = Map.of(
+    private final Map<PlaylistProvider, Function<UUID, Stream<Pair<String, Template>>>> providers = Map.of(
         artist, this::artistPlaylist,
         album, this::albumSublibrary,
         playlist, this::playlistSublibrary,
@@ -51,14 +52,13 @@ public final class Playlists extends TemplateEnabled {
             providers.entrySet().stream()
                 .filter(e ->
                     e.getKey().test(resource))
-                .map(e ->
+                .flatMap(e ->
                     e.getValue().apply(UUID.fromString(e.getKey().suffix(resource)))
                         .map(nameAndTemplate ->
                             playlistResponse(req, nameAndTemplate.getT1(), nameAndTemplate.getT2())))
-                .flatMap(Optional::stream)
-                .findFirst()
                 .map(httpResponse ->
                     handle(req, httpResponse))
+                .findFirst()
                 .orElseGet(() ->
                     handleNotFound(req));
         }
@@ -87,71 +87,64 @@ public final class Playlists extends TemplateEnabled {
                 "inline; filename=\"" + template + '-' + Print.uuid(cookie) + "-playlist.m3u\"");
     }
 
-    private Optional<Pair<String, Template>> albumSublibrary(UUID albumUUID) {
+    private Stream<Pair<String, Template>> albumSublibrary(UUID albumUUID) {
 
         return this.media.get().getAlbum(albumUUID)
             .map(album ->
                 Pair.of(album.getName(), playlist(album)));
     }
 
-    private Optional<Pair<String, Template>> seriesSublibrary(UUID seriesUUID) {
+    private Stream<Pair<String, Template>> seriesSublibrary(UUID seriesUUID) {
 
         Media media = this.media.get();
         return media.getSeries(seriesUUID)
-            .flatMap(series ->
-                Optional.of(media.subLibrary(series))
-                    .map(submedia ->
-                        Pair.of(
-                            series.getName(),
-                            playlist(
-                                PlaylistProvider.series,
-                                series.getName(), submedia.getAlbums(true)))));
+            .map(series ->
+                Pair.of(
+                    series.getName(),
+                    playlist(
+                        PlaylistProvider.series,
+                        series.getName(), media.subLibrary(series).getAlbums(true))));
     }
 
-    private Optional<Pair<String, Template>> playlistSublibrary(UUID playlistUUID) {
+    private Stream<Pair<String, Template>> playlistSublibrary(UUID playlistUUID) {
 
         Media media = this.media.get();
         return media.getPlaylist(playlistUUID)
-            .flatMap(playlist ->
-                Optional.ofNullable(media.subLibrary(playlist))
-                    .map(submedia ->
-                        Pair.of(
-                            playlist.getName(),
-                            playlist(
-                                PlaylistProvider.playlist,
-                                playlist.getName(),
-                                submedia.getAlbums(true)))));
+            .map(playlist ->
+                Pair.of(
+                    playlist.getName(),
+                    playlist(
+                        PlaylistProvider.playlist,
+                        playlist.getName(),
+                        media.subLibrary(playlist).getAlbums(true))));
     }
 
-    private Optional<Pair<String, Template>> curationSublibrary(UUID curationUUID) {
+    private Stream<Pair<String, Template>> curationSublibrary(UUID curationUUID) {
 
         Media media = this.media.get();
         return media.getCuration(curationUUID)
-            .flatMap(curation ->
-                Optional.ofNullable(media.subLibrary(curation))
-                    .map(submedia ->
-                        Pair.of(
-                            curation.getName(),
-                            playlist(
-                                PlaylistProvider.curation,
-                                curation.getName(),
-                                submedia.getAlbums(true)))));
+            .map(curation ->
+                Pair.of(
+                    curation.getName(),
+                    playlist(
+                        PlaylistProvider.curation,
+                        curation.getName(),
+                        media.subLibrary(curation).getAlbums(true))));
     }
 
-    private Optional<Pair<String, Template>> artistPlaylist(UUID artistUUID) {
+    private Stream<Pair<String, Template>> artistPlaylist(UUID artistUUID) {
 
         Media media = this.media.get();
         return media.getArtist(artistUUID)
-            .flatMap(artist ->
-                Optional.ofNullable(media.getTracksFeaturing(artist))
-                    .filter(tracks ->
-                        !tracks.isEmpty())
-                    .map(tracks ->
-                        Pair.of(
-                            artist.getName(),
-                            playlist(
-                                artist,
-                                tracks))));
+            .flatMap(artist -> {
+                Collection<Track> tracksFeaturing = media.getTracksFeaturing(artist).collect(Collectors.toList());
+                if (tracksFeaturing.isEmpty()) {
+                    return Stream.empty();
+                }
+                Template playlist = playlist(artist, tracksFeaturing);
+                Pair<String, Template> of = Pair.of(artist.getName(), playlist);
+                return Stream.of(of);
+            });
     }
 
     private Template playlist(Album album) {

@@ -1,5 +1,7 @@
 package mediaserver.gui;
 
+import mediaserver.util.DAC;
+
 import java.util.Collection;
 
 public class PlayableGroup {
@@ -8,7 +10,7 @@ public class PlayableGroup {
 
     private final Collection<Playable> playables;
 
-    public PlayableGroup(String name, Collection<Playable> playables) {
+    PlayableGroup(String name, Collection<Playable> playables) {
 
         this.name = name == null || name.isBlank() ? null : name.trim();
         this.playables = playables;
@@ -19,6 +21,7 @@ public class PlayableGroup {
         return name;
     }
 
+    @DAC
     public Collection<Playable> getPlayables() {
 
         return playables;

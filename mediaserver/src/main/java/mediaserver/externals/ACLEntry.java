@@ -1,6 +1,7 @@
 package mediaserver.externals;
 
-@SuppressWarnings("unused")
+import mediaserver.util.DAC;
+
 public class ACLEntry {
 
     private String als;
@@ -9,11 +10,13 @@ public class ACLEntry {
 
     private String ser;
 
+    @DAC
     public String getAls() {
 
         return als;
     }
 
+    @DAC
     public void setAls(String als) {
 
         this.als = als;
@@ -24,6 +27,7 @@ public class ACLEntry {
         return lev;
     }
 
+    @DAC
     public void setLev(String lev) {
 
         this.lev = lev;
@@ -34,6 +38,7 @@ public class ACLEntry {
         return ser;
     }
 
+    @DAC
     public void setSer(String ser) {
 
         this.ser = ser;

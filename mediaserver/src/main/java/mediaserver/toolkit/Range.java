@@ -2,6 +2,7 @@ package mediaserver.toolkit;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpHeaderValues.BYTES;
@@ -19,6 +20,8 @@ public final class Range {
 
     private final boolean satisfiable;
 
+    private static final Pattern COMMA = Pattern.compile(",");
+
     private Range(Long start, Long exclusiveEnd, long length) {
 
         this.start = start;
@@ -28,10 +31,8 @@ public final class Range {
 
     public static Stream<Range> read(String value, long length) {
 
-        return Optional.ofNullable(value)
-            .stream()
-            .map(header ->
-                header.split(","))
+        return Optional.ofNullable(value).stream()
+            .map(COMMA::split)
             .flatMap(Arrays::stream)
             .map(String::trim)
             .map(header -> {

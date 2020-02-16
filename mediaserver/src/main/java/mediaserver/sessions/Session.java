@@ -7,8 +7,6 @@ import mediaserver.media.Track;
 import mediaserver.util.ExpiringState;
 import mediaserver.util.Pair;
 import mediaserver.util.Print;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -22,8 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class Session {
-
-    private static final Logger log = LoggerFactory.getLogger(Session.class);
 
     private final Instant startTime;
 
@@ -43,7 +39,7 @@ public final class Session {
 
     private final AtomicLong bytesStreamed = new AtomicLong();
 
-    private final ExpiringState<Pair<Album, Track>> randomTrack = new ExpiringState<>(Duration.ofHours(1));
+    private final SessionState sessionState = new SessionState();
 
     public Session(
         FbUser fbUser,
@@ -163,29 +159,9 @@ public final class Session {
         return bytesQuota;
     }
 
-    public Optional<Pair<Album, Track>> setAccessibleTrack(Instant time, Pair<Album, Track> accessibleTrack) {
+    public SessionState getSessionState() {
 
-        if (!randomTrack.set(time, accessibleTrack)) {
-            log.warn("Accessible track for {} is still {}, rejected: {}", this, randomTrack, accessibleTrack);
-        } else {
-            log.info("Accessible track for {} is now {}", this, accessibleTrack);
-        }
-        return randomTrack.get(time);
-    }
-
-    public Optional<Duration> getRandomTrackRemaining(Instant time) {
-
-        return randomTrack.getRemaining(time);
-    }
-
-    public Optional<Pair<Album, Track>> getRandomTrack(Instant time) {
-
-        return getRandomTrack(time, null);
-    }
-
-    public Optional<Pair<Album, Track>> getRandomTrack(Instant time, Supplier<Optional<Pair<Album, Track>>> newRandom) {
-
-        return randomTrack.get(time, newRandom);
+        return sessionState;
     }
 
     private Status sessionStatus(Instant time) {

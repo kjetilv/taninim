@@ -5,15 +5,15 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Random;
 
-public final class R {
+public final class Ran {
 
     static final Random RANDOM = new Random();
 
-    private R() {
+    private Ran() {
 
     }
 
-    public static <T> Optional<T> nd(Collection<T> ts) {
+    public static <T> Optional<T> dom(Collection<T> ts) {
 
         return ts == null || ts.isEmpty()
             ? Optional.empty()
