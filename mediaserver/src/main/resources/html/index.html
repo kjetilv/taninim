@@ -130,53 +130,46 @@
 <DIV STYLE="clear:both">
     {if(artists)}
     {artists:{artist|
-    <P>Artist: <STRONG>{artist.target.name}</STRONG>
-        {if(user.streamingPlaylists)}
-        <A HREF="/playlist/artist/{artist.target.uuid}" TITLE="Spilleliste for {artist.target.name}">⏬</A>
-        {endif}
-        <A HREF="/?{artist.focus}" TITLE="Vis bare denne">⏺</A>
-        <A HREF="/?{artist.remove}" TITLE="Fjern denne">⏹</A>
-    </P>
+    [Artist&nbsp;<A HREF="/?{artist.focus}" TITLE="Vis bare denne"><STRONG>{
+    artist.name
+    }</STRONG></A>&nbsp;<A HREF="/?{artist.remove}" TITLE="Fjern denne">⏹</A>{
+    if(user.streamingPlaylists)
+    }&nbsp;<A HREF="/playlist/artist/{artist.target.uuid}" TITLE="Spilleliste for {artist.target.name}">⏬</A>{
+    endif}]
     }}
     {endif}
 
     {if(series)}
     {series:{serie|
-    <P>Serie: <STRONG>{series.target.name}</STRONG>
-        {if(user.streamingPlaylists)}
-        <A HREF="/playlist/series/{serie.target.uuid}" TITLE="Spilleliste: {series.target.name}">⏬</A>
-        {endif}
-        <A HREF="/?{serie.focus}" TITLE="Vis bare denne">⏺</A>
-        <A HREF="/?{serie.remove}" TITLE="Fjern denne">⏹</A>
-    </P>
+    [Serie&nbsp;<A HREF="/?{serie.focus}" TITLE="Vis bare denne"><STRONG>{
+    serie.name
+    }</STRONG></A>&nbsp;<A HREF="/?{serie.remove}" TITLE="Fjern denne">⏹</A>{
+    if(user.streamingPlaylists)
+    }&nbsp;<A HREF="/playlist/series/{serie.target.uuid}" TITLE="Spilleliste: {series.target.name}">⏬</A>{
+    endif}]
     }}
     {endif}
 
     {if(playlists)}
     {playlists:{playlist|
-    <P>Spilleliste:
-        <STRONG>{playlist.target.name}</STRONG>
-        {if(user.streamingPlaylists)}
-        <A HREF="/playlist/playlist/{playlist.target.uuid}" TITLE="Spilleliste {playlist.target.name}">⏬</A>
-        {endif}
-        <A HREF="/?{playlist.focus}" TITLE="Vis bare denne">⏺</A>
-        <A HREF="/?{playlist.remove}" TITLE="Fjern denne">⏹</A>
-    </P>
+    [Spilleliste&nbsp;<A HREF="/?{playlist.focus}" TITLE="Vis bare denne"><STRONG>{
+    playlist.name
+    }</STRONG></A>&nbsp;<A HREF="/?{playlist.remove}" TITLE="Fjern denne">⏹</A>{
+    if(user.streamingPlaylists)
+    }&nbsp;<A HREF="/playlist/playlist/{playlist.target.uuid}" TITLE="Spilleliste {playlist.target.name}">⏬</A>{
+    endif}]
     }}
     {endif}
 
     {if(curations)}
     {if(user.streamingCurated)}
     {curations:{curation|
-    <P>Kuratert spilleliste:
-        <STRONG>{curation.target.name}</STRONG>
-
-        {if(user.streamingPlaylists)}
-        <A HREF="/playlist/curation/{curation.target.uuid}" TITLE="Spilleliste {curation.target.name}">⏬</A>
-        {endif}
-        <A HREF="/?{curation.focus}" TITLE="Vis bare denne">⏺</A>
-        <A HREF="/?{curation.remove}" TITLE="Fjern denne">⏹</A>
-    </P>
+    [Kuratert&nbsp<A HREF="/?{curation.focus}" TITLE="Vis bare denne"><STRONG>{
+    curation.name
+    }</STRONG></A>&nbsp;<A HREF="/?{curation.remove}" TITLE="Fjern denne">⏹</A>{
+    if(user.streamingPlaylists)
+    }&nbsp;<A HREF="/playlist/curation/{curation.target.uuid}" TITLE="Spilleliste {curation.target.name}">⏬</A>{
+    endif}]
     }}
     {endif}
     {endif}

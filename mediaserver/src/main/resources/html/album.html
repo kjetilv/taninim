@@ -91,7 +91,7 @@
 
         <H3><A HREF="?artist={album.artist.uuid}">{album.artist.name}</A>: <EM>{album.name}</EM>
             {if(user.streamingPlaylists)}
-            <A HREF="/playlist/album/{album.uuid}"><SMALL>⏬</SMALL></A>
+            <A HREF="/playlist/album/{album.uuid}">⏬</A>
             {endif}
         </H3>
 
@@ -248,7 +248,7 @@
                 <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
                     [ <A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
                     {if(user.streamingPlaylists)}
-                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}"><SMALL>⏬</SMALL></A>
+                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
                     {endif}
                     ]
                 </LI>

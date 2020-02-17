@@ -3,6 +3,7 @@ package mediaserver.gui;
 import mediaserver.Config;
 import mediaserver.GlobalState;
 import mediaserver.hash.Hashable;
+import mediaserver.hash.Namable;
 import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.AccessLevel;
@@ -120,7 +121,7 @@ public final class IndexPage extends TemplateEnabled {
             .add(TPar.mediaCurations, mediaCurationLinks);
     }
 
-    private static <T extends Hashable> Collection<Link<T>> links(
+    private static <T extends Hashable & Namable> Collection<Link<T>> links(
         Collection<T> currentArtists,
         Function<T, Link<T>> linker
     ) {
@@ -128,7 +129,7 @@ public final class IndexPage extends TemplateEnabled {
         return currentArtists.stream().map(linker).collect(Collectors.toList());
     }
 
-    private static <T extends Hashable> Function<T, Link<T>> linker(
+    private static <T extends Hashable & Namable> Function<T, Link<T>> linker(
         QPar qpar,
         QueryParametersTracker tracker
     ) {

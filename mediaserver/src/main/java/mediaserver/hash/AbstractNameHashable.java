@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class AbstractNameHashable
     extends AbstractHashable
-    implements Comparable<AbstractNameHashable>, Serializable {
+    implements Comparable<AbstractNameHashable>, Serializable, Namable {
 
     private final String name;
 
@@ -35,6 +35,7 @@ public class AbstractNameHashable
         return name.compareTo(o.getName());
     }
 
+    @Override
     public final String getName() {
 
         return name;
