@@ -2,7 +2,7 @@ package mediaserver.gui;
 
 import mediaserver.media.Track;
 
-public final class Playable {
+final class Playable {
 
     private final Track track;
 

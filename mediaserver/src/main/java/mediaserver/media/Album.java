@@ -1,6 +1,7 @@
 package mediaserver.media;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.DAC;
 import mediaserver.util.Print;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -23,14 +25,12 @@ public final class Album extends AbstractHashable
 
     private final List<Track> tracks;
 
-    private final CategoryPath categoryPath;
+    private final Map<UUID, Track> trackIndex;
 
     private final AlbumContext context;
 
     private static final Comparator<Album> ALBUM_COMPARATOR =
-        Comparator.comparing(Album::getCategoryPath)
-            .thenComparing(Album::getArtist)
-            .thenComparing(Album::getName);
+        Comparator.comparing(Album::getArtist).thenComparing(Album::getName);
 
     private static final long serialVersionUID = 6861992470450497236L;
 
@@ -40,19 +40,20 @@ public final class Album extends AbstractHashable
 
     private final List<Series> series;
 
-    Album(CategoryPath categoryPath, Artist artist, String name, List<Track> tracks) {
+    private static final Pattern UNDERSCORE = Pattern.compile("_");
 
-        this(categoryPath, artist, name, tracks, null);
+    Album(Artist artist, String name, List<Track> tracks) {
+
+        this(artist, name, tracks, null);
     }
 
-    Album(CategoryPath categoryPath, Artist artist, String name, List<Track> tracks, AlbumContext context) {
+    private Album(Artist artist, String name, List<Track> tracks, AlbumContext context) {
 
         this(
             artist,
-            name.replaceAll("_", ":"),
+            UNDERSCORE.matcher(name).replaceAll(":"),
             parts(tracks),
             tracks,
-            categoryPath,
             context);
     }
 
@@ -61,7 +62,6 @@ public final class Album extends AbstractHashable
         String name,
         Integer parts,
         List<Track> tracks,
-        CategoryPath categoryPath,
         AlbumContext context
     ) {
 
@@ -71,7 +71,8 @@ public final class Album extends AbstractHashable
         this.parts = parts;
         this.tracks =
             Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
-        this.categoryPath = categoryPath;
+        this.trackIndex =
+            tracks.stream().collect(Collectors.toMap(Track::getUuid, Function.identity()));
         this.artists = this.resolveArtists(false);
         this.allArtists = this.resolveArtists(true);
         this.series = context == null
@@ -110,6 +111,7 @@ public final class Album extends AbstractHashable
         return getTracks().stream().map(Track::getDuration).reduce(Duration.ZERO, Duration::plus);
     }
 
+    @DAC
     public String getPrettyDuration() {
 
         return Print.prettyTrackTime(getDuration());
@@ -142,11 +144,13 @@ public final class Album extends AbstractHashable
         return artists;
     }
 
+    @DAC
     public Collection<Artist> getAllArtists() {
 
         return allArtists;
     }
 
+    @DAC
     public boolean isAdditionalArtists() {
 
         return artists.size() > 1;
@@ -184,19 +188,9 @@ public final class Album extends AbstractHashable
             .collect(Collectors.toList());
     }
 
-    public CategoryPath getCategoryPath() {
-
-        return categoryPath;
-    }
-
     public boolean isBy(Artist artist) {
 
         return artist == null || this.artist.equals(artist);
-    }
-
-    public boolean isIn(CategoryPath category) {
-
-        return categoryPath.startsWith(category);
     }
 
     @Override
@@ -221,7 +215,6 @@ public final class Album extends AbstractHashable
             name,
             parts,
             tracks,
-            categoryPath,
             albumContext);
     }
 
@@ -230,9 +223,13 @@ public final class Album extends AbstractHashable
         return getAllArtists().contains(artist);
     }
 
+    public Optional<Track> getTrack(UUID trackNo) {
+        return Optional.ofNullable(trackIndex.get(trackNo));
+    }
+
     public Optional<Track> getTrack(Integer trackNo) {
 
-        if (trackNo <= tracks.size()) {
+        if (trackNo != null && trackNo <= tracks.size()) {
             return tracks.stream()
                 .filter(track ->
                     trackNo.equals(track.getTrackNo()))
@@ -255,8 +252,8 @@ public final class Album extends AbstractHashable
     @Override
     protected StringBuilder withStringBody(StringBuilder sb) {
 
-        return sb.append(categoryPath.getPath())
-            .append(": ").append(artist).append("/").append(name)
+        return sb
+            .append(artist).append("/").append(name)
             .append(" [").append(tracks.size()).append("]");
     }
 

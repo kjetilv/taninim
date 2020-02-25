@@ -3,7 +3,7 @@ package mediaserver.media;
 import java.io.Serializable;
 import java.net.URI;
 
-public final class Video implements Serializable {
+final class Video implements Serializable {
 
     private final String title;
 

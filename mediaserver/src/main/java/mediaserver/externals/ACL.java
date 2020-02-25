@@ -6,11 +6,11 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class ACL {
 
-    public static final ACLEntry[] NO_ENTRIES = new ACLEntry[0];
+    private static final ACLEntry[] NO_ENTRIES = new ACLEntry[0];
 
     public static final ACL NONE = new ACL();
 
-    public ACLEntry[] acl = NO_ENTRIES;
+    private ACLEntry[] acl = NO_ENTRIES;
 
     public ACLEntry[] getAcl() {
 

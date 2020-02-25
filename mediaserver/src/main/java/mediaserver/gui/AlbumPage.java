@@ -3,10 +3,7 @@ package mediaserver.gui;
 import mediaserver.Config;
 import mediaserver.GlobalState;
 import mediaserver.http.*;
-import mediaserver.media.Album;
-import mediaserver.media.Media;
-import mediaserver.media.Playlist;
-import mediaserver.media.Track;
+import mediaserver.media.*;
 import mediaserver.sessions.Session;
 import mediaserver.stream.Streamer;
 import mediaserver.templates.TPar;
@@ -68,9 +65,9 @@ public final class AlbumPage extends TemplateEnabled {
 
     private static Stream<Selected> selectedTrack(Media media, Req req, Album album) {
 
-        return track(media, req, QPar.track)
+        return track(media, req, album, QPar.track)
             .flatMap(track ->
-                selected(media, req, album, track));
+                selected(media, req, new AlbumTrack(album, track)));
     }
 
     private static Predicate<Selected> isHighlighted(Req req) {
@@ -82,29 +79,30 @@ public final class AlbumPage extends TemplateEnabled {
                 .isPresent();
     }
 
-    private static Stream<Selected> selected(Media media, Req req, Album album, Track track) {
+    private static Stream<Selected> selected(Media media, Req req, AlbumTrack albumTrack) {
 
         return Stream.of(req.getSession())
             .filter(session ->
-                streamable(media, track, session))
+                streamable(media, albumTrack, session))
             .map(session ->
                 new Selected(
-                    album,
-                    track,
-                    autoplay(media, req, track),
-                    previousTrack(track, album.getTracks()).orElse(null),
-                    nextTrack(track, album.getTracks()).orElse(null)));
+                    albumTrack,
+                    autoplay(media, req, albumTrack),
+                    previousTrack(albumTrack.getTrack(), albumTrack.getAlbum().getTracks())
+                        .orElse(null),
+                    nextTrack(albumTrack.getTrack(), albumTrack.getAlbum().getTracks())
+                        .orElse(null)));
     }
 
-    private static boolean streamable(Media media, Track track, Session session) {
+    private static boolean streamable(Media media, AlbumTrack albumTrack, Session session) {
 
-        return session.hasLevel(STREAM) || session.hasLevel(STREAM_CURATED) && media.isCurated(track);
+        return session.hasLevel(STREAM) || session.hasLevel(STREAM_CURATED) && media.isCurated(albumTrack);
     }
 
-    private static boolean autoplay(Media media, Req req, Track track) {
+    private static boolean autoplay(Media media, Req req, AlbumTrack albumTrack) {
 
-        return track(media, req, QPar.autoplay)
-            .anyMatch(track::equals);
+        return track(media, req, albumTrack.getAlbum(), QPar.autoplay)
+            .anyMatch(albumTrack.getTrack()::equals);
     }
 
     private static Collection<PlayableGroup> playableGroups(Media media, Req req, Album album) {
@@ -115,16 +113,17 @@ public final class AlbumPage extends TemplateEnabled {
                     e.getKey(),
                     e.getValue().stream()
                         .map(t ->
-                            new Playable(t, streamable(media, t, req.getSession())))
+                            new Playable(t, streamable(media, new AlbumTrack(album, t), req.getSession())))
                         .collect(Collectors.toList())))
             .collect(Collectors.toList());
     }
 
-    private static Stream<Track> track(Media media, Req req, QPar track) {
+    private static Stream<Track> track(Media media, Req req, Album album, QPar trackPar) {
 
-        return track.id(req)
+        return trackPar.id(req)
             .flatMap(media::getTrack)
-            .filter(Streamer.authorized(media, req));
+            .filter(track ->
+                Streamer.authorized(media, req, new AlbumTrack(album, track)));
     }
 
     private static Optional<Track> previousTrack(Track track, Collection<Track> tracks) {

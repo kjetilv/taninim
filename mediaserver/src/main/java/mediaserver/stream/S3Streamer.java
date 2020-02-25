@@ -18,9 +18,9 @@ import java.util.function.Supplier;
 
 public final class S3Streamer extends Streamer {
 
-    public static final String M4A = "m4a";
+    private static final String M4A = "m4a";
 
-    public static final String FLAC = "flac";
+    private static final String FLAC = "flac";
 
     private static final Logger log = LoggerFactory.getLogger(S3Streamer.class);
 

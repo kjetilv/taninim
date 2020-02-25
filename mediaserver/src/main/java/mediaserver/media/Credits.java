@@ -62,12 +62,12 @@ public final class Credits implements Serializable {
         return withoutRedundants(credits(other().negate()));
     }
 
-    public Collection<Credit> credits(Predicate<Credit> other) {
+    private Collection<Credit> credits(Predicate<Credit> other) {
 
         return this.credits.stream().filter(other).collect(Collectors.toList());
     }
 
-    public static Collection<Credit> withoutRedundants(Collection<Credit> credits) {
+    private static Collection<Credit> withoutRedundants(Collection<Credit> credits) {
 
         Collection<Artist> empty = credits.stream()
             .filter(Credit::isEmpty)
@@ -78,7 +78,7 @@ public final class Credits implements Serializable {
             .collect(Collectors.toList());
     }
 
-    public static Predicate<Credit> other() {
+    private static Predicate<Credit> other() {
 
         return credit -> credit.getExternalType() != null;
     }

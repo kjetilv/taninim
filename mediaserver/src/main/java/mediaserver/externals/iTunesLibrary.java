@@ -10,9 +10,4 @@ public final class iTunesLibrary {
 
         return Tracks;
     }
-
-    public void setTracks(Map<String, iTunesTrack> tracks) {
-
-        Tracks = tracks;
-    }
 }

@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class Pars<P extends Par<T, R>, T, R> {
+final class Pars<P extends Par<T, R>, T, R> {
 
     private final Map<P, Collection<R>> pars;
 

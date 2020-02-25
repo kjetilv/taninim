@@ -7,7 +7,7 @@ import java.util.Random;
 
 public final class Ran {
 
-    static final Random RANDOM = new Random();
+    private static final Random RANDOM = new Random();
 
     private Ran() {
 

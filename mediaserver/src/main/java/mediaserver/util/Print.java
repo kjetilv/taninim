@@ -14,7 +14,7 @@ public final class Print {
 
     private static final int K = 1_024;
 
-    public static final int M = K * K;
+    private static final int M = K * K;
 
     private Print() {
 
@@ -54,7 +54,7 @@ public final class Print {
         return prettyLongTime(dur, false);
     }
 
-    public static String prettyLongTime(Duration dur, boolean secs) {
+    private static String prettyLongTime(Duration dur, boolean secs) {
 
         int min = dur.toMinutesPart();
         if (dur.minus(Duration.ofHours(1)).isNegative()) {
@@ -106,7 +106,7 @@ public final class Print {
             min, mul(min, "er"));
     }
 
-    public static String mul(int min, String er) {
+    private static String mul(int min, String er) {
 
         return min > 1 ? er : "";
     }

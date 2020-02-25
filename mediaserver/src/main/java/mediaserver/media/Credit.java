@@ -118,7 +118,7 @@ public final class Credit implements Serializable {
             return normalized(type.toLowerCase()).startsWith(normalized(name()));
         }
 
-        static String normalized(String name) {
+        private static String normalized(String name) {
 
             return name.toLowerCase()
                 .replace('-', ' ')

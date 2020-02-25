@@ -3,7 +3,7 @@ package mediaserver.gui;
 import mediaserver.http.*;
 import mediaserver.util.Sourced;
 
-public abstract class AbstractResources extends NettyHandler {
+abstract class AbstractResources extends NettyHandler {
 
     private final WebCache<String, byte[]> webCache;
 
@@ -13,7 +13,7 @@ public abstract class AbstractResources extends NettyHandler {
         this.webCache = webCache;
     }
 
-    protected Handling handle(Req req, String key) {
+    Handling handle(Req req, String key) {
 
         return webCache.get(key)
             .map((type, bytes) ->

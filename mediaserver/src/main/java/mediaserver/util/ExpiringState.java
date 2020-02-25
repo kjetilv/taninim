@@ -23,7 +23,7 @@ public class ExpiringState<T> implements Function<Instant, Optional<T>>, Supplie
         this(duration, null);
     }
 
-    public ExpiringState(Duration duration, Supplier<Instant> clock) {
+    private ExpiringState(Duration duration, Supplier<Instant> clock) {
 
         this.duration = duration;
         this.clock = clock == null ? Clock.systemDefaultZone()::instant : clock;

@@ -12,7 +12,7 @@ import java.util.*;
 
 public class S3 {
 
-    public static final String BUCKET = "taninim-water";
+    private static final String BUCKET = "taninim-water";
 
     static final Logger log = LoggerFactory.getLogger(S3.class);
 

@@ -25,7 +25,7 @@ public final class PlaylistM3U extends AbstractHashable {
         this(name, Objects.requireNonNull(tracks, "tracks"), map(tracks));
     }
 
-    public PlaylistM3U(String name, Collection<Track> tracks, Map<Path, Track> locatedTracks) {
+    private PlaylistM3U(String name, Collection<Track> tracks, Map<Path, Track> locatedTracks) {
 
         this.name = name;
         this.tracks = List.copyOf(tracks);

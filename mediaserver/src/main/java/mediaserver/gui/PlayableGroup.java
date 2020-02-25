@@ -4,7 +4,7 @@ import mediaserver.util.DAC;
 
 import java.util.Collection;
 
-public class PlayableGroup {
+class PlayableGroup {
 
     private final String name;
 

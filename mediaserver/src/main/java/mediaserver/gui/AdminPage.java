@@ -193,7 +193,7 @@ public final class AdminPage extends TemplateEnabled {
 
         ids, exterminate, juke, nuke, reload;
 
-        String path() {
+        private String path() {
 
             return '/' + name();
         }

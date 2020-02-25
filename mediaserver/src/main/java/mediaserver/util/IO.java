@@ -103,12 +103,12 @@ public final class IO {
     }
 
     @SuppressWarnings("unchecked")
-    public static Map<String, ?> readMap(Object source, InputStream is) {
+    private static Map<String, ?> readMap(Object source, InputStream is) {
 
         return read(Map.class, source, is);
     }
 
-    public static <T> T read(Class<T> type, Object source, String data) {
+    private static <T> T read(Class<T> type, Object source, String data) {
 
         try {
             return IO.OM.readerFor(type).readValue(data);

@@ -87,8 +87,6 @@
         </DIV>
         {endif}
 
-        <H2><A HREF="/{album.categoryPath.pathString}">{album.categoryPath.pathString}</A></H2>
-
         <H3><A HREF="?artist={album.artist.uuid}">{album.artist.name}</A>: <EM>{album.name}</EM>
             {if(user.streamingPlaylists)}
             <A HREF="/playlist/album/{album.uuid}">⏬</A>
@@ -115,7 +113,9 @@
             </DIV>
 
             <!--suppress HtmlUnknownAttribute -->
-            <AUDIO controls data-plyr-config='\{ "duration": {selected.track.seconds}, "autoplay": {if(selected.autoplay)}true{else}false{endif} }' id="player" preload="none"
+            <AUDIO controls
+                   data-plyr-config='\{ "duration": {selected.track.seconds}, "autoplay": {if(selected.autoplay)}true{else}false{endif} }'
+                   id="player" preload="none"
                    src="/audio/{selected.track.uuid}.m4a">
             </AUDIO>
 
@@ -153,7 +153,7 @@
             {endif}
 
             {if(plyr)}
-            <SCRIPT src="/res/plyr.js"></SCRIPT>
+            <script src="/res/plyr.js"></script>
             <SCRIPT src="/res/plyr-setup.js"></SCRIPT>
             {endif}
             {endif}
@@ -169,27 +169,18 @@
             <DIV STYLE="padding: 0.2%; clear: both">
                 {if(playable.playable)}
                 <A href="?artist={album.artist.uuid}&album={album.uuid}&track={playable.track.uuid}">
-                    <DIV STYLE="float: left; width:6%; text-align: end; padding-right: 1%">
+                    <DIV STYLE="float: left; width:8%; text-align: end; padding-right: 1%">
                         <EM><SMALL>{playable.track.prettyTrackNo}.</SMALL></EM>
                     </DIV>
-                    <DIV STYLE="width:3%; float: left; text-align: center" class="playable-button">
+                    <DIV STYLE="width:8%; float: left; text-align: center" class="playable-button">
                         ▶️
                     </DIV>
                     <DIV STYLE="width: fit-content; float: left" class="playable-track">
                         {playable.track.name}
                     </DIV>
-                    <DIV STYLE="width:5%; float: right">
+                    <DIV STYLE="width:15%; float: right">
                         <EM>
-                            <SMALL>
-                                {playable.track.prettyCompressedSize}
-                            </SMALL>
-                        </EM>
-                    </DIV>
-                    <DIV STYLE="width:5%; float: right">
-                        <EM>
-                            <SMALL>
-                                {playable.track.prettyDuration}
-                            </SMALL>
+                            <SMALL>{playable.track.prettyDuration}/{playable.track.prettyCompressedSize}</SMALL>
                         </EM>
                     </DIV>
                 </A>
@@ -221,11 +212,10 @@
                 <UL>
                     {playable.track.otherArtists:{otherArtist|
                     <LI>
-                        [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>
-                        {if(user.streamingPlaylists)}
-                        <A HREF="/playlist/artist/{otherArtist.uuid}"><SMALL>⏬</SMALL></A>
-                        {endif}
-                        ]
+                        [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>{
+                        if(user.streamingPlaylists)
+                        }<A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
+                        {endif}]
                     </LI>
                     }}
                 </UL>

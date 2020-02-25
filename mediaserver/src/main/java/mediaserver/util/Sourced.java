@@ -34,7 +34,7 @@ public final class Sourced<T> {
         this.url = url;
     }
 
-    public static <T> Sourced<T> from(Type source, T t, URL url) {
+    private static <T> Sourced<T> from(Type source, T t, URL url) {
 
         return new Sourced<>(source, t, url);
     }

@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import mediaserver.util.DAC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ public final class TrackContext implements Serializable {
 
     private static final Pattern NO_NUMS = Pattern.compile("[^\\d]?");
 
-    public TrackContext(String position, String title, Credits credits) {
+    TrackContext(String position, String title, Credits credits) {
 
         this(null, position, title, credits);
     }
@@ -38,16 +39,6 @@ public final class TrackContext implements Serializable {
         this.position = position;
         this.title = title;
         this.credits = credits == null ? new Credits() : credits;
-    }
-
-    public TrackContext withTrack(Track track) {
-
-        String name = WS.matcher(track.getName().toLowerCase()).replaceAll(NONE);
-        String title = WS.matcher(this.title.toLowerCase()).replaceAll(NONE);
-        if (!(name.equalsIgnoreCase(title) || name.contains(title) || title.contains(name))) {
-            log.debug("{} /= {}", track, this.title);
-        }
-        return new TrackContext(track, position, this.title, credits);
     }
 
     public Track getTrack() {
@@ -81,17 +72,10 @@ public final class TrackContext implements Serializable {
         return Optional.ofNullable(title);
     }
 
+    @DAC
     public String getPrettyTrackNo() {
 
         return getTrackNo().map(String::valueOf).orElse("?");
-    }
-
-    public Optional<Integer> getTrackNo() {
-
-        return position == null || position.isBlank() ? Optional.empty()
-            : position.contains("-") ? secondPart("-")
-            : position.contains(".") ? secondPart(".")
-            : toInt(position);
     }
 
     public String getPosition() {
@@ -107,6 +91,24 @@ public final class TrackContext implements Serializable {
     public Credits getCredits() {
 
         return credits;
+    }
+
+    TrackContext withTrack(Track track) {
+
+        String name = WS.matcher(track.getName().toLowerCase()).replaceAll(NONE);
+        String title = WS.matcher(this.title.toLowerCase()).replaceAll(NONE);
+        if (!(name.equalsIgnoreCase(title) || name.contains(title) || title.contains(name))) {
+            log.debug("{} /= {}", track, this.title);
+        }
+        return new TrackContext(track, position, this.title, credits);
+    }
+
+    Optional<Integer> getTrackNo() {
+
+        return position == null || position.isBlank() ? Optional.empty()
+            : position.contains("-") ? secondPart("-")
+            : position.contains(".") ? secondPart(".")
+            : toInt(position);
     }
 
     private Optional<Integer> firstPart(String str) {

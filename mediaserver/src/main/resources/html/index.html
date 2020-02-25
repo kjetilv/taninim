@@ -93,20 +93,9 @@
 {endif}
 
 <DIV STYLE="clear:both">
-    {if(mediaSeries)}
-    <DIV STYLE="float:left; padding: 15px">
-        <H3>Serier</H3>
-        <UL>
-            {mediaSeries:{series|
-            <LI><A HREF="/?{series.add}">{series.target.name}</A></LI>
-            }}
-        </UL>
-    </DIV>
-    {endif}
-
     {if(mediaCurations)}
-    <DIV STYLE="float:left; padding: 15px">
-        <H3>Kuraterte spillelister</H3>
+    <DIV STYLE="float:left; padding-right: 10px">
+        <H3>Kuratert</H3>
         <UL>
             {mediaCurations:{curation|
             <LI><A HREF="/?{curation.add}">{curation.target.name}</A></LI>
@@ -116,11 +105,22 @@
     {endif}
 
     {if(mediaPlaylists)}
-    <DIV STYLE="float:left; padding: 15px">
+    <DIV STYLE="float:left">
         <H3>Spillelister</H3>
         <UL>
             {mediaPlaylists:{playlist|
             <LI><A HREF="/?{playlist.add}">{playlist.target.name}</A></LI>
+            }}
+        </UL>
+    </DIV>
+    {endif}
+
+    {if(mediaSeries)}
+    <DIV STYLE="float:right; padding-right: 10px">
+        <H3>Serier</H3>
+        <UL>
+            {mediaSeries:{series|
+            <LI><A HREF="/?{series.add}">{series.target.name}</A></LI>
             }}
         </UL>
     </DIV>
@@ -134,7 +134,7 @@
     artist.name
     }</STRONG></A>&nbsp;<A HREF="/?{artist.remove}" TITLE="Fjern denne">⏹</A>{
     if(user.streamingPlaylists)
-    }&nbsp;<A HREF="/playlist/artist/{artist.target.uuid}" TITLE="Spilleliste for {artist.target.name}">⏬</A>{
+    }<A HREF="/playlist/artist/{artist.target.uuid}" TITLE="Spilleliste for {artist.target.name}">⏬</A>{
     endif}]
     }}
     {endif}
@@ -145,7 +145,7 @@
     serie.name
     }</STRONG></A>&nbsp;<A HREF="/?{serie.remove}" TITLE="Fjern denne">⏹</A>{
     if(user.streamingPlaylists)
-    }&nbsp;<A HREF="/playlist/series/{serie.target.uuid}" TITLE="Spilleliste: {series.target.name}">⏬</A>{
+    }<A HREF="/playlist/series/{serie.target.uuid}" TITLE="Spilleliste: {series.target.name}">⏬</A>{
     endif}]
     }}
     {endif}
@@ -156,7 +156,7 @@
     playlist.name
     }</STRONG></A>&nbsp;<A HREF="/?{playlist.remove}" TITLE="Fjern denne">⏹</A>{
     if(user.streamingPlaylists)
-    }&nbsp;<A HREF="/playlist/playlist/{playlist.target.uuid}" TITLE="Spilleliste {playlist.target.name}">⏬</A>{
+    }<A HREF="/playlist/playlist/{playlist.target.uuid}" TITLE="Spilleliste {playlist.target.name}">⏬</A>{
     endif}]
     }}
     {endif}
@@ -168,10 +168,14 @@
     curation.name
     }</STRONG></A>&nbsp;<A HREF="/?{curation.remove}" TITLE="Fjern denne">⏹</A>{
     if(user.streamingPlaylists)
-    }&nbsp;<A HREF="/playlist/curation/{curation.target.uuid}" TITLE="Spilleliste {curation.target.name}">⏬</A>{
+    }<A HREF="/playlist/curation/{curation.target.uuid}" TITLE="Spilleliste {curation.target.name}">⏬</A>{
     endif}]
     }}
     {endif}
+    {endif}
+
+    {if(unionLink)}
+    <A HREF="/?{unionLink}">{if(union)}Vis bare plater som alle er på{else}Vis alle plater med noen av disse{endif}</A>
     {endif}
 </DIV>
 

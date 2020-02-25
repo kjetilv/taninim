@@ -24,7 +24,9 @@ public enum QPar implements Par<Req, String> {
 
     streamHighlighted,
 
-    autoplay;
+    autoplay,
+
+    union;
 
     @Override
     public String getName() {

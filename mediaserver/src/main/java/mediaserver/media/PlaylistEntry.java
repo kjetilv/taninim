@@ -19,7 +19,7 @@ public final class PlaylistEntry {
 
     private static final Pattern AND = Pattern.compile("\\s+&&\\s+");
 
-    public PlaylistEntry(String spec) {
+    PlaylistEntry(String spec) {
 
         Collection<Matcher> specs = Arrays.stream(AND.split(Objects.requireNonNull(spec, "spec")))
             .map(Matcher::new)
@@ -89,13 +89,13 @@ public final class PlaylistEntry {
         ARTIST, ALBUM, TRACK
     }
 
-    public static class Matcher implements Predicate<String> {
+    private static class Matcher implements Predicate<String> {
 
         private final MatchType type;
 
         private final String matchValue;
 
-        public Matcher(String matchValue) {
+        private Matcher(String matchValue) {
 
             this.type = matchValue.startsWith("/") ? MatchType.TRACK
                 : matchValue.endsWith("/") ? MatchType.ARTIST
@@ -111,7 +111,7 @@ public final class PlaylistEntry {
             return s.toLowerCase().contains(matchValue);
         }
 
-        public MatchType getType() {
+        private MatchType getType() {
 
             return type;
         }

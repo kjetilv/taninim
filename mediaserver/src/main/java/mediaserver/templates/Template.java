@@ -42,7 +42,7 @@ public final class Template {
         return this.bytes.get();
     }
 
-    public Function<Object, Template> adder(TPar param) {
+    private Function<Object, Template> adder(TPar param) {
 
         return value -> add(param, value);
     }
@@ -81,7 +81,7 @@ public final class Template {
 
         private final String name;
 
-        public LoggingErrorListener(String name) {
+        private LoggingErrorListener(String name) {
 
             this.name = name;
         }

@@ -22,7 +22,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public final class Netty {
 
-    public static final HttpVersion HTTP = HTTP_1_1;
+    private static final HttpVersion HTTP = HTTP_1_1;
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
 
@@ -60,7 +60,7 @@ public final class Netty {
         return response(req, contentType, null, content);
     }
 
-    public static HttpResponse response(Req req, String contentType, HttpResponseStatus status, byte[] content) {
+    private static HttpResponse response(Req req, String contentType, HttpResponseStatus status, byte[] content) {
 
         return fullResponse(req, contentType, status, content, null);
     }
@@ -76,7 +76,7 @@ public final class Netty {
         return fullResponse(req, contentType, status, content, headers);
     }
 
-    public static HttpResponse redirect(Route page, Headers moreHeaders) {
+    private static HttpResponse redirect(Route page, Headers moreHeaders) {
 
         return redirect(page.getPref(), moreHeaders);
     }
@@ -86,7 +86,7 @@ public final class Netty {
         return redirect(ref, null);
     }
 
-    public static HttpResponse redirect(String ref, Headers moreHeaders) {
+    private static HttpResponse redirect(String ref, Headers moreHeaders) {
 
         HttpHeaders headers = new DefaultHttpHeaders();
         if (moreHeaders != null) {
@@ -128,7 +128,7 @@ public final class Netty {
         return redirect(location, null);
     }
 
-    protected static HttpResponse ok(Req req, byte[] content, Headers moreHeaders) {
+    private static HttpResponse ok(Req req, byte[] content, Headers moreHeaders) {
 
         return fullResponse(req, null, null, content, moreHeaders);
     }

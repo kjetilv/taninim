@@ -103,7 +103,7 @@ public final class Playlists extends TemplateEnabled {
                     series.getName(),
                     playlist(
                         PlaylistProvider.series,
-                        series.getName(), media.subLibrary(series).getAlbums(true))));
+                        series.getName(), media.subLibrary(series).getAlbums())));
     }
 
     private Stream<Pair<String, Template>> playlistSublibrary(UUID playlistUUID) {
@@ -116,7 +116,7 @@ public final class Playlists extends TemplateEnabled {
                     playlist(
                         PlaylistProvider.playlist,
                         playlist.getName(),
-                        media.subLibrary(playlist).getAlbums(true))));
+                        media.subLibrary(playlist).getAlbums())));
     }
 
     private Stream<Pair<String, Template>> curationSublibrary(UUID curationUUID) {
@@ -129,7 +129,7 @@ public final class Playlists extends TemplateEnabled {
                     playlist(
                         PlaylistProvider.curation,
                         curation.getName(),
-                        media.subLibrary(curation).getAlbums(true))));
+                        media.subLibrary(curation).getAlbums())));
     }
 
     private Stream<Pair<String, Template>> artistPlaylist(UUID artistUUID) {
@@ -203,7 +203,7 @@ public final class Playlists extends TemplateEnabled {
             return resource.startsWith(path);
         }
 
-        public String suffix(String resource) {
+        private String suffix(String resource) {
 
             return resource.substring(path.length());
         }

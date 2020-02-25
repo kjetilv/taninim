@@ -1,13 +1,19 @@
 package mediaserver.externals;
 
+import mediaserver.util.DAC;
+
 public final class iTunesTrack {
 
+    @DAC
     public String Artist;
 
+    @DAC
     public String Album;
 
+    @DAC
     public String Name;
 
+    @DAC
     public String Comments;
 
     public String getArtist() {

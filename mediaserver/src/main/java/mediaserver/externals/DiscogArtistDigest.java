@@ -4,13 +4,13 @@ import java.net.URI;
 
 public final class DiscogArtistDigest {
 
-    public Long id;
+    private Long id;
 
-    public String name;
+    private String name;
 
-    public String role;
+    private String role;
 
-    public URI uri;
+    private URI uri;
 
     public Long getId() {
 

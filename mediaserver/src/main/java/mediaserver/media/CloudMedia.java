@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,21 +26,67 @@ public final class CloudMedia {
 
     private static final String MEDIA_SER = "media.ser";
 
+    private static final String DOT_FLAC = ".flac";
+
+    private static final String DOT_M4A = ".m4a";
+
+    private static final Pattern PAT_FLAC = Pattern.compile(DOT_FLAC);
+
     private CloudMedia() {
 
     }
 
     public static void main(String[] args) {
 
-        main(args[0], args[1], args[2]);
+        run(args[0], args[1], args[2]);
     }
 
-    public static List<File> localFiles(String directory, String suffix) {
+    public static Optional<Instant> lastUpdatedMedia() {
 
-        return getFiles(new File(directory), suffix).collect(Collectors.toList());
+        return lastUpdate(MEDIA_SER);
     }
 
-    public static void uploadMissingRemote(
+    public static Optional<Instant> lastUpdatedIds() {
+
+        return lastUpdate(Ids.IDS_RESOURCE);
+    }
+
+    public static Media download() {
+
+        InputStream inputStream = stream(MEDIA_SER);
+        log.info("Downloading media... ");
+        Media media = deserialize(inputStream);
+        log.info("Downloaded media {}", media);
+        return media;
+    }
+
+    public static ACL acl() {
+
+        InputStream inputStream = stream(Ids.IDS_RESOURCE);
+        log.info("Downloading ids... ");
+        ACL ids = IO.read(ACL.class, Ids.IDS_RESOURCE, inputStream);
+        log.info("Downloaded ids {}", ids);
+        return ids;
+    }
+
+    public static void updateLocals(String... strings) {
+
+        Stream.of(strings)
+            .forEach(resource -> {
+                if (updatedFromRemote(resource)) {
+                    log.info("Updated local: {}", resource);
+                } else {
+                    log.info("Local is current: {}", resource);
+                }
+            });
+    }
+
+    private static List<File> localFiles(String directory) {
+
+        return getFiles(new File(directory)).collect(Collectors.toList());
+    }
+
+    private static void uploadMissingRemote(
         S3Client s3,
         Map<String, Long> remoteSizes,
         File localFile,
@@ -47,8 +94,8 @@ public final class CloudMedia {
     ) {
 
         Track track = new Track(localFile);
-        String remoteFlac = track.getUuid() + ".flac";
-        String remoteM4a = track.getUuid() + ".m4a";
+        String remoteFlac = track.getUuid() + DOT_FLAC;
+        String remoteM4a = track.getUuid() + DOT_M4A;
 
         Predicate<Track> neverHeardOfIt = alsoInclude.negate();
 
@@ -82,7 +129,7 @@ public final class CloudMedia {
 //                    remoteM4a);
             },
             () -> {
-                String remoteCompressed = remoteFlac.replaceAll(".flac", ".m4a");
+                String remoteCompressed = PAT_FLAC.matcher(remoteFlac).replaceAll(DOT_M4A);
                 log.info("Uploading {} bytes: {}/{}/{} => {}",
                     localCompressedFile.length(), track.getArtist().getName(), track.getAlbum(), track.getName(),
                     remoteM4a);
@@ -90,12 +137,12 @@ public final class CloudMedia {
             });
     }
 
-    public static Stream<File> getFiles(File file, String suffix) {
+    private static Stream<File> getFiles(File file) {
 
-        return getFiles(file, f -> f.getName().endsWith(suffix));
+        return getFiles(file, f -> f.getName().endsWith(CloudMedia.DOT_FLAC));
     }
 
-    public static Stream<File> getFiles(File file, Predicate<File> predicate) {
+    private static Stream<File> getFiles(File file, Predicate<File> predicate) {
 
         if (file.isFile()) {
             if (predicate.test(file)) {
@@ -108,22 +155,12 @@ public final class CloudMedia {
                 getFiles(f, predicate));
     }
 
-    public static void uploadMedia(File file, S3Client s3) {
+    private static void uploadMedia(File file, S3Client s3) {
 
         s3.put(file, MEDIA_SER);
     }
 
-    public static Optional<Instant> lastUpdatedMedia() {
-
-        return lastUpdate(MEDIA_SER);
-    }
-
-    public static Optional<Instant> lastUpdatedIds() {
-
-        return lastUpdate(Ids.IDS_RESOURCE);
-    }
-
-    public static Optional<Instant> lastUpdate(String object) {
+    private static Optional<Instant> lastUpdate(String object) {
 
         return S3Connector.get().flatMap(s3 -> {
             try {
@@ -135,16 +172,7 @@ public final class CloudMedia {
         });
     }
 
-    public static Media download() {
-
-        InputStream inputStream = stream(MEDIA_SER);
-        log.info("Downloading media... ");
-        Media media = deserialize(inputStream);
-        log.info("Downloaded media {}", media);
-        return media;
-    }
-
-    public static boolean updatedFromRemote(String name) {
+    private static boolean updatedFromRemote(String name) {
 
         return S3Connector.get().map(s3 -> {
             Sourced<String> localResource = IO.readUTF8(name);
@@ -161,27 +189,6 @@ public final class CloudMedia {
             }
             return false;
         }).orElse(false);
-    }
-
-    public static ACL acl() {
-
-        InputStream inputStream = stream(Ids.IDS_RESOURCE);
-        log.info("Downloading ids... ");
-        ACL ids = IO.read(ACL.class, Ids.IDS_RESOURCE, inputStream);
-        log.info("Downloaded ids {}", ids);
-        return ids;
-    }
-
-    public static void updateLocals(String... strings) {
-
-        Stream.of(strings)
-            .forEach(resource -> {
-                if (updatedFromRemote(resource)) {
-                    log.info("Updated local: {}", resource);
-                } else {
-                    log.info("Local is current: {}", resource);
-                }
-            });
     }
 
     private static void updateLocal(Path localPath, String resource) {
@@ -235,7 +242,7 @@ public final class CloudMedia {
         }
     }
 
-    private static void main(String root, String library, String resources, String... albumIncludes) {
+    private static void run(String root, String library, String resources, String... albumIncludes) {
 
         Media media = Media.local(
             new File(root).toPath(),
@@ -254,7 +261,7 @@ public final class CloudMedia {
             uploadCurations(s3);
 
             Map<String, Long> remoteSizes = s3.remoteSizes();
-            localFiles(root, ".flac").forEach(localFile ->
+            localFiles(root).forEach(localFile ->
                 uploadMissingRemote(
                     s3,
                     remoteSizes,
@@ -263,15 +270,10 @@ public final class CloudMedia {
                         Arrays.stream(albumIncludes).anyMatch(inc ->
                             track.getAlbum().toLowerCase().contains(inc))));
 
-            List<String> removables = redundantRemotes(".flac", root, remoteSizes);
+            List<String> removables = redundantRemotes(root, remoteSizes);
             if (!removables.isEmpty()) {
                 s3.remove(removables);
             }
-//            String m4aRoot = new File(new File(root).getParentFile().getParentFile(), "M4A").getAbsolutePath();
-//            List<String> removableM4as = redundantRemotes(".m4a", m4aRoot, remoteSizes);
-//            if (!removables.isEmpty()) {
-//                removeRedundantRemotes(s3, removableM4as);
-//            }
         });
 
     }
@@ -296,17 +298,16 @@ public final class CloudMedia {
                     log.warn("Found no {} file", res));
     }
 
-    private static List<String> redundantRemotes(String suffix, String arg, Map<String, Long> remoteSizes) {
+    private static List<String> redundantRemotes(String arg, Map<String, Long> remoteSizes) {
 
         Collection<String> localTracks =
-            localFiles(arg, suffix).stream()
+            localFiles(arg).stream()
                 .map(Track::new)
-                .map(track ->
-                    track.getUuid() + suffix)
+                .map(track -> track.getUuid() + DOT_FLAC)
                 .collect(Collectors.toSet());
         return remoteSizes.keySet().stream()
             .filter(remoteName ->
-                remoteName.endsWith(suffix))
+                remoteName.endsWith(DOT_FLAC))
             .filter(remoteName ->
                 !localTracks.contains(remoteName))
             .collect(Collectors.toList());

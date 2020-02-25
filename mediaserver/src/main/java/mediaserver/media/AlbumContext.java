@@ -34,12 +34,12 @@ public final class AlbumContext implements Serializable {
 
     private static final long serialVersionUID = 873700442732183661L;
 
-    public AlbumContext(Album album) {
+    AlbumContext(Album album) {
 
         this(album, null, null, null, null, null, null);
     }
 
-    public AlbumContext(
+    AlbumContext(
         Album album,
         Year year,
         URI discogPage,
@@ -86,7 +86,7 @@ public final class AlbumContext implements Serializable {
             : List.copyOf(trackContexts);
         List<Integer> headings = IntStream.range(0, this.trackContexts.size())
             .filter(i ->
-                trackContexts.get(i).isHeading())
+                trackContexts != null && trackContexts.size() > i && trackContexts.get(i).isHeading())
             .boxed()
             .collect(Collectors.toList());
         if (headings.isEmpty()) {
@@ -123,7 +123,7 @@ public final class AlbumContext implements Serializable {
         return notes;
     }
 
-    public Album getAlbum() {
+    private Album getAlbum() {
 
         return album;
     }

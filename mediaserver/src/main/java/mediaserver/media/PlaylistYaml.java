@@ -14,29 +14,29 @@ import java.util.stream.Stream;
 
 public final class PlaylistYaml {
 
-    public static final ObjectReader YAML_READER =
-        new ObjectMapper(new YAMLFactory()).readerFor(Map.class);
-
     public static final String PLAYLISTS_RESOURCE = "playlists.yaml";
-
-    public static final Collection<PlaylistYaml> PLAYLISTS =
-        categories(PLAYLISTS_RESOURCE);
 
     public static final String CURATED_RESOURCE = "curated.yaml";
 
-    public static final Collection<PlaylistYaml> CURATED =
-        categories(CURATED_RESOURCE);
+    private static final ObjectReader YAML_READER =
+        new ObjectMapper(new YAMLFactory()).readerFor(Map.class);
+
+    static final Collection<PlaylistYaml> PLAYLISTS =
+        playlists(PLAYLISTS_RESOURCE);
+
+    static final Collection<PlaylistYaml> CURATED =
+        playlists(CURATED_RESOURCE);
 
     private final Path path;
 
     private final Collection<PlaylistEntry> entries;
 
-    public PlaylistYaml(Path path, String... entries) {
+    private PlaylistYaml(Path path, String... entries) {
 
         this(path, Arrays.asList(entries));
     }
 
-    public PlaylistYaml(Path path, Collection<String> entries) {
+    private PlaylistYaml(Path path, Collection<String> entries) {
 
         this(
             entries == null || entries.isEmpty()
@@ -51,11 +51,11 @@ public final class PlaylistYaml {
         this.entries = entries;
     }
 
-    public static Collection<PlaylistYaml> categories(String resource) {
+    public static Collection<PlaylistYaml> playlists(String resource) {
 
         return IO.readUTF8(resource)
             .unpack(value ->
-                customCategories(null, readMap(resource, value))
+                playlists(null, readMap(resource, value))
                     .collect(Collectors.toList()))
             .orElseGet(Collections::emptyList);
     }
@@ -75,7 +75,7 @@ public final class PlaylistYaml {
         return entries.stream().anyMatch(entry -> entry.match(path));
     }
 
-    public PlaylistYaml and(PlaylistYaml sub) {
+    private PlaylistYaml and(PlaylistYaml sub) {
 
         if (getPath() == null) {
             return sub;
@@ -104,7 +104,7 @@ public final class PlaylistYaml {
         }
     }
 
-    private static Stream<PlaylistYaml> customCategories(Path prefix, Map<?, ?> map) {
+    private static Stream<PlaylistYaml> playlists(Path prefix, Map<?, ?> map) {
 
         return map.entrySet().stream().flatMap(entry -> {
             Path path = Paths.get(String.valueOf(entry.getKey()));
@@ -115,14 +115,14 @@ public final class PlaylistYaml {
                     .map(albums -> new PlaylistYaml(subPath, albums));
                 Collection<PlaylistYaml> sublevel = subMaps((Collection<?>) entry.getValue()).stream()
                     .flatMap(sub ->
-                        customCategories(subPath, sub))
+                        playlists(subPath, sub))
                     .collect(Collectors.toList());
                 return Stream.concat(
                     level.map(l -> sublevel.stream().reduce(l, PlaylistYaml::and, PlaylistYaml::and)).stream(),
                     sublevel.stream());
             }
             if (entry.getValue() instanceof Map<?, ?>) {
-                return customCategories(subPath, (Map<?, ?>) entry.getValue());
+                return playlists(subPath, (Map<?, ?>) entry.getValue());
             }
             return Stream.of(new PlaylistYaml(subPath, String.valueOf(entry.getKey())));
         });

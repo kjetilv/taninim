@@ -74,7 +74,7 @@ public final class Sessions {
         throw new IllegalArgumentException("Unauthorized: " + user);
     }
 
-    public Stream<Session> ejectedSessions(FbUser fbUser, Session session) {
+    private Stream<Session> ejectedSessions(FbUser fbUser, Session session) {
 
         if (session.hasLevel(AccessLevel.ADMIN)) {
             sessionsMap.computeIfAbsent(fbUser, __ ->

@@ -10,7 +10,7 @@ import static java.lang.Long.parseLong;
 
 public final class Range {
 
-    public static final String BYTES_PREAMBLE = BYTES + "=";
+    private static final String BYTES_PREAMBLE = BYTES + "=";
 
     private static final int BYTES_PREAMBLE_LENGTH = BYTES_PREAMBLE.length();
 

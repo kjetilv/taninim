@@ -63,7 +63,7 @@ public class User extends AbstractHashable {
         return name;
     }
 
-    public AccessLevel getAccessLevel() {
+    private AccessLevel getAccessLevel() {
 
         return session.getAccessLevel();
     }

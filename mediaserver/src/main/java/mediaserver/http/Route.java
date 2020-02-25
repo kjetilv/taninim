@@ -57,7 +57,7 @@ public enum Route {
 
         HEAD, GET, POST;
 
-        public boolean test(String s) {
+        private boolean test(String s) {
             return name().equalsIgnoreCase(s);
         }
     }

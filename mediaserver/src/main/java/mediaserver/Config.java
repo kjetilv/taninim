@@ -14,12 +14,12 @@ public final class Config {
 
     public static final int K = 1024;
 
-    public static final int MEGAS_PER_SESSION = count("sessionMb", 256);
+    private static final int MEGAS_PER_SESSION = count("sessionMb", 256);
 
     /**
      * Set to 0 to chunk according to requests.
      */
-    public static final int MEGAS_PER_CHUNK = count("chunkMb", 2);
+    private static final int MEGAS_PER_CHUNK = count("chunkMb", 2);
 
     public static final int LISTEN_GROUP = count("listenGroup", Runtime.getRuntime().availableProcessors());
 
@@ -29,11 +29,11 @@ public final class Config {
 
     public static final int THREAD_QUEUE = count("threadQueue", 32);
 
-    public static final int KILOS_PER_SESSION = MEGAS_PER_SESSION * K;
+    private static final int KILOS_PER_SESSION = MEGAS_PER_SESSION * K;
 
     public static final int BYTES_PER_SESSION = KILOS_PER_SESSION * K;
 
-    public static final int KILOS_PER_CHUNK = MEGAS_PER_CHUNK * K;
+    private static final int KILOS_PER_CHUNK = MEGAS_PER_CHUNK * K;
 
     public static final int BYTES_PER_CHUNK = KILOS_PER_CHUNK * K;
 
@@ -45,7 +45,7 @@ public final class Config {
 
     public static final boolean PLYR = set("plyr");
 
-    public static final boolean LIVE = set("live");
+    private static final boolean LIVE = set("live");
 
     public static final boolean DEV_LOGIN = set("dev");
 

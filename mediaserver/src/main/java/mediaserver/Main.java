@@ -38,13 +38,13 @@ import java.util.function.Supplier;
 
 import static mediaserver.Config.*;
 
-public final class Main {
+final class Main {
 
-    public static final Clock CLOCK = Clock.system(TIMEZONE);
+    private static final Clock CLOCK = Clock.system(TIMEZONE);
 
-    public static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::readUTF8);
+    private static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::readUTF8);
 
-    public static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
+    private static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
 
     private static final OnceEvery.TimingBuilder PERIODICALLY =
         new OnceEvery(Executors.newSingleThreadScheduledExecutor()).interval(REFRESH_TIME);

@@ -55,7 +55,7 @@ public final class IndexPage extends TemplateEnabled {
             .flatMap(media::getCuration)
             .collect(Collectors.toList());
 
-        Collection<Playlist> currentPlaylists =  QPar.playlist.id(req)
+        Collection<Playlist> currentPlaylists = QPar.playlist.id(req)
             .flatMap(media::getPlaylist)
             .collect(Collectors.toList());
 
@@ -65,8 +65,10 @@ public final class IndexPage extends TemplateEnabled {
             .set(QPar.playlist, currentPlaylists)
             .set(QPar.curation, currentCurations);
 
+        boolean union = QPar.union.isTrue(req);
+
         Media submedia =
-            media.subLibrary(null, currentArtists, currentSeries, currentPlaylists, currentCurations);
+            media.subLibrary(currentArtists, currentSeries, currentPlaylists, currentCurations, union);
 
         Collection<Link<Artist>> artistLinks = links(currentArtists, linker(QPar.artist, tracker));
         Collection<Link<Series>> seriesLinks = links(currentSeries, linker(QPar.series, tracker));
@@ -85,12 +87,10 @@ public final class IndexPage extends TemplateEnabled {
         Optional<Pair<Album, Track>> globalTrack = streamHighlighted
             ? GlobalState.get().getGlobalTrack(time)
             : Optional.empty();
-
         Optional<Pair<Album, Track>> highlightedAlbumAndTrack = streamHighlighted
             ? globalTrack.or(
             () -> req.getSession().getSessionState().getRandomTrack(time, () -> randomAlbumTrack(submedia)))
             : Optional.empty();
-
         Optional<Duration> highlightedTimeRemaining = highlightedAlbumAndTrack.isEmpty() ? Optional.empty()
             : globalTrack.isPresent() ? GlobalState.get().getGlobalTrackRemaining(time)
             : req.getSession().getSessionState().getRandomTrackRemaining(time);
@@ -98,7 +98,7 @@ public final class IndexPage extends TemplateEnabled {
         Optional<Album> highlightedAlbum = highlightedAlbumAndTrack.map(Pair::getT1);
         Optional<Track> highlightedTrack = highlightedAlbumAndTrack.map(Pair::getT2);
 
-        return getTemplate(INDEX_PAGE)
+        Template template = getTemplate(INDEX_PAGE)
             .add(TPar.plyr, Config.PLYR)
             .add(TPar.highlightedAlbum, highlightedAlbum)
             .add(TPar.highlightedArtist, highlightedAlbum.map(Album::getArtist).map(linker(QPar.artist, tracker)))
@@ -119,6 +119,12 @@ public final class IndexPage extends TemplateEnabled {
             .add(TPar.mediaSeries, mediaSeriesLinks)
             .add(TPar.mediaPlaylists, mediaPlaylistLinks)
             .add(TPar.mediaCurations, mediaCurationLinks);
+        if (tracker.isMulti()) {
+            return template
+                .add(TPar.union, union)
+                .add(TPar.unionLink, tracker.set(QPar.union, !union));
+        }
+        return template;
     }
 
     private static <T extends Hashable & Namable> Collection<Link<T>> links(

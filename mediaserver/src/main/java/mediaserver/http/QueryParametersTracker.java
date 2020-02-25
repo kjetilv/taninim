@@ -1,8 +1,8 @@
 package mediaserver.http;
 
 import mediaserver.hash.Hashable;
-import mediaserver.util.Pair;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
@@ -12,43 +12,56 @@ import java.util.stream.Stream;
 
 public final class QueryParametersTracker {
 
-    private final Map<QPar, Collection<? extends Hashable>> values = new EnumMap<>(QPar.class);
+    private final Map<QPar, Collection<? extends Hashable>> parameterGroups = new EnumMap<>(QPar.class);
 
     public QueryParametersTracker set(QPar par, Collection<? extends Hashable> values) {
 
-        this.values.put(par, values);
+        this.parameterGroups.put(par, values);
         return this;
+    }
+
+    public String set(QPar par, Object value) {
+
+        String link = collate(parameterGroup ->
+            pairs(parameterGroup.getKey(), parameterGroup.getValue(), null, null, null));
+        return link.isBlank() ? asLink(par, value) : link + "&" + asLink(par, value);
     }
 
     public String add(QPar par, Hashable value) {
 
-        return collate(e ->
-            link(e.getKey(), e.getValue(), par, value, null));
+        return collate(entry ->
+            pairs(entry.getKey(), entry.getValue(), par, value, null));
     }
 
     public String remove(QPar par, Hashable value) {
 
-        return collate(e ->
-            link(e.getKey(), e.getValue(), par, null, value));
+        return collate(entry ->
+            pairs(entry.getKey(), entry.getValue(), par, null, value));
     }
 
     @SuppressWarnings("MethodMayBeStatic")
     public String focus(QPar par, Hashable value) {
 
-        return link(par, value);
+        return asLink(par, value.getUuid());
+    }
+
+    public boolean isMulti() {
+
+        return parameterGroups.values().stream().mapToInt(Collection::size).count() > 1L;
     }
 
     private String collate(
-        Function<Map.Entry<QPar, Collection<? extends Hashable>>, Stream<Pair<QPar, Hashable>>> mapper
+        Function<Map.Entry<QPar, Collection<? extends Hashable>>, Stream<Map.Entry<QPar, Hashable>>> mapper
     ) {
 
-        return values.entrySet().stream()
+        return parameterGroups.entrySet().stream()
             .flatMap(mapper)
-            .map(pair -> link(pair.getT1(), pair.getT2()))
+            .map(entry ->
+                asLink(entry.getKey(), entry.getValue().getUuid()))
             .collect(Collectors.joining("&"));
     }
 
-    private static Stream<Pair<QPar, Hashable>> link(
+    private static Stream<Map.Entry<QPar, Hashable>> pairs(
         QPar par,
         Collection<? extends Hashable> values,
         QPar changeType,
@@ -56,31 +69,39 @@ public final class QueryParametersTracker {
         Hashable remove
     ) {
 
-        return getStream(par, values, changeType, add, remove)
-            .map(hashable -> Pair.of(par, hashable));
+        Stream<? extends Hashable> items = par == changeType
+            ? addedOrRemoved(values, add, remove)
+            : values.stream();
+        return items.map(hashable -> new AbstractMap.SimpleEntry<>(par, hashable));
     }
 
-    private static Stream<? extends Hashable> getStream(
-        QPar par,
+    private static Stream<? extends Hashable> addedOrRemoved(
         Collection<? extends Hashable> values,
-        QPar changeType,
         Hashable add,
         Hashable remove
     ) {
 
-        if (par == changeType) {
-            if (add != null) {
-                return Stream.concat(values.stream(), Stream.of(add)).distinct();
-            }
-            if (remove != null) {
-                return values.stream().filter(v -> !v.equals(remove));
-            }
+        if (add != null) {
+            return withAdded(values, add);
+        }
+        if (remove != null) {
+            return withRemoved(values, remove);
         }
         return values.stream();
     }
 
-    private static String link(QPar par, Hashable value) {
+    private static Stream<? extends Hashable> withRemoved(Collection<? extends Hashable> values, Hashable remove) {
 
-        return String.format("%s=%s", par.getName(), value.getUuid());
+        return values.stream().filter(v -> !v.equals(remove));
+    }
+
+    private static Stream<? extends Hashable> withAdded(Collection<? extends Hashable> values, Hashable add) {
+
+        return Stream.concat(values.stream(), Stream.of(add)).distinct();
+    }
+
+    private static String asLink(QPar par, Object value) {
+
+        return String.format("%s=%s", par.getName(), value);
     }
 }

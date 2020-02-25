@@ -199,7 +199,7 @@ public final class Session {
 
         QUOTA_EXCEEDED;
 
-        public String getDescription() {
+        private String getDescription() {
 
             return name().toLowerCase().replace('_', ' ');
         }

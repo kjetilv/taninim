@@ -11,6 +11,7 @@ import mediaserver.http.Handling;
 import mediaserver.http.NettyHandler;
 import mediaserver.http.Req;
 import mediaserver.http.Route;
+import mediaserver.media.AlbumTrack;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.sessions.AccessLevel;
@@ -64,16 +65,6 @@ public abstract class Streamer extends NettyHandler {
         log.info("{} created", this);
     }
 
-    public static Predicate<Track> authorized(Media media, Req req) {
-
-        return track -> authorized(media, req, track);
-    }
-
-    public static boolean authorized(Media media, Req req, Track track) {
-
-        return authorized(req, track, () -> media);
-    }
-
     @Override
     protected Handling handle(Req req) {
 
@@ -81,9 +72,9 @@ public abstract class Streamer extends NettyHandler {
         if (method == HttpMethod.HEAD || method == HttpMethod.GET) {
             return getMediaTrack(req.getPath(true))
                 .findFirst()
-                .map(track ->
-                    authorized(req, track, this.media)
-                        ? handle(req, track)
+                .map(albumTrack ->
+                    authorized(req, albumTrack, this.media)
+                        ? handle(req, albumTrack)
                         : handleUnauthorized(req))
                 .orElseGet(() ->
                     handleNotFound(req));
@@ -97,7 +88,16 @@ public abstract class Streamer extends NettyHandler {
         return getClass().getSimpleName() + "[" + media + ", kb/chunk:" + bytesPerChunk / Config.K + "]";
     }
 
-    protected Chunk chunk(Range rangeHeader, long fileLength, boolean truncate) {
+    protected abstract Object content(Track track, Chunk chunk, boolean lossless);
+
+    protected abstract long trackLength(Track track, boolean lossless);
+
+    public static boolean authorized(Media media, Req req, AlbumTrack albumTrack) {
+
+        return authorized(req, albumTrack, () -> media);
+    }
+
+    private Chunk chunk(Range rangeHeader, long fileLength, boolean truncate) {
 
         try {
             long start = rangeHeader.getStart();
@@ -115,23 +115,19 @@ public abstract class Streamer extends NettyHandler {
         }
     }
 
-    protected abstract Object content(Track track, Chunk chunk, boolean lossless);
-
-    protected abstract long trackLength(Track track, boolean lossless);
-
-    protected static Chunk allOf(long length) {
+    private static Chunk allOf(long length) {
 
         return new Chunk(length);
     }
 
-    private static boolean authorized(Req req, Track track, Supplier<Media> media) {
+    private static boolean authorized(Req req, AlbumTrack albumTrack, Supplier<Media> media) {
 
         AccessLevel accessLevel = req.getAccessLevel();
-        if (singlePlayableTrack(req).anyMatch(track::equals)) {
+        if (singlePlayableTrack(req).anyMatch(albumTrack.getTrack()::equals)) {
             return accessLevel.satisfies(AccessLevel.STREAM_SINGLE);
         }
         return accessLevel.satisfies(AccessLevel.STREAM) ||
-            accessLevel.satisfies(AccessLevel.STREAM_CURATED) && media.get().isCurated(track);
+            accessLevel.satisfies(AccessLevel.STREAM_CURATED) && media.get().isCurated(albumTrack);
     }
 
     private static Stream<Track> singlePlayableTrack(Req req) {
@@ -142,19 +138,19 @@ public abstract class Streamer extends NettyHandler {
         ).flatMap(Optional::stream).map(Pair::getT2);
     }
 
-    private Handling handle(Req req, Track track) {
+    private Handling handle(Req req, AlbumTrack albumTrack) {
 
         boolean lossless = req.isFlac() && Session.isPrivileged();
         if (req.getRequest().method() == HttpMethod.HEAD) {
-            return handledMeta(req, track, lossless);
+            return handledMeta(req, albumTrack, lossless);
         }
 
-        Optional<Range> range = Range.read(req.header(RANGE), length(track, lossless)).findFirst();
+        Optional<Range> range = Range.read(req.header(RANGE), length(albumTrack.getTrack(), lossless)).findFirst();
         if (range.filter(Streamer::unsatisfiable).isPresent()) {
             return handle(req, REQUESTED_RANGE_NOT_SATISFIABLE);
         }
 
-        return handledPartial(req, track, lossless, range.orElse(null));
+        return handledPartial(req, albumTrack, lossless, range.orElse(null));
     }
 
     private static boolean unsatisfiable(Range r) {
@@ -162,11 +158,11 @@ public abstract class Streamer extends NettyHandler {
         return !r.isSatisfiable();
     }
 
-    private Handling handledMeta(Req req, Track track, boolean lossless) {
+    private Handling handledMeta(Req req, AlbumTrack albumTrack, boolean lossless) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         response.headers()
-            .set(CONTENT_LENGTH, length(track, lossless))
+            .set(CONTENT_LENGTH, length(albumTrack.getTrack(), lossless))
             .set(CONTENT_TYPE, lossless ? Req.AUDIO_FLAC : Req.AUDIO_AAC)
             .set(ACCEPT_RANGES, BYTES);
         if (req.isKeepAlive()) {
@@ -176,14 +172,17 @@ public abstract class Streamer extends NettyHandler {
         return handled(req, response);
     }
 
-    private Handling handledPartial(Req req, Track track, boolean lossless, Range range) {
+    private Handling handledPartial(Req req, AlbumTrack albumTrack, boolean lossless, Range range) {
 
         HttpResponse response =
             new DefaultHttpResponse(HTTP_1_1, range == null ? OK : PARTIAL_CONTENT);
 
-        Chunk chunk = range == null
-            ? allOf(length(track, lossless))
-            : chunk(range, length(track, lossless), !isVlc(req));
+        Track track = albumTrack.getTrack();
+
+        long length = length(track, lossless);
+        boolean vlc = isVlc(req);
+
+        Chunk chunk = range == null ? allOf(length) : chunk(range, length, !vlc);
 
         response.headers()
             .set(CONTENT_TYPE, lossless ? Req.AUDIO_FLAC : Req.AUDIO_AAC)
@@ -227,9 +226,9 @@ public abstract class Streamer extends NettyHandler {
         return (lossless ? longLengths : shortLengths).computeIfAbsent(track, t -> trackLength(track, lossless));
     }
 
-    private Stream<Track> getMediaTrack(String path) {
+    private Stream<AlbumTrack> getMediaTrack(String path) {
 
-        return media.get().getTrack(uuid(path));
+        return media.get().getAlbumTrack(uuid(path));
     }
 
     private static UUID uuid(String path) {

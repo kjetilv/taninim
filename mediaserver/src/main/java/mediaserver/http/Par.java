@@ -7,6 +7,10 @@ public interface Par<T, R> {
 
     String getName();
 
+    default boolean isFalse(T source) {
+        return !isTrue(source);
+    }
+
     default boolean isTrue(T source) {
 
         return params(source).map(String::valueOf).anyMatch(Boolean::parseBoolean);

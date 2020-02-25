@@ -143,7 +143,7 @@ private fun shouldUpdate(source: Path, target: Path) =
         !Files.isRegularFile(target) || Files.size(target) <= 0 || changed(source, target)
 
 private fun playlists(): List<Dist> =
-        PlaylistYaml.categories("categories.yaml").map { AlbumsDist(it) }
+        PlaylistYaml.playlists("categories.yaml").map { AlbumsDist(it) }
 
 private fun noDists(): List<Dist> = emptyList()
 

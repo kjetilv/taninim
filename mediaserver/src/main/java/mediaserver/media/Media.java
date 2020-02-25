@@ -3,7 +3,6 @@ package mediaserver.media;
 import mediaserver.externals.*;
 import mediaserver.util.DAC;
 import mediaserver.util.IO;
-import mediaserver.util.Pair;
 import mediaserver.util.Print;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,44 +24,33 @@ public interface Media {
 
     default Media subLibrary(Series series) {
 
-        return subLibrary(null, null, Collections.singleton(series), null, null);
+        return subLibrary(null, Collections.singleton(series), null, null, false);
     }
 
     default Media subLibrary(Playlist playlist) {
 
-        return subLibrary(null, null, null, Collections.singletonList(playlist), null);
+        return subLibrary(null, null, Collections.singletonList(playlist), null, false);
     }
 
     Media subLibrary(
-        CategoryPath categoryPath,
         Collection<Artist> artist,
         Collection<Series> series,
         Collection<Playlist> playlist,
-        Collection<Playlist> curations
+        Collection<Playlist> curations,
+        boolean union
     );
 
     Media withAlbumContext(UUID albumId, AlbumContext albumContext);
 
+    Stream<AlbumTrack> getAlbumTrack(UUID uuid);
+
     Stream<Track> getTrack(UUID uuid);
-
-    default boolean isSubCategories() {
-
-        return !getTopCategories().isEmpty();
-    }
 
     @DAC
     Year getStartYear();
 
     @DAC
     Year getEndYear();
-
-    CategoryPath getCategoryPath();
-
-    Stream<CategoryPath> getCategoryPath(UUID uuid);
-
-    Collection<CategoryPath> getTopCategories();
-
-    Collection<CategoryPath> getCategories();
 
     Collection<Playlist> getPlaylists();
 
@@ -72,18 +60,13 @@ public interface Media {
 
     Stream<Playlist> getCuration(UUID uuid);
 
-    boolean isCurated(Track track);
+    boolean isCurated(AlbumTrack albumTrack);
 
     Duration getDuration();
 
     default String getPrettyDuration() {
 
         return Print.prettyLongTime(getDuration());
-    }
-
-    default Collection<Artist> getAlbumArtists() {
-
-        return getAlbumArtists(false);
     }
 
     default Collection<Artist> getAllAlbumArtists() {
@@ -100,32 +83,15 @@ public interface Media {
 
     Collection<Artist> getArtists(boolean recurse);
 
-    Collection<Artist> getAlbumCreditedArtists();
-
     Collection<Artist> getTrackCreditedArtists();
 
     Collection<Album> getRandomAlbums(int count);
 
-    default Collection<Album> allAlbums() {
-
-        return getAlbums(true);
-    }
-
-    default Collection<Album> getAlbums() {
-
-        return getAlbums(false);
-    }
-
-    Collection<Album> getAlbums(boolean recurse);
+    Collection<Album> getAlbums();
 
     default Collection<Track> getTracks() {
 
         return getTracks(false);
-    }
-
-    default Collection<Track> getAllTracks() {
-
-        return getTracks(true);
     }
 
     Stream<Track> getTracksFeaturing(Artist artist);
@@ -133,10 +99,6 @@ public interface Media {
     Collection<Track> getTracks(boolean recurse);
 
     Stream<Album> getAlbum(UUID id);
-
-    Optional<Album> getAlbumWithTrack(UUID id);
-
-    Pair<Album, UUID> getRandomTrack();
 
     Collection<Series> getSeries();
 
@@ -169,7 +131,7 @@ public interface Media {
             Clock.systemDefaultZone());
         log.info("Retrieved {} discogs data", discogsData.getConnections().size());
 
-        Media media = baseMedia.allAlbums().stream()
+        Media media = baseMedia.getAlbums().stream()
             .reduce(baseMedia, addContextFrom(discogsData), noCombine());
         log.info("Returning {}", media);
         return media;
@@ -218,7 +180,7 @@ public interface Media {
                         .map(trackContext::withTrack)
                         .orElse(trackContext)).collect(Collectors.toList());
                 return media.withAlbumContext(
-                    album.getUuid(), context.withTrackContexts(trackContexts));
+                    album.getUuid(), context.withTrackContexts(applicableTrackContexts));
             }).orElse(media);
     }
 

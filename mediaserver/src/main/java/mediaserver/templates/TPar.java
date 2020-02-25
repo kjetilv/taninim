@@ -36,6 +36,10 @@ public enum TPar implements Par<Template, Object> {
 
     series,
 
+    union,
+
+    unionLink,
+
     selected,
 
     randomAlbums,
