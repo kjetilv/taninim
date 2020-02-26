@@ -145,7 +145,7 @@
     serie.name
     }</STRONG></A>&nbsp;<A HREF="/?{serie.remove}" TITLE="Fjern denne">⏹</A>{
     if(user.streamingPlaylists)
-    }<A HREF="/playlist/series/{serie.target.uuid}" TITLE="Spilleliste: {series.target.name}">⏬</A>{
+    }<A HREF="/playlist/series/{serie.target.uuid}" TITLE="Spilleliste: {serie.target.name}">⏬</A>{
     endif}]
     }}
     {endif}
@@ -174,8 +174,20 @@
     {endif}
     {endif}
 
-    {if(unionLink)}
-    <A HREF="/?{unionLink}">{if(union)}Vis bare plater som alle er på{else}Vis alle plater med noen av disse{endif}</A>
+    <P>
+    {if(unionLink)
+    }Viser {if(union)
+    }alle{
+    else
+    }tversnittet{
+    endif
+    }&nbsp;[<A HREF="/?{unionLink}">{
+    if(union)
+    }Vis tversnitt{
+    else
+    }Vis alle{
+    endif
+    }</A>]
     {endif}
 </DIV>
 

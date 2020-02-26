@@ -47,7 +47,7 @@ public final class QueryParametersTracker {
 
     public boolean isMulti() {
 
-        return parameterGroups.values().stream().mapToInt(Collection::size).count() > 1L;
+        return parameterGroups.values().stream().mapToInt(Collection::size).sum() > 1L;
     }
 
     private String collate(

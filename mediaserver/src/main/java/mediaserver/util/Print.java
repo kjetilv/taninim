@@ -54,6 +54,20 @@ public final class Print {
         return prettyLongTime(dur, false);
     }
 
+    public static String bytes(long bytes) {
+
+        if (bytes > 10 * M) {
+            return String.format("%dMb", bytes/ M);
+        }
+        if (bytes > M) {
+            return String.format("%.1fMb", bytes * 10 / M / 10.0D);
+        }
+        if (bytes > K) {
+            return String.format("%dKb", bytes / K);
+        }
+        return String.format("%db", bytes);
+    }
+
     private static String prettyLongTime(Duration dur, boolean secs) {
 
         int min = dur.toMinutesPart();
@@ -109,16 +123,5 @@ public final class Print {
     private static String mul(int min, String er) {
 
         return min > 1 ? er : "";
-    }
-
-    public static String bytes(long bytes) {
-
-        if (bytes > M) {
-            return bytes / M + "Mb";
-        }
-        if (bytes > K) {
-            return bytes / K + "Kb";
-        }
-        return bytes + "b";
     }
 }
