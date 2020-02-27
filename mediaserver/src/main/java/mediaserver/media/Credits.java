@@ -23,7 +23,7 @@ public final class Credits implements Serializable {
         this.credits = credits == null || credits.isEmpty() ? Collections.emptyList() : List.copyOf(credits);
     }
 
-    public Credits credit(
+    Credits credit(
         String name,
         URI uri,
         String typeDescription

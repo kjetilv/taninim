@@ -10,6 +10,8 @@ import org.gagravarr.flac.FlacTags;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
@@ -33,7 +35,7 @@ public final class Track extends AbstractHashable
 
     private final Integer part;
 
-    private final String file;
+    private final Path file;
 
     private static final Pattern PART_TRACK_NAME = Pattern.compile("^(\\d+)-(\\d{2,})\\s+(.*)$");
 
@@ -52,13 +54,13 @@ public final class Track extends AbstractHashable
 
     private final long fileSize;
 
-    private final File compressedFile;
+    private final Path compressedFile;
+
+    private final long compressedSize;
 
     private static final Pattern FLAC = Pattern.compile("FLAC");
 
     private static final Pattern DOT_FLAC = Pattern.compile(".flac");
-
-    private final long compressedSize;
 
     public Track(File file) {
 
@@ -86,21 +88,21 @@ public final class Track extends AbstractHashable
             throw new IllegalArgumentException("Failed to import flac file: " + file, e);
         }
 
-        this.file = file.getPath();
-        this.fileSize = file.length();
-
         try {
+            this.file = file.toPath();
+            this.fileSize = Files.size(this.file);
             this.compressedFile = new File(
                 DOT_FLAC.matcher(
                     FLAC.matcher(file.getCanonicalPath())
                         .replaceAll("M4A"))
-                    .replaceAll(".m4a"));
-            compressedSize = this.compressedFile.length();
+                    .replaceAll(".m4a")
+            ).toPath();
+            compressedSize = Files.size(this.compressedFile);
         } catch (IOException e) {
-            throw new IllegalStateException("Unhandled compressed file: " + file, e);
+            throw new IllegalArgumentException("Failed file: " + file, e);
         }
-        if (!this.compressedFile.exists()) {
-            throw new IllegalStateException(this + " has no compressed version");
+        if (!this.compressedFile.toFile().exists()) {
+            throw new IllegalStateException(this + " has no compressed version @ " + this.compressedFile);
         }
     }
 
@@ -146,17 +148,24 @@ public final class Track extends AbstractHashable
         return part == null ? String.valueOf(trackNo) : part + "-" + trackNo;
     }
 
-    public File getFile() {
+    public Path getFile() {
 
-        return new File(file);
+        return file;
     }
 
-    public File getCompressedFile() {
+    public long getFileSize() {
 
-        if (!compressedFile.exists()) {
-            throw new IllegalStateException(this + " has no compressed file");
-        }
+        return fileSize;
+    }
+
+    public Path getCompressedFile() {
+
         return compressedFile;
+    }
+
+    public long getCompressedSize() {
+
+        return compressedSize;
     }
 
     public Duration getDuration() {
@@ -177,6 +186,7 @@ public final class Track extends AbstractHashable
 
     @DAC
     public String getPrettyCompressedSize() {
+
         return Print.bytes(compressedSize);
     }
 

@@ -15,6 +15,7 @@ import java.time.Year;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -156,6 +157,7 @@ public interface Media {
                             album,
                             yearOf(release),
                             URI.create(release.getUri()),
+                            cover150(release).orElse(null),
                             cover(release).orElse(null),
                             release.getNotes(),
                             series(release),
@@ -212,14 +214,24 @@ public interface Media {
         }
     }
 
+    static Optional<URI> cover150(DiscogReleaseDigest release) {
+
+        return getCover(release, DiscogImage::getUri150);
+    }
+
     static Optional<URI> cover(DiscogReleaseDigest release) {
+
+        return getCover(release, DiscogImage::getUri);
+    }
+
+    static Optional<URI> getCover(DiscogReleaseDigest release, Function<DiscogImage, URI> getUri150) {
 
         return Stream.concat(
             release.getImages().stream().filter(Media::isPrimary),
             release.getImages().stream().filter(Media::hasImage)
         ).filter(Media::hasImage)
             .findFirst()
-            .map(DiscogImage::getUri150);
+            .map(getUri150);
     }
 
     static List<String> series(DiscogReleaseDigest release) {

@@ -82,6 +82,13 @@ fun main() {
     }
     removeLeftovers(compressions, m4aDir)
 
+    val media = Media.local(
+            Path.of(System.getProperty("user.home"), "FLAC"),
+            Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml"),
+            Path.of("mediaserver", "src", "main", "resources"))
+
+    println("Media: $media")
+
     if (Files.isDirectory(walkmanConnectDir)) {
         Files.createDirectories(walkDir)
         println("Copying to walkman @ $walkDir")
@@ -96,21 +103,11 @@ fun main() {
                     }
                 }
         removeLeftovers(transfers, walkDir)
-    } else {
-        println("Walkman not connected for files @ $walkmanConnectDir")
-    }
 
-    val media = Media.local(
-            Path.of(System.getProperty("user.home"), "FLAC"),
-            Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml"),
-            Path.of("mediaserver", "src", "main", "resources"))
-
-    println("Media: $media")
-
-    if (Files.isDirectory(walkmanConnectDir)) {
         val source = IO.readUTF8("playlist.m3u8").unpack().orElseThrow { ->
             IllegalStateException("No source @ playlist.m3u8")
         }
+
         media.playlists.forEach { playlist ->
             val playlistM3U = PlaylistM3U(playlist.name, playlist.tracks)
                     .move(musicDir) { track ->

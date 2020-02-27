@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import mediaserver.util.DAC;
 import mediaserver.util.Pair;
 import mediaserver.util.Pairs;
 
@@ -20,6 +21,8 @@ public final class AlbumContext implements Serializable {
 
     private final URI discogCover;
 
+    private final URI discogArt;
+
     private final String notes;
 
     private final Collection<String> series;
@@ -36,7 +39,7 @@ public final class AlbumContext implements Serializable {
 
     AlbumContext(Album album) {
 
-        this(album, null, null, null, null, null, null);
+        this(album, null, null, null, null, null, null, null);
     }
 
     AlbumContext(
@@ -44,6 +47,7 @@ public final class AlbumContext implements Serializable {
         Year year,
         URI discogPage,
         URI discogCover,
+        URI discogArt,
         String notes,
         Collection<String> series,
         Collection<Video> videos
@@ -54,6 +58,7 @@ public final class AlbumContext implements Serializable {
             year,
             discogPage,
             discogCover,
+            discogArt,
             notes,
             series,
             videos,
@@ -66,6 +71,7 @@ public final class AlbumContext implements Serializable {
         Year year,
         URI discogPage,
         URI discogCover,
+        URI discogArt,
         String notes,
         Collection<String> series,
         Collection<Video> videos,
@@ -77,6 +83,7 @@ public final class AlbumContext implements Serializable {
         this.year = year;
         this.discogPage = discogPage;
         this.discogCover = discogCover;
+        this.discogArt = discogArt;
         this.notes = notes == null || notes.isBlank() ? null : notes.trim();
         this.series = series == null || series.isEmpty() ? Collections.emptyList() : List.copyOf(series);
         this.videos = videos == null || videos.isEmpty() ? Collections.emptyList() : List.copyOf(videos);
@@ -138,43 +145,51 @@ public final class AlbumContext implements Serializable {
         return series;
     }
 
+    @DAC
     public List<TrackContext> getTrackContexts() {
 
         return trackContexts;
     }
 
-    @SuppressWarnings("unused")
+    @DAC
     public List<TrackGroup> getTrackGroups() {
 
         return trackGroups;
     }
 
-    @SuppressWarnings("unused")
+    @DAC
     public boolean isAdditionalTrackContext() {
 
         return !trackContexts.stream().allMatch(trackContext ->
             trackContext.getCredits().getCredits().isEmpty());
     }
 
+    @DAC
     public URI getDiscogCover() {
 
         return discogCover;
     }
 
-    @SuppressWarnings("unused")
+    @DAC
+    public URI getDiscogArt() {
+
+        return discogArt;
+    }
+
+    @DAC
     public URI getDiscogPage() {
 
         return discogPage;
     }
 
-    public AlbumContext credit(String name, URI uri, String type) {
+    AlbumContext credit(String name, URI uri, String type) {
 
         return new AlbumContext(
             album,
             year,
             discogPage,
             discogCover,
-            notes,
+            discogArt, notes,
             series,
             videos,
             credits.credit(name, uri, type),
@@ -194,21 +209,21 @@ public final class AlbumContext implements Serializable {
             albumContext.year == null ? year : albumContext.year,
             discogPage,
             discogCover,
-            albumContext.notes == null ? notes : albumContext.notes,
+            discogArt, albumContext.notes == null ? notes : albumContext.notes,
             albumContext.series.isEmpty() ? series : albumContext.series,
             albumContext.videos.isEmpty() ? videos : albumContext.videos,
             credits.append(albumContext.getCredits()),
             albumContext.getTrackContexts());
     }
 
-    public AlbumContext withTrackContexts(List<TrackContext> trackContexts) {
+    AlbumContext withTrackContexts(List<TrackContext> trackContexts) {
 
         return new AlbumContext(
             album,
             year,
             discogPage,
             discogCover,
-            notes,
+            discogArt, notes,
             series,
             videos,
             credits,

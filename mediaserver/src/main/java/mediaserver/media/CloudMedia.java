@@ -104,10 +104,10 @@ public final class CloudMedia {
                 .filter(size ->
                     size == localFile.length() || neverHeardOfIt.test(track));
 
-        File localCompressedFile = track.getCompressedFile();
+        long localCompressedSize = track.getCompressedSize();
         Optional<Long> remoteM4aSize =
             Optional.ofNullable(remoteSizes.get(remoteM4a))
-                .filter(size -> size == localCompressedFile.length() || neverHeardOfIt.test(track));
+                .filter(size -> size == localCompressedSize || neverHeardOfIt.test(track));
 
         remoteFlacSize.ifPresentOrElse(
             size -> {
@@ -131,9 +131,9 @@ public final class CloudMedia {
             () -> {
                 String remoteCompressed = PAT_FLAC.matcher(remoteFlac).replaceAll(DOT_M4A);
                 log.info("Uploading {} bytes: {}/{}/{} => {}",
-                    localCompressedFile.length(), track.getArtist().getName(), track.getAlbum(), track.getName(),
+                    localCompressedSize, track.getArtist().getName(), track.getAlbum(), track.getName(),
                     remoteM4a);
-                s3.put(localCompressedFile, remoteCompressed);
+                s3.put(track.getCompressedFile().toFile(), remoteCompressed);
             });
     }
 

@@ -66,16 +66,19 @@ public final class Playlist extends AbstractNameHashable {
 
     private Playlist add(Playlist playlist) {
 
-        Map<Album, Collection<Track>> map = new LinkedHashMap<>(tracks);
-        map.putAll(playlist.tracks);
-        return new Playlist(getName(), map);
+        if (tracks.isEmpty()) {
+            return playlist;
+        }
+        this.tracks.putAll(playlist.tracks);
+        return this;
     }
 
     private Playlist add(Album album) {
-
-        HashMap<Album, Collection<Track>> tracks = new HashMap<>(this.tracks);
-        tracks.put(album, new HashSet<>(album.getTracks()));
-        return new Playlist(getName(), tracks);
+        if (tracks.isEmpty()) {
+            return new Playlist(getName(), Map.of(album, new HashSet<>(album.getTracks())));
+        }
+        this.tracks.put(album, new HashSet<>(album.getTracks()));
+        return this;
     }
 
     private boolean isEmpty() {

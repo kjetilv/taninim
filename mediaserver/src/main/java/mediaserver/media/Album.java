@@ -188,34 +188,10 @@ public final class Album extends AbstractHashable
             .collect(Collectors.toList());
     }
 
-    public boolean isBy(Artist artist) {
-
-        return artist == null || this.artist.equals(artist);
-    }
-
     @Override
     public void hashTo(Consumer<byte[]> h) {
 
         hash(h, tracks);
-    }
-
-    public boolean hasTracksBy(Artist artist) {
-
-        return tracks.stream()
-            .anyMatch(track ->
-                artist == null ||
-                    track.getArtists().stream().anyMatch(artist::equals) ||
-                    track.getOtherArtists().stream().anyMatch(artist::equals));
-    }
-
-    public Album withContext(AlbumContext albumContext) {
-
-        return new Album(
-            artist,
-            name,
-            parts,
-            tracks,
-            albumContext);
     }
 
     public boolean features(Artist artist) {
@@ -224,6 +200,7 @@ public final class Album extends AbstractHashable
     }
 
     public Optional<Track> getTrack(UUID trackNo) {
+
         return Optional.ofNullable(trackIndex.get(trackNo));
     }
 
@@ -247,6 +224,25 @@ public final class Album extends AbstractHashable
                 .findFirst();
         }
         return Optional.empty();
+    }
+
+    boolean isBy(Artist artist) {
+
+        return artist == null || this.artist.equals(artist);
+    }
+
+    boolean hasTracksBy(Artist artist) {
+
+        return tracks.stream()
+            .anyMatch(track ->
+                artist == null ||
+                    track.getArtists().stream().anyMatch(artist::equals) ||
+                    track.getOtherArtists().stream().anyMatch(artist::equals));
+    }
+
+    Album withContext(AlbumContext albumContext) {
+
+        return new Album(artist, name, parts, tracks, albumContext);
     }
 
     @Override

@@ -77,8 +77,7 @@ public final class PlaylistM3U extends AbstractHashable {
 
         return tracks.stream()
             .collect(Collectors.toMap(
-                track ->
-                    track.getFile().toPath(),
+                Track::getFile,
                 Function.identity(),
                 (track1, track2) -> {
                     throw new IllegalStateException(track1 + " / " + track2);

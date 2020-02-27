@@ -5,9 +5,9 @@ import mediaserver.media.Media;
 import mediaserver.media.Track;
 import mediaserver.toolkit.Chunk;
 
-import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.util.function.Supplier;
 
@@ -20,7 +20,7 @@ public final class FileStreamer extends Streamer {
 
     @Override
     protected Object content(Track track, Chunk chunk, boolean lossless) {
-        File file = lossless ? track.getFile() : track.getCompressedFile();
+        Path file = lossless ? track.getFile() : track.getCompressedFile();
         FileChannel channel = randomAccess(file).getChannel();
         return new DefaultFileRegion(channel, chunk.getStart(), chunk.getSize());
     }
@@ -28,24 +28,15 @@ public final class FileStreamer extends Streamer {
     @Override
     protected long trackLength(Track track, boolean lossless) {
 
-        return length(lossless ? track.getFile() : track.getCompressedFile());
+        return lossless ? track.getFileSize() : track.getCompressedSize();
     }
 
-    private static RandomAccessFile randomAccess(File file) {
+    private static RandomAccessFile randomAccess(Path file) {
 
         try {
-            return new RandomAccessFile(file, "r");
+            return new RandomAccessFile(file.toFile(), "r");
         } catch (Exception e) {
             throw new IllegalStateException("Expected to find file " + file, e);
-        }
-    }
-
-    private static long length(File file) {
-
-        try {
-            return file.length();
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not read length of " + file, e);
         }
     }
 }
