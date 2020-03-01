@@ -25,34 +25,40 @@ public final class IO {
         .enable(SerializationFeature.INDENT_OUTPUT)
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-    public static final String ROOT = "/";
-
     private IO() {
 
     }
 
-    public static <T> void writeStream(Path path, T output, BiConsumer<T, OutputStream> receptor) {
+    public static <T> T writeStream(Path path, T output, BiConsumer<T, OutputStream> receptor) {
 
-        if (!(path.getParent().toFile().isDirectory() || path.getParent().toFile().mkdirs())) {
-            throw new IllegalStateException("Could not verify dir: " + path);
+        if (path.getParent().toFile().isDirectory() || path.getParent().toFile().mkdirs()) {
+            try (
+                FileOutputStream fos = new FileOutputStream(path.toFile())
+            ) {
+                receptor.accept(output, fos);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to write to " + path, e);
+            }
+            return output;
         }
-        try (
-            FileOutputStream fos = new FileOutputStream(path.toFile())
-        ) {
-            receptor.accept(output, fos);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to write to " + path, e);
-        }
+        throw new IllegalStateException("Could not verify dir: " + path);
     }
 
     public static Map<String, ?> readData(Path path) {
 
-        return readFromStream(path, readMapFrom(path));
+        return readFromStream(path, is -> readMap(path, is));
     }
 
-    public static Map<String, ?> downloadJson(URI uri, Consumer<BiConsumer<String, String>> headers) {
+    @SafeVarargs
+    public static Map<String, ?> downloadJson(URI uri, Consumer<BiConsumer<String, String>>... headers) {
 
-        return tryDownload(uri, headers, readMapFrom(uri));
+        return tryDownload(uri, is -> readMap(uri, is), headers);
+    }
+
+    @SafeVarargs
+    public static byte[] download(URI uri, Consumer<BiConsumer<String, String>>... headers) {
+
+        return tryDownload(uri, is -> readBytesFrom((Object) uri, is), headers);
     }
 
     public static ACL readLocalACL(String resource) {
@@ -83,14 +89,7 @@ public final class IO {
     public static Sourced<byte[]> readBytes(String resource) {
 
         return Sourced.readStream(resource)
-            .map(stream -> {
-                byte[] buf = new byte[8192];
-                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    return readTo(stream, buf, baos);
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to read " + resource, e);
-                }
-            });
+            .map(stream -> readBytesFrom(resource, stream));
     }
 
     public static <T> T readObject(Class<T> type, String input) {
@@ -99,21 +98,6 @@ public final class IO {
             return OM.readerFor(type).readValue(input);
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to read " + type, e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Map<String, ?> readMap(Object source, InputStream is) {
-
-        return read(Map.class, source, is);
-    }
-
-    private static <T> T read(Class<T> type, Object source, String data) {
-
-        try {
-            return IO.OM.readerFor(type).readValue(data);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to read: " + source, e);
         }
     }
 
@@ -131,10 +115,25 @@ public final class IO {
         return System.getProperty(property, System.getenv(property));
     }
 
+    @SuppressWarnings("unchecked")
+    private static Map<String, ?> readMap(Object source, InputStream is) {
+
+        return read(Map.class, source, is);
+    }
+
+    private static <T> T read(Class<T> type, Object source, String data) {
+
+        try {
+            return IO.OM.readerFor(type).readValue(data);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read: " + source, e);
+        }
+    }
+
     private static <T> T tryDownload(
         URI uri,
-        Consumer<BiConsumer<String, String>> headers,
-        Function<InputStream, T> receptor
+        Function<InputStream, T> receptor,
+        Consumer<BiConsumer<String, String>>... headers
     ) {
 
         HttpURLConnection urlConnection;
@@ -143,8 +142,8 @@ public final class IO {
         } catch (Exception e) {
             throw new IllegalStateException("Made no sense of " + uri, e);
         }
-        if (headers != null) {
-            headers.accept(urlConnection::setRequestProperty);
+        for (Consumer<BiConsumer<String, String>> header : headers) {
+            header.accept(urlConnection::setRequestProperty);
         }
         try {
             int responseCode;
@@ -153,20 +152,30 @@ public final class IO {
             } catch (IOException e) {
                 throw new IllegalStateException("Could not assert response code from " + uri, e);
             }
-            if (responseCode == 200) {
-                try (InputStream fos = new BufferedInputStream(urlConnection.getInputStream())) {
-                    return receptor.apply(fos);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Could not read from " + uri, e);
-                }
+            if (responseCode != 200) {
+                return fail(urlConnection, uri);
             }
-            try (InputStream fos = new BufferedInputStream(urlConnection.getErrorStream())) {
-                throw new IllegalStateException("Failed to open " + uri + " " + error(fos));
-            } catch (IOException e) {
-                throw new IllegalStateException("Could not read error resposne from " + uri, e);
-            }
+            return response(uri, receptor, urlConnection);
         } finally {
             urlConnection.disconnect();
+        }
+    }
+
+    private static <T> T response(URI uri, Function<InputStream, T> receptor, HttpURLConnection urlConnection) {
+
+        try (InputStream fos = new BufferedInputStream(urlConnection.getInputStream())) {
+            return receptor.apply(fos);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not read from " + uri, e);
+        }
+    }
+
+    private static <T> T fail(HttpURLConnection urlConnection, URI uri) {
+
+        try (InputStream fos = new BufferedInputStream(urlConnection.getErrorStream())) {
+            throw new IllegalStateException("Failed to open " + uri + " " + error(fos));
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not read error resposne from " + uri, e);
         }
     }
 
@@ -175,9 +184,14 @@ public final class IO {
         return new BufferedReader(new InputStreamReader(fos)).lines().collect(Collectors.joining("\n"));
     }
 
-    private static Function<InputStream, Map<String, ?>> readMapFrom(Object source) {
+    private static byte[] readBytesFrom(Object resource, InputStream stream) {
 
-        return is -> readMap(source, is);
+        byte[] buf = new byte[8192];
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            return readTo(stream, buf, baos);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read " + resource, e);
+        }
     }
 
     private static byte[] readTo(InputStream stream, byte[] buf, ByteArrayOutputStream baos) {

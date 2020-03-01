@@ -148,27 +148,28 @@ public interface Media {
     static BiFunction<Media, Album, Media> addContextFrom(DiscogsDataResolver discogsData) {
 
         return (media, album) ->
-            discogsData.getDiscogRelease(album).map(release -> {
-                AlbumContext context = Stream.of(release.getArtists(), release.getExtraartists())
+            discogsData.getDiscogRelease(album).map(digest -> {
+                AlbumContext context = Stream.of(digest.getArtists(), digest.getExtraartists())
                     .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
                     .reduce(
                         new AlbumContext(
                             album,
-                            yearOf(release),
-                            URI.create(release.getUri()),
-                            cover150(release).orElse(null),
-                            cover(release).orElse(null),
-                            release.getNotes(),
-                            series(release),
-                            videos(release)),
+                            yearOf(digest),
+                            id(digest.getUri()),
+                            URI.create(digest.getUri()),
+                            cover150(digest).orElse(null),
+                            cover(digest).orElse(null),
+                            digest.getNotes(),
+                            series(digest),
+                            videos(digest)),
                         (ctx, dad) ->
                             ctx.credit(
                                 dad.getName(),
                                 dad.getUri(),
                                 dad.getRole()),
                         noCombine());
-                List<TrackContext> trackContexts = release.getTracklist().stream()
+                List<TrackContext> trackContexts = digest.getTracklist().stream()
                     .map(track ->
                         new TrackContext(track.getPosition(), track.getTitle(), trackCredits(track)))
                     .collect(Collectors.toList());
@@ -181,9 +182,15 @@ public interface Media {
                                 album.getTrack(trackNo)))
                         .map(trackContext::withTrack)
                         .orElse(trackContext)).collect(Collectors.toList());
-                return media.withAlbumContext(
-                    album.getUuid(), context.withTrackContexts(applicableTrackContexts));
+                AlbumContext albumContext =
+                    context.withTrackContexts(applicableTrackContexts);
+                return media.withAlbumContext(album.getUuid(), albumContext);
             }).orElse(media);
+    }
+
+    static Long id(String uri) {
+
+        return null;
     }
 
     static Credits trackCredits(DiscogTrackDigest track) {
@@ -224,14 +231,14 @@ public interface Media {
         return getCover(release, DiscogImage::getUri);
     }
 
-    static Optional<URI> getCover(DiscogReleaseDigest release, Function<DiscogImage, URI> getUri150) {
+    static Optional<URI> getCover(DiscogReleaseDigest release, Function<DiscogImage, URI> toUri) {
 
         return Stream.concat(
             release.getImages().stream().filter(Media::isPrimary),
             release.getImages().stream().filter(Media::hasImage)
         ).filter(Media::hasImage)
             .findFirst()
-            .map(getUri150);
+            .map(toUri);
     }
 
     static List<String> series(DiscogReleaseDigest release) {

@@ -1,6 +1,7 @@
 package mediaserver.externals;
 
 import mediaserver.media.Album;
+import mediaserver.media.Media;
 import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.IntFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 public final class DiscogsDataResolver {
@@ -44,6 +46,8 @@ public final class DiscogsDataResolver {
     private final Clock clock;
 
     private final AtomicBoolean discogsTired = new AtomicBoolean();
+
+    static final byte[] NO_DATA = {};
 
     public DiscogsDataResolver(
         Path resourcesDirectory,
@@ -68,12 +72,38 @@ public final class DiscogsDataResolver {
         return connections.stream()
             .filter(meta ->
                 match(album, meta))
-            .map(connection -> digest(
-                connection,
-                pathTo(connection, ".json"),
-                pathTo(connection, "-raw.json")))
+            .map(connection ->
+                digest(
+                    connection,
+                    pathTo(connection, ".json"),
+                    pathTo(connection, "-raw.json")
+                ).map(updateCover(
+                    pathTo(connection, ".jpg"))
+                ))
             .flatMap(Optional::stream)
             .findFirst();
+    }
+
+    private static Function<DiscogReleaseDigest, DiscogReleaseDigest> updateCover(Path cover) {
+
+        return digest -> {
+            if (cover.toFile().exists()) {
+                return digest;
+            }
+            byte[] bytes = Media.getCover(digest, DiscogImage::getUri)
+                .map(uri ->
+                    IO.download(uri))
+                .orElse(NO_DATA);
+            IO.writeStream(cover, bytes, (bytes1, outputStream) -> {
+                try {
+                    outputStream.write(bytes1);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException(
+                        "Failed to write " + bytes.length + " bytes to " + cover, e);
+                }
+            });
+            return digest;
+        };
     }
 
     private Path pathTo(DiscogConnection connection, String suffix) {
@@ -84,7 +114,7 @@ public final class DiscogsDataResolver {
 
     private Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
 
-        return withRetry(3, retry -> {
+        return withRetry(3, () -> {
             try {
                 if (regularFile(local) && regularFile(raw) && fresh(raw) || discogsTired.get()) {
                     return updateAndReadLocalFile(raw, local);
@@ -117,9 +147,9 @@ public final class DiscogsDataResolver {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static <T> Optional<T> withRetry(int retries, IntFunction<Optional<T>> fun) {
+    private static <T> Optional<T> withRetry(int retries, Supplier<Optional<T>> fun) {
 
-        return IntStream.range(0, retries).mapToObj(fun).flatMap(Optional::stream).findFirst();
+        return IntStream.range(0, retries).mapToObj(retry -> fun.get()).flatMap(Optional::stream).findFirst();
     }
 
     private static boolean match(Album album, DiscogConnection meta) {
@@ -134,9 +164,10 @@ public final class DiscogsDataResolver {
     ) {
 
         Map<String, ?> rawData = IO.downloadJson(uri, AUTHORIZATION);
-        DiscogReleaseDigest digest = readRelease(rawData);
-        IO.writeStream(localDigestPath, digest, writeRelease(DiscogReleaseDigest.class));
+        DiscogReleaseDigest digest =
+            IO.writeStream(localDigestPath, readRelease(rawData), writeRelease(DiscogReleaseDigest.class));
         IO.writeStream(localRawPath, rawData, writeRelease(Map.class));
+        log.info("Updated local digest: {} <== {}", digest.getTitle(), uri);
         return Optional.of(digest);
     }
 

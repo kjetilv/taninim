@@ -17,6 +17,8 @@ public final class AlbumContext implements Serializable {
 
     private final Year year;
 
+    private final Long discogId;
+
     private final URI discogPage;
 
     private final URI discogCover;
@@ -39,12 +41,24 @@ public final class AlbumContext implements Serializable {
 
     AlbumContext(Album album) {
 
-        this(album, null, null, null, null, null, null, null);
+        this(
+            Objects.requireNonNull(album, "album"),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     }
 
     AlbumContext(
         Album album,
         Year year,
+        Long discogId,
         URI discogPage,
         URI discogCover,
         URI discogArt,
@@ -52,23 +66,14 @@ public final class AlbumContext implements Serializable {
         Collection<String> series,
         Collection<Video> videos
     ) {
-
-        this(
-            Objects.requireNonNull(album, "album"),
-            year,
-            discogPage,
-            discogCover,
-            discogArt,
-            notes,
-            series,
-            videos,
-            null,
+        this(album, year, discogId, discogPage, discogCover, discogArt, notes, series, videos, null,
             null);
     }
 
     private AlbumContext(
         Album album,
         Year year,
+        Long discogId,
         URI discogPage,
         URI discogCover,
         URI discogArt,
@@ -81,6 +86,7 @@ public final class AlbumContext implements Serializable {
 
         this.album = album;
         this.year = year;
+        this.discogId = discogId;
         this.discogPage = discogPage;
         this.discogCover = discogCover;
         this.discogArt = discogArt;
@@ -130,11 +136,6 @@ public final class AlbumContext implements Serializable {
         return notes;
     }
 
-    private Album getAlbum() {
-
-        return album;
-    }
-
     public Collection<Video> getVideos() {
 
         return videos;
@@ -143,6 +144,11 @@ public final class AlbumContext implements Serializable {
     public Collection<String> getSeries() {
 
         return series;
+    }
+
+    public Long getDiscogId() {
+
+        return discogId;
     }
 
     @DAC
@@ -182,20 +188,6 @@ public final class AlbumContext implements Serializable {
         return discogPage;
     }
 
-    AlbumContext credit(String name, URI uri, String type) {
-
-        return new AlbumContext(
-            album,
-            year,
-            discogPage,
-            discogCover,
-            discogArt, notes,
-            series,
-            videos,
-            credits.credit(name, uri, type),
-            trackContexts);
-    }
-
     public AlbumContext append(AlbumContext albumContext) {
 
         if (!album.equals(albumContext.getAlbum())) {
@@ -207,6 +199,7 @@ public final class AlbumContext implements Serializable {
         return new AlbumContext(
             album,
             albumContext.year == null ? year : albumContext.year,
+            discogId,
             discogPage,
             discogCover,
             discogArt, albumContext.notes == null ? notes : albumContext.notes,
@@ -216,18 +209,41 @@ public final class AlbumContext implements Serializable {
             albumContext.getTrackContexts());
     }
 
+    AlbumContext credit(String name, URI uri, String type) {
+
+        return new AlbumContext(
+            album,
+            year,
+            discogId,
+            discogPage,
+            discogCover,
+            discogArt,
+            notes,
+            series,
+            videos,
+            credits.credit(name, uri, type),
+            trackContexts);
+    }
+
     AlbumContext withTrackContexts(List<TrackContext> trackContexts) {
 
         return new AlbumContext(
             album,
             year,
+            discogId,
             discogPage,
             discogCover,
-            discogArt, notes,
+            discogArt,
+            notes,
             series,
             videos,
             credits,
             trackContexts);
+    }
+
+    private Album getAlbum() {
+
+        return album;
     }
 
     private static String name(Collection<TrackContext> headingEntries, Pair<Integer, Integer> pair) {

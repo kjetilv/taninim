@@ -89,9 +89,15 @@ fun main() {
 
     println("Media: $media")
 
+    media.albums.forEach { album ->
+        val discogId = album.context.discogId
+        val bytes = IO.readBytes("/res/$discogId.jpg")
+        IO.
+    }
+
     if (Files.isDirectory(walkmanConnectDir)) {
-        Files.createDirectories(walkDir)
-        println("Copying to walkman @ $walkDir")
+        val path = Files.createDirectories(walkDir)
+        println("Copying files to to walkman @ $path")
         val walkmanTransfer = Conversion(
                 Mover(flacDir, walkDir, playlists()),
                 Traverser(flacDir))
@@ -104,6 +110,7 @@ fun main() {
                 }
         removeLeftovers(transfers, walkDir)
 
+        println("Copying playlists...")
         val source = IO.readUTF8("playlist.m3u8").unpack().orElseThrow { ->
             IllegalStateException("No source @ playlist.m3u8")
         }

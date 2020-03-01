@@ -26,9 +26,9 @@ public final class DiscogConnection {
         this.uri = uri;
 
         String uriString = uri.toASCIIString();
-        int lastSlash = uriString.lastIndexOf("/");
+        int lastSlash = uriString.lastIndexOf('/');
         this.id = uriString.substring(lastSlash + 1);
-        int nextToLastSlash = uriString.substring(0, lastSlash).lastIndexOf("/");
+        int nextToLastSlash = uriString.substring(0, lastSlash).lastIndexOf('/');
         this.type = uriString.substring(nextToLastSlash + 1, lastSlash);
     }
 

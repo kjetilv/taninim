@@ -89,7 +89,7 @@ public final class Sourced<T> {
         return unpack().map(map);
     }
 
-    public static Sourced<InputStream> readStream(String resource) {
+    static Sourced<InputStream> readStream(String resource) {
 
         URL sourceUrl = Optional.ofNullable(
             Thread.currentThread().getContextClassLoader().getResource(resource)).orElseThrow(() ->

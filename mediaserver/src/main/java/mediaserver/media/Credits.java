@@ -1,5 +1,7 @@
 package mediaserver.media;
 
+import mediaserver.util.DAC;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.util.*;
@@ -23,11 +25,33 @@ public final class Credits implements Serializable {
         this.credits = credits == null || credits.isEmpty() ? Collections.emptyList() : List.copyOf(credits);
     }
 
-    Credits credit(
-        String name,
-        URI uri,
-        String typeDescription
-    ) {
+    public Collection<Credit> getCredits() {
+
+        return credits;
+    }
+
+    @DAC
+    public Collection<Credit> getOtherCredits() {
+
+        return credits(other());
+    }
+
+    @DAC
+    public Collection<Credit> getArtistCredits() {
+
+        return withoutRedundants(credits(other().negate()));
+    }
+
+    public Credits append(Credits albumContext) {
+
+        List<Credit> allCredits = Stream.concat(
+            credits.stream(),
+            albumContext.credits.stream()
+        ).distinct().collect(Collectors.toList());
+        return new Credits(allCredits);
+    }
+
+    Credits credit(String name, URI uri, String typeDescription) {
 
         Optional<Credit.ExternalType> recognizedType =
             Arrays.stream(Credit.ExternalType.values())
@@ -45,21 +69,6 @@ public final class Credits implements Serializable {
             credit.getCompositeCredits().stream(),
             credits.stream()
         ).distinct().collect(Collectors.toList()));
-    }
-
-    public Collection<Credit> getCredits() {
-
-        return credits;
-    }
-
-    public Collection<Credit> getOtherCredits() {
-
-        return credits(other());
-    }
-
-    public Collection<Credit> getArtistCredits() {
-
-        return withoutRedundants(credits(other().negate()));
     }
 
     private Collection<Credit> credits(Predicate<Credit> other) {
@@ -81,14 +90,5 @@ public final class Credits implements Serializable {
     private static Predicate<Credit> other() {
 
         return credit -> credit.getExternalType() != null;
-    }
-
-    public Credits append(Credits albumContext) {
-
-        List<Credit> allCredits = Stream.concat(
-            credits.stream(),
-            albumContext.credits.stream()
-        ).distinct().collect(Collectors.toList());
-        return new Credits(allCredits);
     }
 }
