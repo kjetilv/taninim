@@ -34,17 +34,13 @@ public final class Sourced<T> {
         this.url = url;
     }
 
-    private static <T> Sourced<T> from(Type source, T t, URL url) {
-
-        return new Sourced<>(source, t, url);
-    }
-
     public static <T> Function<T, Sourced<T>> from(Type source, URL url) {
 
         return t -> new Sourced<>(source, t, url);
     }
 
     public <R> Sourced<R> map(Function<T, R> trans) {
+
         return map((type1, t) -> trans.apply(t));
     }
 
@@ -63,10 +59,9 @@ public final class Sourced<T> {
 
     public <R> Optional<R> unpackTyped(Type type, Function<T, R> action) {
 
-        if (type == this.type) {
-            return Optional.ofNullable(this.type == null ? null : action.apply(object));
-        }
-        return Optional.empty();
+        return type == this.type
+            ? Optional.ofNullable(Objects.requireNonNull(action, "action").apply(object))
+            : Optional.empty();
     }
 
     public Type sourceType() {
@@ -99,6 +94,11 @@ public final class Sourced<T> {
             return from(SOURCES, readSources(resource, adjusted), adjusted);
         }
         return from(JAR, readClasspath(resource), sourceUrl);
+    }
+
+    private static <T> Sourced<T> from(Type source, T t, URL url) {
+
+        return new Sourced<>(source, t, url);
     }
 
     private static URL inSources(URL sourceUrl) {

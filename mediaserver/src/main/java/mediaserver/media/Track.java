@@ -10,8 +10,10 @@ import org.gagravarr.flac.FlacTags;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
@@ -35,7 +37,7 @@ public final class Track extends AbstractHashable
 
     private final Integer part;
 
-    private final Path file;
+    private final URI file;
 
     private static final Pattern PART_TRACK_NAME = Pattern.compile("^(\\d+)-(\\d{2,})\\s+(.*)$");
 
@@ -54,7 +56,7 @@ public final class Track extends AbstractHashable
 
     private final long fileSize;
 
-    private final Path compressedFile;
+    private final URI compressedFile;
 
     private final long compressedSize;
 
@@ -89,20 +91,22 @@ public final class Track extends AbstractHashable
         }
 
         try {
-            this.file = file.toPath();
-            this.fileSize = Files.size(this.file);
-            this.compressedFile = new File(
+            Path path = file.toPath();
+            this.file = path.toUri();
+            this.fileSize = Files.size(path);
+            Path compressedPath = new File(
                 DOT_FLAC.matcher(
                     FLAC.matcher(file.getCanonicalPath())
                         .replaceAll("M4A"))
                     .replaceAll(".m4a")
             ).toPath();
-            compressedSize = Files.size(this.compressedFile);
+            if (!compressedPath.toFile().exists()) {
+                throw new IllegalStateException(this + " has no compressed version @ " + compressedPath);
+            }
+            this.compressedFile = compressedPath.toUri();
+            compressedSize = Files.size(compressedPath);
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed file: " + file, e);
-        }
-        if (!this.compressedFile.toFile().exists()) {
-            throw new IllegalStateException(this + " has no compressed version @ " + this.compressedFile);
         }
     }
 
@@ -150,7 +154,7 @@ public final class Track extends AbstractHashable
 
     public Path getFile() {
 
-        return file;
+        return Paths.get(file);
     }
 
     public long getFileSize() {
@@ -160,7 +164,7 @@ public final class Track extends AbstractHashable
 
     public Path getCompressedFile() {
 
-        return compressedFile;
+        return Paths.get(compressedFile);
     }
 
     public long getCompressedSize() {

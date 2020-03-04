@@ -6,12 +6,14 @@ import mediaserver.media.PlaylistYaml
 import mediaserver.templates.TPar
 import mediaserver.templates.Template
 import mediaserver.util.IO
+import mediaserver.util.Sourced
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption.COPY_ATTRIBUTES
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+import java.nio.file.StandardOpenOption
 import java.util.*
 
 fun main() {
@@ -91,8 +93,14 @@ fun main() {
 
     media.albums.forEach { album ->
         val discogId = album.context.discogId
-        val bytes = IO.readBytes("/res/$discogId.jpg")
-        IO.
+        val dir = album.path
+        val coverPath = if (discogId == null)
+            Optional.empty<Path>()
+        else IO.readBytes("releases/$discogId.jpg")
+                .unpackTyped(Sourced.Type.SOURCES) { bytes ->
+                    Files.write(dir.resolve("cover.jpg"), bytes, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+                }
+        println("Cover: $coverPath")
     }
 
     if (Files.isDirectory(walkmanConnectDir)) {

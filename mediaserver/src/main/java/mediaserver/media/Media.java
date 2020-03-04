@@ -190,7 +190,11 @@ public interface Media {
 
     static Long id(String uri) {
 
-        return null;
+        try {
+            return Long.parseLong(uri.substring(uri.lastIndexOf('/') + 1));
+        } catch (Exception e) {
+            throw new IllegalStateException("Bad release: " + uri, e);
+        }
     }
 
     static Credits trackCredits(DiscogTrackDigest track) {

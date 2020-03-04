@@ -5,7 +5,9 @@ import mediaserver.util.DAC;
 import mediaserver.util.Print;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
@@ -18,7 +20,7 @@ import java.util.stream.Stream;
 public final class Album extends AbstractHashable
     implements Comparable<Album>, Serializable {
 
-    private final Path path;
+    private final URI path;
 
     private final Artist artist;
 
@@ -85,7 +87,7 @@ public final class Album extends AbstractHashable
         if (paths.size() != 1) {
             throw new IllegalStateException("Bad track paths for album " + name + " @ " + paths);
         }
-        this.path = paths.iterator().next();
+        this.path = paths.iterator().next().toUri();
     }
 
     @SuppressWarnings("unused") // StringTemplate
@@ -134,7 +136,7 @@ public final class Album extends AbstractHashable
 
     public Path getPath() {
 
-        return path;
+        return Paths.get(path);
     }
 
     public Artist getArtist() {
