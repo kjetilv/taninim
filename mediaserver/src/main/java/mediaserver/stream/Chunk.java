@@ -1,4 +1,4 @@
-package mediaserver.toolkit;
+package mediaserver.stream;
 
 public final class Chunk {
 
@@ -10,44 +10,44 @@ public final class Chunk {
 
     private static final String BYTES = "bytes ";
 
-    public Chunk(long totalSize) {
+    Chunk(long totalSize) {
 
         this(0, 0, totalSize);
     }
 
-    public Chunk(long start, long end, long totalSize) {
+    Chunk(long start, long end, long totalSize) {
 
         this.start = start;
         this.end = end;
         this.totalSize = totalSize;
     }
 
-    public String getRangeHeader() {
+    String getRangeHeader() {
 
         return BYTES + getRange();
     }
 
-    public String getRange() {
+    String getRange() {
 
         return start + "-" + (end - 1) + "/" + totalSize;
     }
 
-    public long getEnd() {
+    long getEnd() {
 
         return end;
     }
 
-    public long getStart() {
+    long getStart() {
 
         return start;
     }
 
-    public long getSize() {
+    long getSize() {
 
         return end - start;
     }
 
-    public long getTotalSize() {
+    long getTotalSize() {
 
         return totalSize;
     }

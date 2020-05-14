@@ -1,5 +1,7 @@
 package mediaserver.util;
 
+import java.util.Objects;
+
 public class AbstractPair<T1, T2> {
 
     private final T1 t1;
@@ -20,6 +22,21 @@ public class AbstractPair<T1, T2> {
     public T2 getT2() {
 
         return t2;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        return o != null && getClass() == o.getClass()
+            && Objects.equals(t1, ((AbstractPair<?, ?>) o).t1)
+            && Objects.equals(t2, ((AbstractPair<?, ?>) o).t2);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(t1, t2);
     }
 
     @Override

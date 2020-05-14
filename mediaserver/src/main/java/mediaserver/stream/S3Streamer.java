@@ -7,7 +7,6 @@ import mediaserver.externals.S3Client;
 import mediaserver.externals.S3Connector;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
-import mediaserver.toolkit.Chunk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

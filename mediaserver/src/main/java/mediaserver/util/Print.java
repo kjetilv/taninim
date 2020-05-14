@@ -57,7 +57,7 @@ public final class Print {
     public static String bytes(long bytes) {
 
         if (bytes > 10 * M) {
-            return String.format("%dMb", bytes/ M);
+            return String.format("%dMb", bytes / M);
         }
         if (bytes > M) {
             return String.format("%.1fMb", bytes * 10 / M / 10.0D);

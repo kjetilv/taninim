@@ -16,7 +16,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -42,11 +41,6 @@ public final class Template {
         return this.bytes.get();
     }
 
-    private Function<Object, Template> adder(TPar param) {
-
-        return value -> add(param, value);
-    }
-
     public Object get(TPar param) {
 
         return st.getAttribute(param.getName());
@@ -64,6 +58,11 @@ public final class Template {
             st.add(Objects.requireNonNull(param, "param").getName(), value);
         }
         return this;
+    }
+
+    private Function<Object, Template> adder(TPar param) {
+
+        return value -> add(param, value);
     }
 
     private byte[] toBytes() {

@@ -12,6 +12,8 @@ public enum TPar implements Par<Template, Object> {
 
     plyr,
 
+    format,
+
     playlist,
 
     playlists,
@@ -19,6 +21,7 @@ public enum TPar implements Par<Template, Object> {
     curation,
 
     curations,
+
 
     mediaCurations,
 
@@ -57,6 +60,8 @@ public enum TPar implements Par<Template, Object> {
     highlightedRemaining,
 
     playableGroups,
+
+    albumPlayable,
 
     admin,
 

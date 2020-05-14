@@ -53,21 +53,13 @@ public enum Route {
         this.length = this.pref.length();
     }
 
-    enum Method {
-
-        HEAD, GET, POST;
-
-        private boolean test(String s) {
-            return name().equalsIgnoreCase(s);
-        }
-    }
-
     public String getPref() {
 
         return pref;
     }
 
     public boolean accessibleBy(String method) {
+
         return Arrays.stream(methods).anyMatch(m -> m.test(method));
     }
 
@@ -100,5 +92,15 @@ public enum Route {
     private boolean resolves(String uri) {
 
         return uri.startsWith(pref);
+    }
+
+    enum Method {
+
+        HEAD, GET, POST;
+
+        private boolean test(String s) {
+
+            return name().equalsIgnoreCase(s);
+        }
     }
 }

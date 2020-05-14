@@ -63,11 +63,6 @@ public class User extends AbstractHashable {
         return name;
     }
 
-    private AccessLevel getAccessLevel() {
-
-        return session.getAccessLevel();
-    }
-
     public String getPrettyAccessLevel() {
 
         return session.getAccessLevel().getDescription();
@@ -103,5 +98,10 @@ public class User extends AbstractHashable {
     protected StringBuilder withStringBody(StringBuilder sb) {
 
         return sb.append(name).append('/').append(getAccessLevel().name());
+    }
+
+    private AccessLevel getAccessLevel() {
+
+        return session.getAccessLevel();
     }
 }

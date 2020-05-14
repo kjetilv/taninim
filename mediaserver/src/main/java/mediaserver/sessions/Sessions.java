@@ -74,21 +74,6 @@ public final class Sessions {
         throw new IllegalArgumentException("Unauthorized: " + user);
     }
 
-    private Stream<Session> ejectedSessions(FbUser fbUser, Session session) {
-
-        if (session.hasLevel(AccessLevel.ADMIN)) {
-            sessionsMap.computeIfAbsent(fbUser, __ ->
-                new CopyOnWriteArrayList<>()
-            ).add(session);
-            return Stream.empty();
-        }
-        Collection<Session> existingSessions =
-            sessionsMap.put(fbUser, new CopyOnWriteArrayList<>(Collections.singleton(session)));
-        return Optional.ofNullable(existingSessions)
-            .stream()
-            .flatMap(Collection::stream);
-    }
-
     public Req bind(Req req) {
 
         return getExistingSession(req, AccessLevel.LOGIN, false)
@@ -150,6 +135,21 @@ public final class Sessions {
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(Session::getStartTime))
             .collect(Collectors.toList());
+    }
+
+    private Stream<Session> ejectedSessions(FbUser fbUser, Session session) {
+
+        if (session.hasLevel(AccessLevel.ADMIN)) {
+            sessionsMap.computeIfAbsent(fbUser, __ ->
+                new CopyOnWriteArrayList<>()
+            ).add(session);
+            return Stream.empty();
+        }
+        Collection<Session> existingSessions =
+            sessionsMap.put(fbUser, new CopyOnWriteArrayList<>(Collections.singleton(session)));
+        return Optional.ofNullable(existingSessions)
+            .stream()
+            .flatMap(Collection::stream);
     }
 
     private Optional<Session> getExistingSession(Req req, AccessLevel accessLevel, boolean includeInvalid) {

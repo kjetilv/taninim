@@ -4,7 +4,7 @@ import mediaserver.media.Album;
 import mediaserver.media.AlbumTrack;
 import mediaserver.media.Track;
 
-final class Selected {
+final class SelectedTrack {
 
     private final AlbumTrack albumTrack;
 
@@ -14,7 +14,7 @@ final class Selected {
 
     private final Track next;
 
-    Selected(AlbumTrack albumTrack, boolean autoplay, Track previous, Track next) {
+    SelectedTrack(AlbumTrack albumTrack, boolean autoplay, Track previous, Track next) {
 
         this.albumTrack = albumTrack;
         this.autoplay = autoplay;
@@ -45,5 +45,16 @@ final class Selected {
     public Track getNext() {
 
         return next;
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" +
+            albumTrack +
+            " autoplay=" + autoplay +
+            (next == null ? "" : ", next") +
+            (previous == null ? "" : ", prev") +
+            "]";
     }
 }

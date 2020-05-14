@@ -1,6 +1,7 @@
 package mediaserver.gui;
 
 import mediaserver.media.Track;
+import mediaserver.util.DAC;
 
 final class Playable {
 
@@ -19,6 +20,7 @@ final class Playable {
         return track;
     }
 
+    @DAC
     public boolean isPlayable() {
 
         return playable;

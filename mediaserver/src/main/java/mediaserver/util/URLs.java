@@ -15,6 +15,7 @@ public final class URLs {
     }
 
     public static Map<QPar, Collection<String>> queryParams(String pars) {
+
         if (pars == null || pars.isBlank()) {
             return Collections.emptyMap();
         }

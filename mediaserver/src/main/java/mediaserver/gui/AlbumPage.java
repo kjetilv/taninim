@@ -2,14 +2,18 @@ package mediaserver.gui;
 
 import mediaserver.Config;
 import mediaserver.GlobalState;
-import mediaserver.http.*;
+import mediaserver.http.Handling;
+import mediaserver.http.QPar;
+import mediaserver.http.Req;
+import mediaserver.http.Route;
 import mediaserver.media.*;
 import mediaserver.sessions.Session;
-import mediaserver.stream.Streamer;
+import mediaserver.stream.StreamAuthorization;
 import mediaserver.templates.TPar;
 import mediaserver.templates.Template;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -20,6 +24,10 @@ import java.util.stream.Stream;
 import static mediaserver.sessions.AccessLevel.*;
 
 public final class AlbumPage extends TemplateEnabled {
+
+    private static final String M4A = "m4a";
+
+    private static final String FLAC = "flac";
 
     private final Supplier<Media> media;
 
@@ -50,27 +58,31 @@ public final class AlbumPage extends TemplateEnabled {
 
     private Template albumTemplate(Media media, Req req, Album album) {
 
-        Optional<Selected> selectedTrack = selectedTrack(media, req, album).findFirst();
-        Optional<Selected> highlightedTrack = selectedTrack.filter(isHighlighted(req));
+        Optional<SelectedTrack> selectedTrack = selectedTrack(media, req, album).findFirst();
+        Optional<SelectedTrack> highlightedTrack = selectedTrack.filter(isHighlighted(req));
 
-        return base(getTemplate(ALBUM_PAGE), req, media)
+        return getTemplate(ALBUM_PAGE)
+            .add(TPar.user, req.getSession().getActiveUser(req))
+            .add(TPar.media, media)
+            .add(TPar.plyr, Config.PLYR)
             .add(TPar.admin, req.getSession().getAccessLevel().satisfies(ADMIN))
             .add(TPar.album, album)
             .add(TPar.selected, selectedTrack)
             .add(TPar.trackHighlighted, highlightedTrack)
             .add(TPar.playableGroups, playableGroups(media, req, album))
+            .add(TPar.albumPlayable, albumPlayable(media, req, album))
             .add(TPar.playlists, Playlist.playlistsWith(album))
-            .add(TPar.curations, Playlist.curationsWith(album));
+            .add(TPar.curations, Playlist.curationsWith(album))
+            .add(TPar.format, req.isLocal() ? FLAC : M4A);
     }
 
-    private static Stream<Selected> selectedTrack(Media media, Req req, Album album) {
+    private static Stream<SelectedTrack> selectedTrack(Media media, Req req, Album album) {
 
         return track(media, req, album, QPar.track)
-            .flatMap(track ->
-                selected(media, req, new AlbumTrack(album, track)));
+            .flatMap(track -> selected(media, req, track));
     }
 
-    private static Predicate<Selected> isHighlighted(Req req) {
+    private static Predicate<SelectedTrack> isHighlighted(Req req) {
 
         return selectedTrack ->
             Optional.ofNullable(selectedTrack.getTrack())
@@ -79,13 +91,13 @@ public final class AlbumPage extends TemplateEnabled {
                 .isPresent();
     }
 
-    private static Stream<Selected> selected(Media media, Req req, AlbumTrack albumTrack) {
+    private static Stream<SelectedTrack> selected(Media media, Req req, AlbumTrack albumTrack) {
 
         return Stream.of(req.getSession())
             .filter(session ->
                 streamable(media, albumTrack, session))
             .map(session ->
-                new Selected(
+                new SelectedTrack(
                     albumTrack,
                     autoplay(media, req, albumTrack),
                     previousTrack(albumTrack.getTrack(), albumTrack.getAlbum().getTracks())
@@ -102,28 +114,43 @@ public final class AlbumPage extends TemplateEnabled {
     private static boolean autoplay(Media media, Req req, AlbumTrack albumTrack) {
 
         return track(media, req, albumTrack.getAlbum(), QPar.autoplay)
-            .anyMatch(albumTrack.getTrack()::equals);
+            .anyMatch(albumTrack::equals);
     }
 
     private static Collection<PlayableGroup> playableGroups(Media media, Req req, Album album) {
 
-        return album.getTracksByPart().entrySet().stream()
-            .map(e ->
-                new PlayableGroup(
-                    e.getKey(),
-                    e.getValue().stream()
-                        .map(t ->
-                            new Playable(t, streamable(media, new AlbumTrack(album, t), req.getSession())))
-                        .collect(Collectors.toList())))
+        return playablesStream(media, req, album)
             .collect(Collectors.toList());
     }
 
-    private static Stream<Track> track(Media media, Req req, Album album, QPar trackPar) {
+    private static Optional<Playable> albumPlayable(Media media, Req req, Album album) {
+
+        return playablesStream(media, req, album)
+            .map(PlayableGroup::getPlayables)
+            .flatMap(Collection::stream)
+            .findFirst();
+    }
+
+    @NotNull
+    private static Stream<PlayableGroup> playablesStream(Media media, Req req, Album album) {
+
+        return album.getTracksByPart().entrySet().stream().map(e ->
+            new PlayableGroup(
+                e.getKey(),
+                e.getValue().stream()
+                    .map(t ->
+                        new Playable(t, streamable(media, new AlbumTrack(album, t), req.getSession())))
+                    .collect(Collectors.toList())));
+    }
+
+    private static Stream<AlbumTrack> track(Media media, Req req, Album album, QPar trackPar) {
 
         return trackPar.id(req)
             .flatMap(media::getTrack)
+            .map(track ->
+                new AlbumTrack(album, track))
             .filter(track ->
-                Streamer.authorized(media, req, new AlbumTrack(album, track)));
+                StreamAuthorization.authorized(media, req, track));
     }
 
     private static Optional<Track> previousTrack(Track track, Collection<Track> tracks) {
@@ -191,13 +218,5 @@ public final class AlbumPage extends TemplateEnabled {
     private static Comparator<Track> trackNo() {
 
         return Comparator.comparing(Track::getTrackNo);
-    }
-
-    private static Template base(Template template, Req req, Media media) {
-
-        return template
-            .add(TPar.user, req.getSession().getActiveUser(req))
-            .add(TPar.media, media)
-            .add(TPar.plyr, Config.PLYR);
     }
 }

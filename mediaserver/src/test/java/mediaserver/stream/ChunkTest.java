@@ -1,6 +1,5 @@
-package mediaserver.gui;
+package mediaserver.stream;
 
-import mediaserver.toolkit.Chunk;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

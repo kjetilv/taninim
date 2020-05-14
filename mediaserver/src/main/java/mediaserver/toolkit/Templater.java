@@ -1,7 +1,7 @@
 package mediaserver.toolkit;
 
-import mediaserver.templates.Template;
 import mediaserver.http.WebCache;
+import mediaserver.templates.Template;
 
 public final class Templater {
 

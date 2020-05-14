@@ -47,7 +47,7 @@ public final class DiscogsDataResolver {
 
     private final AtomicBoolean discogsTired = new AtomicBoolean();
 
-    static final byte[] NO_DATA = {};
+    private static final byte[] NO_DATA = {};
 
     public DiscogsDataResolver(
         Path resourcesDirectory,
@@ -84,6 +84,48 @@ public final class DiscogsDataResolver {
             .findFirst();
     }
 
+    private Path pathTo(DiscogConnection connection, String suffix) {
+
+        return resourcesDirectory.resolve(
+            Paths.get(connection.getType(), connection.getId() + suffix));
+    }
+
+    private Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
+
+        return withRetry(3, () -> {
+            try {
+                if (discogsTired.get()) {
+                    return Optional.empty();
+                }
+                if (regularFile(local) && regularFile(raw) && fresh(raw)) {
+                    return updateAndReadLocalFile(raw, local);
+                }
+                try {
+                    return fetchAndWriteLocalFile(connection.getUri(), local, raw);
+                } catch (Exception e) {
+                    log.warn("Discog read problem for {}/{}, continuing...", local, raw, e);
+                    discogsTired.set(true);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to retrieve data for {}, proceeding", connection, e);
+            }
+            return Optional.empty();
+        });
+    }
+
+    private boolean fresh(Path raw) {
+
+        try {
+            return Duration.between(
+                modifiedTime(raw),
+                clock.instant()
+            ).minus(refreshTime).isNegative();
+        } catch (IOException e) {
+            log.warn("Could not assert age of {}", raw, e);
+            return false;
+        }
+    }
+
     private static Function<DiscogReleaseDigest, DiscogReleaseDigest> updateCover(Path cover) {
 
         return digest -> {
@@ -104,46 +146,6 @@ public final class DiscogsDataResolver {
             });
             return digest;
         };
-    }
-
-    private Path pathTo(DiscogConnection connection, String suffix) {
-
-        return resourcesDirectory.resolve(
-            Paths.get(connection.getType(), connection.getId() + suffix));
-    }
-
-    private Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
-
-        return withRetry(3, () -> {
-            try {
-                if (regularFile(local) && regularFile(raw) && fresh(raw) || discogsTired.get()) {
-                    return updateAndReadLocalFile(raw, local);
-                }
-                try {
-                    return fetchAndWriteLocalFile(connection.getUri(), local, raw);
-                } catch (Exception e) {
-                    log.warn("Discog read problem for {}/{}, continuing...", local, raw, e);
-                    discogsTired.set(true);
-                    return updateAndReadLocalFile(raw, local);
-                }
-            } catch (Exception e) {
-                log.warn("Failed to retrieve data for {}, proceeding", connection, e);
-            }
-            return Optional.empty();
-        });
-    }
-
-    private boolean fresh(Path raw) {
-
-        try {
-            return Duration.between(
-                modifiedTime(raw),
-                clock.instant()
-            ).minus(refreshTime).isNegative();
-        } catch (IOException e) {
-            log.warn("Could not assert age of {}", raw, e);
-            return false;
-        }
     }
 
     @SuppressWarnings("SameParameterValue")

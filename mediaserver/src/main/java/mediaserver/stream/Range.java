@@ -1,4 +1,4 @@
-package mediaserver.toolkit;
+package mediaserver.stream;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import static io.netty.handler.codec.http.HttpHeaderValues.BYTES;
 import static java.lang.Long.parseLong;
 
-public final class Range {
+final class Range {
 
     private static final String BYTES_PREAMBLE = BYTES + "=";
 
@@ -29,7 +29,7 @@ public final class Range {
         this.satisfiable = start == null || start < length;
     }
 
-    public static Stream<Range> read(String value, long length) {
+    static Stream<Range> read(String value, long length) {
 
         return Optional.ofNullable(value).stream()
             .map(COMMA::split)
@@ -38,30 +38,29 @@ public final class Range {
             .map(header -> {
                 if (header.startsWith(BYTES_PREAMBLE)) {
                     String range = header.substring(BYTES_PREAMBLE_LENGTH).trim();
-                    int split = range.indexOf('-');
-                    if (range.lastIndexOf('-') != split) {
+                    int dashIndex = range.indexOf('-');
+                    if (range.lastIndexOf('-') != dashIndex) {
                         throw new IllegalStateException("Invalid byte range, length " + length + ": " + value);
                     }
-                    return new Range(
-                        split == 0 ? null : parseLong(range.substring(0, split)),
-                        range.endsWith("-") ? null : parseLong(range.substring(split + 1)) + 1,
-                        length);
+                    Long start = dashIndex == 0 ? null : parseLong(range.substring(0, dashIndex));
+                    Long exclusiveEnd = range.endsWith("-") ? null : parseLong(range.substring(dashIndex + 1)) + 1;
+                    return new Range(start, exclusiveEnd, length);
                 }
                 throw new IllegalArgumentException("Not a valid range header: " + header);
             });
     }
 
-    public boolean isSatisfiable() {
-
-        return satisfiable;
-    }
-
-    public long getStart() {
+    long getStart() {
 
         return start;
     }
 
-    public long getExclusiveEnd(long max) {
+    boolean isSatisfiable() {
+
+        return satisfiable;
+    }
+
+    long getExclusiveEnd(long max) {
 
         return exclusiveEnd == null ? max : Math.min(exclusiveEnd, max);
     }

@@ -1,7 +1,6 @@
 package mediaserver.stream;
 
 import mediaserver.media.Track;
-import mediaserver.toolkit.Chunk;
 
 public final class NullStreamer extends Streamer {
 

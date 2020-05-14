@@ -74,6 +74,7 @@ public final class Playlist extends AbstractNameHashable {
     }
 
     private Playlist add(Album album) {
+
         if (tracks.isEmpty()) {
             return new Playlist(getName(), Map.of(album, new HashSet<>(album.getTracks())));
         }

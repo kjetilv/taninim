@@ -9,8 +9,8 @@ plugins {
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_13
-    targetCompatibility = JavaVersion.VERSION_13
+    sourceCompatibility = JavaVersion.VERSION_14
+    targetCompatibility = JavaVersion.VERSION_14
 }
 
 dependencies {
@@ -19,12 +19,12 @@ dependencies {
 
     implementation("org.gagravarr", "vorbis-java-core", "0.8")
     implementation("com.restfb", "restfb", "3.2.0")
-    implementation("io.netty", "netty-all", "4.1.45.Final")
+    implementation("io.netty", "netty-all", "4.1.48.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.antlr:ST4:4.3")
     implementation("io.minio:minio:6.0.13")
     implementation("se.michaelthelin.spotify:spotify-web-api-java:4.2.1")
-
+    implementation("org.jsoup:jsoup:1.13.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.2")
@@ -53,5 +53,5 @@ compileKotlin.kotlinOptions {
 
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "11"
 }

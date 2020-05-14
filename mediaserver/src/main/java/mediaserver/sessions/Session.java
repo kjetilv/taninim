@@ -2,20 +2,18 @@ package mediaserver.sessions;
 
 import mediaserver.externals.FbUser;
 import mediaserver.http.Req;
-import mediaserver.media.Album;
-import mediaserver.media.Track;
-import mediaserver.util.ExpiringState;
-import mediaserver.util.Pair;
 import mediaserver.util.Print;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,7 +100,7 @@ public final class Session {
             .collect(Collectors.joining(", "));
     }
 
-    public Collection<Status> getStatus(Instant time) {
+    Collection<Status> getStatus(Instant time) {
 
         return accessLevel.satisfies(AccessLevel.ADMIN) ? Collections.singleton(Status.OK) : Stream
             .of(
@@ -113,7 +111,7 @@ public final class Session {
             .collect(Collectors.toList());
     }
 
-    public boolean isValid(Instant time) {
+    boolean isValid(Instant time) {
 
         Collection<Session.Status> statuses = getStatus(time);
         return statuses.size() == 1 && statuses.iterator().next() == Status.OK;
@@ -139,7 +137,7 @@ public final class Session {
         return sessionCutoff.truncatedTo(ChronoUnit.SECONDS);
     }
 
-    public long getStreamedBytes() {
+    long getStreamedBytes() {
 
         return bytesStreamed.get();
     }
@@ -154,7 +152,7 @@ public final class Session {
         return Print.bytes(bytesQuota);
     }
 
-    public long getStreamQuota() {
+    long getStreamQuota() {
 
         return bytesQuota;
     }

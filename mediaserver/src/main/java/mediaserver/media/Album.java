@@ -90,7 +90,6 @@ public final class Album extends AbstractHashable
         this.path = paths.iterator().next().toUri();
     }
 
-    @SuppressWarnings("unused") // StringTemplate
     public Map<String, Collection<Track>> getTracksByPart() {
 
         List<Integer> parts = tracks.stream()
@@ -196,8 +195,8 @@ public final class Album extends AbstractHashable
             Stream.of(
                 tracks.get(position).getArtists().stream(),
                 tracks.get(position).getOtherArtists().stream(),
-                this.context.getTrackContexts().get(position).getCredits().getCredits().stream().map(Credit::getArtist))
-                .flatMap(s -> s)
+                this.context.getTrackContexts().get(position).getCredits().getCredits().stream().map(Credit::getArtist)
+            ).flatMap(s -> s)
                 .anyMatch(artist::equals))
             .mapToObj(tracks::get)
             .collect(Collectors.toList());

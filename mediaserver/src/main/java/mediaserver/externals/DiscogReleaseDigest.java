@@ -28,16 +28,6 @@ public final class DiscogReleaseDigest {
 
     private List<DiscogSeriesDigest> series;
 
-    @Override
-    public String toString() {
-
-        return getClass().getSimpleName() +
-            "[" + artist +
-            ": " + title +
-            " @ " + resource_url +
-            "]";
-    }
-
     public String getArtist() {
 
         return artist;
@@ -156,5 +146,15 @@ public final class DiscogReleaseDigest {
     public void setTracklist(List<DiscogTrackDigest> tracklist) {
 
         this.tracklist = tracklist;
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() +
+            "[" + artist +
+            ": " + title +
+            " @ " + resource_url +
+            "]";
     }
 }

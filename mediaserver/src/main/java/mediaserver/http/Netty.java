@@ -60,11 +60,6 @@ public final class Netty {
         return response(req, contentType, null, content);
     }
 
-    private static HttpResponse response(Req req, String contentType, HttpResponseStatus status, byte[] content) {
-
-        return fullResponse(req, contentType, status, content, null);
-    }
-
     public static HttpResponse response(
         Req req,
         String contentType,
@@ -76,24 +71,9 @@ public final class Netty {
         return fullResponse(req, contentType, status, content, headers);
     }
 
-    private static HttpResponse redirect(Route page, Headers moreHeaders) {
-
-        return redirect(page.getPref(), moreHeaders);
-    }
-
     public static HttpResponse redirect(String ref) {
 
         return redirect(ref, null);
-    }
-
-    private static HttpResponse redirect(String ref, Headers moreHeaders) {
-
-        HttpHeaders headers = new DefaultHttpHeaders();
-        if (moreHeaders != null) {
-            moreHeaders.accept(headers::set);
-        }
-        return new DefaultFullHttpResponse(
-            HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, ref), EmptyHttpHeaders.INSTANCE);
     }
 
     public static HttpResponse authCookieResponse(Req req, String cookie) {
@@ -126,6 +106,26 @@ public final class Netty {
     public static HttpResponse redirect(Route location) {
 
         return redirect(location, null);
+    }
+
+    private static HttpResponse response(Req req, String contentType, HttpResponseStatus status, byte[] content) {
+
+        return fullResponse(req, contentType, status, content, null);
+    }
+
+    private static HttpResponse redirect(Route page, Headers moreHeaders) {
+
+        return redirect(page.getPref(), moreHeaders);
+    }
+
+    private static HttpResponse redirect(String ref, Headers moreHeaders) {
+
+        HttpHeaders headers = new DefaultHttpHeaders();
+        if (moreHeaders != null) {
+            moreHeaders.accept(headers::set);
+        }
+        return new DefaultFullHttpResponse(
+            HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, ref), EmptyHttpHeaders.INSTANCE);
     }
 
     private static HttpResponse ok(Req req, byte[] content, Headers moreHeaders) {

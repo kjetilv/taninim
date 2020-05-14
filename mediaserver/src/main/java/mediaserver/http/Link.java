@@ -26,6 +26,7 @@ public class Link<T extends Hashable & Namable> {
     }
 
     public String getName() {
+
         return WS.matcher(target.getName()).replaceAll("&nbsp;");
     }
 

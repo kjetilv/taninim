@@ -1,9 +1,9 @@
 package mediaserver.gui;
 
 import mediaserver.http.Handling;
+import mediaserver.http.Req;
 import mediaserver.http.Route;
 import mediaserver.http.WebCache;
-import mediaserver.http.Req;
 
 public final class Favicon extends AbstractResources {
 

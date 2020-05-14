@@ -8,6 +8,7 @@ public interface Par<T, R> {
     String getName();
 
     default boolean isFalse(T source) {
+
         return !isTrue(source);
     }
 

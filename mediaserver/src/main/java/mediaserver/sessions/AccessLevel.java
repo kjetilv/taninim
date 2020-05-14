@@ -1,8 +1,7 @@
 package mediaserver.sessions;
 
-import mediaserver.externals.ACL;
-
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public enum AccessLevel {
 
@@ -20,6 +19,8 @@ public enum AccessLevel {
 
     ADMIN;
 
+    private static final Pattern WS = Pattern.compile("\\s+");
+
     public boolean satisfies(AccessLevel level) {
 
         return ordinal() >= Objects.requireNonNull(level, "level").ordinal();
@@ -32,6 +33,6 @@ public enum AccessLevel {
 
     public static AccessLevel get(String accessLevel) {
 
-        return valueOf(accessLevel.toUpperCase().replaceAll("\\s+", "_"));
+        return valueOf(WS.matcher(accessLevel.toUpperCase()).replaceAll("_"));
     }
 }

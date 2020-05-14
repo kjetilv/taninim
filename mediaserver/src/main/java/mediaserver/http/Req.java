@@ -14,6 +14,7 @@ import mediaserver.sessions.User;
 import mediaserver.util.MostlyOnce;
 import mediaserver.util.URLs;
 
+import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -67,6 +68,8 @@ public final class Req {
 
     private final Supplier<String> formattedTime;
 
+    private final Supplier<Boolean> local;
+
     private Req(
         ChannelHandlerContext ctx,
         FullHttpRequest request,
@@ -88,6 +91,7 @@ public final class Req {
         this.path = pathIndex > 0 ? this.uri.substring(0, pathIndex) : this.uri;
 
         this.responseContentType = MostlyOnce.get(this::contentType);
+        this.local = MostlyOnce.get(this::computeLocal);
         this.uuid = MostlyOnce.get(this::authentication);
         this.qpars = MostlyOnce.get(() ->
             new Pars<>(qparams(this.uri, this.uri.indexOf('?'))));
@@ -249,6 +253,11 @@ public final class Req {
         return session.getActiveUser(this);
     }
 
+    public boolean isLocal() {
+
+        return local.get();
+    }
+
     Pars<QPar, Req, String> getQueryParameters() {
 
         return qpars.get();
@@ -267,6 +276,16 @@ public final class Req {
     boolean isFor(Route page) {
 
         return this.route == page;
+    }
+
+    private boolean computeLocal() {
+
+        return Optional.ofNullable(ctx.channel().localAddress())
+            .filter(InetSocketAddress.class::isInstance)
+            .map(InetSocketAddress.class::cast)
+            .map(InetSocketAddress::getHostName)
+            .filter("localhost"::equals)
+            .isPresent();
     }
 
     private Optional<String> contentType() {

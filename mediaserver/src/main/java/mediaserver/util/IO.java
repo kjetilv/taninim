@@ -11,10 +11,15 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class IO {
 
@@ -58,7 +63,7 @@ public final class IO {
     @SafeVarargs
     public static byte[] download(URI uri, Consumer<BiConsumer<String, String>>... headers) {
 
-        return tryDownload(uri, is -> readBytesFrom((Object) uri, is), headers);
+        return tryDownload(uri, is -> readBytesFrom(uri, is), headers);
     }
 
     public static ACL readLocalACL(String resource) {
@@ -92,6 +97,12 @@ public final class IO {
             .map(stream -> readBytesFrom(resource, stream));
     }
 
+    public static Sourced<Stream<String>> readLines(String resource) {
+
+        return Sourced.readStream(resource)
+            .map(stream -> readLinesFrom(resource, stream));
+    }
+
     public static <T> T readObject(Class<T> type, String input) {
 
         try {
@@ -113,6 +124,37 @@ public final class IO {
     public static String getProperty(String property) {
 
         return System.getProperty(property, System.getenv(property));
+    }
+
+    private static Stream<String> readLinesFrom(String resource, InputStream stream) {
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+
+        AtomicReference<String> line = new AtomicReference<>();
+        line.set(readLineFrom(resource, bufferedReader));
+        if (line.get() == null) {
+            return Stream.empty();
+        }
+
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<>(Long.MAX_VALUE, Spliterator.IMMUTABLE) {
+
+            @Override
+            public boolean tryAdvance(Consumer<? super String> action) {
+
+                action.accept(line.get());
+                line.set(readLineFrom(resource, bufferedReader));
+                return line.get() != null;
+            }
+        }, false);
+    }
+
+    private static String readLineFrom(String resource, BufferedReader bufferedReader) {
+
+        try {
+            return bufferedReader.readLine();
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read from " + resource, e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -153,7 +195,7 @@ public final class IO {
                 throw new IllegalStateException("Could not assert response code from " + uri, e);
             }
             if (responseCode != 200) {
-                return fail(urlConnection, uri);
+                return fail(responseCode, urlConnection, uri);
             }
             return response(uri, receptor, urlConnection);
         } finally {
@@ -170,18 +212,20 @@ public final class IO {
         }
     }
 
-    private static <T> T fail(HttpURLConnection urlConnection, URI uri) {
+    private static <T> T fail(int responseCode, HttpURLConnection urlConnection, URI uri) {
 
-        try (InputStream fos = new BufferedInputStream(urlConnection.getErrorStream())) {
-            throw new IllegalStateException("Failed to open " + uri + " " + error(fos));
+        try (InputStream fos = new BufferedInputStream(urlConnection.getErrorStream());
+             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fos))) {
+            String error;
+            try {
+                error = bufferedReader.lines().collect(Collectors.joining("\n"));
+            } catch (Exception e) {
+                error = "Failed to read error information:" + e;
+            }
+            throw new IllegalStateException(responseCode + ": Failed to open " + uri + " " + error);
         } catch (IOException e) {
             throw new IllegalStateException("Could not read error resposne from " + uri, e);
         }
-    }
-
-    private static String error(InputStream fos) {
-
-        return new BufferedReader(new InputStreamReader(fos)).lines().collect(Collectors.joining("\n"));
     }
 
     private static byte[] readBytesFrom(Object resource, InputStream stream) {

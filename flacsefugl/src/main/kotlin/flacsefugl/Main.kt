@@ -35,10 +35,12 @@ fun main() {
                 artist(path).contains("john zorn") ||
                         artist(path).contains("masada") ||
                         album(path).contains("masada") ||
+                        album(path).contains("the stone issue") ||
                         album(path).contains("book of angels") ||
                         album(path).contains("book beri") ||
                         album(path).contains("circle maker") ||
                         artist(path).contains("bar kokhba") ||
+                        artist(path).contains("medeski") ||
                         artist(path).contains("trigger") ||
                         artist(path).contains("mesinai") ||
                         artist(path).contains("autoryno") ||
@@ -56,6 +58,7 @@ fun main() {
                         artist(path).contains("ratkje") ||
                         artist(path).contains("fred frith") ||
                         album(path).contains("great jewish music") ||
+                        album(path).contains("buck jam tonic") ||
                         album(path).contains("spirou")
                 )
     }
@@ -171,7 +174,8 @@ private fun ffmpeg(source: Path, target: Path): Command = Command(Paths.get(".")
         "/opt/local/bin/ffmpeg", "-y", "-v", "warning", "-i", absOf(source), "-c:a", "flac", absOf(target))
 
 private fun ffmpegM4a(source: Path, target: Path): Command = Command(Paths.get("."),
-        "/opt/local/bin/ffmpeg", "-y", "-v", "warning", "-i", absOf(source), "-c:a", "aac", "-b:a", "128k", absOf(target))
+        "/opt/local/bin/ffmpeg", "-y", "-v", "warning", "-i", absOf(source), "-c:a", "aac", "-b:a", "128k",
+        absOf(target))
 
 private fun absOf(source: Path) = source.toFile().absolutePath
 

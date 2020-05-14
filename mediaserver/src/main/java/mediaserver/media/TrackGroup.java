@@ -15,6 +15,7 @@ final class TrackGroup implements Serializable {
     private static final long serialVersionUID = -1742521380844081944L;
 
     TrackGroup(String name, List<TrackContext> trackContexts) {
+
         this.name = name;
         this.trackContexts = trackContexts == null || trackContexts.isEmpty()
             ? Collections.emptyList()

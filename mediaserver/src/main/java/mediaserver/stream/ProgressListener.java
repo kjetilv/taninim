@@ -4,8 +4,6 @@ import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;
 import mediaserver.http.Req;
 import mediaserver.media.Track;
-import mediaserver.toolkit.Chunk;
-import mediaserver.toolkit.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
 
     private static final int WARN_THRESHOLD_SECONDS = 30;
 
-        ProgressListener(Clock clock, Req req, Track track, Range range, Chunk chunk) {
+    ProgressListener(Clock clock, Req req, Track track, Range range, Chunk chunk) {
 
         this.clock = clock;
         this.req = req;

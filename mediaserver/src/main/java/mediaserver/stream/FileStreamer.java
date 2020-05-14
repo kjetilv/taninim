@@ -3,7 +3,6 @@ package mediaserver.stream;
 import io.netty.channel.DefaultFileRegion;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
-import mediaserver.toolkit.Chunk;
 
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -20,6 +19,7 @@ public final class FileStreamer extends Streamer {
 
     @Override
     protected Object content(Track track, Chunk chunk, boolean lossless) {
+
         Path file = lossless ? track.getFile() : track.getCompressedFile();
         FileChannel channel = randomAccess(file).getChannel();
         return new DefaultFileRegion(channel, chunk.getStart(), chunk.getSize());

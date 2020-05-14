@@ -66,6 +66,7 @@ public final class AlbumContext implements Serializable {
         Collection<String> series,
         Collection<Video> videos
     ) {
+
         this(album, year, discogId, discogPage, discogCover, discogArt, notes, series, videos, null,
             null);
     }

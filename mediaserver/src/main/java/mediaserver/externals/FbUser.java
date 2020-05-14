@@ -30,6 +30,7 @@ public final class FbUser extends AbstractHashable {
 
     @Override
     public void hashTo(Consumer<byte[]> h) {
+
         hash(h, id, name);
     }
 

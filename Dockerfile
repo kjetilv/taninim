@@ -1,4 +1,4 @@
-FROM adoptopenjdk:13-jre-openj9
+FROM adoptopenjdk:14-jre-openj9
 
 EXPOSE 80/tcp
 

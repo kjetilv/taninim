@@ -21,6 +21,11 @@ Masada:
 Hermetic Organ:
   - Hermetic Organ
 Ensembles:
+  Gitarkameratene:
+    - Virtue
+    - Nove Cantici
+    - Chesed
+    - Midsummer Moons
   Locus Solus:
     - Locus Solus/
   Hemophiliac:
@@ -34,6 +39,7 @@ Ensembles:
     - Garden of Earthly Delights
     - The Painted Bird
     - The True Discoveries Of Witches And Demons
+    - Beyond Good and Evil
   Insurrection:
     - Insurrection
     - Salem 1692
@@ -101,6 +107,7 @@ Klassisk:
   - Aporias
   - Chimeras
   - Lemma
+  - Encomia
   - Mysticism
   - Mythopoeia
   - Magick
@@ -149,3 +156,7 @@ On Tzadik:
   - Ruins/
   - AutorYno/ && Pastrami
   - AutorYno/ && Traffic
+The Stone:
+  - The Stone Issue
+Filmworks:
+  - Filmworks
