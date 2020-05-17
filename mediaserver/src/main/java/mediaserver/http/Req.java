@@ -31,10 +31,6 @@ import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 
 public final class Req {
 
-    public static final String AUDIO_FLAC = "audio/flac";
-
-    public static final String AUDIO_AAC = "audio/m4a";
-
     private final ChannelHandlerContext ctx;
 
     private final Route route;

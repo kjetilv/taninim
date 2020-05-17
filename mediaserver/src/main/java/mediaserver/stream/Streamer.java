@@ -35,6 +35,10 @@ import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 
 public abstract class Streamer extends NettyHandler {
 
+    private static final String AUDIO_FLAC = "audio/flac";
+
+    private static final String AUDIO_AAC = "audio/m4a";
+
     private static final Logger log = LoggerFactory.getLogger(Streamer.class);
 
     private final Clock clock;
@@ -122,7 +126,7 @@ public abstract class Streamer extends NettyHandler {
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         response.headers()
             .set(CONTENT_LENGTH, length(albumTrack.getTrack(), lossless))
-            .set(CONTENT_TYPE, lossless ? Req.AUDIO_FLAC : Req.AUDIO_AAC)
+            .set(CONTENT_TYPE, lossless ? AUDIO_FLAC : AUDIO_AAC)
             .set(ACCEPT_RANGES, BYTES);
         if (req.isKeepAlive()) {
             response.headers().set(CONNECTION, KEEP_ALIVE);
@@ -145,7 +149,7 @@ public abstract class Streamer extends NettyHandler {
             : chunk(range, length, !isVlc(req));
 
         response.headers()
-            .set(CONTENT_TYPE, lossless ? Req.AUDIO_FLAC : Req.AUDIO_AAC)
+            .set(CONTENT_TYPE, lossless ? AUDIO_FLAC : AUDIO_AAC)
             .set(ACCEPT_RANGES, BYTES)
             .set(CONTENT_RANGE, chunk.getRangeHeader())
             .set(CONTENT_LENGTH, chunk.getSize());
