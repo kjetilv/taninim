@@ -22,7 +22,6 @@ public enum TPar implements Par<Template, Object> {
 
     curations,
 
-
     mediaCurations,
 
     mediaSeries,

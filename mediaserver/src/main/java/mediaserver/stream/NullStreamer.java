@@ -1,12 +1,15 @@
 package mediaserver.stream;
 
+import mediaserver.http.Route;
 import mediaserver.media.Track;
 
 public final class NullStreamer extends Streamer {
 
-    public NullStreamer() {
+    public NullStreamer(Route route) {
 
-        super(null, null, 0);
+        super(route, null, () -> {
+            throw new UnsupportedOperationException();
+        }, 0);
     }
 
     @Override

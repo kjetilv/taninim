@@ -7,9 +7,9 @@ import mediaserver.toolkit.Templater;
 
 public final class Login extends TemplateEnabled {
 
-    public Login(Templater templater) {
+    public Login(Route route, Templater templater) {
 
-        super(templater, Route.LOGIN);
+        super(route, templater);
     }
 
     @Override

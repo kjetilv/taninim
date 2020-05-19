@@ -4,7 +4,9 @@ import mediaserver.GlobalState;
 import mediaserver.externals.ACL;
 import mediaserver.externals.S3Client;
 import mediaserver.http.*;
+import mediaserver.http.Route.Method;
 import mediaserver.media.Media;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Session;
 import mediaserver.sessions.Sessions;
@@ -53,6 +55,7 @@ public final class AdminPage extends TemplateEnabled {
         POST.equals(r.getRequest().method());
 
     public AdminPage(
+        Route route,
         Supplier<Media> mediaSupplier,
         Supplier<Ids> idsSupplier,
         Sessions sessions,
@@ -60,7 +63,7 @@ public final class AdminPage extends TemplateEnabled {
         S3Client s3
     ) {
 
-        super(templater, Route.ADMIN);
+        super(route, templater);
         this.mediaSupplier = mediaSupplier;
         this.idsSupplier = idsSupplier;
         this.sessions = sessions;
@@ -159,7 +162,10 @@ public final class AdminPage extends TemplateEnabled {
 
     private Handling redirect(Req req, boolean referer) {
 
-        return handle(req, referer ? Netty.redirect(req.getReferer()) : Netty.redirect(Route.ADMIN));
+        return handle(req, referer
+            ? Netty.redirect(req.getReferer())
+            : Netty.redirect(
+                new Route("admin", AccessLevel.ADMIN, Method.GET, Method.POST)));
     }
 
     private Optional<Session> closedSession(Req req) {

@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import mediaserver.externals.S3Client;
 import mediaserver.externals.S3Connector;
+import mediaserver.http.Route;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 import org.slf4j.Logger;
@@ -25,9 +26,9 @@ public final class S3Streamer extends Streamer {
 
     private final S3Client client;
 
-    public S3Streamer(Clock clock, Supplier<Media> media, S3Client client, int bytesPerChunk) {
+    public S3Streamer(Route route, Clock clock, Supplier<Media> media, S3Client client, int bytesPerChunk) {
 
-        super(clock, media, bytesPerChunk);
+        super(route, clock, media, bytesPerChunk);
         this.client = client;
     }
 

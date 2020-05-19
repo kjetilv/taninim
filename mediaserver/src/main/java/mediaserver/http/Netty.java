@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import mediaserver.gui.IndexPage;
+import mediaserver.sessions.AccessLevel;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -57,7 +58,7 @@ public final class Netty {
 
     public static HttpResponse response(Req req, String contentType, byte[] content) {
 
-        return response(req, contentType, null, content);
+        return fullResponse(req, contentType, null, content, null);
     }
 
     public static HttpResponse response(
@@ -78,12 +79,14 @@ public final class Netty {
 
     public static HttpResponse authCookieResponse(Req req, String cookie) {
 
-        return ok(req, null, setCookie(cookie));
+        return fullResponse(req, null, null, null, setCookie(cookie));
     }
 
     public static HttpResponse unauthCookieResponse(String cookie) {
 
-        return redirect(Route.LOGIN, setCookie(cookie));
+        return redirect(
+            new Route("login", AccessLevel.NONE, Route.Method.GET),
+            setCookie(cookie));
     }
 
     public static String authCookie(UUID uuid) {
@@ -108,14 +111,9 @@ public final class Netty {
         return redirect(location, null);
     }
 
-    private static HttpResponse response(Req req, String contentType, HttpResponseStatus status, byte[] content) {
-
-        return fullResponse(req, contentType, status, content, null);
-    }
-
     private static HttpResponse redirect(Route page, Headers moreHeaders) {
 
-        return redirect(page.getPref(), moreHeaders);
+        return redirect(page.getPrefix(), moreHeaders);
     }
 
     private static HttpResponse redirect(String ref, Headers moreHeaders) {
@@ -126,11 +124,6 @@ public final class Netty {
         }
         return new DefaultFullHttpResponse(
             HTTP, FOUND, Unpooled.EMPTY_BUFFER, headers.set(LOCATION, ref), EmptyHttpHeaders.INSTANCE);
-    }
-
-    private static HttpResponse ok(Req req, byte[] content, Headers moreHeaders) {
-
-        return fullResponse(req, null, null, content, moreHeaders);
     }
 
     private static HttpResponse fullResponse(

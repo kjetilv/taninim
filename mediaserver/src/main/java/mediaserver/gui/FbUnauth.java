@@ -11,9 +11,9 @@ public final class FbUnauth extends NettyHandler {
 
     private final Sessions sessions;
 
-    public FbUnauth(Sessions sessions) {
+    public FbUnauth(Route route, Sessions sessions) {
 
-        super(Route.UNAUTH);
+        super(route);
         this.sessions = sessions;
     }
 

@@ -1,6 +1,7 @@
 package mediaserver.stream;
 
 import io.netty.channel.DefaultFileRegion;
+import mediaserver.http.Route;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
 
@@ -12,9 +13,9 @@ import java.util.function.Supplier;
 
 public final class FileStreamer extends Streamer {
 
-    public FileStreamer(Clock clock, Supplier<Media> media, int bytesPerChunk) {
+    public FileStreamer(Route route, Clock clock, Supplier<Media> media, int bytesPerChunk) {
 
-        super(clock, media, bytesPerChunk);
+        super(route, clock, media, bytesPerChunk);
     }
 
     @Override

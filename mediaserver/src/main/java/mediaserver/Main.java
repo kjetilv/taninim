@@ -7,10 +7,13 @@ import mediaserver.externals.ACL;
 import mediaserver.externals.S3Client;
 import mediaserver.externals.S3Connector;
 import mediaserver.gui.*;
+import mediaserver.http.Route;
+import mediaserver.http.Route.Method;
 import mediaserver.http.WebCache;
 import mediaserver.media.CloudMedia;
 import mediaserver.media.Media;
 import mediaserver.media.PlaylistYaml;
+import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Ids;
 import mediaserver.sessions.Sessions;
 import mediaserver.stream.FileStreamer;
@@ -87,9 +90,10 @@ final class Main {
 
         Templater templater = new Templater(TMPL_CACHE);
 
-        Streamer streamer = noStream ? new NullStreamer()
-            : local ? new FileStreamer(CLOCK, media, BYTES_PER_CHUNK)
-            : new S3Streamer(CLOCK, media, s3, BYTES_PER_CHUNK);
+        Route audio = new Route("audio", AccessLevel.STREAM_CURATED, Method.GET, Method.HEAD);
+        Streamer streamer = noStream ? new NullStreamer(audio)
+            : local ? new FileStreamer(audio, CLOCK, media, BYTES_PER_CHUNK)
+            : new S3Streamer(audio, CLOCK, media, s3, BYTES_PER_CHUNK);
 
         log.info("Streamer: {}", streamer);
         log.info("Binding to port {}", PORT);
@@ -102,15 +106,33 @@ final class Main {
 
         Router router = new Router(sessions, templater, CLOCK,
             streamer,
-            new Favicon(RES_CACHE, FAVICON_ICO),
-            new Login(templater),
-            new FbAuth(sessions, ids, secretsProvider()),
-            new Resources(RES_CACHE, RES),
-            new IndexPage(media, templater),
-            new AlbumPage(media, templater),
-            new Playlists(media, templater, sslPlaylists),
-            new FbUnauth(sessions),
-            new AdminPage(media, ids, sessions, templater, s3));
+            new Favicon(
+                new Route("favicon.ico", AccessLevel.NONE, Method.GET),
+                RES_CACHE, FAVICON_ICO),
+            new Login(
+                new Route("login", AccessLevel.NONE, Method.GET),
+                templater),
+            new FbAuth(
+                new Route("auth", AccessLevel.NONE, Method.POST),
+                sessions, ids, secretsProvider()),
+            new Resources(
+                new Route("res", AccessLevel.NONE, Method.GET),
+                RES_CACHE, RES),
+            new AlbumPage(
+                new Route("album", AccessLevel.LOGIN, Method.GET),
+                media, templater),
+            new Playlists(
+                new Route("playlist", AccessLevel.STREAM, Method.GET),
+                media, templater, sslPlaylists),
+            new FbUnauth(
+                new Route("unauth", AccessLevel.LOGIN, Method.GET, Method.POST),
+                sessions),
+            new AdminPage(
+                new Route("admin", AccessLevel.ADMIN, Method.GET, Method.POST),
+                media, ids, sessions, templater, s3),
+            new IndexPage(
+                new Route("", AccessLevel.LOGIN, Method.GET),
+                media, templater));
 
         log.info(
             "{}: Running in {}, streaming {}abled",

@@ -120,8 +120,8 @@
 
             <!--suppress HtmlUnknownAttribute -->
             <AUDIO controls
-                   data-plyr-config='\{ "duration": {selected.track.seconds}, "autoplay": {if(selected.autoplay)}true{else}false{endif} }'
-                   id="player" preload="none"
+                   data-plyr-config='\{ "duration": {selected.track.seconds}, "autoplay": {selected.autoplay} }'
+                   id="player" {if(selected.autoplay)}preload="auto"{else}preload="none"{endif}
                    src="/audio/{selected.track.uuid}.{format}">
             </AUDIO>
 

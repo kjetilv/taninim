@@ -19,9 +19,9 @@ public final class Debug extends TemplateEnabled {
 
     private final Supplier<Collection<Exchange>> latestExchanges;
 
-    public Debug(Templater templater, Supplier<Collection<Exchange>> latestExchanges) {
+    public Debug(Route route, Templater templater, Supplier<Collection<Exchange>> latestExchanges) {
 
-        super(templater, Route.DEBUG);
+        super(route, templater);
         this.latestExchanges = latestExchanges;
     }
 

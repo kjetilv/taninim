@@ -8,12 +8,15 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import mediaserver.debug.Debug;
 import mediaserver.debug.Exchange;
+import mediaserver.gui.Login;
 import mediaserver.http.*;
+import mediaserver.http.Route.Method;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Sessions;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.RingBuffer;
 import mediaserver.util.Throwables;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +24,10 @@ import java.net.SocketAddress;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,11 +55,17 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         this.sessions = sessions;
         this.clock = clock;
         this.handlers = Stream.concat(
-            Stream.of(new Debug(templater, latestExchanges::get)),
-            Arrays.stream(handlers)
+            Arrays.stream(handlers),
+            Stream.of(new Debug(
+                new Route("debug", AccessLevel.ADMIN, Method.GET),
+                templater, latestExchanges::get))
         ).collect(Collectors.toMap(
             NettyHandler::getRoute,
-            Function.identity()
+            Function.identity(),
+            (nh1, nh2) -> {
+                throw new IllegalStateException("No merge: " + nh1 + "/" + nh2);
+            },
+            LinkedHashMap::new
         ));
     }
 
@@ -76,35 +83,6 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             logError(request, null, e);
             Netty.respond(ctx, INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private void handle(ChannelHandlerContext ctx, FullHttpRequest request) {
-
-        Instant time = clock.instant();
-        Req.from(ctx, request, time)
-            .map(sessions::bind)
-            .ifPresentOrElse(
-                req -> {
-                    try {
-                        if (req.isAllowed()) {
-                            Handling handled = handled(req);
-                            logExchange(handled);
-                        } else if (!req.isBound() && req.getRoute().accessibleWith(AccessLevel.LOGIN)) {
-                            log.info("Redirected to login: {}", req);
-                            Netty.respond(ctx, Netty.redirect(Route.LOGIN));
-                        } else {
-                            log.info("Unauthorized to login: {}", req);
-                            Netty.respond(ctx, UNAUTHORIZED);
-                        }
-                    } catch (Throwable e) {
-                        logError(req, time, e);
-                        Netty.respond(ctx, BAD_REQUEST);
-                    }
-                },
-                () -> {
-                    log.info("Failed: {}", request);
-                    Netty.respond(ctx, UNAUTHORIZED);
-                });
     }
 
     @Override
@@ -131,6 +109,73 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                 Netty.respond(ctx, INTERNAL_SERVER_ERROR);
             }
         }
+    }
+
+    private void handle(ChannelHandlerContext ctx, FullHttpRequest request) {
+
+        Instant time = clock.instant();
+        handlers.keySet().stream()
+            .filter(resolves(request))
+            .max(prefixLength())
+            .ifPresentOrElse(
+                route ->
+                    handle(ctx, request, route, time),
+                () -> {
+                    log.info("Not handled: {}", request);
+                    Netty.respond(ctx, NOT_FOUND);
+                });
+    }
+
+    private Comparator<Route> prefixLength() {
+
+        return Comparator.comparing(Route::getPrefixLength);
+    }
+
+    @NotNull
+    private Predicate<Route> resolves(FullHttpRequest request) {
+
+        return handler ->
+            handler.resolves(request.uri());
+    }
+
+    private void handle(ChannelHandlerContext ctx, FullHttpRequest request, Route route, Instant time) {
+
+        Req.from(route, ctx, request, time)
+            .map(sessions::bind)
+            .ifPresentOrElse(
+                req ->
+                    handle(ctx, time, req),
+                () -> {
+                    log.info("Unauthenticated: {}", request);
+                    Netty.respond(ctx, UNAUTHORIZED);
+                });
+    }
+
+    private void handle(ChannelHandlerContext ctx, Instant time, Req req) {
+
+        try {
+            if (req.isAllowed()) {
+                Handling handled = handled(req);
+                logExchange(handled);
+            } else if (!req.isBound() && req.getRoute().accessibleWith(AccessLevel.LOGIN)) {
+                log.info("Redirected to login: {}", req);
+                Netty.respond(ctx, Netty.redirect(login()
+                    .map(NettyHandler::getRoute)
+                    .orElseGet(() ->
+                        new Route("", AccessLevel.NONE, Method.GET))));
+            } else {
+                log.info("Unauthorized to login: {}", req);
+                Netty.respond(ctx, UNAUTHORIZED);
+            }
+        } catch (Throwable e) {
+            logError(req, time, e);
+            Netty.respond(ctx, BAD_REQUEST);
+        }
+    }
+
+    private Optional<NettyHandler> login() {
+
+        return handlers.values().stream().filter(nettyHandler -> nettyHandler instanceof Login).findFirst();
     }
 
     private Handling handled(Req req) {

@@ -28,9 +28,9 @@ public final class IndexPage extends TemplateEnabled {
 
     private final Supplier<Media> media;
 
-    public IndexPage(Supplier<Media> media, Templater templater) {
+    public IndexPage(Route route, Supplier<Media> media, Templater templater) {
 
-        super(templater, Route.INDEX);
+        super(route, templater);
         this.media = media;
     }
 

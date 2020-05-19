@@ -6,10 +6,7 @@ import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import mediaserver.Config;
-import mediaserver.http.Handling;
-import mediaserver.http.NettyHandler;
-import mediaserver.http.Req;
-import mediaserver.http.Route;
+import mediaserver.http.*;
 import mediaserver.media.AlbumTrack;
 import mediaserver.media.Media;
 import mediaserver.media.Track;
@@ -51,9 +48,9 @@ public abstract class Streamer extends NettyHandler {
 
     private final Map<Track, Long> longLengths = new ConcurrentHashMap<>();
 
-    Streamer(Clock clock, Supplier<Media> media, int bytesPerChunk) {
+    Streamer(Route route, Clock clock, Supplier<Media> media, int bytesPerChunk) {
 
-        super(Route.AUDIO);
+        super(route);
         this.clock = clock;
         this.media = media;
         this.bytesPerChunk = bytesPerChunk;

@@ -4,71 +4,46 @@ import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Session;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-public enum Route {
+public class Route {
 
-    LOGIN(AccessLevel.NONE, Method.GET),
-
-    AUTH(AccessLevel.NONE, Method.POST),
-
-    RES(AccessLevel.NONE, Method.GET),
-
-    FAVICON_ICO("favicon.ico", AccessLevel.NONE, Method.GET),
-
-    COOKIESPLEASE(AccessLevel.LOGIN, Method.POST),
-
-    UNAUTH(AccessLevel.LOGIN, Method.GET, Method.POST),
-
-    ALBUM(AccessLevel.LOGIN, Method.GET),
-
-    AUDIO(AccessLevel.STREAM_CURATED, Method.GET, Method.HEAD),
-
-    PLAYLIST(AccessLevel.STREAM, Method.GET),
-
-    ADMIN(AccessLevel.ADMIN, Method.GET, Method.POST),
-
-    DEBUG(AccessLevel.ADMIN, Method.GET),
-
-    INDEX("", AccessLevel.LOGIN, Method.GET);
-
-    private final String pref;
+    private final String prefix;
 
     private final AccessLevel accessLevel;
 
     private final Method[] methods;
 
-    private final int length;
+    private final int prefixLength;
 
-    Route(AccessLevel accessLevel, Method... methods) {
+    private final String toString;
 
-        this(null, accessLevel, methods);
-    }
+    public Route(String prefix, AccessLevel accessLevel, Route.Method... methods) {
 
-    Route(String pref, AccessLevel accessLevel, Method... methods) {
+        Objects.requireNonNull(prefix, "prefix");
+        this.prefix = prefix.startsWith("/") ? prefix : "/" + prefix;
+        this.prefixLength = this.prefix.length();
 
-        this.pref = "/" + (pref == null ? name().toLowerCase() : pref);
-        this.accessLevel = accessLevel;
+        this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
         this.methods = methods;
-        this.length = this.pref.length();
-    }
-
-    public String getPref() {
-
-        return pref;
-    }
-
-    public boolean accessibleBy(String method) {
-
-        return Arrays.stream(methods).anyMatch(m -> m.test(method));
-    }
-
-    public boolean accessibleIn(Session session) {
-
-        if (session == null) {
-            return this.accessLevel == AccessLevel.NONE;
+        if (methods.length == 0) {
+            throw new IllegalArgumentException("No methods for " + this.prefix);
         }
-        return this.accessLevel.ordinal() <= accessLevel.ordinal();
+
+        toString = getClass().getSimpleName() + "[" +
+            Arrays.stream(methods).map(Method::name).collect(Collectors.joining(", ")) +
+            ":" + prefix + "]";
+    }
+
+    public String getPrefix() {
+
+        return prefix;
+    }
+
+    public int getPrefixLength() {
+
+        return prefixLength;
     }
 
     public boolean accessibleWith(AccessLevel accessLevel) {
@@ -76,25 +51,44 @@ public enum Route {
         return accessLevel.ordinal() >= this.accessLevel.ordinal();
     }
 
-    public static Stream<Route> get(String uri) {
+    @Override
+    public boolean equals(Object o) {
 
-        return Arrays.stream(values()).filter(page -> page.resolves(uri)).limit(1);
+        return this == o || o instanceof Route && Objects.equals(prefix, ((Route) o).prefix);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(prefix);
     }
 
     public String resolve(String uri) {
 
         if (resolves(uri)) {
-            return uri.substring(length);
+            return uri.substring(prefixLength);
         }
         throw new IllegalArgumentException(this + ": Invalid uri: " + uri);
     }
 
-    private boolean resolves(String uri) {
+    public boolean resolves(String uri) {
 
-        return uri.startsWith(pref);
+        return uri.length() >= prefixLength && uri.startsWith(prefix);
     }
 
-    enum Method {
+    boolean accessibleBy(String method) {
+
+        return Arrays.stream(methods).anyMatch(m -> m.test(method));
+    }
+
+    boolean accessibleIn(Session session) {
+
+        return session == null
+            ? this.accessLevel == AccessLevel.NONE
+            : this.accessLevel.ordinal() <= accessLevel.ordinal();
+    }
+
+    public enum Method {
 
         HEAD, GET, POST;
 
@@ -102,5 +96,11 @@ public enum Route {
 
             return name().equalsIgnoreCase(s);
         }
+    }
+
+    @Override
+    public String toString() {
+
+        return toString;
     }
 }

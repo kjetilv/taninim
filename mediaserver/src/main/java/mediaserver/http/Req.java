@@ -210,7 +210,12 @@ public final class Req {
         return request.headers().getAsString(HttpHeaderNames.REFERER);
     }
 
-    public static Optional<Req> from(ChannelHandlerContext ctx, FullHttpRequest request, Instant time) {
+    public static Optional<Req> from(
+        Route route,
+        ChannelHandlerContext ctx,
+        FullHttpRequest request,
+        Instant time
+    ) {
 
         return Stream.of(request)
             .map(HttpRequest::uri)
@@ -218,9 +223,8 @@ public final class Req {
                 !uri.isBlank())
             .map(uri ->
                 URLDecoder.decode(uri, StandardCharsets.UTF_8))
-            .flatMap(uri ->
-                Route.get(uri).map(page ->
-                    new Req(ctx, request, page, page.resolve(uri), null, time)))
+            .map(uri ->
+                new Req(ctx, request, route, route.resolve(uri), null, time))
             .findFirst();
     }
 
@@ -271,7 +275,7 @@ public final class Req {
 
     boolean isFor(Route page) {
 
-        return this.route == page;
+        return this.route.equals(page);
     }
 
     private boolean computeLocal() {
@@ -331,6 +335,6 @@ public final class Req {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + route.getPref() + path + "@" + formattedTime.get() + "]";
+        return getClass().getSimpleName() + "[" + route.getPrefix() + path + "@" + formattedTime.get() + "]";
     }
 }

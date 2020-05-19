@@ -2,10 +2,7 @@ package mediaserver.gui;
 
 import mediaserver.Config;
 import mediaserver.GlobalState;
-import mediaserver.http.Handling;
-import mediaserver.http.QPar;
-import mediaserver.http.Req;
-import mediaserver.http.Route;
+import mediaserver.http.*;
 import mediaserver.media.*;
 import mediaserver.sessions.Session;
 import mediaserver.stream.StreamAuthorization;
@@ -31,9 +28,9 @@ public final class AlbumPage extends TemplateEnabled {
 
     private final Supplier<Media> media;
 
-    public AlbumPage(Supplier<Media> media, Templater templater) {
+    public AlbumPage(Route route, Supplier<Media> media, Templater templater) {
 
-        super(templater, Route.ALBUM);
+        super(route, templater);
         this.media = media;
     }
 

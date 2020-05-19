@@ -40,9 +40,9 @@ public final class Playlists extends TemplateEnabled {
 
     private static final String AUDIO_X_MPEGURL = "audio/x-mpegurl";
 
-    public Playlists(Supplier<Media> media, Templater templater, boolean https) {
+    public Playlists(Route route, Supplier<Media> media, Templater templater, boolean https) {
 
-        super(templater, Route.PLAYLIST);
+        super(route, templater);
         this.media = media;
         this.https = https;
     }

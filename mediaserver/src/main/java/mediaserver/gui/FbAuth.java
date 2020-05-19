@@ -26,9 +26,9 @@ public final class FbAuth extends NettyHandler {
 
     private final Supplier<Ids> ids;
 
-    public FbAuth(Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret) {
+    public FbAuth(Route routeX, Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret) {
 
-        super(Route.AUTH);
+        super(routeX);
         this.sessions = sessions;
         this.appSecret = appSecret;
         this.ids = ids;
