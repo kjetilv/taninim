@@ -22,6 +22,8 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     private final Collection<Album> albums;
 
+    private final Comparator<Album> albumComparator;
+
     private final Map<Album, AlbumContext> albumContexts;
 
     private final Collection<Artist> artists;
@@ -43,12 +45,22 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         this(getAlbums(root, root), null);
     }
 
+    private LocalMedia(Stream<Album> albums, Map<Album, AlbumContext> albumContexts) {
+
+        this(
+            Objects.requireNonNull(albums, "albums").collect(Collectors.toList()),
+            albumContexts,
+            null);
+    }
+
     private LocalMedia(
-        Stream<Album> albums,
-        Map<Album, AlbumContext> albumContexts
+        Collection<Album> albums,
+        Map<Album, AlbumContext> albumContexts,
+        Comparator<Album> albumComparator
     ) {
 
-        this.albums = albums.collect(Collectors.toList());
+        this.albums = List.copyOf(albums);
+        this.albumComparator = albumComparator;
         this.trackIndex = this.albums.stream().flatMap(album ->
             album.getTracks().stream().map(track ->
                 new AbstractMap.SimpleEntry<>(track.getUuid(), album)))
@@ -116,8 +128,15 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
                 .reduce(union ? Predicate::or : Predicate::and);
 
         return new LocalMedia(
-            albums.stream().filter(filter.orElse(p -> true)),
-            albumContexts);
+            albums.stream().filter(filter.orElse(p -> true)).collect(Collectors.toList()),
+            albumContexts,
+            albumComparator);
+    }
+
+    @Override
+    public Media sortedAlbums(Comparator<Album> comparator) {
+
+        return new LocalMedia(albums, albumContexts, comparator);
     }
 
     @Override
@@ -131,9 +150,12 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             Album expanded = album.withContext(albumContext);
             copy.put(expanded, expandedContext);
             return new LocalMedia(
-                albums.stream().map(a ->
-                    a.equals(album) ? expanded : a),
-                copy);
+                albums.stream()
+                    .map(a ->
+                        a.equals(album) ? expanded : a)
+                    .collect(Collectors.toList()),
+                copy,
+                albumComparator);
         }).findFirst().orElseThrow(() ->
             new IllegalArgumentException("Unknown album: " + albumId));
     }
@@ -388,7 +410,10 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
     private Stream<Album> albumStream() {
 
-        return albums.stream().sorted();
+        Comparator<Album> comparator = albumComparator == null
+            ? Comparator.naturalOrder()
+            : albumComparator;
+        return albums.stream().sorted(comparator);
     }
 
     private Stream<Track> trackStream() {

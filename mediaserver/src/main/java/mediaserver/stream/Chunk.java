@@ -55,6 +55,9 @@ public final class Chunk {
     @Override
     public String toString() {
 
-        return getClass().getSimpleName() + "[" + getRange() + " [" + getSize() + "]]";
+        int startPerc = (int) (start * 100 / totalSize);
+        int endPerc = (int) (end * 100 / totalSize);
+        return getClass().getSimpleName() + "[" + getRange() + " " + (int)(getSize() / 1024) + "Kb/" +
+             (startPerc == endPerc ? startPerc : startPerc + "-" + endPerc) + "%]";
     }
 }

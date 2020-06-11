@@ -105,7 +105,7 @@ public abstract class Streamer extends NettyHandler {
 
     private Handling handle(Req req, AlbumTrack albumTrack) {
 
-        boolean lossless = req.isFlac() && req.isLocal() || Session.isPrivileged();
+        boolean lossless = req.isFlac() && req.isLocal();
         if (req.getRequest().method() == HttpMethod.HEAD) {
             return handledMeta(req, albumTrack, lossless);
         }

@@ -60,7 +60,7 @@ public class Route {
     @Override
     public int hashCode() {
 
-        return Objects.hash(prefix);
+        return prefix.hashCode();
     }
 
     public String resolve(String uri) {

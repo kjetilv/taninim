@@ -111,10 +111,16 @@ public final class Req {
         return route.accessibleBy(request.method().toString()) && route.accessibleIn(session);
     }
 
-    public Req bind(Session session) {
+    public Req boundTo(Session session) {
 
         try {
-            return new Req(ctx, request, route, uri, Objects.requireNonNull(session, "session"), time);
+            return new Req(
+                ctx,
+                request,
+                route,
+                uri,
+                Objects.requireNonNull(session, "session"),
+                time);
         } finally {
             session.setLastAccessed(this);
         }

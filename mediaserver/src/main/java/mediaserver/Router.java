@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import mediaserver.debug.Debug;
 import mediaserver.debug.Exchange;
@@ -126,50 +127,58 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                 });
     }
 
-    private Comparator<Route> prefixLength() {
-
-        return Comparator.comparing(Route::getPrefixLength);
-    }
-
-    @NotNull
-    private Predicate<Route> resolves(FullHttpRequest request) {
-
-        return handler ->
-            handler.resolves(request.uri());
-    }
-
     private void handle(ChannelHandlerContext ctx, FullHttpRequest request, Route route, Instant time) {
 
         Req.from(route, ctx, request, time)
-            .map(sessions::bind)
-            .ifPresentOrElse(
-                req ->
-                    handle(ctx, time, req),
-                () -> {
-                    log.info("Unauthenticated: {}", request);
-                    Netty.respond(ctx, UNAUTHORIZED);
-                });
+            .map(sessions.binder())
+            .map(handler(ctx, time))
+            .orElseGet(() -> () -> {
+                log.info("Unauthenticated: {}", request);
+                Netty.respond(ctx, UNAUTHORIZED);
+            })
+            .run();
     }
 
-    private void handle(ChannelHandlerContext ctx, Instant time, Req req) {
+    @NotNull
+    private Function<Req, Runnable> handler(ChannelHandlerContext ctx, Instant time) {
+
+        return req ->
+            boundRequestHandler(ctx, time, req);
+    }
+
+    private Runnable boundRequestHandler(ChannelHandlerContext ctx, Instant time, Req req) {
 
         try {
             if (req.isAllowed()) {
-                Handling handled = handled(req);
-                logExchange(handled);
-            } else if (!req.isBound() && req.getRoute().accessibleWith(AccessLevel.LOGIN)) {
-                log.info("Redirected to login: {}", req);
-                Netty.respond(ctx, Netty.redirect(login()
-                    .map(NettyHandler::getRoute)
-                    .orElseGet(() ->
-                        new Route("", AccessLevel.NONE, Method.GET))));
-            } else {
+
+                NettyHandler nettyHandler = handlers.get(req.getRoute());
+                if (nettyHandler == null) {
+                    logError(req, time, null);
+                    return () -> Netty.respond(ctx, NOT_FOUND);
+                }
+                return () -> {
+                    Handling handled = nettyHandler.handleRequest(req);
+                    logExchange(handled);
+                };
+            }
+            if (!req.isBound() && req.getRoute().accessibleWith(AccessLevel.LOGIN)) {
+                return () -> {
+                    log.info("Redirected to login: {}", req);
+                    Netty.respond(ctx, Netty.redirect(login()
+                        .map(NettyHandler::getRoute)
+                        .orElseGet(() ->
+                            new Route("", AccessLevel.NONE, Method.GET))));
+                };
+            }
+            return () -> {
                 log.info("Unauthorized to login: {}", req);
                 Netty.respond(ctx, UNAUTHORIZED);
-            }
+            };
         } catch (Throwable e) {
-            logError(req, time, e);
-            Netty.respond(ctx, BAD_REQUEST);
+            return () -> {
+                logError(req, time, e);
+                Netty.respond(ctx, BAD_REQUEST);
+            };
         }
     }
 
@@ -178,13 +187,15 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         return handlers.values().stream().filter(nettyHandler -> nettyHandler instanceof Login).findFirst();
     }
 
-    private Handling handled(Req req) {
+    private static Comparator<Route> prefixLength() {
 
-        NettyHandler nettyHandler = handlers.get(req.getRoute());
-        if (nettyHandler == null) {
-            throw new IllegalArgumentException("No handler for " + req);
-        }
-        return nettyHandler.handleRequest(req);
+        return Comparator.comparing(Route::getPrefixLength);
+    }
+
+    private static Predicate<Route> resolves(HttpRequest request) {
+
+        return handler ->
+            handler.resolves(request.uri());
     }
 
     private static String summarize(Throwable cause) {

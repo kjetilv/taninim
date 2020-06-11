@@ -114,7 +114,10 @@
             <DIV STYLE="float: inside; text-align: center; padding:10px">
                 {selected.track.prettyTrackNo}:&nbsp;<STRONG>{selected.track.name}</STRONG>
                 <SMALL>
-                    <EM>{selected.track.prettyDuration}&nbsp;[{selected.track.prettyCompressedSize}]</EM>
+                    <EM>{selected.track.prettyDuration}&nbsp;[{
+                        if(compressed)}{selected.track.prettyCompressedSize}
+                        {else}{selected.track.prettyFileSize}
+                        {endif} {format}]</EM>
                 </SMALL>
             </DIV>
 
@@ -174,7 +177,7 @@
             <!--suppress HtmlUnknownAttribute -->
             <DIV STYLE="padding: 0.2%; clear: both">
                 {if(playable.playable)}
-                <A href="?artist={album.artist.uuid}&album={album.uuid}&track={playable.track.uuid}">
+                <A href="?artist={album.artist.uuid}&album={album.uuid}&track={playable.track.uuid}&autoplay={playable.track.uuid}">
                     <DIV STYLE="float: left; width:8%; text-align: end; padding-right: 1%">
                         <EM><SMALL>{playable.track.prettyTrackNo}.</SMALL></EM>
                     </DIV>
@@ -186,7 +189,10 @@
                     </DIV>
                     <DIV STYLE="width:15%; float: right">
                         <EM>
-                            <SMALL>{playable.track.prettyDuration}/{playable.track.prettyCompressedSize}</SMALL>
+                            <SMALL>{playable.track.prettyDuration}/{
+                                if(compressed)}{playable.track.prettyCompressedSize}
+                                {else}{playable.track.prettyFileSize}{endif
+                                } {format}</SMALL>
                         </EM>
                     </DIV>
                 </A>
@@ -245,8 +251,7 @@
                     [ <A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
                     {if(user.streamingPlaylists)}
                     &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
-                    {endif}
-                    ]
+                    {endif}]
                 </LI>
                 }}
             </UL>

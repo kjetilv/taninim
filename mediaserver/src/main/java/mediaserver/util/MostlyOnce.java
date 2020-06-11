@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 public final class MostlyOnce {
 
     private MostlyOnce() {
-
     }
 
     public static <T, O> Function<T, O> compute(Function<T, O> fun) {

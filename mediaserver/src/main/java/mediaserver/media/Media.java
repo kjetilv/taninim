@@ -21,6 +21,11 @@ import java.util.stream.Stream;
 
 public interface Media {
 
+    enum AlbumSort {
+
+        ARTIST, TITLE, YEAR
+    }
+
     Logger log = LoggerFactory.getLogger(Media.class);
 
     default Media subLibrary(Series series) {
@@ -40,6 +45,8 @@ public interface Media {
         Collection<Playlist> curations,
         boolean union
     );
+
+    Media sortedAlbums(Comparator<Album> comparator);
 
     Media withAlbumContext(UUID albumId, AlbumContext albumContext);
 

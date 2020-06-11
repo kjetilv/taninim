@@ -25,6 +25,7 @@ dependencies {
     implementation("io.minio:minio:6.0.13")
     implementation("se.michaelthelin.spotify:spotify-web-api-java:4.2.1")
     implementation("org.jsoup:jsoup:1.13.1")
+    implementation("org.codehaus.woodstox:stax2-api:4.2.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.2")

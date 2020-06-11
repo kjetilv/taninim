@@ -78,11 +78,6 @@ public final class Session {
         return fbUser;
     }
 
-    public static boolean isPrivileged() {
-
-        return false;
-    }
-
     public void addBytesStreamed(long bytes) {
 
         bytesStreamed.addAndGet(bytes);

@@ -26,6 +26,8 @@ public enum QPar implements Par<Req, String> {
 
     autoplay,
 
+    sort,
+
     union;
 
     @Override

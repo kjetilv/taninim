@@ -64,21 +64,21 @@ public final class Sessions {
         AccessLevel accessLevel = ids.get().resolve(user);
         if (accessLevel.satisfies(AccessLevel.LOGIN)) {
             Session newSession = newSession(req, user, accessLevel);
-            ejectedSessions(user, newSession).forEach(ejectedSession -> {
+            ejectedSessions(user, newSession).forEach(ejectedSession ->
                 log.info("Ejected {} session for: {}",
-                    valid(req, ejectedSession) ? "live" : "expired", ejectedSession);
-            });
+                    valid(req, ejectedSession) ? "live" : "expired", ejectedSession));
             log.info("Session created for {}: {}", user, newSession);
             return newSession;
         }
         throw new IllegalArgumentException("Unauthorized: " + user);
     }
 
-    public Req bind(Req req) {
+    public Function<Req, Req> binder() {
 
-        return getExistingSession(req, AccessLevel.LOGIN, false)
-            .map(req::bind)
-            .orElse(req);
+        return req ->
+            getExistingSession(req, AccessLevel.LOGIN, false)
+                .map(req::boundTo)
+                .orElse(req);
     }
 
     public Optional<Session> close(UUID sessionId) {

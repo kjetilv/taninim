@@ -16,6 +16,8 @@ public enum TPar implements Par<Template, Object> {
 
     playlist,
 
+    compressed,
+
     playlists,
 
     curation,

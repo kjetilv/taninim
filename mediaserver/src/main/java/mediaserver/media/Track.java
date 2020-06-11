@@ -194,6 +194,12 @@ public final class Track extends AbstractHashable
         return Print.bytes(compressedSize);
     }
 
+    @DAC
+    public String getPrettyFileSize() {
+
+        return Print.bytes(fileSize);
+    }
+
     @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(Track track) {

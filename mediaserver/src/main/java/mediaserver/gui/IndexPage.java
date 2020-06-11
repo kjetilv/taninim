@@ -17,10 +17,12 @@ import mediaserver.util.Ran;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class IndexPage extends TemplateEnabled {
 
@@ -67,8 +69,9 @@ public final class IndexPage extends TemplateEnabled {
 
         boolean union = QPar.union.isTrue(req);
 
-        Media submedia =
-            media.subLibrary(currentArtists, currentSeries, currentPlaylists, currentCurations, union);
+        Media submedia = media
+            .subLibrary(currentArtists, currentSeries, currentPlaylists, currentCurations, union)
+            .sortedAlbums(albumComparator(QPar.sort.params(req)));
 
         Collection<Link<Artist>> artistLinks = links(currentArtists, linker(QPar.artist, tracker));
         Collection<Link<Series>> seriesLinks = links(currentSeries, linker(QPar.series, tracker));
@@ -125,6 +128,24 @@ public final class IndexPage extends TemplateEnabled {
                 .add(TPar.unionLink, tracker.set(QPar.union, !union));
         }
         return template;
+    }
+
+    private static Comparator<Album> albumComparator(Stream<String> params) {
+
+        Media.AlbumSort sort =
+            params.map(Media.AlbumSort::valueOf).findFirst().orElse(Media.AlbumSort.TITLE);
+        switch (sort) {
+            case ARTIST -> {
+                return Comparator.comparing(Album::getArtist);
+            }
+            case YEAR -> {
+                return Comparator.comparing((Album a) -> a.getContext().getYear());
+            }
+            case TITLE -> {
+                return Comparator.comparing(Album::getName);
+            }
+            default -> throw new IllegalStateException("No such sort: " + sort);
+        }
     }
 
     private static <T extends Hashable & Namable> Collection<Link<T>> links(
