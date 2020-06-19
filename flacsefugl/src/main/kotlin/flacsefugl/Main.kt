@@ -7,6 +7,7 @@ import mediaserver.templates.TPar
 import mediaserver.templates.Template
 import mediaserver.util.IO
 import mediaserver.util.Sourced
+import java.io.File
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -134,14 +135,26 @@ fun main() {
                     }
             val template = Template(playlist.name, source)
             val bytes = template.add(TPar.playlist, playlistM3U).bytes()
-            val replacedName =
-                    playlist.name.replace('/', ' ') + ".M3U8"
+            val replacedName = playlist.name.replace('/', ' ') + ".M3U8"
             val target = musicDir.resolve(replacedName)
             Files.write(target, bytes)
             println("Playlist: ${playlist.name}: $target")
         }
+
+        deleteEmpty(walkDir.toFile())
     } else {
         println("Walkman not connected for playlists @ $walkmanConnectDir")
+    }
+}
+
+private fun deleteEmpty(f: File) {
+    if (f.isDirectory && f.listFiles()?.isEmpty() ?: true) {
+        println("Deleting empty dir: ${f.absolutePath}")
+        f.delete()
+    } else {
+        f.listFiles()?.forEach { sub ->
+            deleteEmpty(sub)
+        }
     }
 }
 
