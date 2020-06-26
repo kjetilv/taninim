@@ -87,7 +87,7 @@ public final class Print {
             if (min == 0) {
                 return String.format(
                     "%d time%s",
-                    hors, mul(hors, "er"));
+                    hors, mul(hors, "r"));
             }
             return String.format(
                 "%d time%s og %d minutt%s",

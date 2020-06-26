@@ -1,34 +1,39 @@
 package mediaserver.gui;
 
-import mediaserver.util.DAC;
-
 import java.util.Collection;
 
-class PlayableGroup {
+import mediaserver.util.DAC;
+
+class PlayableGroup
+{
 
     private final String name;
 
     private final Collection<Playable> playables;
 
-    PlayableGroup(String name, Collection<Playable> playables) {
+    PlayableGroup(String name, Collection<Playable> playables)
+    {
 
         this.name = name == null || name.isBlank() ? null : name.trim();
         this.playables = playables;
     }
 
-    public String getName() {
+    public String getName()
+    {
 
         return name;
     }
 
     @DAC
-    public Collection<Playable> getPlayables() {
+    public Collection<Playable> getPlayables()
+    {
 
         return playables;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
 
         return getClass().getSimpleName() + "[" + name + ": " + playables.size() + " tracks]";
     }

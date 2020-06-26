@@ -97,6 +97,8 @@ public interface Media {
 
     Collection<Album> getAlbums();
 
+    Collection<Album> getAlbumsByYear();
+
     default Collection<Track> getTracks() {
 
         return getTracks(false);

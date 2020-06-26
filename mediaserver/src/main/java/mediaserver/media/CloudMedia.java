@@ -62,8 +62,8 @@ public final class CloudMedia {
 
     public static ACL acl() {
 
-        InputStream inputStream = stream(Ids.IDS_RESOURCE);
         log.info("Downloading ids... ");
+        InputStream inputStream = stream(Ids.IDS_RESOURCE);
         ACL ids = IO.read(ACL.class, Ids.IDS_RESOURCE, inputStream);
         log.info("Downloaded ids {}", ids);
         return ids;

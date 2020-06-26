@@ -1,7 +1,5 @@
 package mediaserver.media;
 
-import mediaserver.hash.AbstractHashable;
-
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -16,9 +14,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class LocalMedia extends AbstractHashable implements Media, Serializable {
+import mediaserver.hash.AbstractHashable;
 
-    private static final Random RND = new Random();
+public final class LocalMedia
+    extends AbstractHashable
+    implements Media, Serializable
+{
 
     private final Collection<Album> albums;
 
@@ -35,10 +36,6 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     private final Map<UUID, Boolean> curatedTracks = new ConcurrentHashMap<>();
 
     private final Map<UUID, Album> trackIndex;
-
-    private static final long serialVersionUID = -7165763549356996140L;
-
-    private static final Pattern UNDERSCORE = Pattern.compile("_");
 
     LocalMedia(Path root) {
 
@@ -57,13 +54,16 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         Collection<Album> albums,
         Map<Album, AlbumContext> albumContexts,
         Comparator<Album> albumComparator
-    ) {
+    )
+    {
 
         this.albums = List.copyOf(albums);
         this.albumComparator = albumComparator;
         this.trackIndex = this.albums.stream().flatMap(album ->
-            album.getTracks().stream().map(track ->
-                new AbstractMap.SimpleEntry<>(track.getUuid(), album)))
+                                                           album.getTracks().stream().map(track ->
+                                                                                              new AbstractMap.SimpleEntry<>(
+                                                                                                  track.getUuid(),
+                                                                                                  album)))
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 Map.Entry::getValue
@@ -75,10 +75,10 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         this.artists = Stream.concat(
             mediaAlbums.stream().map(Album::getArtist),
             trackStream().flatMap(track ->
-                Stream.concat(
-                    Stream.of(track.getArtist()),
-                    track.getOtherArtists().stream()
-                )))
+                                      Stream.concat(
+                                          Stream.of(track.getArtist()),
+                                          track.getOtherArtists().stream()
+                                      )))
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.toList());
@@ -95,33 +95,34 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
         Collection<Playlist> playlists,
         Collection<Playlist> curations,
         boolean union
-    ) {
+    )
+    {
 
         Optional<Predicate<Album>> forArtist = Optional.ofNullable(artists)
             .filter(a -> !a.isEmpty())
             .map(a ->
-                album ->
-                    filtered(a, artistMatch(album), union));
+                     album ->
+                         filtered(a, artistMatch(album), union));
 
         Optional<Predicate<Album>> inSeries = Optional.ofNullable(series)
             .filter(s -> !s.isEmpty())
             .map(s ->
-                album ->
-                    filtered(s, seriesMatch(album), union));
+                     album ->
+                         filtered(s, seriesMatch(album), union));
 
         Optional<Predicate<Album>> inPlaylist = Optional.ofNullable(playlists)
             .filter(p ->
-                !p.isEmpty())
+                        !p.isEmpty())
             .map(p ->
-                album ->
-                    filtered(p, playlistMatch(album), union));
+                     album ->
+                         filtered(p, playlistMatch(album), union));
 
         Optional<Predicate<Album>> curated = Optional.ofNullable(curations)
             .filter(c ->
-                !c.isEmpty())
+                        !c.isEmpty())
             .map(c ->
-                album ->
-                    filtered(c, playlistMatch(album), union));
+                     album ->
+                         filtered(c, playlistMatch(album), union));
 
         Optional<Predicate<Album>> filter =
             Stream.of(forArtist, inSeries, inPlaylist, curated).flatMap(Optional::stream)
@@ -152,12 +153,12 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             return new LocalMedia(
                 albums.stream()
                     .map(a ->
-                        a.equals(album) ? expanded : a)
+                             a.equals(album) ? expanded : a)
                     .collect(Collectors.toList()),
                 copy,
                 albumComparator);
         }).findFirst().orElseThrow(() ->
-            new IllegalArgumentException("Unknown album: " + albumId));
+                                       new IllegalArgumentException("Unknown album: " + albumId));
     }
 
     @Override
@@ -165,8 +166,8 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         return Optional.ofNullable(trackIndex.get(uuid))
             .flatMap(album ->
-                album.getTrack(uuid).map(track ->
-                    new AlbumTrack(album, track)))
+                         album.getTrack(uuid).map(track ->
+                                                      new AlbumTrack(album, track)))
             .stream();
     }
 
@@ -175,7 +176,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         return trackStream()
             .filter(track ->
-                track.getUuid().equals(uuid));
+                        track.getUuid().equals(uuid));
     }
 
     @Override
@@ -229,7 +230,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             albumTrack.getTrack().getUuid(),
             uuid ->
                 getCurations().stream().anyMatch(curation ->
-                    curation.contains(albumTrack)));
+                                                     curation.contains(albumTrack)));
     }
 
     @Override
@@ -261,7 +262,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         List<Album> indexed = this.albums.stream()
             .filter(album ->
-                album.getContext().getDiscogCover() != null)
+                        album.getContext().getDiscogCover() != null)
             .collect(Collectors.toCollection(ArrayList::new));
 
         if (count >= indexed.size()) {
@@ -283,6 +284,15 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     }
 
     @Override
+    public Collection<Album> getAlbumsByYear() {
+
+        return albumStream()
+            .sorted(Comparator.comparing(
+                album -> Optional.ofNullable(album.getContext()).map(AlbumContext::getYear).orElse(Year.now())))
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public Stream<Track> getTracksFeaturing(Artist artist) {
 
         Objects.requireNonNull(artist, "artist");
@@ -290,9 +300,9 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             .map(Album::getTracks)
             .flatMap(Collection::stream)
             .filter(track ->
-                artist.equals(track.getArtist()) ||
-                    track.getArtists().stream().anyMatch(artist::equals) ||
-                    track.getOtherArtists().stream().anyMatch(artist::equals));
+                        artist.equals(track.getArtist()) ||
+                            track.getArtists().stream().anyMatch(artist::equals) ||
+                            track.getOtherArtists().stream().anyMatch(artist::equals));
     }
 
     @Override
@@ -321,7 +331,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
     public Collection<Album> getAlbumsFeaturing(Artist artist) {
 
         return albumStream().filter(album ->
-            album.getAllArtists().contains(artist)
+                                        album.getAllArtists().contains(artist)
         ).collect(Collectors.toList());
     }
 
@@ -349,7 +359,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         return getAlbums().stream()
             .filter(album ->
-                album.getName().equalsIgnoreCase(albumName));
+                        album.getName().equalsIgnoreCase(albumName));
     }
 
     @Override
@@ -369,6 +379,34 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         return sb.append(albums.size()).append(" albums");
     }
+
+    private Collection<Artist> collectArtists(Function<Album, Collection<Artist>> getAllArtists) {
+
+        return albumStream()
+            .map(getAllArtists)
+            .flatMap(Collection::stream)
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+    private Stream<Album> albumStream() {
+
+        Comparator<Album> comparator = albumComparator == null
+            ? Comparator.naturalOrder()
+            : albumComparator;
+        return albums.stream().sorted(comparator);
+    }
+
+    private Stream<Track> trackStream() {
+
+        return albumStream().flatMap(album -> album.getTracks().stream());
+    }
+
+    private static final Random RND = new Random();
+
+    private static final long serialVersionUID = -7165763549356996140L;
+
+    private static final Pattern UNDERSCORE = Pattern.compile("_");
 
     private static Predicate<Playlist> playlistMatch(Album album) {
 
@@ -396,29 +434,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         return playlists.stream()
             .filter(playlist ->
-                playlist.getUuid().equals(uuid));
-    }
-
-    private Collection<Artist> collectArtists(Function<Album, Collection<Artist>> getAllArtists) {
-
-        return albumStream()
-            .map(getAllArtists)
-            .flatMap(Collection::stream)
-            .distinct()
-            .collect(Collectors.toList());
-    }
-
-    private Stream<Album> albumStream() {
-
-        Comparator<Album> comparator = albumComparator == null
-            ? Comparator.naturalOrder()
-            : albumComparator;
-        return albums.stream().sorted(comparator);
-    }
-
-    private Stream<Track> trackStream() {
-
-        return albumStream().flatMap(album -> album.getTracks().stream());
+                        playlist.getUuid().equals(uuid));
     }
 
     private static Album album(Artist artist, String name, List<Track> tracks) {
@@ -435,17 +451,17 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
             album(path).stream(),
             subDirs(path.toFile())
                 .flatMap(subDir ->
-                    getAlbums(root, path.resolve(subDir.getName()))));
+                             getAlbums(root, path.resolve(subDir.getName()))));
     }
 
     private static Optional<Album> album(Path path) {
 
         File dir = path.toFile();
         return trackFiles(dir).map(tracks ->
-            album(
-                artist(dir),
-                albumName(dir),
-                tracks(tracks)));
+                                       album(
+                                           artist(dir),
+                                           albumName(dir),
+                                           tracks(tracks)));
     }
 
     private static List<Track> tracks(Collection<File> tracks) {
@@ -457,7 +473,7 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         return Optional.ofNullable(
             dir.listFiles(file ->
-                file.isDirectory() && !file.getName().equals("objects")))
+                              file.isDirectory() && !file.getName().equals("objects")))
             .stream()
             .flatMap(Arrays::stream);
     }
@@ -466,9 +482,9 @@ public final class LocalMedia extends AbstractHashable implements Media, Seriali
 
         return Optional.ofNullable(
             dir.listFiles(file ->
-                file.isFile() && file.getName().endsWith(".flac")))
+                              file.isFile() && file.getName().endsWith(".flac")))
             .filter(files ->
-                files.length > 0)
+                        files.length > 0)
             .map(Arrays::asList);
     }
 

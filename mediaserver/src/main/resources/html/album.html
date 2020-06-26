@@ -97,12 +97,13 @@
             {if(user.streamingPlaylists)}
             <A HREF="/playlist/album/{album.uuid}">⏬</A>
             {endif}
+            <SUB>({album.context.year})</SUB>
         </H3>
 
         <DIV>
             <DIV>
                 <P>
-                    Spilletid {album.prettyDuration}{if(album.context.year)}. Kom i {album.context.year.value}.{endif}
+                    Spilletid {album.prettyDuration}{if(album.context.year)}.{endif}
                 </P>
             </DIV>
             {if(selected)}

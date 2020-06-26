@@ -197,12 +197,13 @@
     </H3>
 
     <UL>
-        {media.albums:{album|
+        {media.albumsByYear:{album|
         <LI>
             {if(user.streamingPlaylists)}
             <A HREF="/playlist/album/{album.uuid}" TITLE="Spilleliste: {album.name}">⏬</A>
             {endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
+            <sub><small>{album.context.year}</small></sub>
         </LI>
         }}
     </UL>
