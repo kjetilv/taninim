@@ -1,11 +1,5 @@
 package mediaserver.externals;
 
-import mediaserver.media.Album;
-import mediaserver.media.Media;
-import mediaserver.util.IO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -26,16 +20,15 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import mediaserver.media.Album;
+import mediaserver.media.Media;
+import mediaserver.util.IO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class DiscogsDataResolver {
 
     private static final Logger log = LoggerFactory.getLogger(DiscogsDataResolver.class);
-
-    private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
-
-    private static final String SECRET = IO.getProperty("dSec");
-
-    private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
-        headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);
 
     private final Path resourcesDirectory;
 
@@ -46,8 +39,6 @@ public final class DiscogsDataResolver {
     private final Clock clock;
 
     private final AtomicBoolean discogsTired = new AtomicBoolean();
-
-    private static final byte[] NO_DATA = {};
 
     public DiscogsDataResolver(
         Path resourcesDirectory,
@@ -68,18 +59,17 @@ public final class DiscogsDataResolver {
     }
 
     public Optional<DiscogReleaseDigest> getDiscogRelease(Album album) {
-
         return connections.stream()
             .filter(meta ->
-                match(album, meta))
+                        match(album, meta))
             .map(connection ->
-                digest(
-                    connection,
-                    pathTo(connection, ".json"),
-                    pathTo(connection, "-raw.json")
-                ).map(updateCover(
-                    pathTo(connection, ".jpg"))
-                ))
+                     digest(
+                         connection,
+                         pathTo(connection, ".json"),
+                         pathTo(connection, "-raw.json")
+                     ).map(updateCover(
+                         pathTo(connection, ".jpg"))
+                     ))
             .flatMap(Optional::stream)
             .findFirst();
     }
@@ -126,6 +116,15 @@ public final class DiscogsDataResolver {
         }
     }
 
+    private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
+
+    private static final String SECRET = IO.getProperty("dSec");
+
+    private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
+        headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);
+
+    private static final byte[] NO_DATA = { };
+
     private static Function<DiscogReleaseDigest, DiscogReleaseDigest> updateCover(Path cover) {
 
         return digest -> {
@@ -134,7 +133,7 @@ public final class DiscogsDataResolver {
             }
             byte[] bytes = Media.getCover(digest, DiscogImage::getUri)
                 .map(uri ->
-                    IO.download(uri))
+                         IO.download(uri))
                 .orElse(NO_DATA);
             IO.writeStream(cover, bytes, (bytes1, outputStream) -> {
                 try {
@@ -214,7 +213,8 @@ public final class DiscogsDataResolver {
         return Files.isRegularFile(local);
     }
 
-    private static Instant modifiedTime(Path local) throws IOException {
+    private static Instant modifiedTime(Path local)
+    throws IOException {
 
         return Files.getLastModifiedTime(local).toInstant();
     }

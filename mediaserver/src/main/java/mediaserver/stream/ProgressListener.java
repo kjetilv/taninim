@@ -1,5 +1,9 @@
 package mediaserver.stream;
 
+import java.net.SocketAddress;
+import java.time.Clock;
+import java.time.Duration;
+
 import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;
 import mediaserver.http.Req;
@@ -7,21 +11,13 @@ import mediaserver.media.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketAddress;
-import java.time.Clock;
-import java.time.Duration;
-
-final class ProgressListener implements ChannelProgressiveFutureListener {
-
-    private static final Logger log = LoggerFactory.getLogger(ProgressListener.class);
+final class ProgressListener
+    implements ChannelProgressiveFutureListener
+{
 
     private final Range range;
 
     private final Chunk chunk;
-
-    private static final int KILO = 1_000;
-
-    private static final int MEGA = KILO * KILO;
 
     private final Clock clock;
 
@@ -29,7 +25,7 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
 
     private final Track track;
 
-    private static final int WARN_THRESHOLD_SECONDS = 30;
+    private volatile long lastProgress;
 
     ProgressListener(Clock clock, Req req, Track track, Range range, Chunk chunk) {
 
@@ -47,20 +43,34 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
         SocketAddress remote = future.channel().remoteAddress();
         if (streamingTime.toSeconds() > WARN_THRESHOLD_SECONDS) {
             log.warn("{}: {} -> {} in {} IS A LONG TIME: {}:{} > {} > {}",
-                req.getCtx(), range, chunk, printed(streamingTime), req, req.getSession(), track, remote);
-
+                     req.getCtx(), range, chunk, printed(streamingTime), req, req.getSession(), track, remote);
         }
         log.info("{}: {} -> {} in {}: {}:{} > {} > {}",
-            req.getCtx(), range, chunk, printed(streamingTime), req, req.getSession(), track, remote);
+                 req.getCtx(), range, chunk, printed(streamingTime), req, req.getSession(), track, remote);
     }
 
     @Override
     public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
 
-        if (progress < total) {
-            log.debug("{} {}: {}%", track.getName(), chunk, progress * 100 / total);
+        try {
+            if (progress == lastProgress) {
+                log.debug("Repeated: {} {}: {}%", track.getName(), chunk, chunk.perMille(progress) / 10.0);
+            } else if (progress < total) {
+                log.debug("{} {}: {}%", track.getName(), chunk, chunk.perMille(progress) / 10.0);
+            }
+        }
+        finally {
+            lastProgress = progress;
         }
     }
+
+    private static final Logger log = LoggerFactory.getLogger(ProgressListener.class);
+
+    private static final int KILO = 1_000;
+
+    private static final int MEGA = KILO * KILO;
+
+    private static final int WARN_THRESHOLD_SECONDS = 30;
 
     private static String printed(Duration streamingTime) {
 

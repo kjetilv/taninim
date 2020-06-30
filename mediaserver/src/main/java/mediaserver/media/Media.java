@@ -1,30 +1,40 @@
 package mediaserver.media;
 
-import mediaserver.externals.*;
-import mediaserver.util.DAC;
-import mediaserver.util.IO;
-import mediaserver.util.Print;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Year;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import mediaserver.externals.DiscogConnection;
+import mediaserver.externals.DiscogImage;
+import mediaserver.externals.DiscogReleaseDigest;
+import mediaserver.externals.DiscogSeriesDigest;
+import mediaserver.externals.DiscogTrackDigest;
+import mediaserver.externals.DiscogVideo;
+import mediaserver.externals.DiscogsDataResolver;
+import mediaserver.externals.IOSMapParser;
+import mediaserver.externals.iTunesLibrary;
+import mediaserver.util.DAC;
+import mediaserver.util.IO;
+import mediaserver.util.Print;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public interface Media {
-
-    enum AlbumSort {
-
-        ARTIST, TITLE, YEAR
-    }
 
     Logger log = LoggerFactory.getLogger(Media.class);
 
@@ -180,17 +190,20 @@ public interface Media {
                         noCombine());
                 List<TrackContext> trackContexts = digest.getTracklist().stream()
                     .map(track ->
-                        new TrackContext(track.getPosition(), track.getTitle(), trackCredits(track)))
+                             new TrackContext(track.getPosition(), track.getTitle(), trackCredits(track)))
                     .collect(Collectors.toList());
                 List<TrackContext> applicableTrackContexts = trackContexts.stream().map(trackContext ->
-                    trackContext.getTrackNo().flatMap(trackNo ->
-                        trackContext.getDisc()
-                            .map(disc ->
-                                album.getTrack(disc, trackNo))
-                            .orElseGet(() ->
-                                album.getTrack(trackNo)))
-                        .map(trackContext::withTrack)
-                        .orElse(trackContext)).collect(Collectors.toList());
+                                                                                            trackContext.getTrackNo().flatMap(trackNo ->
+                                                                                                                                  trackContext.getDisc()
+                                                                                                                                      .map(disc ->
+                                                                                                                                               album.getTrack(
+                                                                                                                                                   disc,
+                                                                                                                                                   trackNo))
+                                                                                                                                      .orElseGet(() ->
+                                                                                                                                                     album.getTrack(
+                                                                                                                                                         trackNo)))
+                                                                                                .map(trackContext::withTrack)
+                                                                                                .orElse(trackContext)).collect(Collectors.toList());
                 AlbumContext albumContext =
                     context.withTrackContexts(applicableTrackContexts);
                 return media.withAlbumContext(album.getUuid(), albumContext);
@@ -268,15 +281,15 @@ public interface Media {
 
         return iTunesLibrary.getTracks().values().stream()
             .filter(track ->
-                Optional.ofNullable(track.getComments()).filter(comments ->
-                    comments.contains("discogs"))
-                    .isPresent())
+                        Optional.ofNullable(track.getComments()).filter(comments ->
+                                                                            comments.contains("discogs"))
+                            .isPresent())
             .flatMap(track ->
-                media.getAlbum(track.getAlbum())
-                    .map(album ->
-                        new DiscogConnection(
-                            album,
-                            URI.create(track.getComments().trim()))))
+                         media.getAlbum(track.getAlbum())
+                             .map(album ->
+                                      new DiscogConnection(
+                                          album,
+                                          URI.create(track.getComments().trim()))))
             .distinct()
             .collect(Collectors.toList());
     }
@@ -287,7 +300,7 @@ public interface Media {
             Map<String, ?> plist = IO.readFromStream(libraryPath, IOSMapParser::convert);
             return IO.OM.readerFor(iTunesLibrary.class)
                 .readValue(IO.OM.writerFor(Map.class)
-                    .writeValueAsBytes(plist));
+                               .writeValueAsBytes(plist));
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to read iTunes library @ " + libraryPath, e);
         }
@@ -308,5 +321,10 @@ public interface Media {
     private static boolean hasImage(DiscogImage image) {
 
         return image.getUri150() != null;
+    }
+
+    enum AlbumSort {
+
+        ARTIST, TITLE, YEAR
     }
 }

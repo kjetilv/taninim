@@ -86,8 +86,9 @@ public final class Sourced<T> {
 
     static Sourced<InputStream> readStream(String resource) {
 
-        URL sourceUrl = Optional.ofNullable(
-            Thread.currentThread().getContextClassLoader().getResource(resource)).orElseThrow(() ->
+        Optional<URL> resource1 = Optional.ofNullable(
+            Thread.currentThread().getContextClassLoader().getResource(resource));
+        URL sourceUrl = resource1.orElseThrow(() ->
             new IllegalArgumentException("No such resource: " + resource));
         if (isInSources(sourceUrl)) {
             URL adjusted = inSources(sourceUrl);

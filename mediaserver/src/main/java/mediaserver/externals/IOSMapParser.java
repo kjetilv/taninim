@@ -1,38 +1,33 @@
 package mediaserver.externals;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.xmlpull.v1.XmlPullParser.*;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
+import static org.xmlpull.v1.XmlPullParser.END_TAG;
+import static org.xmlpull.v1.XmlPullParser.START_TAG;
+import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 /**
  * This class parses an iOS plist with a dict element into a hashmap.
  */
 public final class IOSMapParser {
 
-    private static final String KEY = "key";
-
-    private static final String STRING = "string";
-
-    private static final String INTEGER = "integer";
-
-    private static final String DICT = "dict";
-
-    private static final String ARRAY = "array";
-
     private IOSMapParser() {
 
     }
 
+    @SuppressWarnings({ "ContinueStatement", "AssignmentToNull" })
     public static Map<String, ?> convert(InputStream inputStream) {
 
         XmlPullParser parser = parser(inputStream);
@@ -48,7 +43,8 @@ public final class IOSMapParser {
                 int node = parser.next();
 
                 if (skip) {
-                    if (node == END_TAG && is(ARRAY, parser.getName())) {
+
+                    if (node == END_TAG && ARRAY.equalsIgnoreCase(parser.getName())) {
                         skip = false;
                     } else {
                         continue;
@@ -66,13 +62,13 @@ public final class IOSMapParser {
                         continue;
                     }
 
-                    if (is(KEY, name)) {
+                    if (KEY.equalsIgnoreCase(name)) {
                         tag = name;
                         key = null;
                         continue;
                     }
 
-                    if (is(DICT, name)) {
+                    if (DICT.equalsIgnoreCase(name)) {
                         Map<String, Object> value = new LinkedHashMap<>();
                         if (!maps.isEmpty()) {
                             addValue(maps, key, value);
@@ -83,13 +79,14 @@ public final class IOSMapParser {
                         continue;
                     }
 
-                    if (is(ARRAY, name)) {
+                    if (ARRAY.equalsIgnoreCase(name)) {
                         skip = true;
                     }
                 }
 
                 if (node == END_TAG) {
-                    if (is(DICT, parser.getName())) {
+
+                    if (DICT.equalsIgnoreCase(parser.getName())) {
                         Map<String, Object> map = maps.removeLast();
                         if (maps.isEmpty()) {
                             return map;
@@ -100,17 +97,20 @@ public final class IOSMapParser {
 
                 if (node == TEXT) {
                     String text = Objects.requireNonNull(parser.getText(), "text");
-                    if (is(KEY, tag)) {
+
+                    if (KEY.equalsIgnoreCase(tag)) {
                         key = text;
                         tag = null;
                         continue;
                     }
-                    if (is(STRING, tag)) {
+
+                    if (STRING.equalsIgnoreCase(tag)) {
                         addValue(maps, key, text);
                         tag = null;
                         continue;
                     }
-                    if (is(INTEGER, tag)) {
+
+                    if (INTEGER.equalsIgnoreCase(tag)) {
                         addValue(maps, key, Long.parseLong(text));
                         key = null;
                         tag = null;
@@ -122,12 +122,17 @@ public final class IOSMapParser {
         }
     }
 
-    private static boolean is(String string, String tag) {
+    private static final String KEY = "key";
 
-        return string.equalsIgnoreCase(tag);
-    }
+    private static final String STRING = "string";
 
-    private static void addValue(LinkedList<Map<String, Object>> mapPath, String key, Object value) {
+    private static final String INTEGER = "integer";
+
+    private static final String DICT = "dict";
+
+    private static final String ARRAY = "array";
+
+    private static void addValue(Deque<? extends Map<String, Object>> mapPath, String key, Object value) {
 
         mapPath.getLast().put(Objects.requireNonNull(key, "key => " + value), value);
     }

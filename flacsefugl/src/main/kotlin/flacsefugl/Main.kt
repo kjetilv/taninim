@@ -90,7 +90,7 @@ fun main() {
 
     val media = Media.local(
             Path.of(System.getProperty("user.home"), "FLAC"),
-            Path.of(System.getProperty("user.home"), "Music", "iTunes", "iTunes Library.xml"),
+            Path.of(System.getProperty("user.home"), "Downloads", "Library.xml"),
             Path.of("mediaserver", "src", "main", "resources"))
 
     println("Media: $media")
