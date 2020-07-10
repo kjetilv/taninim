@@ -1,15 +1,20 @@
 package mediaserver.media;
 
-import mediaserver.util.DAC;
-import mediaserver.util.Pair;
-import mediaserver.util.Pairs;
-
 import java.io.Serializable;
 import java.net.URI;
 import java.time.Year;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import mediaserver.util.DAC;
+import mediaserver.util.Pair;
+import mediaserver.util.Pairs;
 
 public final class AlbumContext implements Serializable {
 
@@ -37,10 +42,7 @@ public final class AlbumContext implements Serializable {
 
     private final List<TrackGroup> trackGroups;
 
-    private static final long serialVersionUID = 873700442732183661L;
-
     AlbumContext(Album album) {
-
         this(
             Objects.requireNonNull(album, "album"),
             null,
@@ -66,9 +68,7 @@ public final class AlbumContext implements Serializable {
         Collection<String> series,
         Collection<Video> videos
     ) {
-
-        this(album, year, discogId, discogPage, discogCover, discogArt, notes, series, videos, null,
-            null);
+        this(album, year, discogId, discogPage, discogCover, discogArt, notes, series, videos, null, null);
     }
 
     private AlbumContext(
@@ -84,7 +84,6 @@ public final class AlbumContext implements Serializable {
         Credits credits,
         List<TrackContext> trackContexts
     ) {
-
         this.album = album;
         this.year = year;
         this.discogId = discogId;
@@ -123,80 +122,65 @@ public final class AlbumContext implements Serializable {
     }
 
     public Credits getCredits() {
-
         return credits;
     }
 
     public Year getYear() {
-
         return year;
     }
 
     public String getNotes() {
-
         return notes;
     }
 
     public Collection<Video> getVideos() {
-
         return videos;
     }
 
     public Collection<String> getSeries() {
-
         return series;
     }
 
     public Long getDiscogId() {
-
         return discogId;
     }
 
     @DAC
     public List<TrackContext> getTrackContexts() {
-
         return trackContexts;
     }
 
     @DAC
     public List<TrackGroup> getTrackGroups() {
-
         return trackGroups;
     }
 
     @DAC
     public boolean isAdditionalTrackContext() {
-
         return !trackContexts.stream().allMatch(trackContext ->
             trackContext.getCredits().getCredits().isEmpty());
     }
 
     @DAC
     public URI getDiscogCover() {
-
         return discogCover;
     }
 
     @DAC
     public URI getDiscogArt() {
-
         return discogArt;
     }
 
     @DAC
     public URI getDiscogPage() {
-
         return discogPage;
     }
 
     public AlbumContext append(AlbumContext albumContext) {
-
         if (!album.equals(albumContext.getAlbum())) {
-
             throw new IllegalArgumentException(
                 this + " could not add album context for other album: " + albumContext);
         }
-
         return new AlbumContext(
             album,
             albumContext.year == null ? year : albumContext.year,
@@ -211,7 +195,6 @@ public final class AlbumContext implements Serializable {
     }
 
     AlbumContext credit(String name, URI uri, String type) {
-
         return new AlbumContext(
             album,
             year,
@@ -227,7 +210,6 @@ public final class AlbumContext implements Serializable {
     }
 
     AlbumContext withTrackContexts(List<TrackContext> trackContexts) {
-
         return new AlbumContext(
             album,
             year,
@@ -243,21 +225,10 @@ public final class AlbumContext implements Serializable {
     }
 
     private Album getAlbum() {
-
         return album;
     }
 
-    private static String name(Collection<TrackContext> headingEntries, Pair<Integer, Integer> pair) {
-
-        if (headingEntries.isEmpty()) {
-            return "Tracks " + pair.getT1() + "-" + (pair.getT2() - 1);
-        }
-        return headingEntries.stream().map(TrackContext::getHeading).flatMap(Optional::stream).collect(
-            Collectors.joining(" / "));
-    }
-
     private Collection<TrackContext> headingEntries(Pair<Integer, Integer> pair) {
-
         List<TrackContext> headingEntries =
             IntStream.range(0, pair.getT1() + 1)
                 .map(i ->
@@ -268,5 +239,15 @@ public final class AlbumContext implements Serializable {
                 .collect(Collectors.toCollection(ArrayList::new));
         Collections.reverse(headingEntries);
         return headingEntries;
+    }
+
+    private static final long serialVersionUID = 873700442732183661L;
+
+    private static String name(Collection<TrackContext> headingEntries, Pair<Integer, Integer> pair) {
+        if (headingEntries.isEmpty()) {
+            return "Tracks " + pair.getT1() + "-" + (pair.getT2() - 1);
+        }
+        return headingEntries.stream().map(TrackContext::getHeading).flatMap(Optional::stream).collect(
+            Collectors.joining(" / "));
     }
 }

@@ -1,14 +1,19 @@
 package mediaserver.media;
 
-import mediaserver.hash.AbstractHashable;
-import mediaserver.util.DAC;
-
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import mediaserver.hash.AbstractHashable;
+import mediaserver.util.DAC;
 
 public final class PlaylistM3U extends AbstractHashable {
 
@@ -18,38 +23,41 @@ public final class PlaylistM3U extends AbstractHashable {
 
     private final Map<Path, Track> locatedTracks;
 
-    private static final long serialVersionUID = -6198219291681770060L;
-
     public PlaylistM3U(String name, Collection<Track> tracks) {
-
         this(name, Objects.requireNonNull(tracks, "tracks"), map(tracks));
     }
 
     private PlaylistM3U(String name, Collection<Track> tracks, Map<Path, Track> locatedTracks) {
-
         this.name = name;
         this.tracks = List.copyOf(tracks);
         this.locatedTracks = new LinkedHashMap<>(locatedTracks);
     }
 
-    public PlaylistM3U move(Path to, Function<Path, Optional<Path>> dist) {
+    @Override
+    public void hashTo(Consumer<byte[]> h) {
+        hash(h, name);
+        hash(h, tracks);
+    }
 
+    @Override
+    protected StringBuilder withStringBody(StringBuilder sb) {
+        return sb.append(name).append(" [").append(tracks.size()).append("]");
+    }
+
+    public PlaylistM3U move(Path to, Function<Path, Optional<Path>> dist) {
         return new PlaylistM3U(name, tracks, relocate(to, dist, locatedTracks));
     }
 
     public String getName() {
-
         return name;
     }
 
     public List<Track> getTracks() {
-
         return tracks;
     }
 
     @DAC
     public Collection<Entry<String, Track>> getLocatedTracks() {
-
         return locatedTracks.entrySet().stream().collect(Collectors.toMap(
             e -> e.getKey().toString(),
             Entry::getValue,
@@ -60,21 +68,9 @@ public final class PlaylistM3U extends AbstractHashable {
         )).entrySet();
     }
 
-    @Override
-    public void hashTo(Consumer<byte[]> h) {
-
-        hash(h, name);
-        hash(h, tracks);
-    }
-
-    @Override
-    protected StringBuilder withStringBody(StringBuilder sb) {
-
-        return sb.append(name).append(" [").append(tracks.size()).append("]");
-    }
+    private static final long serialVersionUID = -6198219291681770060L;
 
     private static Map<Path, Track> map(Collection<Track> tracks) {
-
         return tracks.stream()
             .collect(Collectors.toMap(
                 Track::getFile,
@@ -91,7 +87,6 @@ public final class PlaylistM3U extends AbstractHashable {
         Function<Path, Optional<Path>> dist,
         Map<Path, Track> locatedTracks
     ) {
-
         return locatedTracks.entrySet().stream()
             .collect(Collectors.toMap(
                 entry ->

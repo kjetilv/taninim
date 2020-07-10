@@ -11,25 +11,24 @@ public final class MostlyOnce {
     }
 
     public static <T, O> Function<T, O> compute(Function<T, O> fun) {
-
         return new Funn<>(vetted(fun));
     }
 
     /**
      * Returns a supplier which runs the given supplier mostly only once.
      *
-     * @param supplier Source supplier, must be functional or at least idempotent
-     * @param <O>      Type
+     * @param supplier
+     *     Source supplier, must be functional or at least idempotent
+     * @param <O>
+     *     Type
      *
      * @return Single-run supplier
      */
     public static <O> Supplier<O> get(Supplier<O> supplier) {
-
         return new Supp<>(vetted(supplier));
     }
 
     private static <O> Supplier<O> vetted(Supplier<O> supplier) {
-
         if (Objects.requireNonNull(supplier, "supplier") instanceof Supp<?>) {
             throw new IllegalArgumentException("Mostly twice! " + supplier);
         }
@@ -37,7 +36,6 @@ public final class MostlyOnce {
     }
 
     private static <T, O> Function<T, O> vetted(Function<T, O> supplier) {
-
         if (Objects.requireNonNull(supplier, "supplier") instanceof Funn<?, ?>) {
             throw new IllegalArgumentException("Mostly twice! " + supplier);
         }
@@ -51,13 +49,11 @@ public final class MostlyOnce {
         private final AtomicReference<O> value = new AtomicReference<>();
 
         private Supp(Supplier<O> supplier) {
-
             this.supplier = Objects.requireNonNull(supplier, "supplier");
         }
 
         @Override
         public O get() {
-
             return value.updateAndGet(v -> v == null ? supplier.get() : v);
         }
     }
@@ -69,13 +65,11 @@ public final class MostlyOnce {
         private final AtomicReference<O> value = new AtomicReference<>();
 
         private Funn(Function<T, O> supplier) {
-
             this.fun = Objects.requireNonNull(supplier, "supplier");
         }
 
         @Override
         public O apply(T t) {
-
             return value.updateAndGet(v -> v == null ? fun.apply(t) : v);
         }
     }

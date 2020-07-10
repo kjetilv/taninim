@@ -1,7 +1,6 @@
 package mediaserver.stream;
 
-public final class Chunk
-{
+public final class Chunk {
 
     private final long start;
 
@@ -35,26 +34,30 @@ public final class Chunk
         return start;
     }
 
-    long getSize() {
-        return end - start;
-    }
-
     long getTotalSize() {
         return totalSize;
     }
 
-    int perMille(long progress) {
-        return Math.toIntExact(1000 * (start + progress) / totalSize);
+    double getPerc(long progress, int decs) {
+        int dims = StrictMath.toIntExact(
+            StrictMath.round(
+                StrictMath.pow(10, decs)));
+        return Math.toIntExact(100 * dims * (start + progress) / totalSize) / (double)dims;
     }
 
     private static final String BYTES = "bytes ";
 
+    private static final int KILO = 1024;
+
     @Override
     public String toString() {
-
-        int startPerc = (int) (start * 100 / totalSize);
-        int endPerc = (int) (end * 100 / totalSize);
-        return getClass().getSimpleName() + "[" + getRange() + " " + (int) (getSize() / 1024) + "Kb/" +
+        long startPerc = start * 100 / totalSize;
+        long endPerc = end * 100 / totalSize;
+        return getClass().getSimpleName() + "[" + getRange() + " " + getSize() / KILO + "Kb/" +
             (startPerc == endPerc ? startPerc : startPerc + "-" + endPerc) + "%]";
+    }
+
+    long getSize() {
+        return end - start;
     }
 }

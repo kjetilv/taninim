@@ -131,10 +131,8 @@
 
             <DIV STYLE="float: right; text-align: end; width: 30%">
                 {if(selected.next)}
-                <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}"
-                   ID='play-next'></A>
                 <SMALL>
-                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}">
+                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}">
                         {selected.next.prettyTrackNo}:&nbsp;{selected.next.name}&nbsp;⏩&nbsp;</A>
                 </SMALL>
                 {endif}
@@ -143,7 +141,7 @@
             {if(selected.previous)}
             <DIV STYLE="float:left; text-align: start; width: 30%">
                 <SMALL>
-                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.previous.uuid}">
+                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.previous.uuid}&autoplay={selected.previous.uuid}">
                         &nbsp;⏪&nbsp;{selected.previous.prettyTrackNo}:&nbsp;{selected.previous.name}</A>
                 </SMALL>
             </DIV>

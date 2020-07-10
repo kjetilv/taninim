@@ -1,18 +1,23 @@
 package mediaserver.externals;
 
-import io.minio.MinioClient;
-import io.minio.ObjectStat;
-import io.minio.Result;
-import io.minio.messages.DeleteError;
-import io.minio.messages.Item;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import io.minio.MinioClient;
+import io.minio.ObjectStat;
+import io.minio.Result;
+import io.minio.messages.DeleteError;
+import io.minio.messages.Item;
 
 class DefaultS3Client implements S3Client {
 

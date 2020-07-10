@@ -149,7 +149,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     private Runnable boundRequestHandler(ChannelHandlerContext ctx, Instant time, Req req) {
 
         try {
-            if (req.isAllowed()) {
+            if (req.hasRoute()) {
 
                 NettyHandler nettyHandler = handlers.get(req.getRoute());
                 if (nettyHandler == null) {

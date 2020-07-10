@@ -162,7 +162,7 @@ final class Main {
     private static Ids refreshIds(boolean local, S3Client s3) {
 
         ACL sources = local
-            ? IO.readLocalACL(Ids.IDS_RESOURCE)
+            ? ACL.readLocalACL(Ids.IDS_RESOURCE)
             : CloudMedia.acl();
         return new Ids(sources, s3);
     }

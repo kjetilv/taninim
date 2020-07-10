@@ -1,21 +1,33 @@
 package mediaserver.http;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
-import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import mediaserver.gui.IndexPage;
-import mediaserver.sessions.AccessLevel;
-
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.EmptyHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import mediaserver.gui.IndexPage;
+import mediaserver.sessions.AccessLevel;
+
+import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.LOCATION;
+import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
 import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
@@ -23,21 +35,14 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public final class Netty {
 
-    private static final HttpVersion HTTP = HTTP_1_1;
-
-    private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
-
     private Netty() {
-
     }
 
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
-
         return respond(ctx, new DefaultHttpResponse(HTTP, status));
     }
 
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponse response) {
-
         try {
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             return response;
@@ -47,17 +52,14 @@ public final class Netty {
     }
 
     public static HttpResponse response(Req req, byte[] content, Headers moreHeaders) {
-
         return fullResponse(req, null, null, content, moreHeaders);
     }
 
     public static HttpResponse response(Req req, HttpResponseStatus status, byte[] content, Headers moreHeaders) {
-
         return fullResponse(req, null, status, content, moreHeaders);
     }
 
     public static HttpResponse response(Req req, String contentType, byte[] content) {
-
         return fullResponse(req, contentType, null, content, null);
     }
 
@@ -68,29 +70,24 @@ public final class Netty {
         byte[] content,
         Headers headers
     ) {
-
         return fullResponse(req, contentType, status, content, headers);
     }
 
     public static HttpResponse redirect(String ref) {
-
         return redirect(ref, null);
     }
 
     public static HttpResponse authCookieResponse(Req req, String cookie) {
-
         return fullResponse(req, null, null, null, setCookie(cookie));
     }
 
     public static HttpResponse unauthCookieResponse(String cookie) {
-
         return redirect(
             new Route("login", AccessLevel.NONE, Route.Method.GET),
             setCookie(cookie));
     }
 
     public static String authCookie(UUID uuid) {
-
         io.netty.handler.codec.http.cookie.Cookie cookie =
             new io.netty.handler.codec.http.cookie.DefaultCookie(
                 IndexPage.ID_COOKIE,
@@ -100,24 +97,24 @@ public final class Netty {
     }
 
     public static String unauthCookie() {
-
         io.netty.handler.codec.http.cookie.Cookie cookie = new DefaultCookie(IndexPage.ID_COOKIE, "");
         cookie.setMaxAge(0);
         return ServerCookieEncoder.STRICT.encode(cookie);
     }
 
     public static HttpResponse redirect(Route location) {
-
         return redirect(location, null);
     }
 
-    private static HttpResponse redirect(Route page, Headers moreHeaders) {
+    private static final HttpVersion HTTP = HTTP_1_1;
 
+    private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
+
+    private static HttpResponse redirect(Route page, Headers moreHeaders) {
         return redirect(page.getPrefix(), moreHeaders);
     }
 
     private static HttpResponse redirect(String ref, Headers moreHeaders) {
-
         HttpHeaders headers = new DefaultHttpHeaders();
         if (moreHeaders != null) {
             moreHeaders.accept(headers::set);
@@ -133,7 +130,6 @@ public final class Netty {
         byte[] content,
         Headers moreHeaders
     ) {
-
         HttpHeaders headers = new DefaultHttpHeaders();
         if (contentType != null) {
             headers.set(CONTENT_TYPE, contentType);
@@ -153,7 +149,6 @@ public final class Netty {
         ByteBuf body = content == null
             ? Unpooled.EMPTY_BUFFER
             : Unpooled.wrappedBuffer(content);
-
         return new DefaultFullHttpResponse(
             HTTP,
             status == null ? OK : status,
@@ -163,7 +158,6 @@ public final class Netty {
     }
 
     private static Headers setCookie(String cookie) {
-
         return headers -> headers.accept(SET_COOKIE, cookie);
     }
 }

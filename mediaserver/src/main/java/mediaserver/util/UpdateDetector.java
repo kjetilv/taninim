@@ -15,14 +15,12 @@ public final class UpdateDetector implements BooleanSupplier {
     private final Supplier<Optional<Instant>> updater;
 
     public UpdateDetector(Supplier<Optional<Instant>> updater) {
-
         this.updater = Objects.requireNonNull(updater);
         this.updater.get().ifPresent(lastUpdate::set);
     }
 
     @Override
     public boolean getAsBoolean() {
-
         AtomicBoolean updated = new AtomicBoolean();
         lastUpdate.updateAndGet(instant ->
             updater.get().map(newUpdate -> {

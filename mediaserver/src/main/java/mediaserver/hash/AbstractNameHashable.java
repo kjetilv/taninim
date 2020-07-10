@@ -14,36 +14,32 @@ public class AbstractNameHashable
 
     private final String name;
 
-    private final static Map<UUID, AbstractNameHashable> HASHABLES = new ConcurrentHashMap<>();
-
-    private static final long serialVersionUID = 6776617816992974873L;
-
     protected AbstractNameHashable(String name) {
-
         this.name = Objects.requireNonNull(name, "name");
     }
 
     @Override
     public final void hashTo(Consumer<byte[]> h) {
-
         hash(h, name, getClass().getName());
     }
 
     @Override
     public final int compareTo(AbstractNameHashable o) {
-
         return name.compareTo(o.getName());
     }
 
     @Override
     public final String getName() {
-
         return name;
+    }
+
+    @Override
+    protected StringBuilder withStringBody(StringBuilder sb) {
+        return sb.append(name);
     }
 
     @SuppressWarnings("unchecked")
     public static <H extends AbstractNameHashable> H get(Function<String, H> ctor, String name) {
-
         return (H) HASHABLES.computeIfAbsent(
             ctor.apply(
                 name.toLowerCase()).getUuid(),
@@ -51,9 +47,7 @@ public class AbstractNameHashable
                 ctor.apply(name));
     }
 
-    @Override
-    protected StringBuilder withStringBody(StringBuilder sb) {
+    private final static Map<UUID, AbstractNameHashable> HASHABLES = new ConcurrentHashMap<>();
 
-        return sb.append(name);
-    }
+    private static final long serialVersionUID = 6776617816992974873L;
 }

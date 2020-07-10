@@ -1,6 +1,7 @@
 package mediaserver.sessions;
 
 import mediaserver.hash.AbstractHashable;
+import mediaserver.util.DAC;
 import mediaserver.util.Print;
 
 import java.time.Duration;
@@ -8,7 +9,6 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused")
 public class User extends AbstractHashable {
 
     private final Session session;
@@ -21,7 +21,7 @@ public class User extends AbstractHashable {
 
     private static final long serialVersionUID = 4919694628627926851L;
 
-    public User(Session session, Instant time, String name, String id) {
+    User(Session session, Instant time, String name, String id) {
 
         this.session = Objects.requireNonNull(session, "session");
         this.time = time;
@@ -33,21 +33,25 @@ public class User extends AbstractHashable {
         }
     }
 
+    @DAC
     public String getTimeRequested() {
 
         return Print.aboutTime(time);
     }
 
+    @DAC
     public String getTimeLeft() {
 
         return Print.prettyLongTime(Duration.between(time, session.getEndTime()));
     }
 
+    @DAC
     public String getMbStreamed() {
 
         return Print.bytes(session.getStreamedBytes());
     }
 
+    @DAC
     public String getMbQuota() {
 
         return Print.bytes(session.getStreamQuota());
@@ -63,6 +67,7 @@ public class User extends AbstractHashable {
         return name;
     }
 
+    @DAC
     public String getPrettyAccessLevel() {
 
         return session.getAccessLevel().getDescription();
@@ -73,6 +78,7 @@ public class User extends AbstractHashable {
         return id;
     }
 
+    @DAC
     public boolean isStreamingCurated() {
 
         return getAccessLevel().satisfies(AccessLevel.STREAM_CURATED);
@@ -83,6 +89,7 @@ public class User extends AbstractHashable {
         return getAccessLevel().satisfies(AccessLevel.STREAM);
     }
 
+    @DAC
     public boolean isStreamingPlaylists() {
 
         return getAccessLevel().satisfies(AccessLevel.STREAM_PLAYLISTS);

@@ -3,6 +3,8 @@
 build/
 .gradle/
 .idea/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
 out
 taninim/env
 taninim/target

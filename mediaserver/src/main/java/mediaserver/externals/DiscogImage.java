@@ -2,6 +2,7 @@ package mediaserver.externals;
 
 import java.net.URI;
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 public final class DiscogImage {
 
     private URI uri;

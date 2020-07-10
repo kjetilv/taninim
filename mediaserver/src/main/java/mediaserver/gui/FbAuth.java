@@ -24,9 +24,9 @@ import mediaserver.util.IO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class FbAuth
-    extends NettyHandler
-{
+public final class FbAuth extends NettyHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(FbAuth.class);
 
     private final Sessions sessions;
 
@@ -34,9 +34,7 @@ public final class FbAuth
 
     private final Supplier<Ids> ids;
 
-    public FbAuth(Route routeX, Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret)
-    {
-
+    public FbAuth(Route routeX, Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret) {
         super(routeX);
         this.sessions = sessions;
         this.appSecret = appSecret;
@@ -44,9 +42,7 @@ public final class FbAuth
     }
 
     @Override
-    protected Handling handle(Req req)
-    {
-
+    protected Handling handle(Req req) {
         return req.getContent()
             .map(json -> IO.readObject(FacebookAuthResponse.class, json))
             .flatMap(this::authenticate)
@@ -56,24 +52,18 @@ public final class FbAuth
             .orElseGet(() -> handleBadRequest(req));
     }
 
-    private Handling handleRejection(Req req, FbUser user)
-    {
-
+    private Handling handleRejection(Req req, FbUser user) {
         log.warn("Unknown user attempted login: {}", user);
         return handleUnauthorized(req);
     }
 
-    private Handling handleNewSession(Req req, FbUser user)
-    {
-
+    private Handling handleNewSession(Req req, FbUser user) {
         Session session = sessions.create(req, user);
         log.info("{} logged in: {}", user, session);
         return handle(req, Netty.authCookieResponse(req, Netty.authCookie(session.getCookie())));
     }
 
-    private Optional<FbUser> authenticate(FacebookAuthResponse authResponse)
-    {
-
+    private Optional<FbUser> authenticate(FacebookAuthResponse authResponse) {
         try {
             return Optional.of(facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class))
                 .map(user -> new FbUser(user.getName(), user.getId()));
@@ -82,9 +72,7 @@ public final class FbAuth
         }
     }
 
-    private FacebookClient facebookClient(FacebookAuthResponse authResponse)
-    {
-
+    private FacebookClient facebookClient(FacebookAuthResponse authResponse) {
         return new DefaultFacebookClient(
             authResponse.getAccessToken(),
             new String(appSecret.get()),
@@ -92,6 +80,4 @@ public final class FbAuth
             new DefaultJsonMapper(),
             Version.LATEST);
     }
-
-    private static final Logger log = LoggerFactory.getLogger(FbAuth.class);
 }

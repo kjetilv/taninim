@@ -10,6 +10,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public final class DiscogsDataResolver {
     ) {
 
         this.resourcesDirectory = resourcesDirectory;
-        this.connections = connections;
+        this.connections = connections == null || connections.isEmpty() ? Collections.emptyList() : List.copyOf(connections);
         this.refreshTime = refreshTime;
         this.clock = clock;
     }
@@ -61,23 +62,22 @@ public final class DiscogsDataResolver {
     public Optional<DiscogReleaseDigest> getDiscogRelease(Album album) {
         return connections.stream()
             .filter(meta ->
-                        match(album, meta))
+                match(album, meta))
             .map(connection ->
-                     digest(
-                         connection,
-                         pathTo(connection, ".json"),
-                         pathTo(connection, "-raw.json")
-                     ).map(updateCover(
-                         pathTo(connection, ".jpg"))
-                     ))
+                digest(
+                    connection,
+                    pathTo(connection, ".json"),
+                    pathTo(connection, "-raw.json")
+                ).map(updateCover(
+                    pathTo(connection, ".jpg"))
+                ))
             .flatMap(Optional::stream)
             .findFirst();
     }
 
-    private Path pathTo(DiscogConnection connection, String suffix) {
+    private static boolean match(Album album, DiscogConnection meta) {
 
-        return resourcesDirectory.resolve(
-            Paths.get(connection.getType(), connection.getId() + suffix));
+        return meta.isUp() && meta.getAlbum().equals(album);
     }
 
     private Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
@@ -103,27 +103,11 @@ public final class DiscogsDataResolver {
         });
     }
 
-    private boolean fresh(Path raw) {
+    private Path pathTo(DiscogConnection connection, String suffix) {
 
-        try {
-            return Duration.between(
-                modifiedTime(raw),
-                clock.instant()
-            ).minus(refreshTime).isNegative();
-        } catch (IOException e) {
-            log.warn("Could not assert age of {}", raw, e);
-            return false;
-        }
+        return resourcesDirectory.resolve(
+            Paths.get(connection.getType(), connection.getId() + suffix));
     }
-
-    private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
-
-    private static final String SECRET = IO.getProperty("dSec");
-
-    private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
-        headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);
-
-    private static final byte[] NO_DATA = { };
 
     private static Function<DiscogReleaseDigest, DiscogReleaseDigest> updateCover(Path cover) {
 
@@ -133,7 +117,7 @@ public final class DiscogsDataResolver {
             }
             byte[] bytes = Media.getCover(digest, DiscogImage::getUri)
                 .map(uri ->
-                         IO.download(uri))
+                    IO.download(uri))
                 .orElse(NO_DATA);
             IO.writeStream(cover, bytes, (bytes1, outputStream) -> {
                 try {
@@ -153,9 +137,37 @@ public final class DiscogsDataResolver {
         return IntStream.range(0, retries).mapToObj(retry -> fun.get()).flatMap(Optional::stream).findFirst();
     }
 
-    private static boolean match(Album album, DiscogConnection meta) {
+    private static boolean regularFile(Path local) {
 
-        return meta.isUp() && meta.getAlbum().equals(album);
+        return Files.isRegularFile(local);
+    }
+
+    private boolean fresh(Path raw) {
+
+        try {
+            return Duration.between(
+                modifiedTime(raw),
+                clock.instant()
+            ).minus(refreshTime).isNegative();
+        } catch (IOException e) {
+            log.warn("Could not assert age of {}", raw, e);
+            return false;
+        }
+    }
+
+    private static Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path local) {
+
+        Map<String, ?> rawData = IO.readData(raw);
+        DiscogReleaseDigest digest = readRelease(rawData);
+        try {
+            if (modifiedTime(raw).isAfter(modifiedTime(local))) {
+                IO.writeStream(local, digest, writeRelease(DiscogReleaseDigest.class));
+            }
+        } catch (IOException e) {
+            log.warn("Failed comparison of files {}/{}, rewriting", local, raw, e);
+            IO.writeStream(local, digest, writeRelease(DiscogReleaseDigest.class));
+        }
+        return Optional.of(digest);
     }
 
     private static Optional<DiscogReleaseDigest> fetchAndWriteLocalFile(
@@ -172,19 +184,10 @@ public final class DiscogsDataResolver {
         return Optional.of(digest);
     }
 
-    private static Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path local) {
+    private static Instant modifiedTime(Path local)
+    throws IOException {
 
-        Map<String, ?> rawData = IO.readData(raw);
-        DiscogReleaseDigest digest = readRelease(rawData);
-        try {
-            if (modifiedTime(raw).isAfter(modifiedTime(local))) {
-                IO.writeStream(local, digest, writeRelease(DiscogReleaseDigest.class));
-            }
-        } catch (IOException e) {
-            log.warn("Failed comparison of files {}/{}, rewriting", local, raw, e);
-            IO.writeStream(local, digest, writeRelease(DiscogReleaseDigest.class));
-        }
-        return Optional.of(digest);
+        return Files.getLastModifiedTime(local).toInstant();
     }
 
     private static DiscogReleaseDigest readRelease(Map<String, ?> rawData) {
@@ -208,14 +211,12 @@ public final class DiscogsDataResolver {
         };
     }
 
-    private static boolean regularFile(Path local) {
+    private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
 
-        return Files.isRegularFile(local);
-    }
+    private static final String SECRET = IO.getProperty("dSec");
 
-    private static Instant modifiedTime(Path local)
-    throws IOException {
+    private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
+        headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);
 
-        return Files.getLastModifiedTime(local).toInstant();
-    }
+    private static final byte[] NO_DATA = { };
 }

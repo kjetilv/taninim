@@ -10,27 +10,19 @@ import static java.lang.Long.parseLong;
 
 final class Range {
 
-    private static final String BYTES_PREAMBLE = BYTES + "=";
-
-    private static final int BYTES_PREAMBLE_LENGTH = BYTES_PREAMBLE.length();
-
     private final Long start;
 
     private final Long exclusiveEnd;
 
     private final boolean satisfiable;
 
-    private static final Pattern COMMA = Pattern.compile(",");
-
     private Range(Long start, Long exclusiveEnd, long length) {
-
         this.start = start;
         this.exclusiveEnd = exclusiveEnd;
         this.satisfiable = start == null || start < length;
     }
 
     static Stream<Range> read(String value, long length) {
-
         return Optional.ofNullable(value).stream()
             .map(COMMA::split)
             .flatMap(Arrays::stream)
@@ -51,23 +43,25 @@ final class Range {
     }
 
     long getStart() {
-
         return start;
     }
 
     boolean isSatisfiable() {
-
         return satisfiable;
     }
 
     long getExclusiveEnd(long max) {
-
         return exclusiveEnd == null ? max : Math.min(exclusiveEnd, max);
     }
 
+    private static final String BYTES_PREAMBLE = BYTES + "=";
+
+    private static final int BYTES_PREAMBLE_LENGTH = BYTES_PREAMBLE.length();
+
+    private static final Pattern COMMA = Pattern.compile(",");
+
     @Override
     public String toString() {
-
         return getClass().getSimpleName() +
             "[" + (start == null ? "" : start) + '-' + (exclusiveEnd == null ? "" : exclusiveEnd) + "]";
     }

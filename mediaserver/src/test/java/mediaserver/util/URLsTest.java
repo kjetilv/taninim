@@ -1,6 +1,7 @@
 package mediaserver.util;
 
 import mediaserver.http.QPar;
+import mediaserver.http.URLs;
 import org.junit.Test;
 
 import java.util.Collection;

@@ -11,13 +11,11 @@ public final class RingBuffer<T> {
     private final int size;
 
     public RingBuffer(int size) {
-
         this.size = size;
         this.buffer = new LinkedList<>();
     }
 
     public void add(T t) {
-
         synchronized (buffer) {
             buffer.addLast(t);
             if (buffer.size() > size) {
@@ -27,7 +25,6 @@ public final class RingBuffer<T> {
     }
 
     public Collection<T> get() {
-
         synchronized (buffer) {
             return new ArrayList<>(buffer);
         }
@@ -35,7 +32,6 @@ public final class RingBuffer<T> {
 
     @Override
     public String toString() {
-
         return getClass().getSimpleName() + "[" + size + "]";
     }
 }

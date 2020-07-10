@@ -1,128 +1,122 @@
 package mediaserver;
 
+import java.time.Duration;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
+import javax.annotation.Nonnull;
+
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.HttpMessage;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.LongAdder;
-
 import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
+import static io.netty.channel.ChannelOption.SO_TIMEOUT;
+import static java.lang.StrictMath.toIntExact;
 
 @SuppressWarnings("SameParameterValue")
 final class NettyRunner {
 
     private static final Logger log = LoggerFactory.getLogger(NettyRunner.class);
 
-    private final int listenGroup;
+    private final int listenThreads;
 
-    private final int workGroup;
+    private final int workThreads;
 
-    private final int threadGroup;
+    private final int threads;
 
-    private final int threadQueue;
+    private final int queue;
 
-    private final Duration ioTimeout;
+    private final Duration timeout;
 
     private final Duration connectTimeout;
 
-    NettyRunner(
-        int listenGroup,
-        int workGroup,
-        int threadGroup,
-        int threadQueue,
-        Duration ioTimeout,
-        Duration connectTimeout
-    ) {
-
-        this.listenGroup = listenGroup;
-        this.workGroup = workGroup;
-        this.threadGroup = threadGroup;
-        this.threadQueue = threadQueue;
-        this.ioTimeout = ioTimeout;
+    NettyRunner(int listenThreads, int workThreads, int threads, int queue, Duration timeout, Duration connectTimeout) {
+        this.listenThreads = listenThreads;
+        this.workThreads = workThreads;
+        this.threads = threads;
+        this.queue = queue;
+        this.timeout = timeout;
         this.connectTimeout = connectTimeout;
     }
 
     void run(Router router, int port, SslContext sslContext) {
-
-        EventLoopGroup listenGroup = new NioEventLoopGroup(
-            this.listenGroup,
-            countingThreadFactory("lst"));
-
-        Executor workExecutor = new ThreadPoolExecutor(threadGroup, threadGroup, 60, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(threadQueue),
-            countingThreadFactory("thr"),
-            new ThreadPoolExecutor.CallerRunsPolicy());
-
-        EventLoopGroup workGroup = new NioEventLoopGroup(this.workGroup, workExecutor);
-
+        EventLoopGroup listen = listenGroup();
+        EventLoopGroup work = workGroup();
         try {
-            Channel channel = new ServerBootstrap()
-                .option(
-                    CONNECT_TIMEOUT_MILLIS, (int) connectTimeout.toMillis())
-                .group(
-                    listenGroup, workGroup)
-                .channel(
-                    NioServerSocketChannel.class)
-                .handler(
-                    new LoggingHandler())
-                .childHandler(
-                    new ChannelInitializer<NioSocketChannel>() {
-                        @Override
-                        protected void initChannel(NioSocketChannel ch) {
-
-                            ChannelPipeline pipeline = ch.pipeline();
-                            if (sslContext != null) {
-                                pipeline.addLast(sslContext.newHandler(ch.alloc()));
-                            }
-                            init(pipeline, router);
-                        }
-                    })
-                .bind(port)
-                .sync()
-                .channel();
-
-            log.info("{}: Bound to port {}: {}", this, port, channel);
-            registerCloser(channel);
-            ChannelFuture closed = channel.closeFuture().sync();
-            log.info("{}: Became unstuck from {}: {}", this, port, closed);
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted", e);
+            ChannelFuture opened = sync(
+                future(router, port, sslContext, listen, work),
+                "Interrupted while starting");
+            registerShutdownClosure(opened);
+            log.info("{}: Bound to port {}: {}", this, port, opened.channel());
+            ChannelFuture closed = sync(
+                opened.channel().closeFuture(),
+                "Interrupted while closing");
+            log.info("{}: Unstuck from {}: {}", this, port, closed);
         } finally {
-            listenGroup.shutdownGracefully();
-            workGroup.shutdownGracefully();
+            listen.shutdownGracefully();
+            work.shutdownGracefully();
         }
     }
 
-    private static void init(ChannelPipeline channelPipeline, Router router) {
+    private void registerShutdownClosure(ChannelFuture sync) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("{}: Closing {} ...", this, sync.channel());
+            sync.channel().close();
+        }, "Closer"));
+    }
 
-        channelPipeline
-            .addLast("decoder", new HttpServerCodec())
-            .addLast("aggregator", new HttpObjectAggregator(Config.BYTES_PER_CHUNK * 2) {
+    @Nonnull
+    private EventLoopGroup listenGroup() {
+        return new NioEventLoopGroup(this.listenThreads, countingThreadFactory("lst"));
+    }
 
-                @Override
-                protected void handleOversizedMessage(ChannelHandlerContext ctx, HttpMessage oversized) {
+    @Nonnull
+    private EventLoopGroup workGroup() {
+        return new NioEventLoopGroup(this.workThreads, new ThreadPoolExecutor(
+            threads,
+            threads,
+            60, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(queue),
+            countingThreadFactory("thr"),
+            new ThreadPoolExecutor.CallerRunsPolicy()));
+    }
 
-                    log.warn("{}: Oversized message: {}", ctx, oversized);
-                }
-            })
-            .addLast(router);
+    private ChannelFuture future(
+        Router router,
+        int port,
+        SslContext sslContext,
+        EventLoopGroup listenGroup,
+        EventLoopGroup workGroup
+    ) {
+        return new ServerBootstrap()
+            .option(CONNECT_TIMEOUT_MILLIS, toIntExact(connectTimeout.toMillis()))
+            .option(SO_TIMEOUT, toIntExact(timeout.toMillis()))
+            .group(listenGroup, workGroup)
+            .channel(NioServerSocketChannel.class)
+            .handler(new LoggingHandler())
+            .childHandler(new ChannelInit(sslContext, router))
+            .bind(port);
+    }
+
+    private static ChannelFuture sync(ChannelFuture future, String msg) {
+        try {
+            return future.sync();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(msg + ": " + future, e);
+        }
     }
 
     private static ThreadFactory countingThreadFactory(String prefix) {
-
         LongAdder count = new LongAdder();
         return r -> {
             try {
@@ -133,24 +127,12 @@ final class NettyRunner {
         };
     }
 
-    private void registerCloser(Channel ch) {
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("{}: Closing {} ...", this, ch);
-            ch.close();
-        }, "Closer"));
-    }
-
     @Override
     public String toString() {
-
-        return getClass().getSimpleName() +
-            "[listenGroup=" + listenGroup +
-            " workGroup=" + workGroup +
-            " threadGroup=" + threadGroup +
-            " threadQueue=" + threadQueue +
-            " ioTimeout=" + ioTimeout +
-            " connectTimeout=" + connectTimeout +
+        return getClass().getSimpleName() + "[" +
+            "l:" + listenThreads + "/w:" + workThreads +
+            " -> " +
+            "t:" + threads + "/q:" + queue +
             "]";
     }
 }

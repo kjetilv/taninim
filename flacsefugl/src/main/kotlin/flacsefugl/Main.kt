@@ -6,7 +6,6 @@ import mediaserver.media.PlaylistYaml
 import mediaserver.templates.TPar
 import mediaserver.templates.Template
 import mediaserver.util.IO
-import mediaserver.util.Sourced
 import java.io.File
 import java.net.URI
 import java.nio.file.Files
@@ -101,7 +100,7 @@ fun main() {
         val coverPath = if (discogId == null)
             Optional.empty<Path>()
         else IO.readBytes("releases/$discogId.jpg")
-                .unpackTyped(Sourced.Type.SOURCES) { bytes ->
+                .unpackTyped(IO.Type.SOURCES) { bytes ->
                     Files.write(dir.resolve("cover.jpg"), bytes, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
                 }
         println("Cover: $coverPath")

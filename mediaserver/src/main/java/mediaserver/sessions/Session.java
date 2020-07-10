@@ -2,6 +2,7 @@ package mediaserver.sessions;
 
 import mediaserver.externals.FbUser;
 import mediaserver.http.Req;
+import mediaserver.util.DAC;
 import mediaserver.util.Print;
 
 import java.time.Duration;
@@ -137,11 +138,13 @@ public final class Session {
         return bytesStreamed.get();
     }
 
+    @DAC
     public String getPrettyStreamedBytes() {
 
         return Print.bytes(bytesStreamed.get());
     }
 
+    @DAC
     public String getPrettyStreamQuota() {
 
         return Print.bytes(bytesQuota);
@@ -164,7 +167,7 @@ public final class Session {
             : Status.OK;
     }
 
-    private Status activityStatus(Instant time) {
+    private Status activityStatus(Temporal time) {
 
         if (bytesStreamed.get() == 0L) {
             return Status.OK;

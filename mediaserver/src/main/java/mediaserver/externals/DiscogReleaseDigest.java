@@ -2,6 +2,7 @@ package mediaserver.externals;
 
 import java.util.List;
 
+@SuppressWarnings({ "InstanceVariableMayNotBeInitialized", "AssignmentOrReturnOfFieldWithMutableType" })
 public final class DiscogReleaseDigest {
 
     private String artist;

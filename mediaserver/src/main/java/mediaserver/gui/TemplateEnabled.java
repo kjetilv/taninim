@@ -8,42 +8,34 @@ import mediaserver.http.Route;
 import mediaserver.templates.Template;
 import mediaserver.toolkit.Templater;
 
-public abstract class TemplateEnabled
-    extends NettyHandler
-{
+public abstract class TemplateEnabled extends NettyHandler {
+
+    static final String PLAYLIST_M3U = "playlist.m3u.st";
+
+    static final String LOGIN_PAGE = "html/login.html.st";
+
+    static final String INDEX_PAGE = "html/index.html.st";
+
+    static final String ALBUM_PAGE = "html/album.html.st";
+
+    static final String ADMIN_PAGE = "html/admin.html.st";
 
     private final Templater templater;
 
-    protected TemplateEnabled(Route route, Templater templater)
-    {
-
+    protected TemplateEnabled(Route route, Templater templater) {
         super(route);
         this.templater = templater;
     }
 
-    protected Template getTemplate(String albumPage)
-    {
-
+    protected Template getTemplate(String albumPage) {
         return templater.template(albumPage);
     }
 
-    protected Handling respondHtml(Req req, Template template)
-    {
-
+    protected Handling respondHtml(Req req, Template template) {
         return handle(req, Netty.response(req, TEXT_HTML, template.bytes()));
     }
 
-    protected static final String DEBUG_PAGE = "html/debug.html";
-
-    static final String PLAYLIST_M3U = "playlist.m3u";
-
-    static final String LOGIN_PAGE = "html/login.html";
-
-    static final String INDEX_PAGE = "html/index.html";
-
-    static final String ALBUM_PAGE = "html/album.html";
-
-    static final String ADMIN_PAGE = "html/admin.html";
+    protected static final String DEBUG_PAGE = "html/debug.html.st";
 
     private static final String TEXT_HTML = "text/html";
 }

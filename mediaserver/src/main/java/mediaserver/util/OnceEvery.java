@@ -13,13 +13,11 @@ public final class OnceEvery {
     private final ScheduledExecutorService service;
 
     public OnceEvery(ScheduledExecutorService service) {
-
         this.service = Objects.requireNonNull(service);
     }
 
     public static void actuallyJustRefresh(Supplier<?>... suppliers) {
-
-        for (Supplier<?> supplier : suppliers) {
+        for (Supplier<?> supplier: suppliers) {
             if (supplier instanceof Supp<?>) {
                 ((Supp<?>) supplier).refresh();
             } else {
@@ -29,16 +27,15 @@ public final class OnceEvery {
     }
 
     public TimingBuilder interval(Duration duration) {
-
         Objects.requireNonNull(duration, "duration");
         return new TimingBuilder() {
+
             @Override
             public Timed when(BooleanSupplier condition) {
-
                 return new Timed() {
-                    @Override
-                    public <T> Supplier<T> get(Supplier<T> supplier) {
 
+                    @Override
+                    public <T> Supplier<T> get(Supplier<? extends T> supplier) {
                         return new Supp<>(
                             service, duration, condition, Objects.requireNonNull(supplier, "supplier"));
                     }
@@ -46,8 +43,7 @@ public final class OnceEvery {
             }
 
             @Override
-            public <T> Supplier<T> get(Supplier<T> supplier) {
-
+            public <T> Supplier<T> get(Supplier<? extends T> supplier) {
                 return new Supp<>(
                     service, duration, () -> true, Objects.requireNonNull(supplier, "supplier"));
             }
@@ -58,29 +54,27 @@ public final class OnceEvery {
 
         Timed when(BooleanSupplier condition);
 
-        <T> Supplier<T> get(Supplier<T> supplier);
+        <T> Supplier<T> get(Supplier<? extends T> supplier);
     }
 
     public interface Timed {
 
-        <T> Supplier<T> get(Supplier<T> supplier);
+        <T> Supplier<T> get(Supplier<? extends T> supplier);
     }
 
     private static final class Supp<T> implements Supplier<T> {
 
         private final AtomicReference<T> value = new AtomicReference<>();
 
-        private final Supplier<T> supplier;
+        private final Supplier<? extends T> supplier;
 
         private Supp(
             ScheduledExecutorService service,
             Duration interval,
             BooleanSupplier condition,
-            Supplier<T> supplier
+            Supplier<? extends T> supplier
         ) {
-
             this.supplier = supplier;
-
             refresh();
             service.scheduleAtFixedRate(
                 () -> {
@@ -93,18 +87,15 @@ public final class OnceEvery {
 
         @Override
         public T get() {
-
             return value.get();
         }
 
         private void refresh() {
-
             this.value.set(supplier.get());
         }
 
         @Override
         public String toString() {
-
             return getClass().getSimpleName() + "[" + supplier + "]";
         }
     }

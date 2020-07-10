@@ -1,21 +1,23 @@
-package mediaserver.util;
+package mediaserver.http;
 
-import mediaserver.http.QPar;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.OptionalInt;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public final class URLs {
 
     private static final Logger log = LoggerFactory.getLogger(URLs.class);
 
     private URLs() {
-
     }
 
     public static Map<QPar, Collection<String>> queryParams(String pars) {
-
         if (pars == null || pars.isBlank()) {
             return Collections.emptyMap();
         }
@@ -36,7 +38,6 @@ public final class URLs {
     }
 
     private static void expandMap(String pars, Map<QPar, Collection<String>> map, int index, int nextPair) {
-
         eqIndex(pars, index, nextPair).ifPresentOrElse(
             eqIndex ->
                 QPar.get(pars.substring(index, eqIndex))
@@ -50,7 +51,6 @@ public final class URLs {
     }
 
     private static OptionalInt eqIndex(String pars, int index, int nextPair) {
-
         int eqIndex = pars.indexOf('=', index);
         if (eqIndex < 0 || eqIndex > nextPair) {
             return OptionalInt.empty();
@@ -59,9 +59,7 @@ public final class URLs {
     }
 
     private static Runnable logMalformed(String pars, int start, int end) {
-
         return () ->
             log.warn("Expected value for {}", pars.substring(start + 1, end));
     }
-
 }
