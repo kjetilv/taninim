@@ -3,6 +3,9 @@ package mediaserver.gui;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+
+import afu.org.checkerframework.checker.oigj.qual.O;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.DefaultJsonMapper;
 import com.restfb.DefaultWebRequestor;
@@ -41,8 +44,7 @@ public final class FbAuth extends NettyHandler {
         this.ids = ids;
     }
 
-    @Override
-    protected Handling handle(Req req) {
+    protected @Override @Nonnull Handling handle(Req req) {
         return req.getContent()
             .map(json -> IO.readObject(FacebookAuthResponse.class, json))
             .flatMap(this::authenticate)

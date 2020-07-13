@@ -40,9 +40,6 @@ public final class CloudMedia {
 
     private static final Logger log = LoggerFactory.getLogger(CloudMedia.class);
 
-    private CloudMedia() {
-    }
-
     public static void main(String[] args) {
         run(args[0], args[1], args[2]);
     }
@@ -68,14 +65,16 @@ public final class CloudMedia {
     }
 
     public static void updateLocals(String... strings) {
-        Stream.of(strings)
-            .forEach(resource -> {
-                if (updatedFromRemote(resource)) {
-                    log.info("Updated local: {}", resource);
-                } else {
-                    log.info("Local is current: {}", resource);
-                }
-            });
+        Arrays.stream(strings).forEach(resource -> {
+            if (updatedFromRemote(resource)) {
+                log.info("Updated local: {}", resource);
+            } else {
+                log.info("Local is current: {}", resource);
+            }
+        });
+    }
+
+    private CloudMedia() {
     }
 
     private static final String MEDIA_SER = "media.ser";
@@ -110,9 +109,9 @@ public final class CloudMedia {
                 .filter(size -> size == localCompressedSize || neverHeardOfIt.test(track));
         remoteFlacSize.ifPresentOrElse(
             size -> {
-//                log.info("Already present with {} bytes: {}/{}/{} / {}",
-//                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
-//                    remoteFlac)
+                //                log.info("Already present with {} bytes: {}/{}/{} / {}",
+                //                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
+                //                    remoteFlac)
             },
             () -> {
                 logUploading(track, remoteFlac, localFile.length());
@@ -120,9 +119,9 @@ public final class CloudMedia {
             });
         remoteM4aSize.ifPresentOrElse(
             size -> {
-//                log.debug("Already present with {} bytes: {}/{}/{} / {}",
-//                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
-//                    remoteM4a);
+                //                log.debug("Already present with {} bytes: {}/{}/{} / {}",
+                //                    size, track.getArtist().getName(), track.getAlbum(), track.getName(),
+                //                    remoteM4a);
             },
             () -> {
                 String remoteCompressed = PAT_FLAC.matcher(remoteFlac).replaceAll(DOT_M4A);
@@ -187,7 +186,11 @@ public final class CloudMedia {
 
     private static void updateLocal(Path localPath, String resource) {
         List<String> lines;
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream(resource), StandardCharsets.UTF_8))) {
+        try (
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
+                stream(resource),
+                StandardCharsets.UTF_8))
+        ) {
             lines = bufferedReader.lines().collect(Collectors.toList());
         } catch (IOException e) {
             throw new IllegalStateException("Failed to close " + resource, e);
@@ -261,7 +264,9 @@ public final class CloudMedia {
                     localFile,
                     track ->
                         Arrays.stream(albumIncludes).anyMatch(inc ->
-                            track.getAlbum().toLowerCase().contains(inc))));
+                            track.getAlbum()
+                                .toLowerCase()
+                                .contains(inc))));
             List<String> removables = redundantRemotes(root, remoteSizes);
             if (!removables.isEmpty()) {
                 s3.remove(removables);

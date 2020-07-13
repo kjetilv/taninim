@@ -10,6 +10,15 @@ import com.google.common.base.Functions;
 
 public class Masada {
 
+    @Nonnull
+    public static Map<Integer, MasadaRef> notedRefs(int book, Collection<MasadaRef> refs) {
+        return refs.stream()
+            .filter(ref -> ref.getBook() == book)
+            .collect(Collectors.toMap(
+                MasadaRef::getNumber, Functions.identity()
+            ));
+    }
+
     private final Collection<MasadaBook> books;
 
     public Masada(int books) {
@@ -32,14 +41,5 @@ public class Masada {
             .map(book ->
                 book.withNodes(notedRefs(book.getBook(), refs)))
             .collect(Collectors.toList()));
-    }
-
-    @Nonnull
-    public static Map<Integer, MasadaRef> notedRefs(int book, Collection<MasadaRef> refs) {
-        return refs.stream()
-            .filter(ref -> ref.getBook() == book)
-            .collect(Collectors.toMap(
-                MasadaRef::getNumber, Functions.identity()
-            ));
     }
 }

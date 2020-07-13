@@ -10,9 +10,6 @@ import mediaserver.Config;
 
 public final class Print {
 
-    private Print() {
-    }
-
     public static String aboutTime(Instant instant) {
         return instant.atZone(Config.TIMEZONE)
             .truncatedTo(ChronoUnit.MINUTES)
@@ -95,6 +92,9 @@ public final class Print {
             return String.format("%dKb", bytes / K);
         }
         return String.format("%db", bytes);
+    }
+
+    private Print() {
     }
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

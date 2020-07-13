@@ -9,12 +9,12 @@ import mediaserver.hash.AbstractNameHashable;
 
 public final class Artist extends AbstractNameHashable {
 
-    private Artist(String name) {
-        super(name);
-    }
-
     public static Artist get(String name) {
         return AbstractNameHashable.get(Artist::new, name);
+    }
+
+    private Artist(String name) {
+        super(name);
     }
 
     public Collection<Artist> getCompositeArtists() {

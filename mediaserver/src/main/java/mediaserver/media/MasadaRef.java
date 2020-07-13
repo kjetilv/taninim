@@ -25,6 +25,14 @@ public class MasadaRef extends AbstractNameHashable {
         this.notes = notes == null || notes.isEmpty() ? Collections.emptyList() : List.copyOf(notes);
     }
 
+    @Override
+    protected StringBuilder withStringBody(StringBuilder sb) {
+        return sb.append("Book ").append(book)
+            .append(" #").append(number)
+            .append(" ").append(getName())
+            .append(" ").append(notes);
+    }
+
     public int getBook() {
         return book;
     }
@@ -34,12 +42,4 @@ public class MasadaRef extends AbstractNameHashable {
     }
 
     private static final long serialVersionUID = 6109235301263559725L;
-
-    @Override
-    protected StringBuilder withStringBody(StringBuilder sb) {
-        return sb.append("Book ").append(book)
-            .append(" #").append(number)
-            .append(" ").append(getName())
-            .append(" ").append(notes);
-    }
 }

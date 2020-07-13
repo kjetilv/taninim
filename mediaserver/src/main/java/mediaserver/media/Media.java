@@ -19,6 +19,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+
 import mediaserver.externals.DiscogConnection;
 import mediaserver.externals.DiscogImage;
 import mediaserver.externals.DiscogReleaseDigest;
@@ -39,97 +41,6 @@ public interface Media {
     Logger log = LoggerFactory.getLogger(Media.class);
 
     Duration FORTNITE = Duration.ofDays(14);
-
-    default Media subLibrary(Series series) {
-        return subLibrary(null, Collections.singleton(series), null, null, false);
-    }
-
-    default Media subLibrary(Playlist playlist) {
-        return subLibrary(null, null, Collections.singletonList(playlist), null, false);
-    }
-
-    Media subLibrary(
-        Collection<Artist> artist,
-        Collection<Series> series,
-        Collection<Playlist> playlist,
-        Collection<Playlist> curations,
-        boolean union
-    );
-
-    Media sortedAlbums(Comparator<Album> comparator);
-
-    Media withAlbumContext(UUID albumId, AlbumContext albumContext);
-
-    Stream<AlbumTrack> getAlbumTrack(UUID uuid);
-
-    Stream<Track> getTrack(UUID uuid);
-
-    @DAC
-    Year getStartYear();
-
-    @DAC
-    Year getEndYear();
-
-    Collection<Playlist> getPlaylists();
-
-    Stream<Playlist> getPlaylist(UUID uuid);
-
-    Collection<Playlist> getCurations();
-
-    Stream<Playlist> getCuration(UUID uuid);
-
-    boolean isCurated(AlbumTrack albumTrack);
-
-    Duration getDuration();
-
-    @DAC
-    default String getPrettyDuration() {
-        return Print.prettyLongTime(getDuration());
-    }
-
-    default Collection<Artist> getAllAlbumArtists() {
-        return getAlbumArtists(true);
-    }
-
-    Collection<Artist> getAlbumArtists(boolean recurse);
-
-    default Collection<Artist> getArtists() {
-        return getArtists(false);
-    }
-
-    Collection<Artist> getArtists(boolean recurse);
-
-    Collection<Artist> getTrackCreditedArtists();
-
-    Collection<Album> getRandomAlbums(int count);
-
-    Collection<Album> getAlbums();
-
-    @DAC
-    Collection<Album> getAlbumsByYear();
-
-    default Collection<Track> getTracks() {
-        return getTracks(false);
-    }
-
-    Stream<Track> getTracksFeaturing(Artist artist);
-
-    Collection<Track> getTracks(boolean recurse);
-
-    Stream<Album> getAlbum(UUID id);
-
-    Collection<Series> getSeries();
-
-    @DAC
-    Collection<Album> getAlbumsFeaturing(Artist id);
-
-    Stream<Artist> getArtist(UUID id);
-
-    Stream<Series> getSeries(UUID id);
-
-    Stream<Artist> getArtist(String name);
-
-    Stream<Album> getAlbum(String albumName);
 
     static Media local(Path mediaPath, Path libraryPath, Path resourcesPath) {
         log.info("Scanning from {}", mediaPath);
@@ -289,6 +200,101 @@ public interface Media {
         return new LocalMedia(null);
     }
 
+    enum AlbumSort {
+        ARTIST, TITLE, YEAR
+    }
+
+    default Media subLibrary(Series series) {
+        return subLibrary(null, Collections.singleton(series), null, null, false);
+    }
+
+    default Media subLibrary(Playlist playlist) {
+        return subLibrary(null, null, Collections.singletonList(playlist), null, false);
+    }
+
+    Media subLibrary(
+        Collection<Artist> artist,
+        Collection<Series> series,
+        Collection<Playlist> playlist,
+        Collection<Playlist> curations,
+        boolean union
+    );
+
+    Media sortedAlbums(Comparator<Album> comparator);
+
+    Media withAlbumContext(UUID albumId, AlbumContext albumContext);
+
+    Stream<AlbumTrack> getAlbumTrack(UUID uuid);
+
+    Stream<Track> getTrack(UUID uuid);
+
+    @DAC
+    Year getStartYear();
+
+    @DAC
+    Year getEndYear();
+
+    Collection<Playlist> getPlaylists();
+
+    Stream<Playlist> getPlaylist(UUID uuid);
+
+    Collection<Playlist> getCurations();
+
+    @Nonnull Stream<Playlist> getCuration(UUID uuid);
+
+    boolean isCurated(AlbumTrack albumTrack);
+
+    Duration getDuration();
+
+    @DAC
+    default String getPrettyDuration() {
+        return Print.prettyLongTime(getDuration());
+    }
+
+    default Collection<Artist> getAllAlbumArtists() {
+        return getAlbumArtists(true);
+    }
+
+    Collection<Artist> getAlbumArtists(boolean recurse);
+
+    default Collection<Artist> getArtists() {
+        return getArtists(false);
+    }
+
+    Collection<Artist> getArtists(boolean recurse);
+
+    Collection<Artist> getTrackCreditedArtists();
+
+    Collection<Album> getRandomAlbums(int count);
+
+    Collection<Album> getAlbums();
+
+    @DAC
+    Collection<Album> getAlbumsByYear();
+
+    default Collection<Track> getTracks() {
+        return getTracks(false);
+    }
+
+    Stream<Track> getTracksFeaturing(Artist artist);
+
+    Collection<Track> getTracks(boolean recurse);
+
+    Stream<Album> getAlbum(UUID id);
+
+    Collection<Series> getSeries();
+
+    @DAC
+    Collection<Album> getAlbumsFeaturing(Artist id);
+
+    Stream<Artist> getArtist(UUID id);
+
+    Stream<Series> getSeries(UUID id);
+
+    Stream<Artist> getArtist(String name);
+
+    Stream<Album> getAlbum(String albumName);
+
     boolean isEmpty();
 
     private static boolean isPrimary(DiscogImage image) {
@@ -297,9 +303,5 @@ public interface Media {
 
     private static boolean hasImage(DiscogImage image) {
         return image.getUri150() != null;
-    }
-
-    enum AlbumSort {
-        ARTIST, TITLE, YEAR
     }
 }

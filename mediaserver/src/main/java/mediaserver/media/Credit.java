@@ -8,59 +8,6 @@ import java.util.stream.Collectors;
 
 public final class Credit implements Serializable {
 
-    private final URI uri;
-
-    private final ExternalType externalType;
-
-    private final String sourceType;
-
-    private final String name;
-
-    public Credit(
-        String name,
-        URI uri,
-        String sourceType,
-        ExternalType externalType
-    ) {
-        this.name = name;
-        this.uri = uri;
-        this.externalType = externalType;
-        this.sourceType = sourceType == null || sourceType.isBlank() ? "" : sourceType;
-    }
-
-    public String getSourceType() {
-        return sourceType == null || sourceType.isBlank() ? null : sourceType;
-    }
-
-    public boolean isPerformer() {
-        return externalType == null;
-    }
-
-    public Artist getArtist() {
-        return Artist.get(name);
-    }
-
-    public ExternalType getExternalType() {
-        return externalType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Collection<Credit> getCompositeCredits() {
-        return getArtist().getCompositeArtists().stream()
-            .map(artist ->
-                new Credit(artist.getName(), uri, sourceType, externalType))
-            .collect(Collectors.toList());
-    }
-
-    public boolean isEmpty() {
-        return sourceType.isBlank();
-    }
-
-    private static final long serialVersionUID = 1917638609632123791L;
-
     enum ExternalType {
         arranged_by,
         producer,
@@ -96,6 +43,31 @@ public final class Credit implements Serializable {
         }
     }
 
+    private final URI uri;
+
+    private final ExternalType externalType;
+
+    private final String sourceType;
+
+    private final String name;
+
+    public Credit(
+        String name,
+        URI uri,
+        String sourceType,
+        ExternalType externalType
+    ) {
+        this.name = name;
+        this.uri = uri;
+        this.externalType = externalType;
+        this.sourceType = sourceType == null || sourceType.isBlank() ? "" : sourceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, uri, externalType, sourceType);
+    }
+
     @Override
     public boolean equals(Object o) {
         return this == o ||
@@ -107,13 +79,41 @@ public final class Credit implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, uri, externalType, sourceType);
-    }
-
-    @Override
     public String toString() {
         return getClass().getSimpleName() +
             "[" + name + ": " + sourceType + "/" + externalType + "]";
     }
+
+    public String getSourceType() {
+        return sourceType == null || sourceType.isBlank() ? null : sourceType;
+    }
+
+    public boolean isPerformer() {
+        return externalType == null;
+    }
+
+    public Artist getArtist() {
+        return Artist.get(name);
+    }
+
+    public ExternalType getExternalType() {
+        return externalType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Collection<Credit> getCompositeCredits() {
+        return getArtist().getCompositeArtists().stream()
+            .map(artist ->
+                new Credit(artist.getName(), uri, sourceType, externalType))
+            .collect(Collectors.toList());
+    }
+
+    public boolean isEmpty() {
+        return sourceType.isBlank();
+    }
+
+    private static final long serialVersionUID = 1917638609632123791L;
 }

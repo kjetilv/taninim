@@ -1,14 +1,13 @@
 package mediaserver.sessions;
 
-import mediaserver.externals.FbUser;
-import mediaserver.http.Req;
-import mediaserver.util.MostlyOnce;
-import mediaserver.util.Print;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Duration;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -16,6 +15,13 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import mediaserver.externals.FbUser;
+import mediaserver.http.Req;
+import mediaserver.util.MostlyOnce;
+import mediaserver.util.Print;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Sessions {
 
@@ -39,8 +45,6 @@ public final class Sessions {
         return session;
     });
 
-    private static final FbUser DEV_USER = new FbUser("dev", "dev");
-
     public Sessions(
         Supplier<Ids> ids,
         Duration sessionLength,
@@ -57,6 +61,17 @@ public final class Sessions {
         if (this.devLogin) {
             log.warn("{} will allow login as dev", this);
         }
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + sessionsMap.keySet() +
+            " bytesQuota:" + Print.bytes(bytesQuota) +
+            " sessionLength:" + sessionLength +
+            " inactivityMax:" + inactivityMax +
+            " devLogin:" + devLogin +
+            "]";
     }
 
     public Session create(Req req, FbUser user) {
@@ -188,6 +203,13 @@ public final class Sessions {
         throw new IllegalArgumentException("Invalid access level: " + accessLevel);
     }
 
+    private Optional<Session> devSession(Req req) {
+
+        return devLogin ? devSession.andThen(Optional::ofNullable).apply(req) : Optional.empty();
+    }
+
+    private static final FbUser DEV_USER = new FbUser("dev", "dev");
+
     private static boolean valid(Req req, Session session) {
 
         if (session.isValid(req.getTime())) {
@@ -203,21 +225,5 @@ public final class Sessions {
 
         return session ->
             Objects.equals(session.getCookie(), uuid);
-    }
-
-    private Optional<Session> devSession(Req req) {
-
-        return devLogin ? devSession.andThen(Optional::ofNullable).apply(req) : Optional.empty();
-    }
-
-    @Override
-    public String toString() {
-
-        return getClass().getSimpleName() + "[" + sessionsMap.keySet() +
-            " bytesQuota:" + Print.bytes(bytesQuota) +
-            " sessionLength:" + sessionLength +
-            " inactivityMax:" + inactivityMax +
-            " devLogin:" + devLogin +
-            "]";
     }
 }

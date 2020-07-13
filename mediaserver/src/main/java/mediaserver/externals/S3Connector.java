@@ -1,11 +1,20 @@
 package mediaserver.externals;
 
-import mediaserver.util.MostlyOnce;
-
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import mediaserver.util.MostlyOnce;
+
 public final class S3Connector {
+
+    public static Optional<S3Client> get() {
+
+        return S3.get();
+    }
+
+    private S3Connector() {
+
+    }
 
     private static final String RELATIVE_URI = "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI";
 
@@ -18,15 +27,6 @@ public final class S3Connector {
     private static final String AWS_KEY_ENV = "AWS_KEY";
 
     private static final Supplier<Optional<S3Client>> S3 = MostlyOnce.get(S3Connector::s3);
-
-    private S3Connector() {
-
-    }
-
-    public static Optional<S3Client> get() {
-
-        return S3.get();
-    }
 
     private static Optional<S3Client> s3() {
 

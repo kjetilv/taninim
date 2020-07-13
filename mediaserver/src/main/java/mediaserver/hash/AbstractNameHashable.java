@@ -12,6 +12,15 @@ public class AbstractNameHashable
     extends AbstractHashable
     implements Comparable<AbstractNameHashable>, Serializable, Namable {
 
+    @SuppressWarnings("unchecked")
+    public static <H extends AbstractNameHashable> H get(Function<String, H> ctor, String name) {
+        return (H) HASHABLES.computeIfAbsent(
+            ctor.apply(
+                name.toLowerCase()).getUuid(),
+            uuid ->
+                ctor.apply(name));
+    }
+
     private final String name;
 
     protected AbstractNameHashable(String name) {
@@ -36,15 +45,6 @@ public class AbstractNameHashable
     @Override
     protected StringBuilder withStringBody(StringBuilder sb) {
         return sb.append(name);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <H extends AbstractNameHashable> H get(Function<String, H> ctor, String name) {
-        return (H) HASHABLES.computeIfAbsent(
-            ctor.apply(
-                name.toLowerCase()).getUuid(),
-            uuid ->
-                ctor.apply(name));
     }
 
     private final static Map<UUID, AbstractNameHashable> HASHABLES = new ConcurrentHashMap<>();

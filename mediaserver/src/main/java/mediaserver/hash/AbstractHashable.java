@@ -16,15 +16,6 @@ import mediaserver.util.Print;
 public abstract class AbstractHashable
     implements Hashable, Serializable {
 
-    private final AtomicReference<UUID> hash = new AtomicReference<>();
-
-    private final AtomicReference<String> toString = new AtomicReference<>();
-
-    @Override
-    public final UUID getUuid() {
-        return hash.updateAndGet(v -> v == null ? uuid() : v);
-    }
-
     protected static void hash(Consumer<byte[]> hash, byte[]... bytes) {
         for (byte[] bite: bytes) {
             hash.accept(bite);
@@ -55,6 +46,31 @@ public abstract class AbstractHashable
                 hashable.hashTo(h);
             }
         }
+    }
+
+    private final AtomicReference<UUID> hash = new AtomicReference<>();
+
+    private final AtomicReference<String> toString = new AtomicReference<>();
+
+    @Override
+    public final UUID getUuid() {
+        return hash.updateAndGet(v -> v == null ? uuid() : v);
+    }
+
+    @Override
+    public final int hashCode() {
+        return getUuid().hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return obj == this || obj != null && obj.getClass() == getClass()
+            && ((Hashed) obj).getUuid().equals(getUuid());
+    }
+
+    @Override
+    public final String toString() {
+        return toString.updateAndGet(v -> v == null ? build() : v);
     }
 
     protected abstract StringBuilder withStringBody(StringBuilder sb);
@@ -105,21 +121,5 @@ public abstract class AbstractHashable
             .filter(Objects::nonNull)
             .forEach(s ->
                 hash.accept(s.getBytes(StandardCharsets.UTF_8)));
-    }
-
-    @Override
-    public final boolean equals(Object obj) {
-        return obj == this || obj != null && obj.getClass() == getClass()
-            && ((Hashed) obj).getUuid().equals(getUuid());
-    }
-
-    @Override
-    public final int hashCode() {
-        return getUuid().hashCode();
-    }
-
-    @Override
-    public final String toString() {
-        return toString.updateAndGet(v -> v == null ? build() : v);
     }
 }

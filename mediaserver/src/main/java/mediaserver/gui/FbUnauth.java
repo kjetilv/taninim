@@ -1,5 +1,7 @@
 package mediaserver.gui;
 
+import javax.annotation.Nonnull;
+
 import mediaserver.http.Handling;
 import mediaserver.http.Netty;
 import mediaserver.http.NettyHandler;
@@ -20,8 +22,7 @@ public final class FbUnauth extends NettyHandler {
         this.sessions = sessions;
     }
 
-    @Override
-    protected Handling handle(Req req) {
+    protected @Override @Nonnull Handling handle(Req req) {
         sessions.close(req)
             .ifPresentOrElse(session -> log.info("Session closed: {}", session), () -> log.info("No session to close"));
         return handle(req, Netty.unauthCookieResponse(Netty.unauthCookie()));

@@ -1,8 +1,8 @@
 package mediaserver.externals;
 
-import mediaserver.hash.AbstractHashable;
-
 import java.util.function.Consumer;
+
+import mediaserver.hash.AbstractHashable;
 
 public final class FbUser extends AbstractHashable {
 
@@ -10,22 +10,10 @@ public final class FbUser extends AbstractHashable {
 
     private final String id;
 
-    private static final long serialVersionUID = 6897348983612649711L;
-
     public FbUser(String name, String id) {
 
         this.name = name;
         this.id = id;
-    }
-
-    public String getName() {
-
-        return name;
-    }
-
-    public String getId() {
-
-        return id;
     }
 
     @Override
@@ -39,4 +27,16 @@ public final class FbUser extends AbstractHashable {
 
         return sb.append(name).append(":").append(id);
     }
+
+    public String getName() {
+
+        return name;
+    }
+
+    public String getId() {
+
+        return id;
+    }
+
+    private static final long serialVersionUID = 6897348983612649711L;
 }

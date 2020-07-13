@@ -8,9 +8,6 @@ import java.util.stream.StreamSupport;
 
 public final class Throwables {
 
-    private Throwables() {
-    }
-
     public static Stream<Throwable> causes(Throwable e) {
         return StreamSupport.stream(
             new Spliterators.AbstractSpliterator<>(Long.MAX_VALUE, Spliterator.IMMUTABLE) {
@@ -29,5 +26,8 @@ public final class Throwables {
                 }
             },
             false);
+    }
+
+    private Throwables() {
     }
 }

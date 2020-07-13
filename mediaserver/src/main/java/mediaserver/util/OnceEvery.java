@@ -10,12 +10,6 @@ import java.util.function.Supplier;
 
 public final class OnceEvery {
 
-    private final ScheduledExecutorService service;
-
-    public OnceEvery(ScheduledExecutorService service) {
-        this.service = Objects.requireNonNull(service);
-    }
-
     public static void actuallyJustRefresh(Supplier<?>... suppliers) {
         for (Supplier<?> supplier: suppliers) {
             if (supplier instanceof Supp<?>) {
@@ -24,6 +18,24 @@ public final class OnceEvery {
                 throw new IllegalStateException("Not a refreshable: " + supplier);
             }
         }
+    }
+
+    public interface TimingBuilder {
+
+        Timed when(BooleanSupplier condition);
+
+        <T> Supplier<T> get(Supplier<? extends T> supplier);
+    }
+
+    public interface Timed {
+
+        <T> Supplier<T> get(Supplier<? extends T> supplier);
+    }
+
+    private final ScheduledExecutorService service;
+
+    public OnceEvery(ScheduledExecutorService service) {
+        this.service = Objects.requireNonNull(service);
     }
 
     public TimingBuilder interval(Duration duration) {
@@ -48,18 +60,6 @@ public final class OnceEvery {
                     service, duration, () -> true, Objects.requireNonNull(supplier, "supplier"));
             }
         };
-    }
-
-    public interface TimingBuilder {
-
-        Timed when(BooleanSupplier condition);
-
-        <T> Supplier<T> get(Supplier<? extends T> supplier);
-    }
-
-    public interface Timed {
-
-        <T> Supplier<T> get(Supplier<? extends T> supplier);
     }
 
     private static final class Supp<T> implements Supplier<T> {
@@ -90,13 +90,13 @@ public final class OnceEvery {
             return value.get();
         }
 
-        private void refresh() {
-            this.value.set(supplier.get());
-        }
-
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[" + supplier + "]";
+        }
+
+        private void refresh() {
+            this.value.set(supplier.get());
         }
     }
 }

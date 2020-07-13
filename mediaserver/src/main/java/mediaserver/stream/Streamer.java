@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.LongStream;
+import javax.annotation.Nonnull;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -62,8 +63,7 @@ public abstract class Streamer extends NettyHandler {
         log.info("{} created", this);
     }
 
-    @Override
-    protected Handling handle(Req req) {
+    protected @Override @Nonnull Handling handle(Req req) {
         HttpMethod method = req.getRequest().method();
         if (method == HttpMethod.HEAD || method == HttpMethod.GET) {
             return media.get().getAlbumTrack(uuid(req.getPath(true)))
@@ -76,6 +76,11 @@ public abstract class Streamer extends NettyHandler {
                     handleNotFound(req));
         }
         return handleBadRequest(req);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + media + ", kb/chunk:" + bytesPerChunk / Config.K + "]";
     }
 
     protected abstract Object content(Track track, Chunk chunk, boolean lossless);
@@ -188,10 +193,5 @@ public abstract class Streamer extends NettyHandler {
     private static long min(long... lengths) {
         return LongStream.of(lengths).min().orElseThrow(() ->
             new IllegalStateException("No end in sight! " + Arrays.toString(lengths)));
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + media + ", kb/chunk:" + bytesPerChunk / Config.K + "]";
     }
 }

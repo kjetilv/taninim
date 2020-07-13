@@ -1,12 +1,32 @@
 package mediaserver;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.cert.CertificateException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import mediaserver.externals.ACL;
 import mediaserver.externals.S3Client;
 import mediaserver.externals.S3Connector;
-import mediaserver.gui.*;
+import mediaserver.gui.AdminPage;
+import mediaserver.gui.AlbumPage;
+import mediaserver.gui.Favicon;
+import mediaserver.gui.FbAuth;
+import mediaserver.gui.FbUnauth;
+import mediaserver.gui.IndexPage;
+import mediaserver.gui.Login;
+import mediaserver.gui.Playlists;
+import mediaserver.gui.Resources;
 import mediaserver.http.Route;
 import mediaserver.http.Route.Method;
 import mediaserver.http.WebCache;
@@ -27,42 +47,11 @@ import mediaserver.util.UpdateDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.cert.CertificateException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-
 import static mediaserver.Config.*;
 
 final class Main {
 
-    private static final Clock CLOCK = Clock.system(TIMEZONE);
-
-    private static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::readUTF8);
-
-    private static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
-
-    private static final OnceEvery.TimingBuilder PERIODICALLY =
-        new OnceEvery(Executors.newSingleThreadScheduledExecutor()).interval(REFRESH_TIME);
-
-    private static final String RES = "res";
-
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-
-    private static final String FB_SEC = "fbSec";
-
-    private static final String FAVICON_ICO = RES + "/favicon.ico";
-
-    private Main() {
-
-    }
 
     public static void main(String[] args) {
 
@@ -93,7 +82,7 @@ final class Main {
         Route audio = new Route("audio", AccessLevel.STREAM_CURATED, Method.GET, Method.HEAD);
         Streamer streamer = noStream ? new NullStreamer(audio)
             : local ? new FileStreamer(audio, CLOCK, media, BYTES_PER_CHUNK)
-            : new S3Streamer(audio, CLOCK, media, s3, BYTES_PER_CHUNK);
+                : new S3Streamer(audio, CLOCK, media, s3, BYTES_PER_CHUNK);
 
         log.info("Streamer: {}", streamer);
         log.info("Binding to port {}", PORT);
@@ -142,6 +131,25 @@ final class Main {
 
         nettyRunner.run(router, PORT, mockSslContext);
     }
+
+    private Main() {
+
+    }
+
+    private static final Clock CLOCK = Clock.system(TIMEZONE);
+
+    private static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::readUTF8);
+
+    private static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
+
+    private static final OnceEvery.TimingBuilder PERIODICALLY =
+        new OnceEvery(Executors.newSingleThreadScheduledExecutor()).interval(REFRESH_TIME);
+
+    private static final String RES = "res";
+
+    private static final String FB_SEC = "fbSec";
+
+    private static final String FAVICON_ICO = RES + "/favicon.ico";
 
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
 

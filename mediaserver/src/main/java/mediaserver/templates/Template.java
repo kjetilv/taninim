@@ -35,6 +35,11 @@ public final class Template {
         this.bytes = MostlyOnce.get(this::toBytes);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + name + "]";
+    }
+
     public byte[] bytes() {
         return this.bytes.get();
     }
@@ -98,10 +103,5 @@ public final class Template {
         public void internalError(STMessage msg) {
             log.error("{}: Internal error: {}", name, msg, msg.cause);
         }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + name + "]";
     }
 }

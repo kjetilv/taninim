@@ -29,10 +29,6 @@ public final class Exchange {
 
     private final String sessionShortId;
 
-    private static final String UNSESSION = "unsession";
-
-    private static final String UNKNOWN = "unknown";
-
     public Exchange(long sequenceNo, Handling handling) {
 
         this.sequenceNo = sequenceNo;
@@ -51,6 +47,18 @@ public final class Exchange {
         this.sessionStatus = session == null
             ? null
             : session.toString() + " status: " + session.getCurrentStatus(req.getTime());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return (int) sequenceNo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        return this == o || o instanceof Exchange && sequenceNo == ((Exchange) o).sequenceNo;
     }
 
     public String getTime() {
@@ -103,15 +111,7 @@ public final class Exchange {
         return sequenceNo;
     }
 
-    @Override
-    public int hashCode() {
+    private static final String UNSESSION = "unsession";
 
-        return (int) sequenceNo;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        return this == o || o instanceof Exchange && sequenceNo == ((Exchange) o).sequenceNo;
-    }
+    private static final String UNKNOWN = "unknown";
 }

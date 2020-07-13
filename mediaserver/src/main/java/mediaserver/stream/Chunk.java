@@ -18,6 +18,14 @@ public final class Chunk {
         this.totalSize = totalSize;
     }
 
+    @Override
+    public String toString() {
+        long startPerc = start * 100 / totalSize;
+        long endPerc = end * 100 / totalSize;
+        return getClass().getSimpleName() + "[" + getRange() + " " + getSize() / KILO + "Kb/" +
+            (startPerc == endPerc ? startPerc : startPerc + "-" + endPerc) + "%]";
+    }
+
     String getRangeHeader() {
         return BYTES + getRange();
     }
@@ -42,22 +50,14 @@ public final class Chunk {
         int dims = StrictMath.toIntExact(
             StrictMath.round(
                 StrictMath.pow(10, decs)));
-        return Math.toIntExact(100 * dims * (start + progress) / totalSize) / (double)dims;
-    }
-
-    private static final String BYTES = "bytes ";
-
-    private static final int KILO = 1024;
-
-    @Override
-    public String toString() {
-        long startPerc = start * 100 / totalSize;
-        long endPerc = end * 100 / totalSize;
-        return getClass().getSimpleName() + "[" + getRange() + " " + getSize() / KILO + "Kb/" +
-            (startPerc == endPerc ? startPerc : startPerc + "-" + endPerc) + "%]";
+        return Math.toIntExact(100 * dims * (start + progress) / totalSize) / (double) dims;
     }
 
     long getSize() {
         return end - start;
     }
+
+    private static final String BYTES = "bytes ";
+
+    private static final int KILO = 1024;
 }

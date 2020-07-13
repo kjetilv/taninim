@@ -17,9 +17,6 @@ import static mediaserver.sessions.AccessLevel.STREAM_SINGLE;
 
 public final class StreamAuthorization {
 
-    private StreamAuthorization() {
-    }
-
     public static boolean authorizedStreaming(Media media, Req req, AlbumTrack albumTrack) {
         return authorizedStreaming(req, albumTrack, () -> media);
     }
@@ -29,6 +26,9 @@ public final class StreamAuthorization {
             return req.hasAccess(STREAM_SINGLE);
         }
         return req.hasAccess(STREAM) || req.hasAccess(STREAM_CURATED) && media.get().isCurated(albumTrack);
+    }
+
+    private StreamAuthorization() {
     }
 
     private static Stream<Track> singlePlayableTrack(Req req) {

@@ -8,11 +8,19 @@ public final class Config {
 
     public static final ZoneId TIMEZONE = ZoneId.of(setting("timeZone").orElse("CET"));
 
+    public static final int K = 1024;
+
+    public static final boolean PLYR = set("plyr");
+
+    static final boolean PRETEND_SSL = set("ssl");
+
+    static final boolean DEV_LOGIN = set("dev");
+
+    static final int PORT = PRETEND_SSL ? 1443 : DEV_LOGIN ? 1080 : 80;
+
     static final Duration SESSION_LENGTH = duration("sessionLength", Duration.ofDays(1));
 
     static final Duration INACTIVITY_MAX = duration("inactivityMax", Duration.ofHours(1));
-
-    public static final int K = 1024;
 
     static final int LISTEN_GROUP = count("listenGroup", Runtime.getRuntime().availableProcessors());
 
@@ -28,15 +36,9 @@ public final class Config {
 
     static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(3));
 
-    public static final boolean PLYR = set("plyr");
+    private Config() {
 
-    static final boolean DEV_LOGIN = set("dev");
-
-    static final boolean PRETEND_SSL = set("ssl");
-
-    public static final int PORT = PRETEND_SSL ? 1443
-        : DEV_LOGIN ? 1080
-        : 80;
+    }
 
     private static final int MEGAS_PER_SESSION = count("sessionMb", 256);
 
@@ -57,31 +59,23 @@ public final class Config {
 
     static final boolean NEUTER = !LIVE && !DEV_LOGIN;
 
-    private Config() {
-
-    }
-
     private static Duration duration(String setting, Duration defaultDuration) {
-
         return setting(setting)
             .map(Duration::parse)
             .orElse(defaultDuration);
     }
 
-    private static Integer count(String setting, int defaultCount) {
+    private static Optional<String> setting(String setting) {
+        return Optional.ofNullable(System.getProperty(setting, System.getenv(setting)));
+    }
 
+    private static Integer count(String setting, int defaultCount) {
         return setting(setting)
             .map(Integer::parseInt)
             .orElse(defaultCount);
     }
 
-    private static Optional<String> setting(String setting) {
-
-        return Optional.ofNullable(System.getProperty(setting, System.getenv(setting)));
-    }
-
     private static boolean set(String flag) {
-
         return Boolean.getBoolean(flag) ||
             Optional.ofNullable(System.getenv(flag)).filter("true"::equals).isPresent();
     }

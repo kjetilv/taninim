@@ -13,12 +13,9 @@ public class AbstractPair<T1, T2> {
         this.t2 = t2;
     }
 
-    public T1 getT1() {
-        return t1;
-    }
-
-    public T2 getT2() {
-        return t2;
+    @Override
+    public int hashCode() {
+        return Objects.hash(t1, t2);
     }
 
     @Override
@@ -32,12 +29,15 @@ public class AbstractPair<T1, T2> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(t1, t2);
-    }
-
-    @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + t1 + " " + t2 + "]";
+    }
+
+    public T1 getT1() {
+        return t1;
+    }
+
+    public T2 getT2() {
+        return t2;
     }
 }

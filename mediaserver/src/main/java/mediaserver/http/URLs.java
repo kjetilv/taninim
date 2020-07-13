@@ -14,9 +14,6 @@ public final class URLs {
 
     private static final Logger log = LoggerFactory.getLogger(URLs.class);
 
-    private URLs() {
-    }
-
     public static Map<QPar, Collection<String>> queryParams(String pars) {
         if (pars == null || pars.isBlank()) {
             return Collections.emptyMap();
@@ -35,6 +32,9 @@ public final class URLs {
             }
             index = nextPair + 1;
         }
+    }
+
+    private URLs() {
     }
 
     private static void expandMap(String pars, Map<QPar, Collection<String>> map, int index, int nextPair) {

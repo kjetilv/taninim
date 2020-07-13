@@ -48,6 +48,8 @@ public class MasadaBook extends AbstractHashable {
         return null;
     }
 
+    private static final Pattern WS = Pattern.compile("\\s+");
+
     private static Stream<MasadaRef> refs(int book) {
         return IO.readLines("Book" + book + ".csv")
             .unpack(lines ->
@@ -61,6 +63,4 @@ public class MasadaBook extends AbstractHashable {
         String name = split[1];
         return new MasadaRef(book, no, name);
     }
-
-    private static final Pattern WS = Pattern.compile("\\s+");
 }

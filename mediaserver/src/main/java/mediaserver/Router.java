@@ -1,5 +1,22 @@
 package mediaserver;
 
+import java.net.SocketAddress;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -10,36 +27,30 @@ import io.netty.handler.codec.http.HttpUtil;
 import mediaserver.debug.Debug;
 import mediaserver.debug.Exchange;
 import mediaserver.gui.Login;
-import mediaserver.http.*;
+import mediaserver.http.Handling;
+import mediaserver.http.Netty;
+import mediaserver.http.NettyHandler;
+import mediaserver.http.Req;
+import mediaserver.http.Route;
 import mediaserver.http.Route.Method;
 import mediaserver.sessions.AccessLevel;
 import mediaserver.sessions.Sessions;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.RingBuffer;
 import mediaserver.util.Throwables;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketAddress;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
+import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
+import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
+import static io.netty.handler.codec.http.HttpResponseStatus.UNAUTHORIZED;
 
 @ChannelHandler.Sharable
 final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(Router.class);
-
-    private static final AtomicLong sequence = new AtomicLong();
 
     private final Sessions sessions;
 
@@ -48,8 +59,6 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final Map<Route, NettyHandler> handlers;
 
     private final RingBuffer<Exchange> latestExchanges = new RingBuffer<>(EXCHANGES_REMEMBERED);
-
-    private static final int EXCHANGES_REMEMBERED = 100;
 
     Router(Sessions sessions, Templater templater, Clock clock, NettyHandler... handlers) {
 
@@ -113,44 +122,36 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     }
 
     private void handle(ChannelHandlerContext ctx, FullHttpRequest request) {
-
         Instant time = clock.instant();
         handlers.keySet().stream()
             .filter(resolves(request))
             .max(prefixLength())
             .ifPresentOrElse(
                 route ->
-                    handle(ctx, request, route, time),
+                    Req.from(route, ctx, request, time)
+                        .map(sessions.binder())
+                        .map(handler(ctx, time))
+                        .orElseGet(() -> () -> {
+                            log.info("Unauthenticated: {}", request);
+                            Netty.respond(ctx, UNAUTHORIZED);
+                        })
+                        .run(),
                 () -> {
                     log.info("Not handled: {}", request);
                     Netty.respond(ctx, NOT_FOUND);
                 });
     }
 
-    private void handle(ChannelHandlerContext ctx, FullHttpRequest request, Route route, Instant time) {
-
-        Req.from(route, ctx, request, time)
-            .map(sessions.binder())
-            .map(handler(ctx, time))
-            .orElseGet(() -> () -> {
-                log.info("Unauthenticated: {}", request);
-                Netty.respond(ctx, UNAUTHORIZED);
-            })
-            .run();
-    }
-
-    @NotNull
+    @Nonnull
     private Function<Req, Runnable> handler(ChannelHandlerContext ctx, Instant time) {
-
         return req ->
             boundRequestHandler(ctx, time, req);
     }
 
+    @Nonnull
     private Runnable boundRequestHandler(ChannelHandlerContext ctx, Instant time, Req req) {
-
         try {
             if (req.hasRoute()) {
-
                 NettyHandler nettyHandler = handlers.get(req.getRoute());
                 if (nettyHandler == null) {
                     logError(req, time, null);
@@ -183,9 +184,24 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
     }
 
     private Optional<NettyHandler> login() {
-
-        return handlers.values().stream().filter(nettyHandler -> nettyHandler instanceof Login).findFirst();
+        return handlers.values().stream().filter(Login.class::isInstance).findFirst();
     }
+
+    private void logExchange(Handling handling) {
+        latestExchanges.add(new Exchange(sequence.getAndIncrement(), handling));
+    }
+
+    private void logError(Object req, Instant time, Throwable e) {
+        log.error("Failure situation: {} [{}ms]: {}", "Handling of request failed", durationSince(time), req, e);
+    }
+
+    private long durationSince(Instant start) {
+        return start == null ? -1L : Duration.between(start, clock.instant()).toMillis();
+    }
+
+    private static final AtomicLong sequence = new AtomicLong();
+
+    private static final int EXCHANGES_REMEMBERED = 100;
 
     private static Comparator<Route> prefixLength() {
 
@@ -203,21 +219,6 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
         return Throwables.causes(cause)
             .map(String::valueOf)
             .collect(Collectors.joining(" <= "));
-    }
-
-    private void logExchange(Handling handling) {
-
-        latestExchanges.add(new Exchange(sequence.getAndIncrement(), handling));
-    }
-
-    private void logError(Object req, Instant time, Throwable e) {
-
-        log.error("Failure situation: {} [{}ms]: {}", "Handling of request failed", durationSince(time), req, e);
-    }
-
-    private long durationSince(Instant start) {
-
-        return start == null ? -1L : Duration.between(start, clock.instant()).toMillis();
     }
 
     private static String addr(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {

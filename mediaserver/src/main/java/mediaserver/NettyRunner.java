@@ -48,6 +48,15 @@ final class NettyRunner {
         this.connectTimeout = connectTimeout;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" +
+            "l:" + listenThreads + "/w:" + workThreads +
+            " -> " +
+            "t:" + threads + "/q:" + queue +
+            "]";
+    }
+
     void run(Router router, int port, SslContext sslContext) {
         EventLoopGroup listen = listenGroup();
         EventLoopGroup work = workGroup();
@@ -125,14 +134,5 @@ final class NettyRunner {
                 count.increment();
             }
         };
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" +
-            "l:" + listenThreads + "/w:" + workThreads +
-            " -> " +
-            "t:" + threads + "/q:" + queue +
-            "]";
     }
 }

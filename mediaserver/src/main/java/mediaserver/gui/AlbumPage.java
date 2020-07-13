@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 
 import mediaserver.Config;
 import mediaserver.GlobalState;
@@ -29,7 +30,6 @@ import mediaserver.templates.TPar;
 import mediaserver.templates.Template;
 import mediaserver.toolkit.Templater;
 import mediaserver.util.Pair;
-import org.jetbrains.annotations.NotNull;
 
 import static mediaserver.sessions.AccessLevel.ADMIN;
 import static mediaserver.sessions.AccessLevel.STREAM;
@@ -39,12 +39,17 @@ public final class AlbumPage extends TemplateEnabled {
 
     private final Supplier<? extends Media> media;
 
-    public AlbumPage(Route route, Supplier<? extends Media> media, Templater templater) {
+    public AlbumPage(
+        @Nonnull Route route,
+        @Nonnull Supplier<? extends Media> media,
+        @Nonnull Templater templater
+    ) {
         super(route, templater);
-        this.media = media;
+        this.media = Objects.requireNonNull(media, "media");
     }
 
     @Override
+    @Nonnull
     protected Handling handle(Req req) {
         return template(req, media.get()).findFirst()
             .map(template -> respondHtml(req, template))
@@ -52,10 +57,13 @@ public final class AlbumPage extends TemplateEnabled {
     }
 
     private Stream<Template> template(Req req, Media media) {
-        return QPar.album.id(req).flatMap(media::getAlbum).map(album -> albumTemplate(media, req, album));
+        return QPar.album.id(req)
+            .flatMap(media::getAlbum)
+            .map(album ->
+                albumTemplate(media, req, album));
     }
 
-    private Template albumTemplate(Media media, Req req, Album album) {
+    private @Nonnull Template albumTemplate(Media media, Req req, Album album) {
         Optional<SelectedTrack> selectedTrack = selectedTrack(media, req, album).findFirst();
         Optional<SelectedTrack> highlightedTrack = selectedTrack.filter(isHighlighted(req));
         return getTemplate(ALBUM_PAGE).add(TPar.user, req.getSession().getActiveUser(req))
@@ -119,7 +127,7 @@ public final class AlbumPage extends TemplateEnabled {
             .findFirst();
     }
 
-    @NotNull
+    @Nonnull
     private static Stream<PlayableGroup> playablesStream(Media media, Req req, Album album) {
         return album.getTracksByPart().entrySet().stream().map(e -> new PlayableGroup(
             e.getKey(),

@@ -7,13 +7,13 @@ import java.util.Random;
 
 public final class Ran {
 
-    private Ran() {
-    }
-
     public static <T> Optional<T> dom(Collection<T> ts) {
         return ts == null || ts.isEmpty()
             ? Optional.empty()
             : Optional.of(new ArrayList<>(ts).get(RANDOM.nextInt(ts.size())));
+    }
+
+    private Ran() {
     }
 
     private static final Random RANDOM = new Random();

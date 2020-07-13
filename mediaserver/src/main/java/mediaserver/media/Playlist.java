@@ -13,6 +13,22 @@ import mediaserver.hash.AbstractNameHashable;
 
 public final class Playlist extends AbstractNameHashable {
 
+    public static Collection<Playlist> playlistsWith(Album... albums) {
+        return convert(PlaylistYaml.PLAYLISTS, Arrays.asList(albums));
+    }
+
+    public static Collection<Playlist> curationsWith(Album... albums) {
+        return convert(PlaylistYaml.CURATED, Arrays.asList(albums));
+    }
+
+    static Collection<Playlist> playlistsWith(Collection<Album> albums) {
+        return convert(PlaylistYaml.PLAYLISTS, albums);
+    }
+
+    static Collection<Playlist> curationsWith(Collection<Album> albums) {
+        return convert(PlaylistYaml.CURATED, albums);
+    }
+
     private final Map<Album, Collection<Track>> tracks;
 
     private Playlist(String name) {
@@ -43,20 +59,12 @@ public final class Playlist extends AbstractNameHashable {
         return tracks.containsKey(album);
     }
 
-    public static Collection<Playlist> playlistsWith(Album... albums) {
-        return convert(PlaylistYaml.PLAYLISTS, Arrays.asList(albums));
-    }
-
-    public static Collection<Playlist> curationsWith(Album... albums) {
-        return convert(PlaylistYaml.CURATED, Arrays.asList(albums));
-    }
-
-    static Collection<Playlist> playlistsWith(Collection<Album> albums) {
-        return convert(PlaylistYaml.PLAYLISTS, albums);
-    }
-
-    static Collection<Playlist> curationsWith(Collection<Album> albums) {
-        return convert(PlaylistYaml.CURATED, albums);
+    private Playlist add(Album album) {
+        if (tracks.isEmpty()) {
+            return new Playlist(getName(), Map.of(album, new HashSet<>(album.getTracks())));
+        }
+        this.tracks.put(album, new HashSet<>(album.getTracks()));
+        return this;
     }
 
     private Playlist add(Playlist playlist) {
@@ -64,14 +72,6 @@ public final class Playlist extends AbstractNameHashable {
             return playlist;
         }
         this.tracks.putAll(playlist.tracks);
-        return this;
-    }
-
-    private Playlist add(Album album) {
-        if (tracks.isEmpty()) {
-            return new Playlist(getName(), Map.of(album, new HashSet<>(album.getTracks())));
-        }
-        this.tracks.put(album, new HashSet<>(album.getTracks()));
         return this;
     }
 
@@ -83,12 +83,10 @@ public final class Playlist extends AbstractNameHashable {
 
     private static Collection<Playlist> convert(Collection<PlaylistYaml> playlists, Collection<Album> albums) {
         return playlists.stream()
-            .map(playlist -> albums.stream()
-                .filter(playlist::contains)
-                .reduce(
-                    new Playlist(playlist.getPath().toString()),
-                    Playlist::add,
-                    Playlist::add))
+            .map(playlist ->
+                albums.stream()
+                    .filter(playlist::contains)
+                    .reduce(new Playlist(playlist.getPath().toString()), Playlist::add, Playlist::add))
             .filter(playlist ->
                 !playlist.isEmpty())
             .collect(Collectors.toList());

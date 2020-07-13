@@ -7,9 +7,6 @@ import java.util.stream.IntStream;
 
 public final class Pairs {
 
-    private Pairs() {
-    }
-
     public static <T> Collection<Pair<T, T>> pairs(Collection<? extends T> t, T end) {
         ArrayList<T> l = new ArrayList<>(t);
         int size = l.size();
@@ -21,5 +18,8 @@ public final class Pairs {
                         ? l.get(i + 1)
                         : end))
             .collect(Collectors.toList());
+    }
+
+    private Pairs() {
     }
 }

@@ -2,10 +2,12 @@ package mediaserver.gui;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 
 import mediaserver.GlobalState;
 import mediaserver.externals.ACL;
@@ -40,6 +42,18 @@ public final class AdminPage
 
     private static final Logger log = LoggerFactory.getLogger(AdminPage.class);
 
+    enum Action {
+        ids,
+        exterminate,
+        juke,
+        nuke,
+        reload;
+
+        private String path() {
+            return '/' + name();
+        }
+    }
+
     private final Supplier<Media> mediaSupplier;
 
     private final Supplier<Ids> idsSupplier;
@@ -56,22 +70,21 @@ public final class AdminPage
         Action.reload, this::reload);
 
     public AdminPage(
-        Route route,
-        Supplier<Media> mediaSupplier,
-        Supplier<Ids> idsSupplier,
-        Sessions sessions,
-        Templater templater,
-        S3Client s3
+        @Nonnull Route route,
+        @Nonnull Supplier<Media> mediaSupplier,
+        @Nonnull Supplier<Ids> idsSupplier,
+        @Nonnull Sessions sessions,
+        @Nonnull Templater templater,
+        @Nonnull S3Client s3
     ) {
         super(route, templater);
-        this.mediaSupplier = mediaSupplier;
-        this.idsSupplier = idsSupplier;
-        this.sessions = sessions;
-        this.s3 = s3;
+        this.mediaSupplier = Objects.requireNonNull(mediaSupplier, "mediaSupplier");
+        this.idsSupplier = Objects.requireNonNull(idsSupplier, "idsSupplier");
+        this.sessions = Objects.requireNonNull(sessions, "sessions");
+        this.s3 = Objects.requireNonNull(s3, "s3");
     }
 
-    @Override
-    protected Handling handle(Req req) {
+    protected @Override @Nonnull Handling handle(Req req) {
         return action(req).map(actions::get)
             .flatMap(action -> action.apply(req))
             .orElseGet(() ->
@@ -80,6 +93,17 @@ public final class AdminPage
                     getTemplate(ADMIN_PAGE).add(user, req.getSession().getActiveUser(req))
                         .add(TPar.sessions, sessions.list())
                         .add(TPar.ids, map(idsSupplier.get()))));
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+            "[mediaSupplier=" + mediaSupplier +
+            " idsSupplier=" + idsSupplier +
+            " sessions=" + sessions +
+            " s3=" + s3 +
+            " actions=" + actions +
+            "]";
     }
 
     private Optional<Handling> reload(Req req) {
@@ -180,28 +204,5 @@ public final class AdminPage
         } catch (Exception e) {
             throw new IllegalStateException("No map", e);
         }
-    }
-
-    enum Action {
-        ids,
-        exterminate,
-        juke,
-        nuke,
-        reload;
-
-        private String path() {
-            return '/' + name();
-        }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[mediaSupplier=" + mediaSupplier +
-            " idsSupplier=" + idsSupplier +
-            " sessions=" + sessions +
-            " s3=" + s3 +
-            " actions=" + actions +
-            "]";
     }
 }

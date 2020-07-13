@@ -1,28 +1,26 @@
 package mediaserver;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+
 import mediaserver.media.Album;
 import mediaserver.media.Track;
 import mediaserver.util.ExpiringState;
 import mediaserver.util.Pair;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Optional;
-
 @SuppressWarnings("UnusedReturnValue")
 public final class GlobalState {
 
-    private static final GlobalState INSTANCE = new GlobalState();
+    public static GlobalState get() {
+
+        return INSTANCE;
+    }
 
     private final ExpiringState<Pair<Album, Track>> globalTrack = new ExpiringState<>(Duration.ofDays(1));
 
     private GlobalState() {
 
-    }
-
-    public static GlobalState get() {
-
-        return INSTANCE;
     }
 
     public boolean unsetGlobalTrack() {
@@ -44,4 +42,6 @@ public final class GlobalState {
 
         return globalTrack.set(time, Pair.of(album, track), true);
     }
+
+    private static final GlobalState INSTANCE = new GlobalState();
 }

@@ -1,5 +1,8 @@
 package mediaserver.gui;
 
+import java.util.Objects;
+import javax.annotation.Nonnull;
+
 import mediaserver.http.Handling;
 import mediaserver.http.Netty;
 import mediaserver.http.NettyHandler;
@@ -20,22 +23,25 @@ public abstract class TemplateEnabled extends NettyHandler {
 
     static final String ADMIN_PAGE = "html/admin.html.st";
 
+    protected static final String DEBUG_PAGE = "html/debug.html.st";
+
     private final Templater templater;
 
-    protected TemplateEnabled(Route route, Templater templater) {
+    protected TemplateEnabled(
+        @Nonnull Route route,
+        @Nonnull Templater templater
+    ) {
         super(route);
-        this.templater = templater;
+        this.templater = Objects.requireNonNull(templater, "templater");
     }
 
-    protected Template getTemplate(String albumPage) {
+    protected @Nonnull Template getTemplate(String albumPage) {
         return templater.template(albumPage);
     }
 
-    protected Handling respondHtml(Req req, Template template) {
+    protected @Nonnull Handling respondHtml(Req req, Template template) {
         return handle(req, Netty.response(req, TEXT_HTML, template.bytes()));
     }
-
-    protected static final String DEBUG_PAGE = "html/debug.html.st";
 
     private static final String TEXT_HTML = "text/html";
 }

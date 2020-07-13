@@ -10,6 +10,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+
 import mediaserver.Config;
 import mediaserver.GlobalState;
 import mediaserver.hash.Hashable;
@@ -45,8 +47,7 @@ public final class IndexPage extends TemplateEnabled {
         this.media = media;
     }
 
-    @Override
-    protected Handling handle(Req req) {
+    protected @Override @Nonnull Handling handle(Req req) {
         Template template = template(req, media.get());
         return respondHtml(req, template);
     }

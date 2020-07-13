@@ -18,6 +18,13 @@ public enum QPar implements Par<Req, String> {
     sort,
     union;
 
+    public static Optional<QPar> get(String substring) {
+        return Arrays.stream(values())
+            .filter(v ->
+                v.name().equalsIgnoreCase(substring))
+            .findFirst();
+    }
+
     @Override
     public String getName() {
         return name();
@@ -26,12 +33,5 @@ public enum QPar implements Par<Req, String> {
     @Override
     public Stream<String> params(Req req) {
         return req.getQueryParameters().get(this);
-    }
-
-    public static Optional<QPar> get(String substring) {
-        return Arrays.stream(values())
-            .filter(v ->
-                v.name().equalsIgnoreCase(substring))
-            .findFirst();
     }
 }

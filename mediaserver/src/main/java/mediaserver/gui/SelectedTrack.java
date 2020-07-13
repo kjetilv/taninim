@@ -21,6 +21,18 @@ final class SelectedTrack {
         this.next = next;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+            "[" +
+            albumTrack +
+            " autoplay=" +
+            autoplay +
+            (next == null ? "" : ", next") +
+            (previous == null ? "" : ", prev") +
+            "]";
+    }
+
     public Album getAlbum() {
         return albumTrack.getAlbum();
     }
@@ -39,17 +51,5 @@ final class SelectedTrack {
 
     public Track getNext() {
         return next;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[" +
-            albumTrack +
-            " autoplay=" +
-            autoplay +
-            (next == null ? "" : ", next") +
-            (previous == null ? "" : ", prev") +
-            "]";
     }
 }

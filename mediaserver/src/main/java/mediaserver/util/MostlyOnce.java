@@ -7,9 +7,6 @@ import java.util.function.Supplier;
 
 public final class MostlyOnce {
 
-    private MostlyOnce() {
-    }
-
     public static <T, O> Function<T, O> compute(Function<T, O> fun) {
         return new Funn<>(vetted(fun));
     }
@@ -26,6 +23,9 @@ public final class MostlyOnce {
      */
     public static <O> Supplier<O> get(Supplier<O> supplier) {
         return new Supp<>(vetted(supplier));
+    }
+
+    private MostlyOnce() {
     }
 
     private static <O> Supplier<O> vetted(Supplier<O> supplier) {

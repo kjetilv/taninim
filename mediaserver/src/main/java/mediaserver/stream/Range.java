@@ -10,18 +10,6 @@ import static java.lang.Long.parseLong;
 
 final class Range {
 
-    private final Long start;
-
-    private final Long exclusiveEnd;
-
-    private final boolean satisfiable;
-
-    private Range(Long start, Long exclusiveEnd, long length) {
-        this.start = start;
-        this.exclusiveEnd = exclusiveEnd;
-        this.satisfiable = start == null || start < length;
-    }
-
     static Stream<Range> read(String value, long length) {
         return Optional.ofNullable(value).stream()
             .map(COMMA::split)
@@ -42,6 +30,24 @@ final class Range {
             });
     }
 
+    private final Long start;
+
+    private final Long exclusiveEnd;
+
+    private final boolean satisfiable;
+
+    private Range(Long start, Long exclusiveEnd, long length) {
+        this.start = start;
+        this.exclusiveEnd = exclusiveEnd;
+        this.satisfiable = start == null || start < length;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+            "[" + (start == null ? "" : start) + '-' + (exclusiveEnd == null ? "" : exclusiveEnd) + "]";
+    }
+
     long getStart() {
         return start;
     }
@@ -59,10 +65,4 @@ final class Range {
     private static final int BYTES_PREAMBLE_LENGTH = BYTES_PREAMBLE.length();
 
     private static final Pattern COMMA = Pattern.compile(",");
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[" + (start == null ? "" : start) + '-' + (exclusiveEnd == null ? "" : exclusiveEnd) + "]";
-    }
 }

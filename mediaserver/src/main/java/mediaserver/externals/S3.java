@@ -1,31 +1,19 @@
 package mediaserver.externals;
 
-import io.minio.MinioClient;
-import mediaserver.util.IO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 
+import io.minio.MinioClient;
+import mediaserver.util.IO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class S3 {
 
-    private static final String BUCKET = "taninim-water";
-
     static final Logger log = LoggerFactory.getLogger(S3.class);
-
-    private static final String REGION = "eu-north-1";
-
-    private static final String AMAZONAWS_COM = "https://s3.amazonaws.com/";
-
-    private static final String SELF_ASSIGNED = "http://169.254.170.2";
-
-    private S3() {
-
-    }
 
     static Optional<S3Client> s3(String cloudUri) {
 
@@ -61,6 +49,18 @@ public class S3 {
         }
     }
 
+    private S3() {
+
+    }
+
+    private static final String BUCKET = "taninim-water";
+
+    private static final String REGION = "eu-north-1";
+
+    private static final String AMAZONAWS_COM = "https://s3.amazonaws.com/";
+
+    private static final String SELF_ASSIGNED = "http://169.254.170.2";
+
     private static String get(Map<?, ?> credentials, Credentials field) {
 
         return Optional.ofNullable(credentials.get(field.name())).map(Object::toString)
@@ -69,7 +69,6 @@ public class S3 {
     }
 
     private enum Credentials {
-
         AccessKeyId,
         SecretAccessKey,
         Token,

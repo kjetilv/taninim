@@ -44,6 +44,13 @@ public enum TPar implements Par<Template, Object> {
     streamlease,
     exchanges;
 
+    public static Optional<TPar> get(String substring) {
+        return Arrays.stream(values())
+            .filter(v ->
+                v.name().equalsIgnoreCase(substring))
+            .findFirst();
+    }
+
     @Override
     public String getName() {
         return name();
@@ -52,12 +59,5 @@ public enum TPar implements Par<Template, Object> {
     @Override
     public Stream<Object> params(Template template) {
         return Stream.of(template.get(this));
-    }
-
-    public static Optional<TPar> get(String substring) {
-        return Arrays.stream(values())
-            .filter(v ->
-                v.name().equalsIgnoreCase(substring))
-            .findFirst();
     }
 }

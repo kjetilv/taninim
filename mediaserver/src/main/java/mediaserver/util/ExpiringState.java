@@ -38,6 +38,11 @@ public class ExpiringState<T> implements Function<Instant, Optional<T>>, Supplie
         return get(clock.get());
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + state + " @ " + lastSet + "]";
+    }
+
     public boolean set(Instant time, T value) {
         return set(time, value, false);
     }
@@ -98,10 +103,5 @@ public class ExpiringState<T> implements Function<Instant, Optional<T>>, Supplie
 
     private Instant now(Instant time) {
         return time == null ? clock.get() : time;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + state + " @ " + lastSet + "]";
     }
 }

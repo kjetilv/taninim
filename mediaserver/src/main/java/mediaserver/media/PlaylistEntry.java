@@ -11,6 +11,10 @@ import java.util.stream.Collectors;
 
 public final class PlaylistEntry {
 
+    enum MatchType {
+        ARTIST, ALBUM, TRACK
+    }
+
     private final Collection<Matcher> artistSpecs;
 
     private final Collection<Matcher> albumSpecs;
@@ -24,6 +28,15 @@ public final class PlaylistEntry {
         this.artistSpecs = specs(specs, MatchType.ARTIST);
         this.albumSpecs = specs(specs, MatchType.ALBUM);
         this.trackSpecs = specs(specs, MatchType.TRACK);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+            "[art:" + artistSpecs +
+            " alb:" + albumSpecs +
+            " trl:" + trackSpecs +
+            "]";
     }
 
     public boolean match(Album album) {
@@ -73,10 +86,6 @@ public final class PlaylistEntry {
         return specs.isEmpty() || specs.stream().allMatch(m -> m.test(str));
     }
 
-    enum MatchType {
-        ARTIST, ALBUM, TRACK
-    }
-
     private static class Matcher implements Predicate<String> {
 
         private final MatchType type;
@@ -97,22 +106,13 @@ public final class PlaylistEntry {
             return s.toLowerCase().contains(matchValue);
         }
 
-        private MatchType getType() {
-            return type;
-        }
-
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[" + type + " " + matchValue + "]";
         }
-    }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[art:" + artistSpecs +
-            " alb:" + albumSpecs +
-            " trl:" + trackSpecs +
-            "]";
+        private MatchType getType() {
+            return type;
+        }
     }
 }

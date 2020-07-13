@@ -1,10 +1,5 @@
 package mediaserver.sessions;
 
-import mediaserver.externals.FbUser;
-import mediaserver.http.Req;
-import mediaserver.util.DAC;
-import mediaserver.util.Print;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -18,7 +13,24 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import mediaserver.externals.FbUser;
+import mediaserver.http.Req;
+import mediaserver.util.DAC;
+import mediaserver.util.Print;
+
 public final class Session {
+
+    public enum Status {
+        OK,
+        SESSION_LENGTH_CUTOFF,
+        INACTIVITY_CUTOFF,
+        QUOTA_EXCEEDED;
+
+        private String getDescription() {
+
+            return name().toLowerCase().replace('_', ' ');
+        }
+    }
 
     private final Instant startTime;
 
@@ -59,6 +71,31 @@ public final class Session {
         this.inactivityMax = Objects.requireNonNull(inactivityMax, "inactivityMax");
     }
 
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(cookie, fbUser);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        return this == o ||
+            o instanceof Session &&
+                Objects.equals(cookie, ((Session) o).cookie) &&
+                Objects.equals(fbUser, ((Session) o).fbUser);
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + fbUser + "/" + accessLevel + "/" + Print.uuid(cookie) +
+            "@" + Print.aboutTime(startTime) +
+            " s:" + Print.bytes(bytesStreamed.get()) + "/" + Print.bytes(bytesQuota) +
+            " t:" + Duration.between(lastAccessed.get(), sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
+            "]";
+    }
+
     public Instant getStartTime() {
 
         return startTime.truncatedTo(ChronoUnit.SECONDS);
@@ -96,23 +133,6 @@ public final class Session {
             .collect(Collectors.joining(", "));
     }
 
-    Collection<Status> getStatus(Instant time) {
-
-        return accessLevel.satisfies(AccessLevel.ADMIN) ? Collections.singleton(Status.OK) : Stream
-            .of(
-                sessionStatus(time),
-                activityStatus(time),
-                quotaStatus())
-            .distinct()
-            .collect(Collectors.toList());
-    }
-
-    boolean isValid(Instant time) {
-
-        Collection<Session.Status> statuses = getStatus(time);
-        return statuses.size() == 1 && statuses.iterator().next() == Status.OK;
-    }
-
     public boolean hasLevel(AccessLevel accessLevel) {
 
         return this.accessLevel.satisfies(accessLevel);
@@ -133,11 +153,6 @@ public final class Session {
         return sessionCutoff.truncatedTo(ChronoUnit.SECONDS);
     }
 
-    long getStreamedBytes() {
-
-        return bytesStreamed.get();
-    }
-
     @DAC
     public String getPrettyStreamedBytes() {
 
@@ -150,14 +165,36 @@ public final class Session {
         return Print.bytes(bytesQuota);
     }
 
-    long getStreamQuota() {
-
-        return bytesQuota;
-    }
-
     public SessionState getSessionState() {
 
         return sessionState;
+    }
+
+    Collection<Status> getStatus(Instant time) {
+
+        return accessLevel.satisfies(AccessLevel.ADMIN) ? Collections.singleton(Status.OK) : Stream
+            .of(
+                sessionStatus(time),
+                activityStatus(time),
+                quotaStatus())
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+    boolean isValid(Instant time) {
+
+        Collection<Session.Status> statuses = getStatus(time);
+        return statuses.size() == 1 && statuses.iterator().next() == Status.OK;
+    }
+
+    long getStreamedBytes() {
+
+        return bytesStreamed.get();
+    }
+
+    long getStreamQuota() {
+
+        return bytesQuota;
     }
 
     private Status sessionStatus(Instant time) {
@@ -183,46 +220,5 @@ public final class Session {
         return bytesStreamed.get() < bytesQuota
             ? Status.OK
             : Status.QUOTA_EXCEEDED;
-    }
-
-    public enum Status {
-
-        OK,
-
-        SESSION_LENGTH_CUTOFF,
-
-        INACTIVITY_CUTOFF,
-
-        QUOTA_EXCEEDED;
-
-        private String getDescription() {
-
-            return name().toLowerCase().replace('_', ' ');
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(cookie, fbUser);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        return this == o ||
-            o instanceof Session &&
-                Objects.equals(cookie, ((Session) o).cookie) &&
-                Objects.equals(fbUser, ((Session) o).fbUser);
-    }
-
-    @Override
-    public String toString() {
-
-        return getClass().getSimpleName() + "[" + fbUser + "/" + accessLevel + "/" + Print.uuid(cookie) +
-            "@" + Print.aboutTime(startTime) +
-            " s:" + Print.bytes(bytesStreamed.get()) + "/" + Print.bytes(bytesQuota) +
-            " t:" + Duration.between(lastAccessed.get(), sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
-            "]";
     }
 }

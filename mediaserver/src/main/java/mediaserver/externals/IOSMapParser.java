@@ -23,10 +23,6 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
  */
 public final class IOSMapParser {
 
-    private IOSMapParser() {
-
-    }
-
     @SuppressWarnings({ "ContinueStatement", "AssignmentToNull" })
     public static Map<String, ?> convert(InputStream inputStream) {
 
@@ -120,6 +116,10 @@ public final class IOSMapParser {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to parse", e);
         }
+    }
+
+    private IOSMapParser() {
+
     }
 
     private static final String KEY = "key";

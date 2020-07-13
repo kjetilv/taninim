@@ -49,7 +49,8 @@ public final class DiscogsDataResolver {
     ) {
 
         this.resourcesDirectory = resourcesDirectory;
-        this.connections = connections == null || connections.isEmpty() ? Collections.emptyList() : List.copyOf(connections);
+        this.connections =
+            connections == null || connections.isEmpty() ? Collections.emptyList() : List.copyOf(connections);
         this.refreshTime = refreshTime;
         this.clock = clock;
     }
@@ -73,11 +74,6 @@ public final class DiscogsDataResolver {
                 ))
             .flatMap(Optional::stream)
             .findFirst();
-    }
-
-    private static boolean match(Album album, DiscogConnection meta) {
-
-        return meta.isUp() && meta.getAlbum().equals(album);
     }
 
     private Optional<DiscogReleaseDigest> digest(DiscogConnection connection, Path local, Path raw) {
@@ -107,6 +103,33 @@ public final class DiscogsDataResolver {
 
         return resourcesDirectory.resolve(
             Paths.get(connection.getType(), connection.getId() + suffix));
+    }
+
+    private boolean fresh(Path raw) {
+
+        try {
+            return Duration.between(
+                modifiedTime(raw),
+                clock.instant()
+            ).minus(refreshTime).isNegative();
+        } catch (IOException e) {
+            log.warn("Could not assert age of {}", raw, e);
+            return false;
+        }
+    }
+
+    private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
+
+    private static final String SECRET = IO.getProperty("dSec");
+
+    private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
+        headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);
+
+    private static final byte[] NO_DATA = { };
+
+    private static boolean match(Album album, DiscogConnection meta) {
+
+        return meta.isUp() && meta.getAlbum().equals(album);
     }
 
     private static Function<DiscogReleaseDigest, DiscogReleaseDigest> updateCover(Path cover) {
@@ -142,19 +165,6 @@ public final class DiscogsDataResolver {
         return Files.isRegularFile(local);
     }
 
-    private boolean fresh(Path raw) {
-
-        try {
-            return Duration.between(
-                modifiedTime(raw),
-                clock.instant()
-            ).minus(refreshTime).isNegative();
-        } catch (IOException e) {
-            log.warn("Could not assert age of {}", raw, e);
-            return false;
-        }
-    }
-
     private static Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path local) {
 
         Map<String, ?> rawData = IO.readData(raw);
@@ -185,7 +195,7 @@ public final class DiscogsDataResolver {
     }
 
     private static Instant modifiedTime(Path local)
-    throws IOException {
+        throws IOException {
 
         return Files.getLastModifiedTime(local).toInstant();
     }
@@ -210,13 +220,4 @@ public final class DiscogsDataResolver {
             }
         };
     }
-
-    private static final String KEY = "jTeXCJgjPPGaXAOQHkqS";
-
-    private static final String SECRET = IO.getProperty("dSec");
-
-    private static final Consumer<BiConsumer<String, String>> AUTHORIZATION = headers ->
-        headers.accept("Authorization", "Discogs key=" + KEY + ", secret=" + SECRET);
-
-    private static final byte[] NO_DATA = { };
 }

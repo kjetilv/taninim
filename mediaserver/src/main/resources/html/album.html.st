@@ -131,6 +131,7 @@
 
             <DIV STYLE="float: right; text-align: end; width: 30%">
                 {if(selected.next)}
+                <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}" ID='play-next'></A>
                 <SMALL>
                     <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}">
                         {selected.next.prettyTrackNo}:&nbsp;{selected.next.name}&nbsp;⏩&nbsp;</A>

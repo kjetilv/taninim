@@ -132,9 +132,9 @@
     {artists:{artist|
     [Artist&nbsp;<A HREF="/?{artist.focus}" TITLE="Vis bare denne"><STRONG>{
     artist.name
-    }</STRONG></A>&nbsp;<A HREF="/?{artist.remove}" TITLE="Fjern denne">⏹</A>{
+    }</STRONG></A>&nbsp;<A HREF="/?{artist.remove}" TITLE="Fjern denne">&nbsp;⏹</A>{
     if(user.streamingPlaylists)
-    }<A HREF="/playlist/artist/{artist.target.uuid}" TITLE="Spilleliste for {artist.target.name}">⏬</A>{
+    }<A HREF="/playlist/artist/{artist.target.uuid}" TITLE="Spilleliste for {artist.target.name}">&nbsp;⏬</A>{
     endif}]
     }}
     {endif}

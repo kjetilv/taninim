@@ -38,7 +38,6 @@ import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.jetbrains.annotations.NotNull;
 
 import static mediaserver.util.IO.Type.JAR;
 import static mediaserver.util.IO.Type.SOURCES;
@@ -52,9 +51,6 @@ public final class IO {
     public static final ObjectMapper OMP = new ObjectMapper()
         .enable(SerializationFeature.INDENT_OUTPUT)
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-    private IO() {
-    }
 
     public static <T> T writeStream(Path path, T output, BiConsumer<? super T, ? super OutputStream> receptor) {
         if (path.getParent().toFile().isDirectory() || path.getParent().toFile().mkdirs()) {
@@ -156,6 +152,13 @@ public final class IO {
     @Nonnull
     static <T> Sourced<T> from(Type source, T t, URL url) {
         return new Sourced<>(source, t, url);
+    }
+
+    public enum Type {
+        SOURCES, JAR, UNKNOWN
+    }
+
+    private IO() {
     }
 
     private static final int OK = 200;
@@ -313,7 +316,7 @@ public final class IO {
         }
     }
 
-    @NotNull
+    @Nonnull
     private static Optional<URL> sourceUrl(String resource) {
         return Optional.ofNullable(
             Thread.currentThread().getContextClassLoader().getResource(resource));
@@ -367,9 +370,5 @@ public final class IO {
     @Nonnull
     private static String toSourceName(Matcher matcher) {
         return matcher.replaceAll(SRC_MAIN);
-    }
-
-    public enum Type {
-        SOURCES, JAR, UNKNOWN
     }
 }

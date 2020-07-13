@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+
 import mediaserver.hash.AbstractHashable;
 
 public final class LocalMedia
@@ -208,7 +210,7 @@ public final class LocalMedia
         return Collections.unmodifiableCollection(curations);
     }
 
-    @Override
+    @Nonnull @Override
     public Stream<Playlist> getCuration(UUID uuid) {
         return getPlaylist(this.curations, uuid);
     }

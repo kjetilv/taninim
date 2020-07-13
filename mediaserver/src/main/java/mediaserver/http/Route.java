@@ -9,6 +9,14 @@ import mediaserver.sessions.Session;
 
 public class Route {
 
+    public enum Method {
+        HEAD, GET, POST;
+
+        private boolean test(String s) {
+            return name().equalsIgnoreCase(s);
+        }
+    }
+
     private final String prefix;
 
     private final AccessLevel accessLevel;
@@ -66,22 +74,14 @@ public class Route {
             : this.accessLevel.ordinal() <= accessLevel.ordinal();
     }
 
-    public enum Method {
-        HEAD, GET, POST;
-
-        private boolean test(String s) {
-            return name().equalsIgnoreCase(s);
-        }
+    @Override
+    public int hashCode() {
+        return prefix.hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
         return this == o || o instanceof Route && Objects.equals(prefix, ((Route) o).prefix);
-    }
-
-    @Override
-    public int hashCode() {
-        return prefix.hashCode();
     }
 
     @Override

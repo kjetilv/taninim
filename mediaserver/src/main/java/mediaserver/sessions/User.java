@@ -1,13 +1,13 @@
 package mediaserver.sessions;
 
-import mediaserver.hash.AbstractHashable;
-import mediaserver.util.DAC;
-import mediaserver.util.Print;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Consumer;
+
+import mediaserver.hash.AbstractHashable;
+import mediaserver.util.DAC;
+import mediaserver.util.Print;
 
 public class User extends AbstractHashable {
 
@@ -19,8 +19,6 @@ public class User extends AbstractHashable {
 
     private final String id;
 
-    private static final long serialVersionUID = 4919694628627926851L;
-
     User(Session session, Instant time, String name, String id) {
 
         this.session = Objects.requireNonNull(session, "session");
@@ -31,6 +29,18 @@ public class User extends AbstractHashable {
         if (!accessLevel1.satisfies(AccessLevel.LOGIN)) {
             throw new IllegalArgumentException("No login for " + name);
         }
+    }
+
+    @Override
+    public void hashTo(Consumer<byte[]> h) {
+
+        hash(h, name, session.getCookie().toString());
+    }
+
+    @Override
+    protected StringBuilder withStringBody(StringBuilder sb) {
+
+        return sb.append(name).append('/').append(getAccessLevel().name());
     }
 
     @DAC
@@ -95,20 +105,10 @@ public class User extends AbstractHashable {
         return getAccessLevel().satisfies(AccessLevel.STREAM_PLAYLISTS);
     }
 
-    @Override
-    public void hashTo(Consumer<byte[]> h) {
-
-        hash(h, name, session.getCookie().toString());
-    }
-
-    @Override
-    protected StringBuilder withStringBody(StringBuilder sb) {
-
-        return sb.append(name).append('/').append(getAccessLevel().name());
-    }
-
     private AccessLevel getAccessLevel() {
 
         return session.getAccessLevel();
     }
+
+    private static final long serialVersionUID = 4919694628627926851L;
 }

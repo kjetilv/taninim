@@ -1,19 +1,15 @@
 package mediaserver;
 
+import java.net.SocketException;
+import java.util.Optional;
+import java.util.stream.Stream;
+import javax.net.ssl.SSLHandshakeException;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.ssl.NotSslRecordException;
 
-import javax.net.ssl.SSLHandshakeException;
-import java.net.SocketException;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 final class Exceptions {
-
-    private Exceptions() {
-
-    }
 
     static IgnoreLevel ignoreLevel(ChannelHandlerContext ctx, Throwable cause) {
 
@@ -40,6 +36,14 @@ final class Exceptions {
             .orElse(IgnoreLevel.LOG);
     }
 
+    enum IgnoreLevel {
+        LOG, SUMMARIZE, MEH
+    }
+
+    private Exceptions() {
+
+    }
+
     private static boolean sslStuff(Throwable e) {
 
         return is(SSLHandshakeException.class, e) || is(NotSslRecordException.class, e);
@@ -48,10 +52,5 @@ final class Exceptions {
     private static boolean is(Class<?> sslHandshakeExceptionClass, Throwable e) {
 
         return e.getMessage() != null && e.getMessage().contains(sslHandshakeExceptionClass.getName());
-    }
-
-    enum IgnoreLevel {
-
-        LOG, SUMMARIZE, MEH
     }
 }

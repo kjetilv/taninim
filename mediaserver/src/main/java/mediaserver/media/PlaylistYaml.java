@@ -8,8 +8,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,27 +26,6 @@ public final class PlaylistYaml {
 
     public static final String CURATED_RESOURCE = "curated.yaml";
 
-    private final Path path;
-
-    private final Collection<PlaylistEntry> entries;
-
-    private PlaylistYaml(Path path, String... entries) {
-        this(path, Arrays.asList(entries));
-    }
-
-    private PlaylistYaml(Path path, Collection<String> entries) {
-        this(
-            entries == null || entries.isEmpty()
-                ? Collections.emptyList()
-                : entries.stream().map(PlaylistEntry::new).collect(Collectors.toList()),
-            Objects.requireNonNull(path));
-    }
-
-    private PlaylistYaml(Collection<PlaylistEntry> entries, Path path) {
-        this.path = path;
-        this.entries = entries;
-    }
-
     public static Collection<PlaylistYaml> playlists(String resource) {
         return IO.readUTF8(resource)
             .unpack(value ->
@@ -52,7 +34,28 @@ public final class PlaylistYaml {
             .orElseGet(Collections::emptyList);
     }
 
-    public Path getPath() {
+    private final Path path;
+
+    private final Collection<PlaylistEntry> entries;
+
+    PlaylistYaml(@Nonnull Path path, String... entries) {
+        this(path, Arrays.asList(entries));
+    }
+
+    private PlaylistYaml(@Nonnull Path path, @Nullable Collection<String> entries) {
+        this(
+            entries == null || entries.isEmpty()
+                ? Collections.emptyList()
+                : entries.stream().map(PlaylistEntry::new).collect(Collectors.toList()),
+            Objects.requireNonNull(path));
+    }
+
+    private PlaylistYaml(@Nonnull Collection<PlaylistEntry> entries, @Nonnull Path path) {
+        this.path = path;
+        this.entries = Objects.requireNonNull(entries, "entries");
+    }
+
+    public @Nullable Path getPath() {
         return path;
     }
 
@@ -64,7 +67,10 @@ public final class PlaylistYaml {
         return entries.stream().anyMatch(entry -> entry.match(path));
     }
 
-    private PlaylistYaml and(PlaylistYaml sub) {
+    private @Nonnull PlaylistYaml and(@Nullable PlaylistYaml sub) {
+        if (sub == null) {
+            return this;
+        }
         if (getPath() == null) {
             return sub;
         }
@@ -84,12 +90,6 @@ public final class PlaylistYaml {
 
     static final Collection<PlaylistYaml> CURATED =
         playlists(CURATED_RESOURCE);
-//    private static Stream<Path> getSuperpaths(Path path) {
-//
-//        return path.getParent() == null
-//            ? Stream.empty()
-//            : Stream.concat(Stream.of(path.getParent()), getSuperpaths(path.getParent()));
-//    }
 
     private static Map<?, ?> readMap(String resource, String value) {
         try {
@@ -99,10 +99,12 @@ public final class PlaylistYaml {
         }
     }
 
-    private static Stream<PlaylistYaml> playlists(Path prefix, Map<?, ?> map) {
+    private static Stream<PlaylistYaml> playlists(@Nullable Path prefix, Map<?, ?> map) {
         return map.entrySet().stream().flatMap(entry -> {
             Path path = Paths.get(String.valueOf(entry.getKey()));
-            Path subPath = prefix == null ? path : prefix.resolve(path);
+            Path subPath = prefix == null
+                ? Objects.requireNonNull(path, "path")
+                : prefix.resolve(path);
             if (entry.getValue() instanceof Collection<?>) {
                 Optional<PlaylistYaml> level = Optional.of(entries((Collection<?>) entry.getValue()))
                     .filter(albums -> !albums.isEmpty())
@@ -112,7 +114,8 @@ public final class PlaylistYaml {
                         playlists(subPath, sub))
                     .collect(Collectors.toList());
                 return Stream.concat(
-                    level.map(l -> sublevel.stream().reduce(l, PlaylistYaml::and, PlaylistYaml::and)).stream(),
+                    level.map(lv ->
+                        sublevel.stream().reduce(lv, PlaylistYaml::and, PlaylistYaml::and)).stream(),
                     sublevel.stream());
             }
             if (entry.getValue() instanceof Map<?, ?>) {
@@ -125,16 +128,19 @@ public final class PlaylistYaml {
     @SuppressWarnings("unchecked")
     private static Collection<Map<?, ?>> subMaps(Collection<?> entries) {
         return (Collection<Map<?, ?>>) entries.stream()
-            .filter(sub ->
-                sub instanceof Map<?, ?>)
+            .filter(isMap())
             .collect(Collectors.toList());
     }
 
-    private static Collection<String> entries(Collection<?> entries) {
+    private static @Nonnull Collection<String> entries(Collection<?> entries) {
         return entries.stream()
-            .filter(album -> !(album instanceof Map<?, ?>))
+            .filter(isMap().negate())
             .map(String::valueOf)
             .collect(Collectors.toList());
+    }
+
+    private static @Nonnull <T> Predicate<T> isMap() {
+        return Map.class::isInstance;
     }
 
     @Override

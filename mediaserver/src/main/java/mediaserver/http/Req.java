@@ -39,6 +39,23 @@ import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 
 public final class Req {
 
+    public static Optional<Req> from(
+        Route route,
+        ChannelHandlerContext ctx,
+        FullHttpRequest request,
+        Instant time
+    ) {
+        return Stream.of(request)
+            .map(HttpRequest::uri)
+            .filter(uri ->
+                !uri.isBlank())
+            .map(uri ->
+                URLDecoder.decode(uri, StandardCharsets.UTF_8))
+            .map(uri ->
+                new Req(ctx, request, route, route.resolve(uri), null, time))
+            .findFirst();
+    }
+
     private final ChannelHandlerContext ctx;
 
     private final Route route;
@@ -204,23 +221,6 @@ public final class Req {
 
     public String getReferer() {
         return request.headers().getAsString(HttpHeaderNames.REFERER);
-    }
-
-    public static Optional<Req> from(
-        Route route,
-        ChannelHandlerContext ctx,
-        FullHttpRequest request,
-        Instant time
-    ) {
-        return Stream.of(request)
-            .map(HttpRequest::uri)
-            .filter(uri ->
-                !uri.isBlank())
-            .map(uri ->
-                URLDecoder.decode(uri, StandardCharsets.UTF_8))
-            .map(uri ->
-                new Req(ctx, request, route, route.resolve(uri), null, time))
-            .findFirst();
     }
 
     public boolean isKeepAlive() {

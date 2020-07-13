@@ -35,9 +35,6 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public final class Netty {
 
-    private Netty() {
-    }
-
     public static HttpResponse respond(ChannelHandlerContext ctx, HttpResponseStatus status) {
         return respond(ctx, new DefaultHttpResponse(HTTP, status));
     }
@@ -51,12 +48,12 @@ public final class Netty {
         }
     }
 
-    public static HttpResponse response(Req req, byte[] content, Headers moreHeaders) {
-        return fullResponse(req, null, null, content, moreHeaders);
+    public static HttpResponse response(Req req, byte[] content, Headers headers) {
+        return fullResponse(req, null, null, content, headers);
     }
 
-    public static HttpResponse response(Req req, HttpResponseStatus status, byte[] content, Headers moreHeaders) {
-        return fullResponse(req, null, status, content, moreHeaders);
+    public static HttpResponse response(Req req, HttpResponseStatus status, byte[] content, Headers headers) {
+        return fullResponse(req, null, status, content, headers);
     }
 
     public static HttpResponse response(Req req, String contentType, byte[] content) {
@@ -106,6 +103,9 @@ public final class Netty {
         return redirect(location, null);
     }
 
+    private Netty() {
+    }
+
     private static final HttpVersion HTTP = HTTP_1_1;
 
     private static final long COOKIE_TIME = Duration.ofDays(1).toSeconds();
@@ -128,23 +128,23 @@ public final class Netty {
         String contentType,
         HttpResponseStatus status,
         byte[] content,
-        Headers moreHeaders
+        Headers headers
     ) {
-        HttpHeaders headers = new DefaultHttpHeaders();
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
         if (contentType != null) {
-            headers.set(CONTENT_TYPE, contentType);
+            httpHeaders.set(CONTENT_TYPE, contentType);
         } else {
             Optional.ofNullable(req).flatMap(Req::getResponseContentType).ifPresent(type ->
-                headers.set(CONTENT_TYPE, type));
+                httpHeaders.set(CONTENT_TYPE, type));
         }
         if (content != null) {
-            headers.set(CONTENT_LENGTH, content.length);
+            httpHeaders.set(CONTENT_LENGTH, content.length);
         }
         if (req != null && HttpUtil.isKeepAlive(req.getRequest())) {
-            headers.set(CONNECTION, KEEP_ALIVE);
+            httpHeaders.set(CONNECTION, KEEP_ALIVE);
         }
-        if (moreHeaders != null) {
-            moreHeaders.accept(headers::set);
+        if (headers != null) {
+            headers.accept(httpHeaders::set);
         }
         ByteBuf body = content == null
             ? Unpooled.EMPTY_BUFFER
@@ -153,11 +153,12 @@ public final class Netty {
             HTTP,
             status == null ? OK : status,
             body,
-            headers,
+            httpHeaders,
             EmptyHttpHeaders.INSTANCE);
     }
 
     private static Headers setCookie(String cookie) {
-        return headers -> headers.accept(SET_COOKIE, cookie);
+        return headers ->
+            headers.set(SET_COOKIE, cookie);
     }
 }

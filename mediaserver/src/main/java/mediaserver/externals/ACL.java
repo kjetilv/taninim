@@ -10,14 +10,21 @@ public class ACL {
 
     public static final ACL NONE = new ACL();
 
-    private ACLEntry[] acl = NO_ENTRIES;
-
     public static ACL readLocalACL(String resource) {
         return IO.readUTF8(resource)
             .unpack(res ->
                 IO.read(ACL.class, resource, res))
             .orElseThrow(() ->
                 new IllegalArgumentException("No resource found @ " + resource));
+    }
+
+    private ACLEntry[] acl = NO_ENTRIES;
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" +
+            Arrays.stream(acl).map(ACLEntry::toString).collect(Collectors.joining(" ")) +
+            "]";
     }
 
     public ACLEntry[] getAcl() {
@@ -33,11 +40,4 @@ public class ACL {
     }
 
     private static final ACLEntry[] NO_ENTRIES = new ACLEntry[0];
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" +
-            Arrays.stream(acl).map(ACLEntry::toString).collect(Collectors.joining(" ")) +
-            "]";
-    }
 }
