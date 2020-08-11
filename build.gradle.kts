@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+
 plugins {
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.3.72"
 }
 
 allprojects {
@@ -13,6 +14,11 @@ allprojects {
         jcenter()
         google()
     }
+
+}
+
+java {
+    modularity.inferModulePath.set(true)
 }
 
 dependencies {
@@ -23,14 +29,15 @@ repositories {
     maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
     mavenCentral()
 }
+
 val compileKotlin: KotlinCompile by tasks
 
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "14"
 }
 
 val compileTestKotlin: KotlinCompile by tasks
 
 compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "14"
 }

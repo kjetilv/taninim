@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
-import javax.annotation.Nonnull;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -24,21 +23,21 @@ import static java.lang.StrictMath.toIntExact;
 
 @SuppressWarnings("SameParameterValue")
 final class NettyRunner {
-
+    
     private static final Logger log = LoggerFactory.getLogger(NettyRunner.class);
-
+    
     private final int listenThreads;
-
+    
     private final int workThreads;
-
+    
     private final int threads;
-
+    
     private final int queue;
-
+    
     private final Duration timeout;
-
+    
     private final Duration connectTimeout;
-
+    
     NettyRunner(int listenThreads, int workThreads, int threads, int queue, Duration timeout, Duration connectTimeout) {
         this.listenThreads = listenThreads;
         this.workThreads = workThreads;
@@ -47,7 +46,7 @@ final class NettyRunner {
         this.timeout = timeout;
         this.connectTimeout = connectTimeout;
     }
-
+    
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" +
@@ -56,7 +55,7 @@ final class NettyRunner {
             "t:" + threads + "/q:" + queue +
             "]";
     }
-
+    
     void run(Router router, int port, SslContext sslContext) {
         EventLoopGroup listen = listenGroup();
         EventLoopGroup work = workGroup();
@@ -75,20 +74,18 @@ final class NettyRunner {
             work.shutdownGracefully();
         }
     }
-
+    
     private void registerShutdownClosure(ChannelFuture sync) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("{}: Closing {} ...", this, sync.channel());
             sync.channel().close();
         }, "Closer"));
     }
-
-    @Nonnull
+    
     private EventLoopGroup listenGroup() {
         return new NioEventLoopGroup(this.listenThreads, countingThreadFactory("lst"));
     }
-
-    @Nonnull
+    
     private EventLoopGroup workGroup() {
         return new NioEventLoopGroup(this.workThreads, new ThreadPoolExecutor(
             threads,
@@ -98,7 +95,7 @@ final class NettyRunner {
             countingThreadFactory("thr"),
             new ThreadPoolExecutor.CallerRunsPolicy()));
     }
-
+    
     private ChannelFuture future(
         Router router,
         int port,
@@ -115,7 +112,7 @@ final class NettyRunner {
             .childHandler(new ChannelInit(sslContext, router))
             .bind(port);
     }
-
+    
     private static ChannelFuture sync(ChannelFuture future, String msg) {
         try {
             return future.sync();
@@ -124,7 +121,7 @@ final class NettyRunner {
             throw new IllegalStateException(msg + ": " + future, e);
         }
     }
-
+    
     private static ThreadFactory countingThreadFactory(String prefix) {
         LongAdder count = new LongAdder();
         return r -> {

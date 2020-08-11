@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 
 import mediaserver.Config;
 import mediaserver.GlobalState;
@@ -36,34 +35,34 @@ import static mediaserver.sessions.AccessLevel.STREAM;
 import static mediaserver.sessions.AccessLevel.STREAM_CURATED;
 
 public final class AlbumPage extends TemplateEnabled {
-
+    
     private final Supplier<? extends Media> media;
-
+    
     public AlbumPage(
-        @Nonnull Route route,
-        @Nonnull Supplier<? extends Media> media,
-        @Nonnull Templater templater
+        Route route,
+        Supplier<? extends Media> media,
+        Templater templater
     ) {
         super(route, templater);
         this.media = Objects.requireNonNull(media, "media");
     }
-
+    
     @Override
-    @Nonnull
+    
     protected Handling handle(Req req) {
         return template(req, media.get()).findFirst()
             .map(template -> respondHtml(req, template))
             .orElseGet(() -> handleNotFound(req));
     }
-
+    
     private Stream<Template> template(Req req, Media media) {
         return QPar.album.id(req)
             .flatMap(media::getAlbum)
             .map(album ->
                 albumTemplate(media, req, album));
     }
-
-    private @Nonnull Template albumTemplate(Media media, Req req, Album album) {
+    
+    private Template albumTemplate(Media media, Req req, Album album) {
         Optional<SelectedTrack> selectedTrack = selectedTrack(media, req, album).findFirst();
         Optional<SelectedTrack> highlightedTrack = selectedTrack.filter(isHighlighted(req));
         return getTemplate(ALBUM_PAGE).add(TPar.user, req.getSession().getActiveUser(req))
@@ -80,70 +79,81 @@ public final class AlbumPage extends TemplateEnabled {
             .add(TPar.curations, Playlist.curationsWith(album))
             .add(TPar.format, req.isLocal() ? FLAC : M4A);
     }
-
+    
     private static final String M4A = "m4a";
-
+    
     private static final String FLAC = "flac";
-
-    private static Stream<SelectedTrack> selectedTrack(Media media, Req req, Album album) {
-        return track(media, req, album, QPar.track).flatMap(track -> selected(media, req, track));
-    }
-
+    
     private static Predicate<SelectedTrack> isHighlighted(Req req) {
-        return selectedTrack -> Optional.ofNullable(selectedTrack.getTrack())
-            .filter(st -> GlobalState.get()
-                .getGlobalTrack(req.getTime())
+        return selectedTrack ->
+            GlobalState.get().getGlobalTrack(req.getTime())
                 .map(Pair::getT2)
-                .filter(st::equals)
-                .isPresent())
-            .isPresent();
+                .filter(selectedTrack.getTrack()::equals)
+                .isPresent();
     }
-
-    private static Stream<SelectedTrack> selected(Media media, Req req, AlbumTrack albumTrack) {
-        return Stream.of(req.getSession())
-            .filter(session -> streamable(media, albumTrack, session))
-            .map(session -> new SelectedTrack(
-                albumTrack,
-                autoplay(media, req, albumTrack),
-                previousTrack(albumTrack.getTrack(), albumTrack.getAlbum().getTracks()).orElse(null),
-                nextTrack(albumTrack.getTrack(), albumTrack.getAlbum().getTracks()).orElse(null)));
+    
+    private static Stream<SelectedTrack> selectedTrack(Media media, Req req, Album album) {
+        return track(media, req, album, QPar.track)
+            .flatMap(track ->
+                Stream.of(req.getSession())
+                    .filter(session -> streamable(media, track, session))
+                    .map(session ->
+                        new SelectedTrack(
+                            track,
+                            autoplay(media, req, track),
+                            previousTrack(track.getTrack(), track.getAlbum().getTracks()).orElse(null),
+                            nextTrack(track.getTrack(), track.getAlbum().getTracks()).orElse(null))));
     }
-
+    
     private static boolean streamable(Media media, AlbumTrack albumTrack, Session session) {
         return session.hasLevel(STREAM) || session.hasLevel(STREAM_CURATED) && media.isCurated(albumTrack);
     }
-
+    
     private static boolean autoplay(Media media, Req req, AlbumTrack albumTrack) {
-        return track(media, req, albumTrack.getAlbum(), QPar.autoplay).findAny().isPresent();
+        return track(media, req, albumTrack.getAlbum(), QPar.autoplay)
+            .anyMatch(albumTrack::equals);
     }
-
+    
     private static Collection<PlayableGroup> playableGroups(Media media, Req req, Album album) {
-        return playablesStream(media, req, album).collect(Collectors.toList());
+        return playables(media, req, album).collect(Collectors.toList());
     }
-
+    
     private static Optional<Playable> albumPlayable(Media media, Req req, Album album) {
-        return playablesStream(media, req, album).map(PlayableGroup::getPlayables)
+        return playables(media, req, album)
+            .map(PlayableGroup::getPlayables)
             .flatMap(Collection::stream)
             .findFirst();
     }
-
-    @Nonnull
-    private static Stream<PlayableGroup> playablesStream(Media media, Req req, Album album) {
+    
+    private static Stream<PlayableGroup> playables(Media media, Req req, Album album) {
         return album.getTracksByPart().entrySet().stream().map(e -> new PlayableGroup(
             e.getKey(),
             e.getValue()
                 .stream()
-                .map(t -> new Playable(t, streamable(media, new AlbumTrack(album, t), req.getSession())))
+                .map(track -> new Playable(
+                    track,
+                    streamable(
+                        media,
+                        new AlbumTrack(album, track),
+                        req.getSession())))
                 .collect(Collectors.toList())));
     }
-
-    private static Stream<AlbumTrack> track(Media media, Req req, Album album, Par<? super Req, String> trackPar) {
-        return trackPar.id(req)
+    
+    private static Stream<AlbumTrack> track(Media media, Req req, Album album, Par<? super Req, String> idParam) {
+        Stream<AlbumTrack> selectedTrack = idParam.id(req)
             .flatMap(media::getTrack)
-            .map(track -> new AlbumTrack(album, track))
-            .filter(track -> StreamAuthorization.authorizedStreaming(media, req, track));
+            .map(track -> new AlbumTrack(album, track));
+        Stream<AlbumTrack> selectedAlbumStart = QPar.autoplay.id(req)
+            .flatMap(media::getAlbum)
+            .filter(album::equals)
+            .map(autoplayAlbum -> new AlbumTrack(autoplayAlbum, autoplayAlbum.getStartTrack()));
+        return Stream.concat(
+            selectedTrack,
+            selectedAlbumStart
+        ).filter(track ->
+            StreamAuthorization.authorizedStreaming(media, req, track));
     }
-
+    
     private static Optional<Track> previousTrack(Track track, Collection<Track> tracks) {
         if (track.getTrackNo() > 1) {
             return tracks.stream()
@@ -158,7 +168,7 @@ public final class AlbumPage extends TemplateEnabled {
             .filter(t -> previousPart.equals(t.getPart()))
             .max(trackNo()));
     }
-
+    
     private static Optional<Track> nextTrack(Track track, Collection<Track> tracks) {
         Deque<Track> tracksInPart =
             tracks.stream().filter(samePart(track)).sorted(trackNo()).collect(Collectors.toCollection(LinkedList::new));
@@ -169,23 +179,23 @@ public final class AlbumPage extends TemplateEnabled {
         }
         return tracksInPart.stream().filter(t -> t.getTrackNo() > track.getTrackNo()).min(trackNo());
     }
-
+    
     private static Predicate<Track> samePart(Track track) {
         return t -> Objects.equals(track.getPart(), t.getPart());
     }
-
+    
     private static Stream<Integer> parts(Collection<Track> tracks) {
         return tracks.stream().map(Track::getPart).filter(Objects::nonNull);
     }
-
+    
     private static Optional<Integer> nextPart(Track track, Collection<Track> tracks) {
         return parts(tracks).filter(part -> part > track.getPart()).min(Integer::compareTo);
     }
-
+    
     private static Optional<Integer> previousPart(Track track, Collection<Track> tracks) {
         return parts(tracks).filter(part -> part < track.getPart()).max(Integer::compareTo);
     }
-
+    
     private static Comparator<Track> trackNo() {
         return Comparator.comparing(Track::getTrackNo);
     }

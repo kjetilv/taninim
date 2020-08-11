@@ -24,7 +24,8 @@ public class SessionState {
         return getRandomTrack(time, null);
     }
 
-    public Optional<Pair<Album, Track>> getRandomTrack(Instant time, Supplier<Optional<Pair<Album, Track>>> newRandom) {
+    public Optional<Pair<Album, Track>> getRandomTrack(
+        Instant time, Supplier<Optional<Pair<Album, Track>>> newRandom) {
 
         return randomTrack.get(time, newRandom);
     }

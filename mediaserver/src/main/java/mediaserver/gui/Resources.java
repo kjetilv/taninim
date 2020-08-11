@@ -1,6 +1,6 @@
 package mediaserver.gui;
 
-import javax.annotation.Nonnull;
+import java.util.Objects;
 
 import mediaserver.http.Handling;
 import mediaserver.http.Req;
@@ -8,22 +8,26 @@ import mediaserver.http.Route;
 import mediaserver.http.WebCache;
 
 public final class Resources extends AbstractResources {
-
+    
     private final String resourcePrefix;
-
-    public Resources(Route route, WebCache<String, byte[]> webCache, String resourcePrefix) {
+    
+    public Resources(
+        Route route,
+        WebCache<String, byte[]> webCache,
+        String resourcePrefix
+    ) {
         super(route, webCache);
-        this.resourcePrefix = resourcePrefix;
+        this.resourcePrefix = Objects.requireNonNull(resourcePrefix, "resourcePrefix");
     }
-
-    protected @Override @Nonnull Handling handle(Req req) {
+    
+    @Override
+    
+    protected Handling handle(Req req) {
         return handle(req, resourcePrefix + req.getPath());
     }
-
+    
     @Override
     public String toString() {
-        return getClass().getSimpleName() +
-            "[resourcePrefix=" + resourcePrefix +
-            "]";
+        return getClass().getSimpleName() + "[" + resourcePrefix + "]";
     }
 }

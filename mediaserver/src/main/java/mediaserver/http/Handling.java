@@ -2,44 +2,42 @@ package mediaserver.http;
 
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-
 import io.netty.handler.codec.http.HttpResponse;
 
 public final class Handling {
-
-    public static @Nonnull Handling sentResponse(NettyHandler handler, Req req, HttpResponse response) {
+    
+    public static Handling sentResponse(NettyHandler handler, Req req, HttpResponse response) {
         return new Handling(handler, req, Objects.requireNonNull(response, "response"));
     }
-
+    
     private final NettyHandler handler;
-
+    
     private final Req req;
-
+    
     private final HttpResponse sentResponse;
-
+    
     private Handling(NettyHandler handler, Req req, HttpResponse sentResponse) {
         this.handler = handler;
         this.req = req;
         this.sentResponse = sentResponse;
     }
-
+    
     public HttpResponse getSentResponse() {
         return sentResponse;
     }
-
+    
     public Req getReq() {
         return req;
     }
-
+    
     public NettyHandler getHandler() {
         return handler;
     }
-
+    
     public boolean isHandled() {
         return sentResponse != null;
     }
-
+    
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" +

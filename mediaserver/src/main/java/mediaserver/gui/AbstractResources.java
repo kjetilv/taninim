@@ -2,7 +2,6 @@ package mediaserver.gui;
 
 import java.time.Duration;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mediaserver.http.Handling;
@@ -14,18 +13,18 @@ import mediaserver.http.WebCache;
 import mediaserver.util.IO;
 
 abstract class AbstractResources extends NettyHandler {
-
+    
     private final WebCache<String, byte[]> webCache;
-
+    
     AbstractResources(
-        @Nonnull Route route,
-        @Nonnull WebCache<String, byte[]> webCache
+        Route route,
+        WebCache<String, byte[]> webCache
     ) {
         super(route);
         this.webCache = Objects.requireNonNull(webCache, "webCache");
     }
-
-    protected @Nonnull Handling handle(Req req, String key) {
+    
+    protected Handling handle(Req req, String key) {
         return webCache.get(key)
             .map((type, bytes) ->
                 handle(
@@ -36,7 +35,7 @@ abstract class AbstractResources extends NettyHandler {
             .orElseGet(() ->
                 handleNotFound(req));
     }
-
+    
     @Nullable
     private Headers cacheable(IO.Type type, Duration time) {
         return type == IO.Type.JAR ? cacheable(time) : null;

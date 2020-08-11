@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 
 import mediaserver.media.Masada;
 import mediaserver.media.MasadaRef;
@@ -23,14 +22,13 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 public final class MasadaParser {
-
+    
     public static void main(String[] args) {
         Collection<MasadaRef> sorted = getHtmlMasadaRefs();
         Masada masada = new Masada(3).withNotes(sorted);
         sorted.forEach(System.out::println);
     }
-
-    @Nonnull
+    
     public static Collection<MasadaRef> getHtmlMasadaRefs() {
         Collection<Path> paths = IO.paths("wiki.masada.world");
         return paths.stream().map(path -> {
@@ -50,8 +48,7 @@ public final class MasadaParser {
             }
         }).collect(Collectors.toList());
     }
-
-    @Nonnull
+    
     private static MasadaRef parse(Pair<Path, ? extends Document> pair) {
         String refs = Optional.ofNullable(pair.getT2().getElementsByTag("h3"))
             .filter(e -> !e.isEmpty())
@@ -88,21 +85,21 @@ public final class MasadaParser {
         String name = suffix.substring(0, suffix.lastIndexOf('.'));
         return new MasadaRef(book, number, name, notes);
     }
-
+    
     private static boolean isLink(Node node, String... sites) {
         return nodes(node).anyMatch(e ->
             e.nodeName().equalsIgnoreCase("a") &&
                 e.attributes().hasKey("href") &&
                 Arrays.stream(sites).anyMatch(site -> e.attributes().get("href").contains(site)));
     }
-
+    
     private static boolean containsText(Node node, String... texts) {
         return nodes(node)
             .filter(TextNode.class::isInstance)
             .map(TextNode.class::cast)
             .anyMatch(e -> Arrays.stream(texts).anyMatch(text -> e.text().contains(text)));
     }
-
+    
     private static Stream<Node> nodes(Node e) {
         return e.childNodes().isEmpty() ? Stream.of(e)
             : Stream.concat(Stream.of(e), e.childNodes().stream().flatMap(MasadaParser::nodes));

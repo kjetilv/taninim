@@ -200,7 +200,10 @@
         {media.albumsByYear:{album|
         <LI>
             {if(user.streamingPlaylists)}
-            <A HREF="/playlist/album/{album.uuid}" TITLE="Spilleliste: {album.name}">⏬</A>
+            <A HREF="/playlist/album/{album.uuid}" TITLE="Spilleliste: {album.name}">⏬</A>&nbsp;
+            {endif}
+            {if(user.streaming)}
+            <A HREF="/album?album={album.uuid}&autoplay={album.uuid}" TITLE="Spill av {album.name}">▶️</A>&nbsp;
             {endif}
             <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
             <sub><small>{album.context.year}</small></sub>

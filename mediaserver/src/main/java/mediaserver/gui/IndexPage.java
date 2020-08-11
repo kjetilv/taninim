@@ -4,13 +4,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
 
 import mediaserver.Config;
 import mediaserver.GlobalState;
@@ -37,21 +36,22 @@ import mediaserver.util.Print;
 import mediaserver.util.Ran;
 
 public final class IndexPage extends TemplateEnabled {
-
+    
     public static final String ID_COOKIE = "taninim-id";
-
+    
     private final Supplier<Media> media;
-
+    
     public IndexPage(Route route, Supplier<Media> media, Templater templater) {
         super(route, templater);
-        this.media = media;
+        this.media = Objects.requireNonNull(media, "media");
     }
-
-    protected @Override @Nonnull Handling handle(Req req) {
+    
+    @Override
+    protected Handling handle(Req req) {
         Template template = template(req, media.get());
         return respondHtml(req, template);
     }
-
+    
     private Template template(Req req, Media media) {
         Collection<Artist> currentArtists = QPar.artist.id(req).flatMap(media::getArtist).collect(Collectors.toList());
         Collection<Series> currentSeries = QPar.series.id(req).flatMap(media::getSeries).collect(Collectors.toList());
@@ -116,7 +116,7 @@ public final class IndexPage extends TemplateEnabled {
         }
         return template;
     }
-
+    
     private static Comparator<Album> albumComparator(Stream<String> params) {
         Media.AlbumSort sort =
             params.map(Media.AlbumSort::valueOf).findFirst().orElse(Media.AlbumSort.TITLE);
@@ -133,19 +133,19 @@ public final class IndexPage extends TemplateEnabled {
             default -> throw new IllegalStateException("No such sort: " + sort);
         }
     }
-
+    
     private static <T extends Hashable & Namable> Collection<Link<T>> links(
         Collection<T> currentArtists, Function<T, Link<T>> linker
     ) {
         return currentArtists.stream().map(linker).collect(Collectors.toList());
     }
-
+    
     private static <T extends Hashable & Namable> Function<T, Link<T>> linker(
         QPar qpar, QueryParametersTracker tracker
     ) {
         return t -> new Link<>(t, tracker.add(qpar, t), tracker.remove(qpar, t), tracker.focus(qpar, t));
     }
-
+    
     private static Optional<Pair<Album, Track>> randomAlbumTrack(Media submedia) {
         return Ran.dom(submedia.getRandomAlbums(20))
             .flatMap(album -> Ran.dom(album.getTracks()).map(track -> Pair.of(album, track)));

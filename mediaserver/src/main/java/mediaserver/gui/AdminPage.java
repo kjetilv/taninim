@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
 
 import mediaserver.GlobalState;
 import mediaserver.externals.ACL;
@@ -39,52 +38,54 @@ import static mediaserver.templates.TPar.user;
 
 public final class AdminPage
     extends TemplateEnabled {
-
+    
     private static final Logger log = LoggerFactory.getLogger(AdminPage.class);
-
+    
     enum Action {
-        ids,
-        exterminate,
-        juke,
-        nuke,
-        reload;
-
+        IDS,
+        EXTERMINATE,
+        JUKE,
+        NUKE,
+        RELOAD;
+        
         private String path() {
-            return '/' + name();
+            return '/' + name().toLowerCase();
         }
     }
-
+    
     private final Supplier<Media> mediaSupplier;
-
+    
     private final Supplier<Ids> idsSupplier;
-
+    
     private final Sessions sessions;
-
+    
     private final S3Client s3;
-
+    
     private final Map<Action, Function<Req, Optional<Handling>>> actions = Map.of(
-        Action.ids, this::updateIds,
-        Action.exterminate, this::closeSession,
-        Action.juke, this::juke,
-        Action.nuke, this::nuke,
-        Action.reload, this::reload);
-
+        Action.IDS, this::updateIds,
+        Action.EXTERMINATE, this::closeSession,
+        Action.JUKE, this::juke,
+        Action.NUKE, this::nuke,
+        Action.RELOAD, this::reload);
+    
     public AdminPage(
-        @Nonnull Route route,
-        @Nonnull Supplier<Media> mediaSupplier,
-        @Nonnull Supplier<Ids> idsSupplier,
-        @Nonnull Sessions sessions,
-        @Nonnull Templater templater,
-        @Nonnull S3Client s3
+        Route route,
+        Supplier<Media> mediaSupplier,
+        Supplier<Ids> idsSupplier,
+        Sessions sessions,
+        Templater templater,
+        S3Client s3
     ) {
         super(route, templater);
         this.mediaSupplier = Objects.requireNonNull(mediaSupplier, "mediaSupplier");
         this.idsSupplier = Objects.requireNonNull(idsSupplier, "idsSupplier");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
-        this.s3 = Objects.requireNonNull(s3, "s3");
+        this.s3 = s3;
     }
-
-    protected @Override @Nonnull Handling handle(Req req) {
+    
+    @Override
+    
+    protected Handling handle(Req req) {
         return action(req).map(actions::get)
             .flatMap(action -> action.apply(req))
             .orElseGet(() ->
@@ -94,7 +95,7 @@ public final class AdminPage
                         .add(TPar.sessions, sessions.list())
                         .add(TPar.ids, map(idsSupplier.get()))));
     }
-
+    
     @Override
     public String toString() {
         return getClass().getSimpleName() +
@@ -105,12 +106,12 @@ public final class AdminPage
             " actions=" + actions +
             "]";
     }
-
+    
     private Optional<Handling> reload(Req req) {
         OnceEvery.actuallyJustRefresh(this.idsSupplier, this.mediaSupplier);
         return Optional.of(redirect(req, true));
     }
-
+    
     private Optional<Handling> nuke(Req req) {
         if (GlobalState.get().unsetGlobalTrack()) {
             log.info("Reset global jukebox track");
@@ -119,7 +120,7 @@ public final class AdminPage
         }
         return Optional.of(redirect(req, true));
     }
-
+    
     private Optional<Handling> juke(Req req) {
         GlobalState globalState = GlobalState.get();
         Media media = this.mediaSupplier.get();
@@ -142,12 +143,12 @@ public final class AdminPage
                 () -> log.warn("Track not found: {}", jukeboxTrack.id(req)));
         return Optional.of(redirect(req, true));
     }
-
+    
     private Optional<Handling> closeSession(Req req) {
         closedSession(req).map(closed -> redirect(req, false)).orElseGet(() -> handleNotFound(req));
         return Optional.empty();
     }
-
+    
     private Optional<Handling> updateIds(Req req) {
         if (this.s3 != null) {
             try {
@@ -160,7 +161,7 @@ public final class AdminPage
         }
         return Optional.of(redirect(req, false));
     }
-
+    
     private Ids readIds(String ids) {
         try {
             return new Ids(IO.OM.readerFor(ACL.class).readValue(ids), s3);
@@ -168,7 +169,7 @@ public final class AdminPage
             throw new IllegalStateException("No map", e);
         }
     }
-
+    
     private Handling redirect(Req req, boolean referer) {
         return handle(
             req,
@@ -176,20 +177,20 @@ public final class AdminPage
                 ? Netty.redirect(req.getReferer())
                 : Netty.redirect(new Route("admin", AccessLevel.ADMIN, Method.GET, Method.POST)));
     }
-
+    
     private Optional<Session> closedSession(Req req) {
         return FPar.session.id(req)
             .flatMap(session -> sessions.close(session).stream())
             .peek(closed -> log.info("Closed session: {}", closed))
             .findFirst();
     }
-
+    
     private static final Predicate<Req>
         IS_FORM =
         r -> APPLICATION_X_WWW_FORM_URLENCODED.contentEquals(r.header("Content-Type"));
-
+    
     private static final Predicate<Req> IS_POST = r -> POST.equals(r.getRequest().method());
-
+    
     private static Optional<Action> action(Req req) {
         return Optional.ofNullable(req)
             .filter(IS_POST.and(IS_FORM))
@@ -197,7 +198,7 @@ public final class AdminPage
                 .filter(action -> r.getPath().startsWith(action.path()))
                 .findFirst());
     }
-
+    
     private static String map(Ids ids) {
         try {
             return IO.OMP.writeValueAsString(ids.getACL());

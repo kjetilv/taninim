@@ -41,6 +41,7 @@ fun main() {
                         album(path).contains("circle maker") ||
                         artist(path).contains("bar kokhba") ||
                         artist(path).contains("medeski") ||
+                        artist(path).contains("cracow") ||
                         artist(path).contains("trigger") ||
                         artist(path).contains("mesinai") ||
                         artist(path).contains("autoryno") ||

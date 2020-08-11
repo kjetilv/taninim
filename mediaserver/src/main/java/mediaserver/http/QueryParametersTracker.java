@@ -90,6 +90,6 @@ public final class QueryParametersTracker {
     }
 
     private static String asLink(QPar par, Object value) {
-        return String.format("%s=%s", par.getName(), value);
+        return String.format("%s=%s", par.name(), value);
     }
 }

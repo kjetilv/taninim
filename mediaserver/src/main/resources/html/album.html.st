@@ -224,10 +224,9 @@
                 <UL>
                     {playable.track.otherArtists:{otherArtist|
                     <LI>
-                        [<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>{
+                        [&nbsp;<A HREF="/?artist={otherArtist.uuid}">{otherArtist.name}</A>{
                         if(user.streamingPlaylists)
-                        }<A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>
-                        {endif}]
+                        }&nbsp;<A HREF="/playlist/artist/{otherArtist.uuid}">⏬</A>{endif}&nbsp;]
                     </LI>
                     }}
                 </UL>
@@ -248,10 +247,9 @@
             <UL>
                 {album.context.credits.artistCredits:{credit |
                 <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
-                    [ <A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
+                    [&nbsp;<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
                     {if(user.streamingPlaylists)}
-                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>
-                    {endif}]
+                    &nbsp;<A HREF="/playlist/artist/{credit.artist.uuid}">⏬</A>{endif}&nbsp;]
                 </LI>
                 }}
             </UL>

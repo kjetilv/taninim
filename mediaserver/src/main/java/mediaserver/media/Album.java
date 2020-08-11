@@ -87,6 +87,10 @@ public final class Album extends AbstractHashable
             throw new IllegalStateException("Bad track paths for album " + name + " @ " + paths);
         }
         this.path = paths.iterator().next().toUri();
+        
+        if (this.tracks.isEmpty()) {
+            throw new IllegalStateException("Empty album: " + this);
+        }
     }
 
     @SuppressWarnings("NullableProblems")
@@ -99,7 +103,11 @@ public final class Album extends AbstractHashable
     public void hashTo(Consumer<byte[]> h) {
         hash(h, tracks);
     }
-
+    
+    public Track getStartTrack() {
+        return tracks.get(0);
+    }
+    
     @Override
     protected StringBuilder withStringBody(StringBuilder sb) {
         return sb

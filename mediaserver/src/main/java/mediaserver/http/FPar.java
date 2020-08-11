@@ -18,12 +18,7 @@ public enum FPar implements Par<Req, String> {
                 v.name().equalsIgnoreCase(substring))
             .findFirst();
     }
-
-    @Override
-    public String getName() {
-        return name();
-    }
-
+    
     @Override
     public Stream<String> params(Req req) {
         return req.getFormParameters().get(this);

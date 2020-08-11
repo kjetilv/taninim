@@ -19,8 +19,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-
 import mediaserver.externals.DiscogConnection;
 import mediaserver.externals.DiscogImage;
 import mediaserver.externals.DiscogReleaseDigest;
@@ -37,11 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public interface Media {
-
+    
     Logger log = LoggerFactory.getLogger(Media.class);
-
+    
     Duration FORTNITE = Duration.ofDays(14);
-
+    
     static Media local(Path mediaPath, Path libraryPath, Path resourcesPath) {
         log.info("Scanning from {}", mediaPath);
         Media baseMedia = new LocalMedia(mediaPath);
@@ -62,13 +60,13 @@ public interface Media {
         log.info("Returning {}", media);
         return media;
     }
-
+    
     static <T> BinaryOperator<T> noCombine() {
         return (t1, t2) -> {
             throw new IllegalStateException("NO combine");
         };
     }
-
+    
     static BiFunction<Media, Album, Media> addContextFrom(DiscogsDataResolver discogsData) {
         return (media, album) ->
             discogsData.getDiscogRelease(album).map(digest -> {
@@ -110,7 +108,7 @@ public interface Media {
                 return media.withAlbumContext(album.getUuid(), albumContext);
             }).orElse(media);
     }
-
+    
     static Long id(String uri) {
         try {
             return Long.parseLong(uri.substring(uri.lastIndexOf('/') + 1));
@@ -118,7 +116,7 @@ public interface Media {
             throw new IllegalStateException("Bad release: " + uri, e);
         }
     }
-
+    
     static Credits trackCredits(DiscogTrackDigest track) {
         return Optional.ofNullable(track.getExtraartists()).stream().flatMap(
             Collection::stream).reduce(
@@ -127,13 +125,13 @@ public interface Media {
                 credits.credit(dad.getName(), dad.getUri(), dad.getRole()),
             noCombine());
     }
-
+    
     static List<Video> videos(DiscogReleaseDigest release) {
         return Optional.ofNullable(release.getVideos()).stream().flatMap(Collection::stream)
             .flatMap(Media::video)
             .collect(Collectors.toList());
     }
-
+    
     static Stream<Video> video(DiscogVideo discogVideo) {
         try {
             return Stream.of(
@@ -143,15 +141,15 @@ public interface Media {
             return Stream.empty();
         }
     }
-
+    
     static Optional<URI> cover150(DiscogReleaseDigest release) {
         return getCover(release, DiscogImage::getUri150);
     }
-
+    
     static Optional<URI> cover(DiscogReleaseDigest release) {
         return getCover(release, DiscogImage::getUri);
     }
-
+    
     static Optional<URI> getCover(DiscogReleaseDigest release, Function<? super DiscogImage, URI> toUri) {
         return Stream.concat(
             release.getImages().stream().filter(Media::isPrimary),
@@ -160,15 +158,15 @@ public interface Media {
             .findFirst()
             .map(toUri);
     }
-
+    
     static List<String> series(DiscogReleaseDigest release) {
         return release.getSeries().stream().map(DiscogSeriesDigest::getName).collect(Collectors.toList());
     }
-
+    
     static Year yearOf(DiscogReleaseDigest release) {
         return Optional.ofNullable(release.getYear()).map(Year::parse).orElse(null);
     }
-
+    
     static Collection<DiscogConnection> metaConnections(Media media, iTunesLibrary iTunesLibrary) {
         return iTunesLibrary.getTracks().values().stream()
             .filter(track ->
@@ -184,7 +182,7 @@ public interface Media {
             .distinct()
             .collect(Collectors.toList());
     }
-
+    
     static iTunesLibrary iTunesLibrary(Path libraryPath) {
         try {
             Map<String, ?> plist = IO.readFromStream(libraryPath, IOSMapParser::convert);
@@ -195,23 +193,23 @@ public interface Media {
             throw new IllegalArgumentException("Failed to read iTunes library @ " + libraryPath, e);
         }
     }
-
+    
     static Media empty() {
         return new LocalMedia(null);
     }
-
+    
     enum AlbumSort {
         ARTIST, TITLE, YEAR
     }
-
+    
     default Media subLibrary(Series series) {
         return subLibrary(null, Collections.singleton(series), null, null, false);
     }
-
+    
     default Media subLibrary(Playlist playlist) {
         return subLibrary(null, null, Collections.singletonList(playlist), null, false);
     }
-
+    
     Media subLibrary(
         Collection<Artist> artist,
         Collection<Series> series,
@@ -219,88 +217,88 @@ public interface Media {
         Collection<Playlist> curations,
         boolean union
     );
-
+    
     Media sortedAlbums(Comparator<Album> comparator);
-
+    
     Media withAlbumContext(UUID albumId, AlbumContext albumContext);
-
+    
     Stream<AlbumTrack> getAlbumTrack(UUID uuid);
-
+    
     Stream<Track> getTrack(UUID uuid);
-
+    
     @DAC
     Year getStartYear();
-
+    
     @DAC
     Year getEndYear();
-
+    
     Collection<Playlist> getPlaylists();
-
+    
     Stream<Playlist> getPlaylist(UUID uuid);
-
+    
     Collection<Playlist> getCurations();
-
-    @Nonnull Stream<Playlist> getCuration(UUID uuid);
-
+    
+    Stream<Playlist> getCuration(UUID uuid);
+    
     boolean isCurated(AlbumTrack albumTrack);
-
+    
     Duration getDuration();
-
+    
     @DAC
     default String getPrettyDuration() {
         return Print.prettyLongTime(getDuration());
     }
-
+    
     default Collection<Artist> getAllAlbumArtists() {
         return getAlbumArtists(true);
     }
-
+    
     Collection<Artist> getAlbumArtists(boolean recurse);
-
+    
     default Collection<Artist> getArtists() {
         return getArtists(false);
     }
-
+    
     Collection<Artist> getArtists(boolean recurse);
-
+    
     Collection<Artist> getTrackCreditedArtists();
-
+    
     Collection<Album> getRandomAlbums(int count);
-
+    
     Collection<Album> getAlbums();
-
+    
     @DAC
     Collection<Album> getAlbumsByYear();
-
+    
     default Collection<Track> getTracks() {
         return getTracks(false);
     }
-
+    
     Stream<Track> getTracksFeaturing(Artist artist);
-
+    
     Collection<Track> getTracks(boolean recurse);
-
+    
     Stream<Album> getAlbum(UUID id);
-
+    
     Collection<Series> getSeries();
-
+    
     @DAC
     Collection<Album> getAlbumsFeaturing(Artist id);
-
+    
     Stream<Artist> getArtist(UUID id);
-
+    
     Stream<Series> getSeries(UUID id);
-
+    
     Stream<Artist> getArtist(String name);
-
+    
     Stream<Album> getAlbum(String albumName);
-
+    
     boolean isEmpty();
-
+    
     private static boolean isPrimary(DiscogImage image) {
         return "primary".equalsIgnoreCase(image.getType());
     }
-
+    
     private static boolean hasImage(DiscogImage image) {
         return image.getUri150() != null;
     }

@@ -27,41 +27,39 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-
 import mediaserver.hash.AbstractHashable;
 
 public final class LocalMedia
     extends AbstractHashable
     implements Media, Serializable {
-
+    
     private final Collection<Album> albums;
-
+    
     private final Comparator<Album> albumComparator;
-
+    
     private final Map<Album, AlbumContext> albumContexts;
-
+    
     private final Collection<Artist> artists;
-
+    
     private final Collection<Playlist> playlists;
-
+    
     private final Collection<Playlist> curations;
-
+    
     private final Map<UUID, Boolean> curatedTracks = new ConcurrentHashMap<>();
-
+    
     private final Map<UUID, Album> trackIndex;
-
+    
     LocalMedia(Path root) {
         this(getAlbums(root, root), null);
     }
-
+    
     private LocalMedia(Stream<Album> albums, Map<Album, AlbumContext> albumContexts) {
         this(
             Objects.requireNonNull(albums, "albums").collect(Collectors.toList()),
             albumContexts,
             null);
     }
-
+    
     private LocalMedia(
         Collection<Album> albums,
         Map<Album, AlbumContext> albumContexts,
@@ -97,7 +95,7 @@ public final class LocalMedia
         this.curations =
             Playlist.curationsWith(mediaAlbums);
     }
-
+    
     @Override
     public Media subLibrary(
         Collection<Artist> artists,
@@ -136,12 +134,12 @@ public final class LocalMedia
             albumContexts,
             albumComparator);
     }
-
+    
     @Override
     public Media sortedAlbums(Comparator<Album> comparator) {
         return new LocalMedia(albums, albumContexts, comparator);
     }
-
+    
     @Override
     public Media withAlbumContext(UUID albumId, AlbumContext albumContext) {
         return getAlbum(albumId).map(album -> {
@@ -160,7 +158,7 @@ public final class LocalMedia
         }).findFirst().orElseThrow(() ->
             new IllegalArgumentException("Unknown album: " + albumId));
     }
-
+    
     @Override
     public Stream<AlbumTrack> getAlbumTrack(UUID uuid) {
         return Optional.ofNullable(trackIndex.get(uuid))
@@ -169,14 +167,14 @@ public final class LocalMedia
                     new AlbumTrack(album, track)))
             .stream();
     }
-
+    
     @Override
     public Stream<Track> getTrack(UUID uuid) {
         return trackStream()
             .filter(track ->
                 track.getUuid().equals(uuid));
     }
-
+    
     @Override
     public Year getStartYear() {
         return albumStream()
@@ -185,7 +183,7 @@ public final class LocalMedia
             .min(Year::compareTo)
             .orElse(null);
     }
-
+    
     @Override
     public Year getEndYear() {
         return albumStream()
@@ -194,27 +192,27 @@ public final class LocalMedia
             .max(Year::compareTo)
             .orElse(null);
     }
-
+    
     @Override
     public Collection<Playlist> getPlaylists() {
         return Collections.unmodifiableCollection(playlists);
     }
-
+    
     @Override
     public Stream<Playlist> getPlaylist(UUID uuid) {
         return getPlaylist(this.playlists, uuid);
     }
-
+    
     @Override
     public Collection<Playlist> getCurations() {
         return Collections.unmodifiableCollection(curations);
     }
-
-    @Nonnull @Override
+    
+    @Override
     public Stream<Playlist> getCuration(UUID uuid) {
         return getPlaylist(this.curations, uuid);
     }
-
+    
     @Override
     public boolean isCurated(AlbumTrack albumTrack) {
         return curatedTracks.computeIfAbsent(
@@ -223,27 +221,27 @@ public final class LocalMedia
                 getCurations().stream().anyMatch(curation ->
                     curation.contains(albumTrack)));
     }
-
+    
     @Override
     public Duration getDuration() {
         return albumStream().map(Album::getDuration).reduce(Duration.ZERO, Duration::plus);
     }
-
+    
     @Override
     public Collection<Artist> getAlbumArtists(boolean recurse) {
         return albums.stream().map(Album::getArtists).flatMap(Collection::stream).collect(Collectors.toSet());
     }
-
+    
     @Override
     public Collection<Artist> getArtists(boolean recurse) {
         return Collections.unmodifiableCollection(artists);
     }
-
+    
     @Override
     public Collection<Artist> getTrackCreditedArtists() {
         return collectArtists(Album::getAllArtists);
     }
-
+    
     @Override
     public Collection<Album> getRandomAlbums(int count) {
         List<Album> indexed = this.albums.stream()
@@ -260,12 +258,12 @@ public final class LocalMedia
         }
         return randomIndexes.stream().map(indexed::get).collect(Collectors.toList());
     }
-
+    
     @Override
     public Collection<Album> getAlbums() {
         return albumStream().collect(Collectors.toList());
     }
-
+    
     @Override
     public Collection<Album> getAlbumsByYear() {
         return albumStream()
@@ -273,7 +271,7 @@ public final class LocalMedia
                 album -> Optional.ofNullable(album.getContext()).map(AlbumContext::getYear).orElse(Year.now())))
             .collect(Collectors.toList());
     }
-
+    
     @Override
     public Stream<Track> getTracksFeaturing(Artist artist) {
         Objects.requireNonNull(artist, "artist");
@@ -285,17 +283,17 @@ public final class LocalMedia
                     track.getArtists().stream().anyMatch(artist::equals) ||
                     track.getOtherArtists().stream().anyMatch(artist::equals));
     }
-
+    
     @Override
     public Collection<Track> getTracks(boolean recurse) {
         return trackStream().collect(Collectors.toList());
     }
-
+    
     @Override
     public Stream<Album> getAlbum(UUID uuid) {
         return albums.stream().filter(album -> album.getUuid().equals(uuid));
     }
-
+    
     @Override
     public Collection<Series> getSeries() {
         return albumStream()
@@ -304,52 +302,52 @@ public final class LocalMedia
             .distinct()
             .collect(Collectors.toList());
     }
-
+    
     @Override
     public Collection<Album> getAlbumsFeaturing(Artist artist) {
         return albumStream().filter(album ->
             album.getAllArtists().contains(artist)
         ).collect(Collectors.toList());
     }
-
+    
     @Override
     public Stream<Artist> getArtist(UUID id) {
         return getTrackCreditedArtists().stream().filter(artist -> artist.getUuid().equals(id));
     }
-
+    
     @Override
     public Stream<Series> getSeries(UUID id) {
         return getSeries().stream().filter(series -> series.getUuid().equals(id));
     }
-
+    
     @Override
     public Stream<Artist> getArtist(String name) {
         return getArtists(true).stream()
             .filter(artist -> artist.getName().equalsIgnoreCase(name));
     }
-
+    
     @Override
     public Stream<Album> getAlbum(String albumName) {
         return getAlbums().stream()
             .filter(album ->
                 album.getName().equalsIgnoreCase(albumName));
     }
-
+    
     @Override
     public boolean isEmpty() {
         return albums.isEmpty();
     }
-
+    
     @Override
     public void hashTo(Consumer<byte[]> h) {
         hash(h, getAlbums());
     }
-
+    
     @Override
     protected StringBuilder withStringBody(StringBuilder sb) {
         return sb.append(albums.size()).append(" albums");
     }
-
+    
     private Collection<Artist> collectArtists(Function<? super Album, ? extends Collection<Artist>> getAllArtists) {
         return albumStream()
             .map(getAllArtists)
@@ -357,52 +355,52 @@ public final class LocalMedia
             .distinct()
             .collect(Collectors.toList());
     }
-
+    
     private Stream<Album> albumStream() {
         Comparator<Album> comparator = albumComparator == null
             ? Comparator.naturalOrder()
             : albumComparator;
         return albums.stream().sorted(comparator);
     }
-
+    
     private Stream<Track> trackStream() {
         return albumStream().flatMap(album -> album.getTracks().stream());
     }
-
+    
     private static final Random RND = new Random();
-
+    
     private static final long serialVersionUID = -7165763549356996140L;
-
+    
     private static final Pattern UNDERSCORE = Pattern.compile("_");
-
+    
     private static Predicate<Playlist> playlistMatch(Album album) {
         return playlist -> playlist.contains(album);
     }
-
+    
     private static Predicate<Artist> artistMatch(Album album) {
         return artist -> album.isBy(artist) || album.hasTracksBy(artist) || album.features(artist);
     }
-
+    
     private static <T> boolean filtered(Collection<? extends T> ts, Predicate<? super T> predicate, boolean union) {
         return union
             ? ts.stream().anyMatch(predicate)
             : ts.stream().allMatch(predicate);
     }
-
+    
     private static Predicate<Series> seriesMatch(Album album) {
         return album.getSeries()::contains;
     }
-
+    
     private static Stream<Playlist> getPlaylist(Collection<Playlist> playlists, UUID uuid) {
         return playlists.stream()
             .filter(playlist ->
                 playlist.getUuid().equals(uuid));
     }
-
+    
     private static Album album(Artist artist, String name, List<Track> tracks) {
         return new Album(artist, name, tracks);
     }
-
+    
     private static Stream<Album> getAlbums(Path root, Path path) {
         if (root == null) {
             return Stream.empty();
@@ -413,7 +411,7 @@ public final class LocalMedia
                 .flatMap(subDir ->
                     getAlbums(root, path.resolve(subDir.getName()))));
     }
-
+    
     private static Optional<Album> album(Path path) {
         File dir = path.toFile();
         return trackFiles(dir).map(tracks ->
@@ -422,11 +420,11 @@ public final class LocalMedia
                 albumName(dir),
                 tracks(tracks)));
     }
-
+    
     private static List<Track> tracks(Collection<? extends File> tracks) {
         return tracks.stream().map(Track::new).collect(Collectors.toList());
     }
-
+    
     private static Stream<File> subDirs(File dir) {
         return Optional.ofNullable(
             dir.listFiles(file ->
@@ -434,7 +432,7 @@ public final class LocalMedia
             .stream()
             .flatMap(Arrays::stream);
     }
-
+    
     private static Optional<List<File>> trackFiles(File dir) {
         return Optional.ofNullable(
             dir.listFiles(file ->
@@ -443,11 +441,11 @@ public final class LocalMedia
                 files.length > 0)
             .map(Arrays::asList);
     }
-
+    
     private static String albumName(File dir) {
         return dir.getName();
     }
-
+    
     private static Artist artist(File dir) {
         return Artist.get(UNDERSCORE.matcher(dir.getParentFile().getName()).replaceAll(":"));
     }

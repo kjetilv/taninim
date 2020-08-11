@@ -9,8 +9,8 @@ plugins {
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_14
-    targetCompatibility = JavaVersion.VERSION_14
+    sourceCompatibility = JavaVersion.VERSION_15
+    targetCompatibility = JavaVersion.VERSION_15
 }
 
 dependencies {
@@ -19,7 +19,7 @@ dependencies {
 
     implementation("org.gagravarr", "vorbis-java-core", "0.8")
     implementation("com.restfb", "restfb", "3.2.0")
-    implementation("io.netty", "netty-all", "4.1.48.Final")
+    implementation("io.netty", "netty-all", "4.1.51.Final")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("org.antlr:ST4:4.3")
     implementation("io.minio:minio:6.0.13")
@@ -49,10 +49,10 @@ repositories {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "14"
 }
 
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
-    jvmTarget = "11"
+    jvmTarget = "14"
 }

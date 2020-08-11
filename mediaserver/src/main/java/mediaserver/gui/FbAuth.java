@@ -1,11 +1,9 @@
 package mediaserver.gui;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
-import afu.org.checkerframework.checker.oigj.qual.O;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.DefaultJsonMapper;
 import com.restfb.DefaultWebRequestor;
@@ -28,52 +26,67 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class FbAuth extends NettyHandler {
-
+    
     private static final Logger log = LoggerFactory.getLogger(FbAuth.class);
-
+    
     private final Sessions sessions;
-
+    
     private final Supplier<char[]> appSecret;
-
+    
     private final Supplier<Ids> ids;
-
-    public FbAuth(Route routeX, Sessions sessions, Supplier<Ids> ids, Supplier<char[]> appSecret) {
-        super(routeX);
-        this.sessions = sessions;
-        this.appSecret = appSecret;
-        this.ids = ids;
+    
+    public FbAuth(
+        Route route,
+        Sessions sessions,
+        Supplier<Ids> ids,
+        Supplier<char[]> appSecret
+    ) {
+        super(route);
+        this.sessions = Objects.requireNonNull(sessions, "sessions");
+        this.appSecret = Objects.requireNonNull(appSecret, "appSecret");
+        this.ids = Objects.requireNonNull(ids, "ids");
     }
-
-    protected @Override @Nonnull Handling handle(Req req) {
+    
+    @Override
+    
+    protected Handling handle(Req req) {
         return req.getContent()
-            .map(json -> IO.readObject(FacebookAuthResponse.class, json))
+            .map(json ->
+                IO.readObject(FacebookAuthResponse.class, json))
             .flatMap(this::authenticate)
-            .map(user -> ids.get().resolve(user).satisfies(AccessLevel.LOGIN)
-                ? handleNewSession(req, user)
-                : handleRejection(req, user))
-            .orElseGet(() -> handleBadRequest(req));
+            .map(user ->
+                handleLogin(req, user))
+            .orElseGet(() ->
+                handleBadRequest(req));
     }
-
+    
+    private Handling handleLogin(Req req, FbUser user) {
+        return ids.get().resolve(user).satisfies(AccessLevel.LOGIN)
+            ? handleNewSession(req, user)
+            : handleRejection(req, user);
+    }
+    
     private Handling handleRejection(Req req, FbUser user) {
         log.warn("Unknown user attempted login: {}", user);
         return handleUnauthorized(req);
     }
-
+    
     private Handling handleNewSession(Req req, FbUser user) {
         Session session = sessions.create(req, user);
         log.info("{} logged in: {}", user, session);
         return handle(req, Netty.authCookieResponse(req, Netty.authCookie(session.getCookie())));
     }
-
+    
     private Optional<FbUser> authenticate(FacebookAuthResponse authResponse) {
         try {
-            return Optional.of(facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class))
+            User value = facebookClient(authResponse).fetchObject(authResponse.getUserID(), User.class);
+            return Optional.of(value)
                 .map(user -> new FbUser(user.getName(), user.getId()));
         } catch (Exception e) {
             throw new IllegalStateException("Login failed for user: " + authResponse.getUserID(), e);
         }
     }
-
+    
     private FacebookClient facebookClient(FacebookAuthResponse authResponse) {
         return new DefaultFacebookClient(
             authResponse.getAccessToken(),

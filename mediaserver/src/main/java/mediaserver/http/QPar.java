@@ -26,11 +26,6 @@ public enum QPar implements Par<Req, String> {
     }
 
     @Override
-    public String getName() {
-        return name();
-    }
-
-    @Override
     public Stream<String> params(Req req) {
         return req.getQueryParameters().get(this);
     }

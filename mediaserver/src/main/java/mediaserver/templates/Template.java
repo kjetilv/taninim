@@ -45,7 +45,7 @@ public final class Template {
     }
 
     public Object get(TPar param) {
-        return st.getAttribute(param.getName());
+        return st.getAttribute(param.name());
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -55,7 +55,7 @@ public final class Template {
 
     public Template add(TPar param, Object value) {
         if (value != null) {
-            st.add(Objects.requireNonNull(param, "param").getName(), value);
+            st.add(Objects.requireNonNull(param, "param").name(), value);
         }
         return this;
     }

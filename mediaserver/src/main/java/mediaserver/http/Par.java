@@ -5,8 +5,8 @@ import java.util.stream.Stream;
 
 public interface Par<T, R> {
 
-    String getName();
-
+    String name();
+    
     default boolean isFalse(T source) {
         return !isTrue(source);
     }

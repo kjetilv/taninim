@@ -11,7 +11,7 @@ import io.netty.handler.ssl.NotSslRecordException;
 
 final class Exceptions {
 
-    static IgnoreLevel ignoreLevel(ChannelHandlerContext ctx, Throwable cause) {
+    static SeriosityLevel seriosityLevl(ChannelHandlerContext ctx, Throwable cause) {
 
         boolean testing = Optional.ofNullable(ctx.channel())
             .map(Channel::localAddress)
@@ -24,20 +24,20 @@ final class Exceptions {
                 for (Throwable t = e; t != null && t.getCause() != t; t = t.getCause()) {
                     String msg = e.getMessage();
                     if (e instanceof SocketException && "Connection reset".equalsIgnoreCase(msg)) {
-                        return Stream.of(IgnoreLevel.SUMMARIZE);
+                        return Stream.of(SeriosityLevel.CLIENT_WHIM);
                     }
                     if (sslStuff(e) && testing) {
-                        return Stream.of(IgnoreLevel.MEH);
+                        return Stream.of(SeriosityLevel.MEH);
                     }
                 }
                 return Stream.empty();
             })
             .findFirst()
-            .orElse(IgnoreLevel.LOG);
+            .orElse(SeriosityLevel.LOG);
     }
 
-    enum IgnoreLevel {
-        LOG, SUMMARIZE, MEH
+    enum SeriosityLevel {
+        LOG, CLIENT_WHIM, SUMMARIZE, MEH
     }
 
     private Exceptions() {
