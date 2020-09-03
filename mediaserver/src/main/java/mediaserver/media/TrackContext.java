@@ -78,7 +78,7 @@ public final class TrackContext implements Serializable {
         String name = WS.matcher(track.getName().toLowerCase()).replaceAll(NONE);
         String title = WS.matcher(this.title.toLowerCase()).replaceAll(NONE);
         if (!(name.equalsIgnoreCase(title) || name.contains(title) || title.contains(name))) {
-            log.debug("{} /= {}", track, this.title);
+            log.trace("{} /= {}", track, this.title);
         }
         return new TrackContext(track, position, this.title, credits);
     }
@@ -110,9 +110,20 @@ public final class TrackContext implements Serializable {
         try {
             return Optional.of(Integer.parseInt(substring));
         } catch (NumberFormatException e) {
-            log.debug("Bogus int {}", substring);
             String pruned = NO_NUMS.matcher(substring).replaceAll(NONE);
-            return pruned.isBlank() ? Optional.empty() : toInt(pruned);
+            Optional<Integer> integer = pruned.isBlank() ? emergency(substring) : toInt(pruned);
+            log.debug("Bogus int {}, fallback {}", substring, integer.orElse(null));
+            return integer;
         }
+    }
+    
+    private static Optional<Integer> emergency(String substring) {
+        if ("a".equalsIgnoreCase(substring)) {
+            return Optional.of(1);
+        }
+        if ("b".equalsIgnoreCase(substring)) {
+            return Optional.of(2);
+        }
+        return Optional.empty();
     }
 }
