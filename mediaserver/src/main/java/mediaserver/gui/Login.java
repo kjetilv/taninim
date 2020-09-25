@@ -6,14 +6,11 @@ import mediaserver.http.Route;
 import mediaserver.toolkit.Templater;
 
 public final class Login extends TemplateEnabled {
-    
-    public Login(
-        Route route,
-        Templater templater
-    ) {
+
+    public Login(Route route, Templater templater) {
         super(route, templater);
     }
-    
+
     protected @Override
     Handling handle(Req req) {
         return respondHtml(req, getTemplate(LOGIN_PAGE));

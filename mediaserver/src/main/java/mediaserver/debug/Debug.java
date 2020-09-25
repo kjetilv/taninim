@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class Debug extends TemplateEnabled {
-    
+
     private static final Logger log = LoggerFactory.getLogger(Debug.class);
-    
+
     private final Supplier<Collection<Exchange>> latestExchanges;
-    
+
     public Debug(
         Route route,
         Templater templater,
@@ -32,7 +32,7 @@ public final class Debug extends TemplateEnabled {
         super(route, templater);
         this.latestExchanges = Objects.requireNonNull(latestExchanges, "latestExchanges");
     }
-    
+
     @Override
     protected Handling handle(Req req) {
         log.info("Request receieved @ {}: {}", req, req.getRequest());

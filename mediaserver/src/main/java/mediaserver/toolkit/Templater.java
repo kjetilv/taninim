@@ -6,13 +6,13 @@ import mediaserver.http.WebCache;
 import mediaserver.templates.Template;
 
 public final class Templater {
-    
+
     private final WebCache<String, String> cache;
-    
+
     public Templater(WebCache<String, String> cache) {
         this.cache = Objects.requireNonNull(cache, "cache");
     }
-    
+
     public Template template(String resource) {
         return cache.get(resource)
             .map(source ->

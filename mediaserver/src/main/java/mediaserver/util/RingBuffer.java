@@ -15,11 +15,6 @@ public final class RingBuffer<T> {
         this.buffer = new LinkedList<>();
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + size + "]";
-    }
-
     public void add(T t) {
         synchronized (buffer) {
             buffer.addLast(t);
@@ -33,5 +28,10 @@ public final class RingBuffer<T> {
         synchronized (buffer) {
             return new ArrayList<>(buffer);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + size + "]";
     }
 }

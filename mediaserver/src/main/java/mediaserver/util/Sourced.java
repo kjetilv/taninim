@@ -20,11 +20,6 @@ public final class Sourced<T> {
         this.url = url;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + type + ": " + url + "]";
-    }
-
     public <R> Sourced<R> map(Function<? super T, ? extends R> trans) {
         return map((type1, t) -> trans.apply(t));
     }
@@ -53,5 +48,10 @@ public final class Sourced<T> {
 
     public <R> Optional<R> unpack(Function<? super T, ? extends R> map) {
         return unpack().map(map);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + type + ": " + url + "]";
     }
 }

@@ -90,13 +90,13 @@ public final class OnceEvery {
             return value.get();
         }
 
+        private void refresh() {
+            this.value.set(supplier.get());
+        }
+
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[" + supplier + "]";
-        }
-
-        private void refresh() {
-            this.value.set(supplier.get());
         }
     }
 }

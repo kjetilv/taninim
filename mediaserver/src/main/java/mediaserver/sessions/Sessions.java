@@ -63,17 +63,6 @@ public final class Sessions {
         }
     }
 
-    @Override
-    public String toString() {
-
-        return getClass().getSimpleName() + "[" + sessionsMap.keySet() +
-            " bytesQuota:" + Print.bytes(bytesQuota) +
-            " sessionLength:" + sessionLength +
-            " inactivityMax:" + inactivityMax +
-            " devLogin:" + devLogin +
-            "]";
-    }
-
     public Session create(Req req, FbUser user) {
 
         AccessLevel accessLevel = ids.get().resolve(user);
@@ -198,6 +187,7 @@ public final class Sessions {
                 req.getTime().plus(sessionLength),
                 inactivityMax,
                 accessLevel,
+                req.isLocal(),
                 bytesQuota);
         }
         throw new IllegalArgumentException("Invalid access level: " + accessLevel);
@@ -225,5 +215,16 @@ public final class Sessions {
 
         return session ->
             Objects.equals(session.getCookie(), uuid);
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + sessionsMap.keySet() +
+            " bytesQuota:" + Print.bytes(bytesQuota) +
+            " sessionLength:" + sessionLength +
+            " inactivityMax:" + inactivityMax +
+            " devLogin:" + devLogin +
+            "]";
     }
 }

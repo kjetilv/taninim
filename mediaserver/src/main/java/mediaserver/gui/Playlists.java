@@ -38,46 +38,46 @@ import static mediaserver.gui.Playlists.PlaylistProvider.playlist;
 import static mediaserver.gui.Playlists.PlaylistProvider.series;
 
 public final class Playlists extends TemplateEnabled {
-    
+
     enum PlaylistProvider implements Predicate<String> {
         artist,
         album,
         playlist,
         curation,
         series;
-        
+
         private final String path;
-        
+
         PlaylistProvider() {
             path = '/' + name() + '/';
         }
-        
+
         @Override
         public boolean test(String resource) {
             return resource.startsWith(path);
         }
-        
+
         private String suffix(String resource) {
             return resource.substring(path.length());
         }
-        
+
         @Override
         public String toString() {
             return name().substring(0, 1).toUpperCase() + name().substring(1);
         }
     }
-    
+
     private final Supplier<Media> media;
-    
+
     private final boolean https;
-    
+
     private final Map<PlaylistProvider, Function<UUID, Stream<Pair<String, Template>>>> providers = Map.of(
         artist, this::artistPlaylist,
         album, this::albumSublibrary,
         playlist, this::playlistSublibrary,
         curation, this::curationSublibrary,
         series, this::seriesSublibrary);
-    
+
     public Playlists(
         Route route,
         Supplier<Media> media,
@@ -88,7 +88,7 @@ public final class Playlists extends TemplateEnabled {
         this.media = Objects.requireNonNull(media, "media");
         this.https = https;
     }
-    
+
     protected @Override
     Handling handle(Req req) {
         if (req.getSession().hasLevel(AccessLevel.STREAM)) {
@@ -105,7 +105,7 @@ public final class Playlists extends TemplateEnabled {
         }
         return handleBadRequest(req);
     }
-    
+
     private HttpResponse playlistResponse(Req req, String t1, Template t2) {
         return Netty.response(
             req,
@@ -117,11 +117,11 @@ public final class Playlists extends TemplateEnabled {
                 .bytes(),
             setFilename(t1, req.getSession().getCookie()));
     }
-    
+
     private Stream<Pair<String, Template>> albumSublibrary(UUID albumUUID) {
         return this.media.get().getAlbum(albumUUID).map(album -> Pair.of(album.getName(), playlist(album)));
     }
-    
+
     private Stream<Pair<String, Template>> seriesSublibrary(UUID seriesUUID) {
         Media media = this.media.get();
         return media.getSeries(seriesUUID)
@@ -132,7 +132,7 @@ public final class Playlists extends TemplateEnabled {
                     series.getName(),
                     media.subLibrary(series).getAlbums())));
     }
-    
+
     private Stream<Pair<String, Template>> playlistSublibrary(UUID playlistUUID) {
         Media media = this.media.get();
         return media.getPlaylist(playlistUUID)
@@ -143,7 +143,7 @@ public final class Playlists extends TemplateEnabled {
                     playlist.getName(),
                     media.subLibrary(playlist).getAlbums())));
     }
-    
+
     private Stream<Pair<String, Template>> curationSublibrary(UUID curationUUID) {
         Media media = this.media.get();
         return media.getCuration(curationUUID)
@@ -154,7 +154,7 @@ public final class Playlists extends TemplateEnabled {
                     curation.getName(),
                     media.subLibrary(curation).getAlbums())));
     }
-    
+
     private Stream<Pair<String, Template>> artistPlaylist(UUID artistUUID) {
         Media media = this.media.get();
         return media.getArtist(artistUUID).flatMap(artist -> {
@@ -167,15 +167,15 @@ public final class Playlists extends TemplateEnabled {
             return Stream.of(of);
         });
     }
-    
+
     private Template playlist(Album album) {
         return baseTemplate(playlistM3u(album));
     }
-    
+
     private PlaylistM3U playlistM3u(Album album) {
         return new PlaylistM3U(album.getArtist().getName() + ": " + album.getName(), album.getTracks());
     }
-    
+
     private Template playlist(Artist artist, Collection<Track> tracks) {
         return baseTemplate(new PlaylistM3U(
             MessageFormat.format(
@@ -183,7 +183,7 @@ public final class Playlists extends TemplateEnabled {
                 PlaylistProvider.artist, artist.getName(), tracks.size()),
             tracks));
     }
-    
+
     private Template playlist(PlaylistProvider type, String name, Collection<Album> albums) {
         Collection<Track> tracks =
             albums.stream().map(Album::getTracks).flatMap(Collection::stream).collect(Collectors.toList());
@@ -193,13 +193,13 @@ public final class Playlists extends TemplateEnabled {
                 type, name, albums.size(), tracks.size()),
             tracks));
     }
-    
+
     private Template baseTemplate(PlaylistM3U value) {
         return getTemplate(PLAYLIST_M3U).add(TPar.playlist, value);
     }
-    
+
     private static final String AUDIO_X_MPEGURL = "audio/x-mpegurl";
-    
+
     private static Headers setFilename(String template, UUID cookie) {
         return headers ->
             headers.set(

@@ -50,48 +50,48 @@ import org.slf4j.LoggerFactory;
 import static mediaserver.Config.*;
 
 final class Main {
-    
+
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    
+
     public static void main(String[] args) {
         boolean local = local(args);
         boolean devLogin = local && DEV_LOGIN;
         boolean noStream = NEUTER;
         boolean sslPlaylists = PRETEND_SSL || !devLogin && !local;
-        
+
         if (local) {
             CloudMedia.updateLocals(Ids.IDS_RESOURCE, PlaylistYaml.CURATED_RESOURCE, PlaylistYaml.PLAYLISTS_RESOURCE);
         }
-        
+
         SslContext mockSslContext = PRETEND_SSL ? mockSslContext() : null;
-        
+
         if (mockSslContext != null) {
             log.warn("Mock SSL context: {}", mockSslContext);
         }
-        
+
         S3Client s3 = S3Connector.get().orElse(null);
-        
+
         log.info("Refreshing resources every {}", REFRESH_TIME);
-        
+
         Supplier<Ids> ids = idsSupplier(args, local, s3);
         Supplier<Media> media = mediaSupplier(args, local);
-        
+
         Templater templater = new Templater(TMPL_CACHE);
-        
+
         Route audio = new Route("audio", AccessLevel.STREAM_CURATED, Method.GET, Method.HEAD);
         Streamer streamer = noStream ? new NullStreamer(audio)
             : local ? new FileStreamer(audio, CLOCK, media, BYTES_PER_CHUNK)
                 : new S3Streamer(audio, CLOCK, media, s3, BYTES_PER_CHUNK);
-        
+
         log.info("Streamer: {}", streamer);
         log.info("Binding to port {}", PORT);
-        
+
         Sessions sessions =
             new Sessions(ids, SESSION_LENGTH, INACTIVITY_MAX, BYTES_PER_SESSION, DEV_LOGIN);
-        
+
         NettyRunner nettyRunner = new NettyRunner(
             LISTEN_GROUP, WORK_GROUP, THREAD_GROUP, THREAD_QUEUE, IO_TIMEOUT, CONNECT_TIMEOUT);
-        
+
         Router router = new Router(sessions, templater, CLOCK,
             streamer,
             new Favicon(
@@ -121,60 +121,60 @@ final class Main {
             new IndexPage(
                 new Route("", AccessLevel.LOGIN, Method.GET),
                 media, templater));
-        
+
         log.info(
             "{}: Running in {}, streaming {}abled",
             sessions,
             local ? "local mode" : "the cloud",
             noStream ? "dis" : "en");
-        
+
         nettyRunner.run(router, PORT, mockSslContext);
     }
-    
+
     private Main() {
     }
-    
+
     private static final Clock CLOCK = Clock.system(TIMEZONE);
-    
+
     private static final WebCache<String, String> TMPL_CACHE = new WebCache<>(IO::readUTF8);
-    
+
     private static final WebCache<String, byte[]> RES_CACHE = new WebCache<>(IO::readBytes);
-    
+
     private static final OnceEvery.TimingBuilder PERIODICALLY =
         new OnceEvery(Executors.newSingleThreadScheduledExecutor()).interval(REFRESH_TIME);
-    
+
     private static final String RES = "res";
-    
+
     private static final String FB_SEC = "fbSec";
-    
+
     private static final String FAVICON_ICO = RES + "/favicon.ico";
-    
+
     private static Supplier<Media> mediaSupplier(String[] args, boolean local) {
-        
+
         return PERIODICALLY
             .when(shouldRefresh(local, args))
             .get(() ->
                 retrieveMedia(local, args));
     }
-    
+
     private static Supplier<Ids> idsSupplier(String[] args, boolean local, S3Client client) {
         return PERIODICALLY.when(shouldRefresh(local, args))
             .get(() ->
                 refreshIds(local, client));
     }
-    
+
     private static Ids refreshIds(boolean local, S3Client s3) {
         ACL sources = local ? ACL.readLocalACL(Ids.IDS_RESOURCE) : CloudMedia.acl();
         return new Ids(sources, s3);
     }
-    
+
     private static BooleanSupplier shouldRefresh(boolean local, String[] args) {
         Supplier<Optional<Instant>> newUpdate = local
             ? () -> lastMediaUpdate(args)
             : CloudMedia::lastUpdatedMedia;
         return new UpdateDetector(newUpdate);
     }
-    
+
     private static Optional<Instant> lastMediaUpdate(String[] args) {
         try {
             return Optional.of(Files.getLastModifiedTime(mediaFile(args)).toInstant());
@@ -183,14 +183,14 @@ final class Main {
             return Optional.empty();
         }
     }
-    
+
     private static boolean local(String[] args) {
         return args.length > 2 &&
             new File(args[0]).isDirectory() &&
             new File(args[1]).isFile() &&
             new File(args[2]).isDirectory();
     }
-    
+
     private static Media retrieveMedia(boolean local, String[] args) {
         try {
             return local
@@ -201,23 +201,23 @@ final class Main {
             return Media.empty();
         }
     }
-    
+
     private static Path mediaFile(String[] args) {
         return pathArg(0, args);
     }
-    
+
     private static Path libraryPath(String[] args) {
         return pathArg(1, args);
     }
-    
+
     private static Path resourcesPath(String[] args) {
         return pathArg(2, args);
     }
-    
+
     private static Path pathArg(int i, String[] args) {
         return new File(args[i]).toPath();
     }
-    
+
     private static SslContext mockSslContext() {
         SelfSignedCertificate ssc = selfSignedCertificate();
         log.info("Faux self-signed: {}/{}", ssc.certificate(), ssc.key());
@@ -225,7 +225,7 @@ final class Main {
         log.info("Faux SSL: {}", sslContext);
         return sslContext;
     }
-    
+
     private static SslContext selfSignedSsl(SelfSignedCertificate ssc) {
         try {
             return SslContextBuilder.forServer(
@@ -236,7 +236,7 @@ final class Main {
             throw new IllegalStateException("Failed to setup SSL context", e);
         }
     }
-    
+
     private static SelfSignedCertificate selfSignedCertificate() {
         try {
             return new SelfSignedCertificate();
@@ -244,7 +244,7 @@ final class Main {
             throw new IllegalStateException("Unexpected ssc error", e);
         }
     }
-    
+
     private static Supplier<char[]> secretsProvider() {
         return () -> IO.getProperty(FB_SEC).toCharArray();
     }

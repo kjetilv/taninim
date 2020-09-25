@@ -49,18 +49,6 @@ public final class Exchange {
             : session.toString() + " status: " + session.getCurrentStatus(req.getTime());
     }
 
-    @Override
-    public int hashCode() {
-
-        return (int) sequenceNo;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        return this == o || o instanceof Exchange && sequenceNo == ((Exchange) o).sequenceNo;
-    }
-
     public String getTime() {
 
         return time;
@@ -114,4 +102,16 @@ public final class Exchange {
     private static final String UNSESSION = "unsession";
 
     private static final String UNKNOWN = "unknown";
+
+    @Override
+    public int hashCode() {
+
+        return (int) sequenceNo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        return this == o || o instanceof Exchange && sequenceNo == ((Exchange) o).sequenceNo;
+    }
 }

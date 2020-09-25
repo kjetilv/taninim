@@ -32,24 +32,6 @@ public final class DiscogConnection {
         this.type = uriString.substring(nextToLastSlash + 1, lastSlash);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(artist, album, uri);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o || o instanceof DiscogConnection &&
-            Objects.equals(artist, ((DiscogConnection) o).artist) &&
-            Objects.equals(album, ((DiscogConnection) o).album) &&
-            Objects.equals(uri, ((DiscogConnection) o).uri);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + artist + ": " + album + "]";
-    }
-
     public Artist getArtist() {
         return artist;
     }
@@ -74,5 +56,23 @@ public final class DiscogConnection {
         return uri != null && Stream.of("https://api.discogs.com/releases/", "https://api.discogs.com/releases")
             .map(URI::create)
             .noneMatch(uri::equals);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(artist, album, uri);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof DiscogConnection &&
+            Objects.equals(artist, ((DiscogConnection) o).artist) &&
+            Objects.equals(album, ((DiscogConnection) o).album) &&
+            Objects.equals(uri, ((DiscogConnection) o).uri);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + artist + ": " + album + "]";
     }
 }

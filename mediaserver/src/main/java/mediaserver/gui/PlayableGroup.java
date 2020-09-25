@@ -15,11 +15,6 @@ class PlayableGroup {
         this.playables = playables;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + name + ": " + playables.size() + " tracks]";
-    }
-
     public String getName() {
         return name;
     }
@@ -27,5 +22,10 @@ class PlayableGroup {
     @DAC
     public Collection<Playable> getPlayables() {
         return playables;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + name + ": " + playables.size() + " tracks]";
     }
 }

@@ -30,15 +30,6 @@ public final class PlaylistEntry {
         this.trackSpecs = specs(specs, MatchType.TRACK);
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[art:" + artistSpecs +
-            " alb:" + albumSpecs +
-            " trl:" + trackSpecs +
-            "]";
-    }
-
     public boolean match(Album album) {
         return artistMatch(album.getArtist().getName()) && albumMatch(album.getName());
     }
@@ -106,13 +97,22 @@ public final class PlaylistEntry {
             return s.toLowerCase().contains(matchValue);
         }
 
+        private MatchType getType() {
+            return type;
+        }
+
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[" + type + " " + matchValue + "]";
         }
+    }
 
-        private MatchType getType() {
-            return type;
-        }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+            "[art:" + artistSpecs +
+            " alb:" + albumSpecs +
+            " trl:" + trackSpecs +
+            "]";
     }
 }

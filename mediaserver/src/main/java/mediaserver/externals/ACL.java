@@ -20,13 +20,6 @@ public class ACL {
 
     private ACLEntry[] acl = NO_ENTRIES;
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" +
-            Arrays.stream(acl).map(ACLEntry::toString).collect(Collectors.joining(" ")) +
-            "]";
-    }
-
     public ACLEntry[] getAcl() {
         return acl.clone();
     }
@@ -40,4 +33,11 @@ public class ACL {
     }
 
     private static final ACLEntry[] NO_ENTRIES = new ACLEntry[0];
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" +
+            Arrays.stream(acl).map(ACLEntry::toString).collect(Collectors.joining(" ")) +
+            "]";
+    }
 }

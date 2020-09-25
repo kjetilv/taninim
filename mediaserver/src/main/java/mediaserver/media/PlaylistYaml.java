@@ -20,11 +20,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import mediaserver.util.IO;
 
 public final class PlaylistYaml {
-    
+
     public static final String PLAYLISTS_RESOURCE = "playlists.yaml";
-    
+
     public static final String CURATED_RESOURCE = "curated.yaml";
-    
+
     public static Collection<PlaylistYaml> playlists(String resource) {
         return IO.readUTF8(resource)
             .unpack(value ->
@@ -32,42 +32,41 @@ public final class PlaylistYaml {
                     .collect(Collectors.toList()))
             .orElseGet(Collections::emptyList);
     }
-    
+
     private final Path path;
-    
+
     private final Collection<PlaylistEntry> entries;
-    
+
     PlaylistYaml(Path path, String... entries) {
         this(path, Arrays.asList(entries));
     }
-    
-    private PlaylistYaml(Path path, @Nullable Collection<String> entries) {
+
+    private PlaylistYaml(Path path, Collection<String> entries) {
         this(
             entries == null || entries.isEmpty()
                 ? Collections.emptyList()
                 : entries.stream().map(PlaylistEntry::new).collect(Collectors.toList()),
             Objects.requireNonNull(path));
     }
-    
+
     private PlaylistYaml(Collection<PlaylistEntry> entries, Path path) {
         this.path = path;
         this.entries = Objects.requireNonNull(entries, "entries");
     }
-    
-    public @Nullable
-    Path getPath() {
+
+    public Path getPath() {
         return path;
     }
-    
+
     public boolean contains(Album album) {
         return entries.stream().anyMatch(entry -> entry.match(album));
     }
-    
+
     public boolean isCovered(Path path) {
         return entries.stream().anyMatch(entry -> entry.match(path));
     }
-    
-    private PlaylistYaml and(@Nullable PlaylistYaml sub) {
+
+    private PlaylistYaml and(PlaylistYaml sub) {
         if (sub == null) {
             return this;
         }
@@ -81,16 +80,16 @@ public final class PlaylistYaml {
         }
         throw new IllegalArgumentException("Not a sub-category of " + this + ": " + sub);
     }
-    
+
     private static final ObjectReader YAML_READER =
         new ObjectMapper(new YAMLFactory()).readerFor(Map.class);
-    
+
     static final Collection<PlaylistYaml> PLAYLISTS =
         playlists(PLAYLISTS_RESOURCE);
-    
+
     static final Collection<PlaylistYaml> CURATED =
         playlists(CURATED_RESOURCE);
-    
+
     private static Map<?, ?> readMap(String resource, String value) {
         try {
             return YAML_READER.readValue(value);
@@ -98,7 +97,7 @@ public final class PlaylistYaml {
             throw new IllegalStateException("Failed to read " + resource, e);
         }
     }
-    
+
     private static Stream<PlaylistYaml> playlists(@Nullable Path prefix, Map<?, ?> map) {
         return map.entrySet().stream().flatMap(entry -> {
             Path path = Paths.get(String.valueOf(entry.getKey()));
@@ -124,25 +123,25 @@ public final class PlaylistYaml {
             return Stream.of(new PlaylistYaml(subPath, String.valueOf(entry.getKey())));
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     private static Collection<Map<?, ?>> subMaps(Collection<?> entries) {
         return (Collection<Map<?, ?>>) entries.stream()
             .filter(isMap())
             .collect(Collectors.toList());
     }
-    
+
     private static Collection<String> entries(Collection<?> entries) {
         return entries.stream()
             .filter(isMap().negate())
             .map(String::valueOf)
             .collect(Collectors.toList());
     }
-    
+
     private static <T> Predicate<T> isMap() {
         return Map.class::isInstance;
     }
-    
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + path + " (" + entries + ")]";

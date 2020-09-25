@@ -46,6 +46,8 @@ public final class Session {
 
     private final FbUser fbUser;
 
+    private final boolean local;
+
     private final AtomicReference<Instant> lastAccessed = new AtomicReference<>();
 
     private final AtomicLong bytesStreamed = new AtomicLong();
@@ -58,10 +60,12 @@ public final class Session {
         Instant sessionCutoff,
         Duration inactivityMax,
         AccessLevel accessLevel,
+        boolean local,
         long bytesQuota
     ) {
 
         this.fbUser = Objects.requireNonNull(fbUser, "fbUser");
+        this.local = local;
         this.cookie = UUID.randomUUID();
         this.startTime = Objects.requireNonNull(startTime, "startTime");
         this.accessLevel = Objects.requireNonNull(accessLevel, "accessLevel");
@@ -71,29 +75,8 @@ public final class Session {
         this.inactivityMax = Objects.requireNonNull(inactivityMax, "inactivityMax");
     }
 
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(cookie, fbUser);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        return this == o ||
-            o instanceof Session &&
-                Objects.equals(cookie, ((Session) o).cookie) &&
-                Objects.equals(fbUser, ((Session) o).fbUser);
-    }
-
-    @Override
-    public String toString() {
-
-        return getClass().getSimpleName() + "[" + fbUser + "/" + accessLevel + "/" + Print.uuid(cookie) +
-            "@" + Print.aboutTime(startTime) +
-            " s:" + Print.bytes(bytesStreamed.get()) + "/" + Print.bytes(bytesQuota) +
-            " t:" + Duration.between(lastAccessed.get(), sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
-            "]";
+    public boolean isLocal() {
+        return local;
     }
 
     public Instant getStartTime() {
@@ -220,5 +203,30 @@ public final class Session {
         return bytesStreamed.get() < bytesQuota
             ? Status.OK
             : Status.QUOTA_EXCEEDED;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(cookie, fbUser);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        return this == o ||
+            o instanceof Session &&
+                Objects.equals(cookie, ((Session) o).cookie) &&
+                Objects.equals(fbUser, ((Session) o).fbUser);
+    }
+
+    @Override
+    public String toString() {
+
+        return getClass().getSimpleName() + "[" + fbUser + "/" + accessLevel + "/" + Print.uuid(cookie) +
+            "@" + Print.aboutTime(startTime) +
+            " s:" + Print.bytes(bytesStreamed.get()) + "/" + Print.bytes(bytesQuota) +
+            " t:" + Duration.between(lastAccessed.get(), sessionCutoff).truncatedTo(ChronoUnit.MINUTES) +
+            "]";
     }
 }

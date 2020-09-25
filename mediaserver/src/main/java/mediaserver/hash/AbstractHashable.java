@@ -16,38 +16,6 @@ import mediaserver.util.Print;
 public abstract class AbstractHashable
     implements Hashable, Serializable {
 
-    protected static void hash(Consumer<byte[]> hash, byte[]... bytes) {
-        for (byte[] bite: bytes) {
-            hash.accept(bite);
-        }
-    }
-
-    protected static void hash(Consumer<byte[]> hash, String... strings) {
-        hashStrings(hash, Arrays.asList(strings));
-    }
-
-    protected static void hash(Consumer<byte[]> hash, Integer... values) {
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES * values.length);
-        for (Integer value: values) {
-            if (value != null) {
-                buffer.putInt(value);
-            }
-        }
-        hash.accept(buffer.array());
-    }
-
-    protected static void hash(Consumer<byte[]> h, Hashable... hasheds) {
-        hash(h, Arrays.asList(hasheds));
-    }
-
-    protected static void hash(Consumer<byte[]> h, Collection<? extends Hashable> hasheds) {
-        for (Hashable hashable: hasheds) {
-            if (hashable != null) {
-                hashable.hashTo(h);
-            }
-        }
-    }
-
     private final AtomicReference<UUID> hash = new AtomicReference<>();
 
     private final AtomicReference<String> toString = new AtomicReference<>();
@@ -55,22 +23,6 @@ public abstract class AbstractHashable
     @Override
     public final UUID getUuid() {
         return hash.updateAndGet(v -> v == null ? uuid() : v);
-    }
-
-    @Override
-    public final int hashCode() {
-        return getUuid().hashCode();
-    }
-
-    @Override
-    public final boolean equals(Object obj) {
-        return obj == this || obj != null && obj.getClass() == getClass()
-            && ((Hashed) obj).getUuid().equals(getUuid());
-    }
-
-    @Override
-    public final String toString() {
-        return toString.updateAndGet(v -> v == null ? build() : v);
     }
 
     protected abstract StringBuilder withStringBody(StringBuilder sb);
@@ -121,5 +73,53 @@ public abstract class AbstractHashable
             .filter(Objects::nonNull)
             .forEach(s ->
                 hash.accept(s.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    protected static void hash(Consumer<byte[]> hash, byte[]... bytes) {
+        for (byte[] bite: bytes) {
+            hash.accept(bite);
+        }
+    }
+
+    protected static void hash(Consumer<byte[]> hash, String... strings) {
+        hashStrings(hash, Arrays.asList(strings));
+    }
+
+    protected static void hash(Consumer<byte[]> hash, Integer... values) {
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES * values.length);
+        for (Integer value: values) {
+            if (value != null) {
+                buffer.putInt(value);
+            }
+        }
+        hash.accept(buffer.array());
+    }
+
+    protected static void hash(Consumer<byte[]> h, Hashable... hasheds) {
+        hash(h, Arrays.asList(hasheds));
+    }
+
+    protected static void hash(Consumer<byte[]> h, Collection<? extends Hashable> hasheds) {
+        for (Hashable hashable: hasheds) {
+            if (hashable != null) {
+                hashable.hashTo(h);
+            }
+        }
+    }
+
+    @Override
+    public final int hashCode() {
+        return getUuid().hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return obj == this || obj != null && obj.getClass() == getClass()
+            && ((Hashed) obj).getUuid().equals(getUuid());
+    }
+
+    @Override
+    public final String toString() {
+        return toString.updateAndGet(v -> v == null ? build() : v);
     }
 }

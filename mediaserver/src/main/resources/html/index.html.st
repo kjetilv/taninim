@@ -76,7 +76,7 @@
 </DIV>
 
 <!--suppress HtmlUnknownAttribute -->
-<AUDIO controls data-plyr-config='\{ "duration": {highlighted.seconds} }' id="player" preload="none"
+<AUDIO controls data-plyr-config='\{ "duration": {highlighted.seconds}, "position": 180}' id="player" preload="none"
        src="/audio/{highlighted.uuid}.m4a">
 </AUDIO>
 

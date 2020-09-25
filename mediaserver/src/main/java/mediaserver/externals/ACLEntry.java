@@ -11,11 +11,6 @@ public class ACLEntry {
 
     private String ser;
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + als + "/" + lev + "]";
-    }
-
     @DAC
     public String getAls() {
         return als;
@@ -42,5 +37,10 @@ public class ACLEntry {
     @DAC
     public void setSer(String ser) {
         this.ser = ser;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + als + "/" + lev + "]";
     }
 }

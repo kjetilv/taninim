@@ -42,12 +42,6 @@ final class Range {
         this.satisfiable = start == null || start < length;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[" + (start == null ? "" : start) + '-' + (exclusiveEnd == null ? "" : exclusiveEnd) + "]";
-    }
-
     long getStart() {
         return start;
     }
@@ -65,4 +59,10 @@ final class Range {
     private static final int BYTES_PREAMBLE_LENGTH = BYTES_PREAMBLE.length();
 
     private static final Pattern COMMA = Pattern.compile(",");
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+            "[" + (start == null ? "" : start) + '-' + (exclusiveEnd == null ? "" : exclusiveEnd) + "]";
+    }
 }

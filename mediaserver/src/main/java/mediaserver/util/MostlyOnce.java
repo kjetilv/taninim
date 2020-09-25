@@ -14,10 +14,8 @@ public final class MostlyOnce {
     /**
      * Returns a supplier which runs the given supplier mostly only once.
      *
-     * @param supplier
-     *     Source supplier, must be functional or at least idempotent
-     * @param <O>
-     *     Type
+     * @param supplier Source supplier, must be functional or at least idempotent
+     * @param <O> Type
      *
      * @return Single-run supplier
      */

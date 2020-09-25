@@ -13,9 +13,9 @@ import mediaserver.http.WebCache;
 import mediaserver.util.IO;
 
 abstract class AbstractResources extends NettyHandler {
-    
+
     private final WebCache<String, byte[]> webCache;
-    
+
     AbstractResources(
         Route route,
         WebCache<String, byte[]> webCache
@@ -23,7 +23,7 @@ abstract class AbstractResources extends NettyHandler {
         super(route);
         this.webCache = Objects.requireNonNull(webCache, "webCache");
     }
-    
+
     protected Handling handle(Req req, String key) {
         return webCache.get(key)
             .map((type, bytes) ->
@@ -35,8 +35,7 @@ abstract class AbstractResources extends NettyHandler {
             .orElseGet(() ->
                 handleNotFound(req));
     }
-    
-    @Nullable
+
     private Headers cacheable(IO.Type type, Duration time) {
         return type == IO.Type.JAR ? cacheable(time) : null;
     }

@@ -48,19 +48,19 @@ import static io.netty.handler.codec.http.HttpResponseStatus.UNAUTHORIZED;
 
 @ChannelHandler.Sharable
 final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
-    
+
     private static final Logger log = LoggerFactory.getLogger(Router.class);
-    
+
     private final Sessions sessions;
-    
+
     private final Clock clock;
-    
+
     private final Map<Route, NettyHandler> handlers;
-    
+
     private final RingBuffer<Exchange> latestExchanges = new RingBuffer<>(EXCHANGES_REMEMBERED);
-    
+
     Router(Sessions sessions, Templater templater, Clock clock, NettyHandler... handlers) {
-        
+
         this.sessions = sessions;
         this.clock = clock;
         this.handlers = Stream.concat(
@@ -77,15 +77,15 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             LinkedHashMap::new
         ));
     }
-    
+
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
-        
+
         if (HttpUtil.is100ContinueExpected(request)) {
             Netty.respond(ctx, CONTINUE);
             return;
         }
-        
+
         try {
             handle(ctx, request);
         } catch (Throwable e) {
@@ -93,10 +93,10 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             Netty.respond(ctx, INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        
+
         try {
             switch (Exceptions.seriosityLevl(ctx, cause)) {
                 case MEH:
@@ -122,7 +122,7 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             }
         }
     }
-    
+
     private void handle(ChannelHandlerContext ctx, FullHttpRequest request) {
         Instant time = clock.instant();
         handlers.keySet().stream()
@@ -143,12 +143,12 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
                     Netty.respond(ctx, NOT_FOUND);
                 });
     }
-    
+
     private Function<Req, Runnable> handler(ChannelHandlerContext ctx, Instant time) {
         return req ->
             boundRequestHandler(ctx, time, req);
     }
-    
+
     private Runnable boundRequestHandler(ChannelHandlerContext ctx, Instant time, Req req) {
         try {
             if (req.hasRoute()) {
@@ -182,47 +182,47 @@ final class Router extends SimpleChannelInboundHandler<FullHttpRequest> {
             };
         }
     }
-    
+
     private Optional<NettyHandler> login() {
         return handlers.values().stream().filter(Login.class::isInstance).findFirst();
     }
-    
+
     private void logExchange(Handling handling) {
         latestExchanges.add(new Exchange(sequence.getAndIncrement(), handling));
     }
-    
+
     private void logError(Object req, Instant time, Throwable e) {
         log.error("Failure situation: {} [{}ms]: {}", "Handling of request failed", durationSince(time), req, e);
     }
-    
+
     private long durationSince(Instant start) {
         return start == null ? -1L : Duration.between(start, clock.instant()).toMillis();
     }
-    
+
     private static final AtomicLong sequence = new AtomicLong();
-    
+
     private static final int EXCHANGES_REMEMBERED = 100;
-    
+
     private static Comparator<Route> prefixLength() {
-        
+
         return Comparator.comparing(Route::getPrefixLength);
     }
-    
+
     private static Predicate<Route> resolves(HttpRequest request) {
-        
+
         return handler ->
             handler.resolves(request.uri());
     }
-    
+
     private static String summarize(Throwable cause) {
-        
+
         return Throwables.causes(cause)
             .map(String::valueOf)
             .collect(Collectors.joining(" <= "));
     }
-    
+
     private static String addr(ChannelHandlerContext ctx, Function<Channel, SocketAddress> remoteAddress) {
-        
+
         return Optional.of(ctx)
             .map(ChannelHandlerContext::channel)
             .map(remoteAddress)

@@ -41,19 +41,19 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
 
 public abstract class Streamer extends NettyHandler {
-    
+
     private static final Logger log = LoggerFactory.getLogger(Streamer.class);
-    
+
     private final Clock clock;
-    
+
     private final Supplier<Media> media;
-    
+
     private final int bytesPerChunk;
-    
+
     private final Map<Track, Long> shortLengths = new ConcurrentHashMap<>();
-    
+
     private final Map<Track, Long> longLengths = new ConcurrentHashMap<>();
-    
+
     Streamer(Route route, Clock clock, Supplier<Media> media, int bytesPerChunk) {
         super(route);
         this.clock = clock;
@@ -61,9 +61,9 @@ public abstract class Streamer extends NettyHandler {
         this.bytesPerChunk = bytesPerChunk;
         log.info("{} created", this);
     }
-    
+
     @Override
-    
+
     protected Handling handle(Req req) {
         HttpMethod method = req.getRequest().method();
         if (method == HttpMethod.HEAD || method == HttpMethod.GET) {
@@ -78,16 +78,16 @@ public abstract class Streamer extends NettyHandler {
         }
         return handleBadRequest(req);
     }
-    
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + media + ", kb/chunk:" + bytesPerChunk / Config.K + "]";
     }
-    
+
     protected abstract Object content(Track track, Chunk chunk, boolean lossless);
-    
+
     protected abstract long trackLength(Track track, boolean lossless);
-    
+
     private Chunk chunk(Range rangeHeader, long fileLength, boolean truncate) {
         try {
             long start = rangeHeader.getStart();
@@ -103,7 +103,7 @@ public abstract class Streamer extends NettyHandler {
             throw new IllegalStateException("Invalid range header", e);
         }
     }
-    
+
     private Handling handle(Req req, AlbumTrack albumTrack) {
         boolean lossless = req.isFlac() && req.isLocal();
         if (req.getRequest().method() == HttpMethod.HEAD) {
@@ -117,7 +117,7 @@ public abstract class Streamer extends NettyHandler {
             .orElseGet(() ->
                 handle(req, REQUESTED_RANGE_NOT_SATISFIABLE));
     }
-    
+
     private Handling handledMeta(Req req, AlbumTrack albumTrack, boolean lossless) {
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         response.headers()
@@ -130,7 +130,7 @@ public abstract class Streamer extends NettyHandler {
         req.getCtx().writeAndFlush(response);
         return handled(req, response);
     }
-    
+
     private Handling handledPartial(Req req, AlbumTrack albumTrack, boolean lossless, Range range) {
         HttpResponse response =
             new DefaultHttpResponse(HTTP_1_1, range == null ? OK : PARTIAL_CONTENT);
@@ -167,20 +167,20 @@ public abstract class Streamer extends NettyHandler {
             req.getSession().addBytesStreamed(chunk.getSize());
         }
     }
-    
+
     private long length(Track track, boolean lossless) {
         Map<Track, Long> map = lossless ? longLengths : shortLengths;
         return map.computeIfAbsent(track, t -> trackLength(track, lossless));
     }
-    
+
     private static final String AUDIO_FLAC = "audio/flac";
-    
+
     private static final String AUDIO_AAC = "audio/m4a";
-    
+
     private static boolean isVlc(Req req) {
         return req.header(USER_AGENT).startsWith("VLC");
     }
-    
+
     private static UUID uuid(String path) {
         try {
             int typeIndex = path.indexOf('.', 1);
@@ -190,7 +190,7 @@ public abstract class Streamer extends NettyHandler {
             throw new IllegalArgumentException("Ugyldig UUID: " + path, e);
         }
     }
-    
+
     private static long min(long... lengths) {
         return LongStream.of(lengths).min().orElseThrow(() ->
             new IllegalStateException("No end in sight! " + Arrays.toString(lengths)));

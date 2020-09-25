@@ -116,7 +116,7 @@ public final class TrackContext implements Serializable {
             return integer;
         }
     }
-    
+
     private static Optional<Integer> emergency(String substring) {
         if ("a".equalsIgnoreCase(substring)) {
             return Optional.of(1);

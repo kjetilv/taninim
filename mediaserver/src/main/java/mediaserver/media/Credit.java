@@ -63,27 +63,6 @@ public final class Credit implements Serializable {
         this.sourceType = sourceType == null || sourceType.isBlank() ? "" : sourceType;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, uri, externalType, sourceType);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o ||
-            o instanceof Credit &&
-                Objects.equals(name, ((Credit) o).name) &&
-                Objects.equals(uri, ((Credit) o).uri) &&
-                externalType == ((Credit) o).externalType &&
-                Objects.equals(sourceType, ((Credit) o).sourceType);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-            "[" + name + ": " + sourceType + "/" + externalType + "]";
-    }
-
     public String getSourceType() {
         return sourceType == null || sourceType.isBlank() ? null : sourceType;
     }
@@ -116,4 +95,25 @@ public final class Credit implements Serializable {
     }
 
     private static final long serialVersionUID = 1917638609632123791L;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, uri, externalType, sourceType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o ||
+            o instanceof Credit &&
+                Objects.equals(name, ((Credit) o).name) &&
+                Objects.equals(uri, ((Credit) o).uri) &&
+                externalType == ((Credit) o).externalType &&
+                Objects.equals(sourceType, ((Credit) o).sourceType);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+            "[" + name + ": " + sourceType + "/" + externalType + "]";
+    }
 }
