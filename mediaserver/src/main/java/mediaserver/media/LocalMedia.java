@@ -33,11 +33,9 @@ public final class LocalMedia
     extends AbstractHashable
     implements Media, Serializable {
 
-    private final Collection<Album> albums;
+    private final Comparator<AlbumContext> albumComparator;
 
-    private final Comparator<Album> albumComparator;
-
-    private final Map<Album, AlbumContext> albumContexts;
+    private final Map<UUID, AlbumContext> albumContexts;
 
     private final Collection<Artist> artists;
 
@@ -47,41 +45,39 @@ public final class LocalMedia
 
     private final Map<UUID, Boolean> curatedTracks = new ConcurrentHashMap<>();
 
-    private final Map<UUID, Album> trackIndex;
+    private final Map<UUID, AlbumContext> trackIndex;
 
     LocalMedia(Path root) {
-        this(getAlbums(root, root), null);
+        this(getAlbumContexts(root, root).collect(Collectors.toList()));
     }
 
-    private LocalMedia(Stream<Album> albums, Map<Album, AlbumContext> albumContexts) {
-        this(
-            Objects.requireNonNull(albums, "albums").collect(Collectors.toList()),
-            albumContexts,
-            null);
+    private LocalMedia(Collection<AlbumContext> albumContexts) {
+        this(albumContexts, null);
     }
 
-    private LocalMedia(
-        Collection<Album> albums,
-        Map<Album, AlbumContext> albumContexts,
-        Comparator<Album> albumComparator
-    ) {
-        this.albums = List.copyOf(albums);
-        this.albumComparator = albumComparator;
-        this.trackIndex = this.albums.stream().flatMap(album ->
-            album.getTracks().stream().map(track ->
-                new AbstractMap.SimpleEntry<>(
-                    track.getUuid(),
-                    album)))
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue
-            ));
+    private LocalMedia(Collection<AlbumContext> albumContexts, Comparator<AlbumContext> albumComparator) {
+
         this.albumContexts = albumContexts == null || albumContexts.isEmpty()
             ? Collections.emptyMap()
-            : Map.copyOf(albumContexts);
-        Collection<Album> mediaAlbums = albumStream().collect(Collectors.toList());
+            : albumContexts.stream().collect(Collectors.toMap(
+                albumContext ->
+                    albumContext.getAlbum().getUuid(),
+                Function.identity()));
+        this.albumComparator = albumComparator;
+        this.trackIndex = this.albumContexts.values().stream()
+            .flatMap(albumContext ->
+                albumContext.getAlbum().getTracks().stream().map(track ->
+                    new AbstractMap.SimpleEntry<>(
+                        track.getUuid(),
+                        albumContext)))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue));
+        Collection<AlbumContext> mediaAlbums = albumStream().collect(Collectors.toList());
         this.artists = Stream.concat(
-            mediaAlbums.stream().map(Album::getArtist),
+            mediaAlbums.stream()
+                .map(AlbumContext::getAlbum)
+                .map(Album::getArtist),
             trackStream().flatMap(track ->
                 Stream.concat(
                     Stream.of(track.getArtist()),
@@ -104,67 +100,67 @@ public final class LocalMedia
         Collection<Playlist> curations,
         boolean union
     ) {
-        Optional<Predicate<Album>> forArtist = Optional.ofNullable(artists)
+        Optional<Predicate<AlbumContext>> forArtist = Optional.ofNullable(artists)
             .filter(a -> !a.isEmpty())
             .map(a ->
-                album ->
-                    filtered(a, artistMatch(album), union));
-        Optional<Predicate<Album>> inSeries = Optional.ofNullable(series)
+                ctx ->
+                    filtered(a, artistMatch(ctx.getAlbum()), union));
+        Optional<Predicate<AlbumContext>> inSeries = Optional.ofNullable(series)
             .filter(s -> !s.isEmpty())
             .map(s ->
-                album ->
-                    filtered(s, seriesMatch(album), union));
-        Optional<Predicate<Album>> inPlaylist = Optional.ofNullable(playlists)
+                ctx ->
+                    filtered(s, seriesMatch(ctx.getAlbum()), union));
+        Optional<Predicate<AlbumContext>> inPlaylist = Optional.ofNullable(playlists)
             .filter(p ->
                 !p.isEmpty())
             .map(p ->
-                album ->
-                    filtered(p, playlistMatch(album), union));
-        Optional<Predicate<Album>> curated = Optional.ofNullable(curations)
+                ctx ->
+                    filtered(p, playlistMatch(ctx), union));
+        Optional<Predicate<AlbumContext>> curated = Optional.ofNullable(curations)
             .filter(c ->
                 !c.isEmpty())
             .map(c ->
-                album ->
-                    filtered(c, playlistMatch(album), union));
-        Optional<Predicate<Album>> filter =
-            Stream.of(forArtist, inSeries, inPlaylist, curated).flatMap(Optional::stream)
+                ctx ->
+                    filtered(c, playlistMatch(ctx), union));
+        Optional<Predicate<AlbumContext>> filter =
+            Stream.of(forArtist, inSeries, inPlaylist, curated)
+                .flatMap(Optional::stream)
                 .reduce(union ? Predicate::or : Predicate::and);
         return new LocalMedia(
-            albums.stream().filter(filter.orElse(p -> true)).collect(Collectors.toList()),
-            albumContexts,
+            albumContexts.values().stream().filter(filter.orElse(p -> true))
+                .collect(Collectors.toList()),
             albumComparator);
     }
 
     @Override
-    public Media sortedAlbums(Comparator<Album> comparator) {
-        return new LocalMedia(albums, albumContexts, comparator);
+    public Media sortedAlbums(Comparator<AlbumContext> comparator) {
+        return new LocalMedia(albumContexts.values(), comparator);
     }
 
     @Override
-    public Media withAlbumContext(UUID albumId, AlbumContext albumContext) {
-        return getAlbum(albumId).map(album -> {
-            Map<Album, AlbumContext> copy = new HashMap<>(albumContexts);
-            AlbumContext expandedContext = copy.computeIfAbsent(album, AlbumContext::new)
-                .append(albumContext);
-            Album expanded = album.withContext(albumContext);
-            copy.put(expanded, expandedContext);
-            return new LocalMedia(
-                albums.stream()
-                    .map(a ->
-                        a.equals(album) ? expanded : a)
-                    .collect(Collectors.toList()),
-                copy,
-                albumComparator);
-        }).findFirst().orElseThrow(() ->
-            new IllegalArgumentException("Unknown album: " + albumId));
+    public Media withAlbumContext(AlbumContext albumContext) {
+        Map<UUID, AlbumContext> copy = new HashMap<>(albumContexts);
+        Album album = albumContext.getAlbum();
+        AlbumContext expandedContext = copy.
+            computeIfAbsent(album.getUuid(), uuid -> new AlbumContext(album))
+            .append(albumContext);
+        Album expanded = album.withContext(albumContext);
+        copy.put(expanded.getUuid(), expandedContext);
+        return new LocalMedia(copy.values(), albumComparator);
+    }
+
+    @Override
+    public Media withAlbumContexts(Collection<AlbumContext> albumContexts) {
+        return new LocalMedia(albumContexts, albumComparator);
     }
 
     @Override
     public Stream<AlbumTrack> getAlbumTrack(UUID uuid) {
         return Optional.ofNullable(trackIndex.get(uuid))
-            .flatMap(album ->
-                album.getTrack(uuid).map(track ->
-                    new AlbumTrack(album, track)))
+            .flatMap(albumContext ->
+                albumContext.getAlbum().getTrack(uuid)
+                    .map(track ->
+                        new AlbumTrack(albumContext, track)))
             .stream();
     }
 
@@ -178,7 +174,7 @@ public final class LocalMedia
     @Override
     public Year getStartYear() {
         return albumStream()
-            .map(album -> album.getContext().getYear())
+            .map(AlbumContext::getYear)
             .filter(Objects::nonNull)
             .min(Year::compareTo)
             .orElse(null);
@@ -187,7 +183,7 @@ public final class LocalMedia
     @Override
     public Year getEndYear() {
         return albumStream()
-            .map(album -> album.getContext().getYear())
+            .map(AlbumContext::getYear)
             .filter(Objects::nonNull)
             .max(Year::compareTo)
             .orElse(null);
@@ -224,12 +220,19 @@ public final class LocalMedia
 
     @Override
     public Duration getDuration() {
-        return albumStream().map(Album::getDuration).reduce(Duration.ZERO, Duration::plus);
+        return albumStream()
+            .map(AlbumContext::getAlbum)
+            .map(Album::getDuration)
+            .reduce(Duration.ZERO, Duration::plus);
     }
 
     @Override
     public Collection<Artist> getAlbumArtists(boolean recurse) {
-        return albums.stream().map(Album::getArtists).flatMap(Collection::stream).collect(Collectors.toSet());
+        return albumContexts.values().stream()
+            .map(AlbumContext::getAlbum)
+            .map(Album::getArtists)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -243,10 +246,10 @@ public final class LocalMedia
     }
 
     @Override
-    public Collection<Album> getRandomAlbums(int count) {
-        List<Album> indexed = this.albums.stream()
+    public Collection<AlbumContext> getRandomAlbums(int count) {
+        List<AlbumContext> indexed = this.albumContexts.values().stream()
             .filter(album ->
-                album.getContext().getDiscogCover() != null)
+                album.getDiscogCover() != null)
             .collect(Collectors.toCollection(ArrayList::new));
         if (count >= indexed.size()) {
             Collections.shuffle(indexed);
@@ -260,15 +263,27 @@ public final class LocalMedia
     }
 
     @Override
-    public Collection<Album> getAlbums() {
-        return albumStream().collect(Collectors.toList());
+    public Collection<AlbumContext> getAlbumContexts() {
+        return albumContexts.values().stream()
+            .sorted(albumComparator)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<Album> getAlbumsByYear() {
+    public Collection<Album> getAlbums() {
+        return albumStream().map(AlbumContext::getAlbum).collect(Collectors.toList());
+    }
+
+    @Override
+    public int getAlbumCount() {
+        return albumContexts.size();
+    }
+
+    @Override
+    public List<AlbumContext> getAlbumsByYear() {
         return albumStream()
             .sorted(Comparator.comparing(
-                album -> Optional.ofNullable(album.getContext()).map(AlbumContext::getYear).orElse(Year.now())))
+                album -> Optional.ofNullable(album.getYear()).orElseGet(Year::now)))
             .collect(Collectors.toList());
     }
 
@@ -276,6 +291,7 @@ public final class LocalMedia
     public Stream<Track> getTracksFeaturing(Artist artist) {
         Objects.requireNonNull(artist, "artist");
         return albumStream()
+            .map(AlbumContext::getAlbum)
             .map(Album::getTracks)
             .flatMap(Collection::stream)
             .filter(track ->
@@ -291,12 +307,13 @@ public final class LocalMedia
 
     @Override
     public Stream<Album> getAlbum(UUID uuid) {
-        return albums.stream().filter(album -> album.getUuid().equals(uuid));
+        return Optional.ofNullable(albumContexts.get(uuid)).stream().map(AlbumContext::getAlbum);
     }
 
     @Override
     public Collection<Series> getSeries() {
         return albumStream()
+            .map(AlbumContext::getAlbum)
             .map(Album::getSeries)
             .flatMap(Collection::stream)
             .distinct()
@@ -305,9 +322,11 @@ public final class LocalMedia
 
     @Override
     public Collection<Album> getAlbumsFeaturing(Artist artist) {
-        return albumStream().filter(album ->
-            album.getAllArtists().contains(artist)
-        ).collect(Collectors.toList());
+        return albumStream()
+            .map(AlbumContext::getAlbum)
+            .filter(album ->
+                album.getAllArtists().contains(artist))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -335,7 +354,12 @@ public final class LocalMedia
 
     @Override
     public boolean isEmpty() {
-        return albums.isEmpty();
+        return albumContexts.isEmpty();
+    }
+
+    @Override
+    public Stream<AlbumContext> getAlbumContext(UUID uuid) {
+        return Optional.ofNullable(albumContexts.get(uuid)).stream();
     }
 
     @Override
@@ -345,26 +369,30 @@ public final class LocalMedia
 
     @Override
     protected StringBuilder withStringBody(StringBuilder sb) {
-        return sb.append(albums.size()).append(" albums");
+        return sb.append(albumContexts.size()).append(" albums");
     }
 
     private Collection<Artist> collectArtists(Function<? super Album, ? extends Collection<Artist>> getAllArtists) {
         return albumStream()
+            .map(AlbumContext::getAlbum)
             .map(getAllArtists)
             .flatMap(Collection::stream)
             .distinct()
             .collect(Collectors.toList());
     }
 
-    private Stream<Album> albumStream() {
-        Comparator<Album> comparator = albumComparator == null
+    private Stream<AlbumContext> albumStream() {
+        Comparator<AlbumContext> comparator = albumComparator == null
             ? Comparator.naturalOrder()
             : albumComparator;
-        return albums.stream().sorted(comparator);
+        return albumContexts.values().stream().sorted(comparator);
     }
 
     private Stream<Track> trackStream() {
-        return albumStream().flatMap(album -> album.getTracks().stream());
+        return albumStream()
+            .map(AlbumContext::getAlbum)
+            .flatMap(album ->
+                album.getTracks().stream());
     }
 
     private static final Random RND = new Random();
@@ -373,8 +401,9 @@ public final class LocalMedia
 
     private static final Pattern UNDERSCORE = Pattern.compile("_");
 
-    private static Predicate<Playlist> playlistMatch(Album album) {
-        return playlist -> playlist.contains(album);
+    private static Predicate<Playlist> playlistMatch(AlbumContext albumContext) {
+        return playlist ->
+            playlist.contains(albumContext);
     }
 
     private static Predicate<Artist> artistMatch(Album album) {
@@ -397,25 +426,25 @@ public final class LocalMedia
                 playlist.getUuid().equals(uuid));
     }
 
-    private static Album album(Artist artist, String name, List<Track> tracks) {
-        return new Album(artist, name, tracks);
+    private static AlbumContext albumContext(Artist artist, String name, List<Track> tracks) {
+        return new AlbumContext(new Album(artist, name, tracks));
     }
 
-    private static Stream<Album> getAlbums(Path root, Path path) {
+    private static Stream<AlbumContext> getAlbumContexts(Path root, Path path) {
         if (root == null) {
             return Stream.empty();
         }
         return Stream.concat(
-            album(path).stream(),
+            albumContext(path).stream(),
             subDirs(path.toFile())
                 .flatMap(subDir ->
-                    getAlbums(root, path.resolve(subDir.getName()))));
+                    getAlbumContexts(root, path.resolve(subDir.getName()))));
     }
 
-    private static Optional<Album> album(Path path) {
+    private static Optional<AlbumContext> albumContext(Path path) {
         File dir = path.toFile();
         return trackFiles(dir).map(tracks ->
-            album(
+            albumContext(
                 artist(dir),
                 albumName(dir),
                 tracks(tracks)));

@@ -13,29 +13,29 @@ import mediaserver.hash.AbstractNameHashable;
 
 public final class Playlist extends AbstractNameHashable {
 
-    public static Collection<Playlist> playlistsWith(Album... albums) {
-        return convert(PlaylistYaml.PLAYLISTS, Arrays.asList(albums));
+    public static Collection<Playlist> playlistsWith(AlbumContext... albumContexts) {
+        return convert(PlaylistYaml.PLAYLISTS, Arrays.asList(albumContexts));
     }
 
-    public static Collection<Playlist> curationsWith(Album... albums) {
-        return convert(PlaylistYaml.CURATED, Arrays.asList(albums));
+    public static Collection<Playlist> curationsWith(AlbumContext... albumContexts) {
+        return convert(PlaylistYaml.CURATED, Arrays.asList(albumContexts));
     }
 
-    static Collection<Playlist> playlistsWith(Collection<Album> albums) {
-        return convert(PlaylistYaml.PLAYLISTS, albums);
+    static Collection<Playlist> playlistsWith(Collection<AlbumContext> albumContexts) {
+        return convert(PlaylistYaml.PLAYLISTS, albumContexts);
     }
 
-    static Collection<Playlist> curationsWith(Collection<Album> albums) {
-        return convert(PlaylistYaml.CURATED, albums);
+    static Collection<Playlist> curationsWith(Collection<AlbumContext> albumContexts) {
+        return convert(PlaylistYaml.CURATED, albumContexts);
     }
 
-    private final Map<Album, Collection<Track>> tracks;
+    private final Map<AlbumContext, Collection<Track>> tracks;
 
     private Playlist(String name) {
         this(name, null);
     }
 
-    private Playlist(String name, Map<Album, Collection<Track>> tracks) {
+    private Playlist(String name, Map<AlbumContext, Collection<Track>> tracks) {
         super(name);
         this.tracks = tracks == null || tracks.isEmpty()
             ? Collections.emptyMap()
@@ -51,19 +51,19 @@ public final class Playlist extends AbstractNameHashable {
     }
 
     public boolean contains(AlbumTrack albumTrack) {
-        return contains(albumTrack.getAlbum()) &&
-            this.tracks.get(albumTrack.getAlbum()).contains(albumTrack.getTrack());
+        return this.tracks.entrySet().stream().anyMatch(e ->
+                e.getKey().getAlbum().equals(albumTrack.getAlbum()) && e.getValue().contains(albumTrack.getTrack()));
     }
 
-    public boolean contains(Album album) {
-        return tracks.containsKey(album);
+    public boolean contains(AlbumContext albumContext) {
+        return tracks.containsKey(albumContext);
     }
 
-    private Playlist add(Album album) {
+    private Playlist add(AlbumContext albumContext) {
         if (tracks.isEmpty()) {
-            return new Playlist(getName(), Map.of(album, new HashSet<>(album.getTracks())));
+            return new Playlist(getName(), Map.of(albumContext, new HashSet<>(albumContext.getAlbum().getTracks())));
         }
-        this.tracks.put(album, new HashSet<>(album.getTracks()));
+        this.tracks.put(albumContext, new HashSet<>(albumContext.getAlbum().getTracks()));
         return this;
     }
 
@@ -81,11 +81,12 @@ public final class Playlist extends AbstractNameHashable {
 
     private static final long serialVersionUID = -7432999542297837794L;
 
-    private static Collection<Playlist> convert(Collection<PlaylistYaml> playlists, Collection<Album> albums) {
+    private static Collection<Playlist> convert(Collection<PlaylistYaml> playlists, Collection<AlbumContext> albums) {
         return playlists.stream()
             .map(playlist ->
                 albums.stream()
-                    .filter(playlist::contains)
+                    .filter(albumContext ->
+                        playlist.contains(albumContext.getAlbum()))
                     .reduce(new Playlist(playlist.getPath().toString()), Playlist::add, Playlist::add))
             .filter(playlist ->
                 !playlist.isEmpty())

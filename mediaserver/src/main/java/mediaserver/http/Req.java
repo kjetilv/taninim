@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -273,13 +272,13 @@ public final class Req {
     private boolean computeLocal() {
         return get(Channel::localAddress)
             .map(sameSubnet ->
-                "localhost".equals(sameSubnet.getHostName()) || get(Channel::remoteAddress).map(remoteAddr ->
-                    sameSame(sameSubnet, remoteAddr)
-                ).orElse(false))
+                "localhost".equals(sameSubnet.getHostName()) || get(Channel::remoteAddress)
+                    .map(remoteAddr ->
+                        sameSubnet(sameSubnet, remoteAddr))
+                    .orElse(false))
             .orElse(false);
     }
 
-    @Nonnull
     private Optional<InetSocketAddress> get(Function<Channel, SocketAddress> remoteAddress) {
         return Optional.ofNullable(ctx.channel())
             .map(remoteAddress)
@@ -298,7 +297,7 @@ public final class Req {
         return Stream.concat(cookieUUID(request), QPar.streamlease.id(this)).findFirst();
     }
 
-    private static boolean sameSame(InetSocketAddress a1, InetSocketAddress a2) {
+    private static boolean sameSubnet(InetSocketAddress a1, InetSocketAddress a2) {
         byte[] b1 = a1.getAddress().getAddress();
         byte[] b2 = a2.getAddress().getAddress();
         return IntStream.range(0, b1.length - 1).allMatch(i -> b1[i] == b2[i]);

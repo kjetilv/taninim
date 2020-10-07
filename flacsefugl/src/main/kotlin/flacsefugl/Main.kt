@@ -95,9 +95,9 @@ fun main() {
 
     println("Media: $media")
 
-    media.albums.forEach { album ->
-        val discogId = album.context.discogId
-        val dir = album.path
+    media.albumContexts.forEach { albumContext ->
+        val discogId = albumContext.discogId
+        val dir = albumContext.album.path
         val coverPath = if (discogId == null)
             Optional.empty<Path>()
         else IO.readBytes("releases/$discogId.jpg")

@@ -19,6 +19,7 @@ public enum TPar implements Par<Template, Object> {
     mediaSeries,
     mediaPlaylists,
     album,
+    albumContext,
     artist,
     artists,
     albumArtists,

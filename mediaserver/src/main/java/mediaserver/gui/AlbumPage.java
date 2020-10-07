@@ -18,7 +18,7 @@ import mediaserver.http.Par;
 import mediaserver.http.QPar;
 import mediaserver.http.Req;
 import mediaserver.http.Route;
-import mediaserver.media.Album;
+import mediaserver.media.AlbumContext;
 import mediaserver.media.AlbumTrack;
 import mediaserver.media.Media;
 import mediaserver.media.Playlist;
@@ -54,27 +54,28 @@ public final class AlbumPage extends TemplateEnabled {
 
     private Stream<Template> template(Req req, Media media) {
         return QPar.album.id(req)
-            .flatMap(media::getAlbum)
+            .flatMap(media::getAlbumContext)
             .map(album ->
                 albumTemplate(media, req, album));
     }
 
-    private Template albumTemplate(Media media, Req req, Album album) {
+    private Template albumTemplate(Media media, Req req, AlbumContext albumContext) {
         Optional<SelectedTrack> selectedTrack =
-            selectedTrack(media, req, album).findFirst();
+            selectedTrack(media, req, albumContext).findFirst();
         return getTemplate(ALBUM_PAGE)
             .add(TPar.user, req.getSession().getActiveUser(req))
             .add(TPar.media, media)
             .add(TPar.plyr, Config.PLYR)
             .add(TPar.admin, req.getSession().getAccessLevel().satisfies(ADMIN))
-            .add(TPar.album, album)
+            .add(TPar.albumContext, albumContext)
+            .add(TPar.album, albumContext.getAlbum())
             .add(TPar.compressed, req.isLocal() && req.isFlac())
             .add(TPar.selected, selectedTrack)
             .add(TPar.trackHighlighted, selectedTrack.filter(isHighlighted(req)))
-            .add(TPar.playableGroups, playableGroups(media, req, album))
-            .add(TPar.albumPlayable, albumPlayable(media, req, album))
-            .add(TPar.playlists, Playlist.playlistsWith(album))
-            .add(TPar.curations, Playlist.curationsWith(album))
+            .add(TPar.playableGroups, playableGroups(media, req, albumContext))
+            .add(TPar.albumPlayable, albumPlayable(media, req, albumContext))
+            .add(TPar.playlists, Playlist.playlistsWith(albumContext))
+            .add(TPar.curations, Playlist.curationsWith(albumContext))
             .add(TPar.format, req.isLocal() ? FLAC : M4A);
     }
 
@@ -90,15 +91,15 @@ public final class AlbumPage extends TemplateEnabled {
                 .isPresent();
     }
 
-    private static Stream<SelectedTrack> selectedTrack(Media media, Req req, Album album) {
-        return track(media, req, album, QPar.track).flatMap(track ->
+    private static Stream<SelectedTrack> selectedTrack(Media media, Req req, AlbumContext albumContext) {
+        return track(media, req, albumContext, QPar.track).flatMap(track ->
             Stream.of(req.getSession())
                 .filter(session ->
                     streamable(media, track, session))
                 .map(session ->
                     new SelectedTrack(
                         track,
-                        autoplay(media, req, track),
+                        autoplay(media, req, albumContext, track),
                         previousTrack(track.getTrack(), track.getAlbum().getTracks()).orElse(null),
                         nextTrack(track.getTrack(), track.getAlbum().getTracks()).orElse(null))));
     }
@@ -107,44 +108,58 @@ public final class AlbumPage extends TemplateEnabled {
         return session.hasLevel(STREAM) || session.hasLevel(STREAM_CURATED) && media.isCurated(albumTrack);
     }
 
-    private static boolean autoplay(Media media, Req req, AlbumTrack albumTrack) {
-        return track(media, req, albumTrack.getAlbum(), QPar.autoplay)
+    private static boolean autoplay(
+        Media media,
+        Req req,
+        AlbumContext albumContext,
+        AlbumTrack albumTrack
+    ) {
+        return track(media, req, albumContext, QPar.autoplay)
             .anyMatch(albumTrack::equals);
     }
 
-    private static Collection<PlayableGroup> playableGroups(Media media, Req req, Album album) {
-        return playables(media, req, album).collect(Collectors.toList());
+    private static Collection<PlayableGroup> playableGroups(Media media, Req req, AlbumContext albumContext) {
+        return playables(media, req, albumContext).collect(Collectors.toList());
     }
 
-    private static Optional<Playable> albumPlayable(Media media, Req req, Album album) {
-        return playables(media, req, album)
+    private static Optional<Playable> albumPlayable(Media media, Req req, AlbumContext albumContext) {
+        return playables(media, req, albumContext)
             .map(PlayableGroup::getPlayables)
             .flatMap(Collection::stream)
             .findFirst();
     }
 
-    private static Stream<PlayableGroup> playables(Media media, Req req, Album album) {
-        return album.getTracksByPart().entrySet().stream().map(e -> new PlayableGroup(
-            e.getKey(),
-            e.getValue()
-                .stream()
-                .map(track -> new Playable(
-                    track,
-                    streamable(
-                        media,
-                        new AlbumTrack(album, track),
-                        req.getSession())))
-                .collect(Collectors.toList())));
+    private static Stream<PlayableGroup> playables(Media media, Req req, AlbumContext albumContext) {
+        return albumContext.getAlbum().getTracksByPart().entrySet().stream()
+            .map(e -> new PlayableGroup(
+                e.getKey(),
+                e.getValue()
+                    .stream()
+                    .map(track -> new Playable(
+                        track,
+                        streamable(
+                            media,
+                            new AlbumTrack(albumContext, track),
+                            req.getSession())))
+                    .collect(Collectors.toList())));
     }
 
-    private static Stream<AlbumTrack> track(Media media, Req req, Album album, Par<? super Req, String> idParam) {
+    private static Stream<AlbumTrack> track(
+        Media media,
+        Req req,
+        AlbumContext albumContext,
+        Par<? super Req, String> idParam
+    ) {
         Stream<AlbumTrack> selectedTrack = idParam.id(req)
             .flatMap(media::getTrack)
-            .map(track -> new AlbumTrack(album, track));
+            .map(track -> new AlbumTrack(albumContext, track));
         Stream<AlbumTrack> selectedAlbumStart = QPar.autoplay.id(req)
-            .flatMap(media::getAlbum)
-            .filter(album::equals)
-            .map(autoplayAlbum -> new AlbumTrack(autoplayAlbum, autoplayAlbum.getStartTrack()));
+            .flatMap(media::getAlbumContext)
+            .filter(albumContext::equals)
+            .map(autoplayAlbum ->
+                new AlbumTrack(
+                    autoplayAlbum,
+                    autoplayAlbum.getAlbum().getStartTrack()));
         return Stream.concat(selectedTrack, selectedAlbumStart)
             .filter(track ->
                 StreamAuthorization.authorizedStreaming(media, req, track));

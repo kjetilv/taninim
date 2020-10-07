@@ -81,9 +81,9 @@
         {endif}
     </DIV>
     <DIV>
-        {if(album.context.discogCover)}
+        {if(albumContext.discogCover)}
         <DIV STYLE="float: left; padding-right: 20px">
-            <A HREF="{album.context.discogPage}" TARGET="_blank"><IMG SRC="{album.context.discogCover}"></A>
+            <A HREF="{albumContext.discogPage}" TARGET="_blank"><IMG SRC="{albumContext.discogCover}"></A>
         </DIV>
         {endif}
 
@@ -97,13 +97,13 @@
             {if(user.streamingPlaylists)}
             <A HREF="/playlist/album/{album.uuid}">⏬</A>
             {endif}
-            <SUB>({album.context.year})</SUB>
+            <SUB>({albumContext.year})</SUB>
         </H3>
 
         <DIV>
             <DIV>
                 <P>
-                    Spilletid {album.prettyDuration}{if(album.context.year)}.{endif}
+                    Spilletid {album.prettyDuration}{if(albumContext.year)}.{endif}
                 </P>
             </DIV>
             {if(selected)}
@@ -241,11 +241,11 @@
         <HR>
     </DIV>
     <DIV STYLE="">
-        {if(album.context.credits.credits)}
+        {if(albumContext.credits.credits)}
         <DIV STYLE="float: left">
             <H3>Utøvere</H3>
             <UL>
-                {album.context.credits.artistCredits:{credit |
+                {albumContext.credits.artistCredits:{credit |
                 <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}
                     [&nbsp;<A HREF="/?artist={credit.artist.uuid}">{credit.name}</A>
                     {if(user.streamingPlaylists)}
@@ -258,7 +258,7 @@
             <H3>Andre involverte</H3>
 
             <UL>
-                {album.context.credits.otherCredits:{credit|
+                {albumContext.credits.otherCredits:{credit|
                 <LI>{if(credit.sourceType)}{credit.sourceType}: {endif}{credit.name}</LI>
                 }}
             </UL>
@@ -268,11 +268,11 @@
     </DIV>
 
     <DIV STYLE="clear: both">
-        {if(album.context.additionalTrackContext)}
+        {if(albumContext.additionalTrackContext)}
 
         <H3>Spormengder</H3>
 
-        {album.context.trackGroups:{trackGroup |
+        {albumContext.trackGroups:{trackGroup |
         <H4>{trackGroup.name}</H4>
         <UL>
             {trackGroup.trackContexts:{trackContext |
@@ -323,13 +323,13 @@
     <DIV STYLE="clear: both">
         <H2>Info</H2>
 
-        {if(album.context.notes)}
+        {if(albumContext.notes)}
         <P>Notert:</P>
-        <blockquote>{album.context.notes}</blockquote>
+        <blockquote>{albumContext.notes}</blockquote>
         {endif}
 
-        {if(album.context.discogPage)}
-        <P>@ <A HREF="{album.context.discogPage}" TARGET="_blank">Discogs</A></P>
+        {if(albumContext.discogPage)}
+        <P>@ <A HREF="{albumContext.discogPage}" TARGET="_blank">Discogs</A></P>
         {endif}
     </DIV>
 

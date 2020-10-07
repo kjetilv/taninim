@@ -159,10 +159,6 @@ public final class Album extends AbstractHashable
         return name;
     }
 
-    public AlbumContext getContext() {
-        return context;
-    }
-
     public Collection<Artist> getArtists() {
         return artists;
     }

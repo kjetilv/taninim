@@ -61,7 +61,7 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
         try {
             long l = progressions.longValue();
             double perc = chunk.getPerc(progress, 2);
-            if (l == 0L || perc - lastPerc >= PERC_LOGGABLE && log.isDebugEnabled()) {
+            if (l == 0L || perc > 0.01d && perc - lastPerc >= PERC_LOGGABLE && log.isDebugEnabled()) {
                 log.debug("{} {}: {} / {}%", albumTrack.getTrack().getName(), chunk, l, lastPerc);
                 lastPerc = perc;
             }

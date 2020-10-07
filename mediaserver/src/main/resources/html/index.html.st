@@ -70,8 +70,8 @@
 </DIV>
 
 <DIV STYLE="float:left; padding-right: 5px">
-    <A HREF="{highlightedAlbum.context.discogPage}" TARGET="_blank">
-        <IMG SRC="{highlightedAlbum.context.discogCover}" STYLE="width:50px ; height: 50px">
+    <A HREF="{highlightedAlbum.discogPage}" TARGET="_blank">
+        <IMG SRC="{highlightedAlbum.discogCover}" STYLE="width:50px ; height: 50px">
     </A>
 </DIV>
 
@@ -81,7 +81,7 @@
 </AUDIO>
 
 <DIV STYLE="float: inside; text-align: center; padding:10px">
-    <SMALL>Fra <A HREF="/album?album={highlightedAlbum.uuid}"><EM>{highlighted.album}</EM></A>
+    <SMALL>Fra <A HREF="/album?album={highlightedAlbum.album.uuid}"><EM>{highlighted.album}</EM></A>
         av
         <A HREF="/?{highlightedArtist.add}">{highlightedArtist.target.name}</A></SMALL>
 </DIV>
@@ -193,20 +193,20 @@
 
 <DIV STYLE="clear: both">
     <H3>
-        Plater [{length(media.albums)}]
+        Plater [{media.albumCount}]
     </H3>
 
     <UL>
-        {media.albumsByYear:{album|
+        {media.albumsByYear:{ac|
         <LI>
             {if(user.streamingPlaylists)}
-            <A HREF="/playlist/album/{album.uuid}" TITLE="Spilleliste: {album.name}">⏬</A>&nbsp;
+            <A HREF="/playlist/album/{ac.album.uuid}" TITLE="Spilleliste: {ac.album.name}">⏬</A>&nbsp;
             {endif}
             {if(user.streaming)}
-            <A HREF="/album?album={album.uuid}&autoplay={album.uuid}" TITLE="Spill av {album.name}">▶️</A>&nbsp;
+            <A HREF="/album?album={ac.album.uuid}&autoplay={ac.album.uuid}" TITLE="Spill av {ac.album.name}">▶️</A>&nbsp;
             {endif}
-            <A HREF="/album?album={album.uuid}">{album.artist.name}: <em>{album.name}</em></A>
-            <sub><small>{album.context.year}</small></sub>
+            <A HREF="/album?album={ac.album.uuid}">{ac.album.artist.name}: <em>{ac.album.name}</em></A>
+            <sub><small>{ac.year}</small></sub>
         </LI>
         }}
     </UL>
@@ -218,9 +218,9 @@
 <H3>Tilfeldige plater</H3>
 
 <DIV STYLE="text-align: center">
-    {randomAlbums:{album|
-    <A HREF="/album?album={album.uuid}">
-        <IMG ALT="{album.name}" SRC="{album.context.discogCover}" TITLE="{album.name}">
+    {randomAlbums:{ac|
+    <A HREF="/album?album={ac.album.uuid}">
+        <IMG ALT="{ac.album.name}" SRC="{ac.discogCover}" TITLE="{ac.album.name}">
     </A>
     }}
 </DIV>

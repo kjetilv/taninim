@@ -22,6 +22,7 @@ import mediaserver.http.QueryParametersTracker;
 import mediaserver.http.Req;
 import mediaserver.http.Route;
 import mediaserver.media.Album;
+import mediaserver.media.AlbumContext;
 import mediaserver.media.Artist;
 import mediaserver.media.Media;
 import mediaserver.media.Playlist;
@@ -77,25 +78,31 @@ public final class IndexPage extends TemplateEnabled {
         Collection<Link<Playlist>> mediaCurationLinks = links(submedia.getCurations(), linker(QPar.curation, tracker));
         boolean streamHighlighted = req.getSession().getAccessLevel().satisfies(AccessLevel.STREAM_SINGLE);
         Instant time = req.getTime();
-        Optional<Pair<Album, Track>> globalTrack =
+        Optional<Pair<AlbumContext, Track>> globalTrack =
             streamHighlighted ? GlobalState.get().getGlobalTrack(time) : Optional.empty();
-        Optional<Pair<Album, Track>> highlightedAlbumAndTrack =
-            streamHighlighted ? globalTrack.or(() -> req.getSession()
-                .getSessionState()
-                .getRandomTrack(time, () -> randomAlbumTrack(submedia))) : Optional.empty();
+        Optional<Pair<AlbumContext, Track>> highlightedAlbumAndTrack =
+            streamHighlighted ?
+                globalTrack
+                    .or(() -> req.getSession()
+                        .getSessionState()
+                        .getRandomTrack(time, () -> randomAlbumTrack(submedia)))
+                : Optional.empty();
         Optional<Duration> highlightedTimeRemaining =
             highlightedAlbumAndTrack.isEmpty()
                 ? Optional.empty()
                 : globalTrack.isPresent()
                     ? GlobalState.get().getGlobalTrackRemaining(time)
                     : req.getSession().getSessionState().getRandomTrackRemaining(time);
-        Optional<Album> highlightedAlbum = highlightedAlbumAndTrack.map(Pair::getT1);
+        Optional<AlbumContext> highlightedAlbum = highlightedAlbumAndTrack.map(Pair::getT1);
         Optional<Track> highlightedTrack = highlightedAlbumAndTrack.map(Pair::getT2);
         Template
             template =
             getTemplate(INDEX_PAGE).add(TPar.plyr, Config.PLYR)
                 .add(TPar.highlightedAlbum, highlightedAlbum)
-                .add(TPar.highlightedArtist, highlightedAlbum.map(Album::getArtist).map(linker(QPar.artist, tracker)))
+                .add(TPar.highlightedArtist, highlightedAlbum
+                    .map(AlbumContext::getAlbum)
+                    .map(Album::getArtist)
+                    .map(linker(QPar.artist, tracker)))
                 .add(TPar.highlighted, highlightedTrack)
                 .add(TPar.highlightedSelected, globalTrack.isPresent())
                 .add(TPar.highlightedRemaining, highlightedTimeRemaining.map(Print::prettyLongTime))
@@ -117,21 +124,20 @@ public final class IndexPage extends TemplateEnabled {
         return template;
     }
 
-    private static Comparator<Album> albumComparator(Stream<String> params) {
+    private static Comparator<AlbumContext> albumComparator(Stream<String> params) {
         Media.AlbumSort sort =
             params.map(Media.AlbumSort::valueOf).findFirst().orElse(Media.AlbumSort.TITLE);
         switch (sort) {
             case ARTIST -> {
-                return Comparator.comparing(Album::getArtist);
+                return Comparator.comparing(albumContext -> albumContext.getAlbum().getArtist());
             }
             case YEAR -> {
-                return Comparator.comparing((Album a) -> a.getContext().getYear());
+                return Comparator.comparing(AlbumContext::getYear);
             }
             case TITLE -> {
-                return Comparator.comparing(Album::getName);
+                return Comparator.comparing(albumContext -> albumContext.getAlbum().getName());
             }
-            default ->
-                throw new IllegalStateException("No such sort: " + sort);
+            default -> throw new IllegalStateException("No such sort: " + sort);
         }
     }
 
@@ -152,8 +158,10 @@ public final class IndexPage extends TemplateEnabled {
                 tracker.focus(qpar, t));
     }
 
-    private static Optional<Pair<Album, Track>> randomAlbumTrack(Media submedia) {
+    private static Optional<Pair<AlbumContext, Track>> randomAlbumTrack(Media submedia) {
         return Ran.dom(submedia.getRandomAlbums(20))
-            .flatMap(album -> Ran.dom(album.getTracks()).map(track -> Pair.of(album, track)));
+            .flatMap(albumContext ->
+                Ran.dom(albumContext.getAlbum().getTracks())
+                    .map(track -> Pair.of(albumContext, track)));
     }
 }

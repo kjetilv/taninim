@@ -75,10 +75,12 @@ public final class TrackContext implements Serializable {
     }
 
     TrackContext withTrack(Track track) {
-        String name = WS.matcher(track.getName().toLowerCase()).replaceAll(NONE);
-        String title = WS.matcher(this.title.toLowerCase()).replaceAll(NONE);
-        if (!(name.equalsIgnoreCase(title) || name.contains(title) || title.contains(name))) {
-            log.trace("{} /= {}", track, this.title);
+        if (log.isTraceEnabled()) {
+            String name = WS.matcher(track.getName().toLowerCase()).replaceAll(NONE);
+            String title = WS.matcher(this.title.toLowerCase()).replaceAll(NONE);
+            if (!(name.equalsIgnoreCase(title) || name.contains(title) || title.contains(name))) {
+                log.trace("{} /= {}", track, this.title);
+            }
         }
         return new TrackContext(track, position, this.title, credits);
     }

@@ -129,15 +129,15 @@ public final class AdminPage
             .findFirst()
             .ifPresentOrElse(
                 track -> jukeboxAlbum.id(req)
-                    .flatMap(media::getAlbum)
+                    .flatMap(media::getAlbumContext)
                     .findFirst()
-                    .ifPresentOrElse(album -> {
+                    .ifPresentOrElse(albumContext -> {
                         if (jukeboxClear.isTrue(req)) {
                             globalState.unsetGlobalTrack();
                             log.info("Global jukebox track cleared");
                         } else {
-                            log.info("Global jukebox track: {} / {}", album, track);
-                            globalState.setGlobalTrack(req.getTime(), album, track);
+                            log.info("Global jukebox track: {} / {}", albumContext, track);
+                            globalState.setGlobalTrack(req.getTime(), albumContext, track);
                         }
                     }, () -> log.warn("Album not found: {}", jukeboxAlbum.id(req))),
                 () -> log.warn("Track not found: {}", jukeboxTrack.id(req)));

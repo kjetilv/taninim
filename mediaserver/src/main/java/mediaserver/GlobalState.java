@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
-import mediaserver.media.Album;
+import mediaserver.media.AlbumContext;
 import mediaserver.media.Track;
 import mediaserver.util.ExpiringState;
 import mediaserver.util.Pair;
@@ -17,7 +17,7 @@ public final class GlobalState {
         return INSTANCE;
     }
 
-    private final ExpiringState<Pair<Album, Track>> globalTrack = new ExpiringState<>(Duration.ofDays(1));
+    private final ExpiringState<Pair<AlbumContext, Track>> globalTrack = new ExpiringState<>(Duration.ofDays(1));
 
     private GlobalState() {
 
@@ -28,7 +28,7 @@ public final class GlobalState {
         return globalTrack.expire();
     }
 
-    public Optional<Pair<Album, Track>> getGlobalTrack(Instant time) {
+    public Optional<Pair<AlbumContext, Track>> getGlobalTrack(Instant time) {
 
         return globalTrack.get(time);
     }
@@ -38,7 +38,7 @@ public final class GlobalState {
         return globalTrack.getRemaining(time);
     }
 
-    public boolean setGlobalTrack(Instant time, Album album, Track track) {
+    public boolean setGlobalTrack(Instant time, AlbumContext album, Track track) {
 
         return globalTrack.set(time, Pair.of(album, track), true);
     }

@@ -12,11 +12,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnull;
+
 import mediaserver.util.DAC;
 import mediaserver.util.Pair;
 import mediaserver.util.Pairs;
 
-public final class AlbumContext implements Serializable {
+public final class AlbumContext implements Serializable, Comparable<AlbumContext> {
 
     private final Album album;
 
@@ -68,7 +70,18 @@ public final class AlbumContext implements Serializable {
         Collection<String> series,
         Collection<Video> videos
     ) {
-        this(album, year, discogId, discogPage, discogCover, discogArt, notes, series, videos, null, null);
+        this(
+            album,
+            year,
+            discogId,
+            discogPage,
+            discogCover,
+            discogArt,
+            notes,
+            series,
+            videos,
+            null,
+            null);
     }
 
     private AlbumContext(
@@ -194,6 +207,16 @@ public final class AlbumContext implements Serializable {
             albumContext.getTrackContexts());
     }
 
+    public Album getAlbum() {
+        return album;
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @Override
+    public int compareTo(AlbumContext albumContext) {
+        return getAlbum().compareTo(Objects.requireNonNull(albumContext, "albumContext").getAlbum());
+    }
+
     AlbumContext credit(String name, URI uri, String type) {
         return new AlbumContext(
             album,
@@ -222,10 +245,6 @@ public final class AlbumContext implements Serializable {
             videos,
             credits,
             trackContexts);
-    }
-
-    private Album getAlbum() {
-        return album;
     }
 
     private Collection<TrackContext> headingEntries(Pair<Integer, Integer> pair) {

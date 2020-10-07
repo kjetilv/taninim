@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -41,72 +40,16 @@ public interface Media {
     Duration FORTNITE = Duration.ofDays(14);
 
     static Media local(Path mediaPath, Path libraryPath, Path resourcesPath) {
-        log.info("Scanning from {}", mediaPath);
-        Media baseMedia = new LocalMedia(mediaPath);
-        log.info("Scanned {} albums: {}", baseMedia.getAlbums().size(), baseMedia);
-        log.info("Reading iTunes library from {}", libraryPath);
-        iTunesLibrary iTunesLibrary = iTunesLibrary(libraryPath);
-        log.info("Read {} entries", iTunesLibrary.getTracks().size());
-        log.info("Reading discogs data");
-        Collection<DiscogConnection> metaConnections = metaConnections(baseMedia, iTunesLibrary);
-        DiscogsDataResolver discogsData = new DiscogsDataResolver(
-            resourcesPath,
-            metaConnections,
-            FORTNITE,
-            Clock.systemDefaultZone());
-        log.info("Retrieved {} discogs data", discogsData.getConnections().size());
-        Media media = baseMedia.getAlbums().stream()
-            .reduce(baseMedia, addContextFrom(discogsData), noCombine());
-        log.info("Returning {}", media);
-        return media;
+        Media baseMedia = scanMedia(mediaPath);
+        iTunesLibrary iTunesLibrary = scanLibrary(libraryPath);
+        DiscogsDataResolver discogsData = scanDiscogsData(resourcesPath, baseMedia, iTunesLibrary);
+        return combineMedia(baseMedia, discogsData);
     }
 
     static <T> BinaryOperator<T> noCombine() {
         return (t1, t2) -> {
             throw new IllegalStateException("NO combine");
         };
-    }
-
-    static BiFunction<Media, Album, Media> addContextFrom(DiscogsDataResolver discogsData) {
-        return (media, album) ->
-            discogsData.getDiscogRelease(album).map(digest -> {
-                AlbumContext context = Stream.of(digest.getArtists(), digest.getExtraartists())
-                    .filter(Objects::nonNull)
-                    .flatMap(Collection::stream)
-                    .reduce(
-                        new AlbumContext(
-                            album,
-                            yearOf(digest),
-                            id(digest.getUri()),
-                            URI.create(digest.getUri()),
-                            cover150(digest).orElse(null),
-                            cover(digest).orElse(null),
-                            digest.getNotes(),
-                            series(digest),
-                            videos(digest)),
-                        (ctx, dad) ->
-                            ctx.credit(
-                                dad.getName(),
-                                dad.getUri(),
-                                dad.getRole()),
-                        noCombine());
-                List<TrackContext> trackContexts = digest.getTracklist().stream()
-                    .map(track ->
-                        new TrackContext(track.getPosition(), track.getTitle(), trackCredits(track)))
-                    .collect(Collectors.toList());
-                List<TrackContext> applicableTrackContexts = trackContexts.stream().map(trackContext ->
-                    trackContext.getTrackNo().flatMap(trackNo ->
-                        trackContext.getDisc()
-                            .map(disc ->
-                                album.getTrack(disc, trackNo))
-                            .orElseGet(() ->
-                                album.getTrack(trackNo)))
-                        .map(trackContext::withTrack)
-                        .orElse(trackContext)).collect(Collectors.toList());
-                AlbumContext albumContext =
-                    context.withTrackContexts(applicableTrackContexts);
-                return media.withAlbumContext(album.getUuid(), albumContext);
-            }).orElse(media);
     }
 
     static Long id(String uri) {
@@ -218,9 +161,13 @@ public interface Media {
         boolean union
     );
 
-    Media sortedAlbums(Comparator<Album> comparator);
+    Media sortedAlbums(Comparator<AlbumContext> comparator);
 
-    Media withAlbumContext(UUID albumId, AlbumContext albumContext);
+    default Media withAlbumContext(AlbumContext albumContext) {
+        return withAlbumContexts(Collections.singleton(albumContext));
+    }
+
+    Media withAlbumContexts(Collection<AlbumContext> albumContexts);
 
     Stream<AlbumTrack> getAlbumTrack(UUID uuid);
 
@@ -263,12 +210,16 @@ public interface Media {
 
     Collection<Artist> getTrackCreditedArtists();
 
-    Collection<Album> getRandomAlbums(int count);
+    Collection<AlbumContext> getRandomAlbums(int count);
+
+    Collection<AlbumContext> getAlbumContexts();
 
     Collection<Album> getAlbums();
 
+    int getAlbumCount();
+
     @DAC
-    Collection<Album> getAlbumsByYear();
+    List<AlbumContext> getAlbumsByYear();
 
     default Collection<Track> getTracks() {
         return getTracks(false);
@@ -294,6 +245,86 @@ public interface Media {
     Stream<Album> getAlbum(String albumName);
 
     boolean isEmpty();
+
+    Stream<AlbumContext> getAlbumContext(UUID uuid);
+
+    private static Media combineMedia(Media baseMedia, DiscogsDataResolver discogsData) {
+        log.info("Adding {} to {}", discogsData, baseMedia);
+        Collection<AlbumContext> albumContexts = baseMedia.getAlbums().stream().flatMap(album -> {
+            Optional<AlbumContext> discogRelease =
+                discogsData.getDiscogRelease(album).map(digest ->
+                    buildAlbumContext(album, digest));
+            return discogRelease.stream();
+        }).collect(Collectors.toList());
+        return baseMedia.withAlbumContexts(albumContexts);
+    }
+
+    private static DiscogsDataResolver scanDiscogsData(
+        Path resourcesPath,
+        Media baseMedia,
+        iTunesLibrary iTunesLibrary
+    ) {
+        log.info("Reading discogs data");
+        Collection<DiscogConnection> metaConnections = metaConnections(baseMedia, iTunesLibrary);
+        DiscogsDataResolver discogsData = new DiscogsDataResolver(
+            resourcesPath,
+            metaConnections,
+            FORTNITE,
+            Clock.systemDefaultZone());
+        log.info("Retrieved {} discogs data", discogsData.getConnections().size());
+        return discogsData;
+    }
+
+    private static iTunesLibrary scanLibrary(Path libraryPath) {
+        log.info("Reading iTunes library from {}", libraryPath);
+        iTunesLibrary iTunesLibrary = iTunesLibrary(libraryPath);
+        log.info("Read {} entries", iTunesLibrary.getTracks().size());
+        return iTunesLibrary;
+    }
+
+    private static Media scanMedia(Path mediaPath) {
+        log.info("Scanning from {}", mediaPath);
+        Media baseMedia = new LocalMedia(mediaPath);
+        log.info("Scanned {} albums: {}", baseMedia.getAlbums().size(), baseMedia);
+        return baseMedia;
+    }
+
+    private static AlbumContext buildAlbumContext(Album album, DiscogReleaseDigest digest) {
+        AlbumContext context = Stream.of(digest.getArtists(), digest.getExtraartists())
+            .filter(Objects::nonNull)
+            .flatMap(Collection::stream)
+            .reduce(
+                new AlbumContext(
+                    album,
+                    yearOf(digest),
+                    id(digest.getUri()),
+                    URI.create(digest.getUri()),
+                    cover150(digest).orElse(null),
+                    cover(digest).orElse(null),
+                    digest.getNotes(),
+                    series(digest),
+                    videos(digest)),
+                (albumContext, artistDigest) ->
+                    albumContext.credit(
+                        artistDigest.getName(),
+                        artistDigest.getUri(),
+                        artistDigest.getRole()),
+                noCombine());
+        Collection<TrackContext> trackContexts = digest.getTracklist().stream()
+            .map(track ->
+                new TrackContext(track.getPosition(), track.getTitle(), trackCredits(track)))
+            .collect(Collectors.toList());
+        List<TrackContext> applicableTrackContexts = trackContexts.stream().map(trackContext ->
+            trackContext.getTrackNo().flatMap(trackNo ->
+                trackContext.getDisc()
+                    .map(disc ->
+                        album.getTrack(disc, trackNo))
+                    .orElseGet(() ->
+                        album.getTrack(trackNo)))
+                .map(trackContext::withTrack)
+                .orElse(trackContext)).collect(Collectors.toList());
+        return context.withTrackContexts(applicableTrackContexts);
+    }
 
     private static boolean isPrimary(DiscogImage image) {
         return "primary".equalsIgnoreCase(image.getType());
