@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <logger name="mediaserver" level="DEBUG"/>
+    <logger name="mediaserver" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

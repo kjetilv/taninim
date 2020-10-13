@@ -39,9 +39,7 @@ public final class Chunk {
     }
 
     double getPerc(long progress, int decs) {
-        int dims = StrictMath.toIntExact(
-            StrictMath.round(
-                StrictMath.pow(10, decs)));
+        int dims = Math.toIntExact(Math.round(Math.pow(10, decs)));
         return Math.toIntExact(100 * dims * (start + progress) / totalSize) / (double) dims;
     }
 

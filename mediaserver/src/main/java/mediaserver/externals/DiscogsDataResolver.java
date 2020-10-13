@@ -95,7 +95,7 @@ public final class DiscogsDataResolver {
                     Optional<DiscogReleaseDigest>
                         digest =
                         fetchAndWriteLocalFile(connection.getUri(), local, raw);
-                    log.info("Re-read from discogs: {} -> {}", connection, digest.orElse(null));
+                    log.debug("Re-read from discogs: {} -> {}", connection, digest.orElse(null));
                     return digest;
                 } catch (Exception e) {
                     log.warn("Discog read problem for {}/{}, continuing...", local, raw, e);
@@ -137,7 +137,7 @@ public final class DiscogsDataResolver {
             DiscogReleaseDigest digest =
                 IO.writeStream(localDigestPath, readRelease(rawData), writeRelease(DiscogReleaseDigest.class));
             IO.writeStream(localRawPath, rawData, writeRelease(Map.class));
-            log.info("Updated local digest: {} <== {}", digest.getTitle(), uri);
+            log.debug("Updated local digest: {} <== {}", digest.getTitle(), uri);
             return Optional.of(digest);
         }
         return Optional.empty();
@@ -230,5 +230,10 @@ public final class DiscogsDataResolver {
                 throw new IllegalStateException("Failed to read", e);
             }
         };
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[@" + resourcesDirectory + "]";
     }
 }
