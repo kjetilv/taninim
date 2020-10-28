@@ -1,2 +1,2 @@
-document.querySelector('#player').onended = (event) =>
-    document.querySelector('#play-next').click();
+player.on("ended", () =>
+    document.querySelector('#play-next').click());

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 public final class Credit implements Serializable {
 
     enum ExternalType {
-        arranged_by,
         producer,
         co_producer,
         produced_by,
@@ -28,6 +27,7 @@ public final class Credit implements Serializable {
         photography,
         typography,
         painting,
+        cover,
         legal,
         liner_notes;
 
