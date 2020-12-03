@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -68,7 +69,7 @@ public final class PlaylistM3U extends AbstractHashable {
         )).entrySet();
     }
 
-    private static final long serialVersionUID = -6198219291681770060L;
+    @Serial private static final long serialVersionUID = -6198219291681770060L;
 
     private static Map<Path, Track> map(Collection<Track> tracks) {
         return tracks.stream()

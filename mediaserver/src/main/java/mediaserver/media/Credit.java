@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Collection;
@@ -94,7 +95,7 @@ public final class Credit implements Serializable {
         return sourceType.isBlank();
     }
 
-    private static final long serialVersionUID = 1917638609632123791L;
+    @Serial private static final long serialVersionUID = 1917638609632123791L;
 
     @Override
     public int hashCode() {

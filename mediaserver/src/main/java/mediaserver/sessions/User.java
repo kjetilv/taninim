@@ -1,5 +1,6 @@
 package mediaserver.sessions;
 
+import java.io.Serial;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
@@ -110,5 +111,5 @@ public class User extends AbstractHashable {
         return session.getAccessLevel();
     }
 
-    private static final long serialVersionUID = 4919694628627926851L;
+    @Serial private static final long serialVersionUID = 4919694628627926851L;
 }

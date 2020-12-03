@@ -7,7 +7,7 @@
     <LINK HREF="/res/plyr.css" REL="stylesheet">
     {endif}
     <META charset="utf-8">
-    <TITLE>taninim[{album.name}]</TITLE>
+    <TITLE>taninim[{albumContext.album.name}]</TITLE>
 </HEAD>
 <BODY>
 
@@ -55,10 +55,10 @@
 
 <DIV STYLE="float:left; width: 100%">
     <DIV STYLE="float: right; padding: 1% 1% 1% 3%;">
-        {if(album.series)}
+        {if(albumContext.series)}
         <H4>I serie</H4>
         <UL>
-            {album.series:{series|
+            {albumContext.series:{series|
             <LI><A HREF="/?series={series.uuid}">{series.name}</A></LI>
             }}
         </UL>
@@ -87,15 +87,15 @@
         </DIV>
         {endif}
 
-        <H3><A HREF="?artist={album.artist.uuid}">{album.artist.name}</A>: <EM>{album.name}</EM>
+        <H3><A HREF="?artist={albumContext.album.artist.uuid}">{albumContext.album.artist.name}</A>: <EM>{albumContext.album.name}</EM>
             {if(albumPlayable)}
-            <A href="?artist={album.artist.uuid}&album={album.uuid}&track={albumPlayable.track.uuid}&autoplay={albumPlayable.track.uuid}">
+            <A href="?artist={albumContext.album.artist.uuid}&album={albumContext.album.uuid}&track={albumPlayable.track.uuid}&autoplay={albumPlayable.track.uuid}">
                 ▶️
             </A>
             {endif}
 
             {if(user.streamingPlaylists)}
-            <A HREF="/playlist/album/{album.uuid}">⏬</A>
+            <A HREF="/playlist/album/{albumContext.album.uuid}">⏬</A>
             {endif}
             <SUB>({albumContext.year})</SUB>
         </H3>
@@ -103,7 +103,7 @@
         <DIV>
             <DIV>
                 <P>
-                    Spilletid {album.prettyDuration}{if(albumContext.year)}.{endif}
+                    Spilletid {albumContext.album.prettyDuration}{if(albumContext.year)}.{endif}
                 </P>
             </DIV>
             {if(selected)}
@@ -131,9 +131,9 @@
 
             <DIV STYLE="float: right; text-align: end; width: 30%">
                 {if(selected.next)}
-                <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}" ID='play-next'></A>
+                <A HREF="?artist={albumContext.album.artist.uuid}&album={albumContext.album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}" ID='play-next'></A>
                 <SMALL>
-                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}">
+                    <A HREF="?artist={albumContext.album.artist.uuid}&album={albumContext.album.uuid}&track={selected.next.uuid}&autoplay={selected.next.uuid}">
                         {selected.next.prettyTrackNo}:&nbsp;{selected.next.name}&nbsp;⏩&nbsp;</A>
                 </SMALL>
                 {endif}
@@ -142,7 +142,7 @@
             {if(selected.previous)}
             <DIV STYLE="float:left; text-align: start; width: 30%">
                 <SMALL>
-                    <A HREF="?artist={album.artist.uuid}&album={album.uuid}&track={selected.previous.uuid}&autoplay={selected.previous.uuid}">
+                    <A HREF="?artist={albumContext.album.artist.uuid}&album={albumContext.album.uuid}&track={selected.previous.uuid}&autoplay={selected.previous.uuid}">
                         &nbsp;⏪&nbsp;{selected.previous.prettyTrackNo}:&nbsp;{selected.previous.name}</A>
                 </SMALL>
             </DIV>
@@ -177,7 +177,7 @@
             <!--suppress HtmlUnknownAttribute -->
             <DIV STYLE="padding: 0.2%; clear: both">
                 {if(playable.playable)}
-                <A href="?artist={album.artist.uuid}&album={album.uuid}&track={playable.track.uuid}&autoplay={playable.track.uuid}">
+                <A href="?artist={albumContext.album.artist.uuid}&album={albumContext.album.uuid}&track={playable.track.uuid}&autoplay={playable.track.uuid}">
                     <DIV STYLE="float: left; width:8%; text-align: end; padding-right: 1%">
                         <EM><SMALL>{playable.track.prettyTrackNo}.</SMALL></EM>
                     </DIV>
@@ -307,10 +307,10 @@
     </DIV>
 
     <DIV STYLE="clear: both">
-        {if(album.additionalArtists)}
+        {if(albumContext.album.additionalArtists)}
         <H3>Medvirkende</H3>
 
-        {album.artists:{artist|[
+        {albumContext.album.artists:{artist|[
         <A HREF="/?artist={artist.uuid}">{artist.name}</A>&nbsp;
         {if(user.streamingPlaylists)}
         <A HREF="/playlist/artist/{artist.uuid}"><SMALL>⏬</SMALL></A>

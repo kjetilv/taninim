@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 import java.time.Year;
@@ -11,8 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import javax.annotation.Nonnull;
+import java.util.stream.Stream;
 
 import mediaserver.util.DAC;
 import mediaserver.util.Pair;
@@ -34,7 +34,7 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
 
     private final String notes;
 
-    private final Collection<String> series;
+    private final Collection<Series> series;
 
     private final Collection<Video> videos;
 
@@ -43,6 +43,10 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
     private final List<TrackContext> trackContexts;
 
     private final List<TrackGroup> trackGroups;
+
+    private final List<Artist> artists;
+
+    private final List<Artist> allArtists;
 
     AlbumContext(Album album) {
         this(
@@ -67,7 +71,7 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
         URI discogCover,
         URI discogArt,
         String notes,
-        Collection<String> series,
+        Collection<Series> series,
         Collection<Video> videos
     ) {
         this(
@@ -92,7 +96,7 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
         URI discogCover,
         URI discogArt,
         String notes,
-        Collection<String> series,
+        Collection<Series> series,
         Collection<Video> videos,
         Credits credits,
         List<TrackContext> trackContexts
@@ -132,6 +136,14 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
                     })
                     .collect(Collectors.toList());
         }
+        this.artists = resolveArtists(false);
+        this.allArtists = resolveArtists(true);
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @Override
+    public int compareTo(AlbumContext albumContext) {
+        return getAlbum().compareTo(Objects.requireNonNull(albumContext, "albumContext").getAlbum());
     }
 
     public Credits getCredits() {
@@ -150,7 +162,7 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
         return videos;
     }
 
-    public Collection<String> getSeries() {
+    public Collection<Series> getSeries() {
         return series;
     }
 
@@ -211,10 +223,33 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
         return album;
     }
 
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public int compareTo(AlbumContext albumContext) {
-        return getAlbum().compareTo(Objects.requireNonNull(albumContext, "albumContext").getAlbum());
+    public List<Artist> getAllArtists() {
+        return allArtists;
+    }
+
+    public List<Artist> getArtists() {
+        return artists;
+    }
+
+    public boolean features(Artist artist) {
+        return allArtists.contains(artist);
+    }
+
+    public List<Track> getTracksFeaturing(Artist artist) {
+        List<Track> tracks = album.getTracks();
+        if (artist.equals(album.getArtist())) {
+            return tracks;
+        }
+        List<TrackContext> trackContexts = getTrackContexts();
+        return IntStream.range(0, trackContexts.size()).filter(position ->
+            Stream.of(
+                tracks.get(position).getArtists().stream(),
+                tracks.get(position).getOtherArtists().stream(),
+                getTrackContexts().get(position).getCredits().getCredits().stream().map(Credit::getArtist))
+                .flatMap(s -> s)
+                .anyMatch(artist::equals))
+            .mapToObj(tracks::get)
+            .collect(Collectors.toList());
     }
 
     AlbumContext credit(String name, URI uri, String type) {
@@ -247,6 +282,27 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
             trackContexts);
     }
 
+    private List<Artist> resolveArtists(boolean all) {
+        return Stream.<Stream<Artist>>of(
+            album.getArtists().stream(),
+            getCredits().getCredits().stream()
+                .filter(Credit::isPerformer)
+                .map(Credit::getName)
+                .map(Artist::get),
+            all
+                ? getTrackContexts().stream()
+                .map(TrackContext::getCredits)
+                .map(Credits::getCredits)
+                .flatMap(Collection::stream)
+                .filter(Credit::isPerformer)
+                .map(Credit::getName)
+                .map(Artist::get)
+                : Stream.empty())
+            .flatMap(s -> s)
+            .map(Artist::getCompositeArtists)
+            .flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
     private Collection<TrackContext> headingEntries(Pair<Integer, Integer> pair) {
         List<TrackContext> headingEntries =
             IntStream.range(0, pair.getT1() + 1)
@@ -260,7 +316,7 @@ public final class AlbumContext implements Serializable, Comparable<AlbumContext
         return headingEntries;
     }
 
-    private static final long serialVersionUID = 873700442732183661L;
+    @Serial private static final long serialVersionUID = 873700442732183661L;
 
     private static String name(Collection<TrackContext> headingEntries, Pair<Integer, Integer> pair) {
         if (headingEntries.isEmpty()) {

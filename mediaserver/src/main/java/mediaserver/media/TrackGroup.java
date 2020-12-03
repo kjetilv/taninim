@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -28,5 +29,5 @@ final class TrackGroup implements Serializable {
         return trackContexts;
     }
 
-    private static final long serialVersionUID = -1742521380844081944L;
+    @Serial private static final long serialVersionUID = -1742521380844081944L;
 }

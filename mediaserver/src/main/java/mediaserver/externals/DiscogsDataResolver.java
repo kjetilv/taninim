@@ -92,8 +92,7 @@ public final class DiscogsDataResolver {
                     return updateAndReadLocalFile(raw, local);
                 }
                 try {
-                    Optional<DiscogReleaseDigest>
-                        digest =
+                    Optional<DiscogReleaseDigest> digest =
                         fetchAndWriteLocalFile(connection.getUri(), local, raw);
                     log.debug("Re-read from discogs: {} -> {}", connection, digest.orElse(null));
                     return digest;
@@ -164,8 +163,7 @@ public final class DiscogsDataResolver {
                 return digest;
             }
             byte[] bytes = Media.getCover(digest, DiscogImage::getUri)
-                .map(uri ->
-                    IO.download(uri))
+                .map(IO::download)
                 .orElse(NO_DATA);
             IO.writeStream(cover, bytes, (bytes1, outputStream) -> {
                 try {

@@ -35,12 +35,15 @@ fun main() {
                 artist(path).contains("john zorn") ||
                         artist(path).contains("masada") ||
                         album(path).contains("masada") ||
+                        album(path).contains("zorn") ||
+                        album(path).contains("voodoo") ||
                         album(path).contains("the stone issue") ||
                         album(path).contains("book of angels") ||
                         album(path).contains("book beri") ||
                         album(path).contains("circle maker") ||
                         artist(path).contains("bar kokhba") ||
                         artist(path).contains("medeski") ||
+                        artist(path).contains("feldman") ||
                         artist(path).contains("cracow") ||
                         artist(path).contains("trigger") ||
                         artist(path).contains("mesinai") ||
@@ -56,6 +59,8 @@ fun main() {
                         artist(path).contains("ruins") && artist(path).contains("derek") ||
                         artist(path).contains("bret higgins") ||
                         artist(path).contains("bill frisell") ||
+                        artist(path).contains("riley") ||
+                        artist(path).contains("ikue") ||
                         artist(path).contains("ratkje") ||
                         artist(path).contains("fred frith") ||
                         album(path).contains("great jewish music") ||

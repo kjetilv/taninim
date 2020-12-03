@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public final class Artist extends AbstractNameHashable {
             .collect(Collectors.toList());
     }
 
-    private static final long serialVersionUID = -6584400668175206925L;
+    @Serial private static final long serialVersionUID = -6584400668175206925L;
 
     private static Stream<String> s(String name, String rex) {
         Stream<String> stringStream = name.contains(rex)

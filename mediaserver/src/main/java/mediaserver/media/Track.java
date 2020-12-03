@@ -2,6 +2,7 @@ package mediaserver.media;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
@@ -199,7 +200,7 @@ public final class Track extends AbstractHashable
     private static final Comparator<Track> TRACK_COMPARATOR =
         Comparator.comparing(Track::getTrackNo);
 
-    private static final long serialVersionUID = 3609605456752055320L;
+    @Serial private static final long serialVersionUID = 3609605456752055320L;
 
     private static final Pattern FLAC = Pattern.compile("FLAC");
 

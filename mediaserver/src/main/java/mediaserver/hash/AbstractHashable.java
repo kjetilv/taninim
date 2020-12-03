@@ -1,5 +1,6 @@
 package mediaserver.hash;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -58,7 +59,7 @@ public abstract class AbstractHashable
 
     private static final String HASH = "MD5";
 
-    private static final long serialVersionUID = -2993413752909173835L;
+    @Serial private static final long serialVersionUID = -2993413752909173835L;
 
     private static MessageDigest md5() {
         try {

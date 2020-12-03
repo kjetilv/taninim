@@ -1,5 +1,6 @@
 package mediaserver.hash;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -49,5 +50,5 @@ public class AbstractNameHashable
 
     private final static Map<UUID, AbstractNameHashable> HASHABLES = new ConcurrentHashMap<>();
 
-    private static final long serialVersionUID = 6776617816992974873L;
+    @Serial private static final long serialVersionUID = 6776617816992974873L;
 }

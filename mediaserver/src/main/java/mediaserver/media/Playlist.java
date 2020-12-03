@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -79,7 +80,7 @@ public final class Playlist extends AbstractNameHashable {
         return tracks.isEmpty();
     }
 
-    private static final long serialVersionUID = -7432999542297837794L;
+    @Serial private static final long serialVersionUID = -7432999542297837794L;
 
     private static Collection<Playlist> convert(Collection<PlaylistYaml> playlists, Collection<AlbumContext> albums) {
         return playlists.stream()

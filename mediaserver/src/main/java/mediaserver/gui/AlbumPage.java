@@ -68,7 +68,6 @@ public final class AlbumPage extends TemplateEnabled {
             .add(TPar.plyr, Config.PLYR)
             .add(TPar.admin, req.getSession().getAccessLevel().satisfies(ADMIN))
             .add(TPar.albumContext, albumContext)
-            .add(TPar.album, albumContext.getAlbum())
             .add(TPar.compressed, req.isLocal() && req.isFlac())
             .add(TPar.selected, selectedTrack)
             .add(TPar.trackHighlighted, selectedTrack.filter(isHighlighted(req)))

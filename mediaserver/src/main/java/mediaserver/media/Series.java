@@ -1,5 +1,7 @@
 package mediaserver.media;
 
+import java.io.Serial;
+
 import mediaserver.hash.AbstractNameHashable;
 
 public final class Series extends AbstractNameHashable {
@@ -12,5 +14,5 @@ public final class Series extends AbstractNameHashable {
         super(name);
     }
 
-    private static final long serialVersionUID = 8396940978009264692L;
+    @Serial private static final long serialVersionUID = 8396940978009264692L;
 }

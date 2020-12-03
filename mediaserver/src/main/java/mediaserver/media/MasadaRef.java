@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -41,5 +42,5 @@ public class MasadaRef extends AbstractNameHashable {
         return number;
     }
 
-    private static final long serialVersionUID = 6109235301263559725L;
+    @Serial private static final long serialVersionUID = 6109235301263559725L;
 }

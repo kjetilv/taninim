@@ -1,12 +1,12 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,7 +19,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import mediaserver.hash.AbstractHashable;
@@ -41,47 +40,25 @@ public final class Album extends AbstractHashable
 
     private final Map<UUID, Track> trackIndex;
 
-    private final AlbumContext context;
-
     private final List<Artist> artists;
 
-    private final List<Artist> allArtists;
-
-    private final List<Series> series;
-
     Album(Artist artist, String name, List<Track> tracks) {
-        this(artist, name, tracks, null);
-    }
-
-    private Album(Artist artist, String name, List<Track> tracks, AlbumContext context) {
         this(
             artist,
             UNDERSCORE.matcher(name).replaceAll(":"),
             parts(tracks),
-            tracks,
-            context);
+            tracks);
     }
 
-    private Album(
-        Artist artist,
-        String name,
-        Integer parts,
-        List<Track> tracks,
-        AlbumContext context
-    ) {
+    private Album(Artist artist, String name, Integer parts, List<Track> tracks) {
         this.artist = artist;
-        this.context = context == null ? new AlbumContext(this) : context;
         this.name = single(Track::getAlbum, tracks).orElse(name);
         this.parts = parts;
         this.tracks =
             Objects.requireNonNull(tracks, "track").stream().sorted().collect(Collectors.toList());
         this.trackIndex =
             tracks.stream().collect(Collectors.toMap(Track::getUuid, Function.identity()));
-        this.artists = this.resolveArtists(false);
-        this.allArtists = this.resolveArtists(true);
-        this.series = context == null
-            ? Collections.emptyList()
-            : context.getSeries().stream().map(Series::get).collect(Collectors.toList());
+        this.artists = this.resolveArtists();
         Collection<Path> paths = tracks.stream().map(Track::getFile).map(Path::getParent).collect(Collectors.toSet());
         if (paths.size() != 1) {
             throw new IllegalStateException("Bad track paths for album " + name + " @ " + paths);
@@ -164,17 +141,8 @@ public final class Album extends AbstractHashable
     }
 
     @DAC
-    public Collection<Artist> getAllArtists() {
-        return allArtists;
-    }
-
-    @DAC
     public boolean isAdditionalArtists() {
         return artists.size() > 1;
-    }
-
-    public Collection<Series> getSeries() {
-        return series;
     }
 
     public Integer getParts() {
@@ -183,26 +151,6 @@ public final class Album extends AbstractHashable
 
     public List<Track> getTracks() {
         return tracks;
-    }
-
-    public List<Track> getTracksFeaturing(Artist artist) {
-        if (artist.equals(getArtist())) {
-            return tracks;
-        }
-        List<TrackContext> trackContexts = context.getTrackContexts();
-        return IntStream.range(0, trackContexts.size()).filter(position ->
-            Stream.of(
-                tracks.get(position).getArtists().stream(),
-                tracks.get(position).getOtherArtists().stream(),
-                this.context.getTrackContexts().get(position).getCredits().getCredits().stream().map(Credit::getArtist)
-            ).flatMap(s -> s)
-                .anyMatch(artist::equals))
-            .mapToObj(tracks::get)
-            .collect(Collectors.toList());
-    }
-
-    public boolean features(Artist artist) {
-        return getAllArtists().contains(artist);
     }
 
     public Optional<Track> getTrack(UUID trackNo) {
@@ -241,44 +189,24 @@ public final class Album extends AbstractHashable
                     track.getOtherArtists().stream().anyMatch(artist::equals));
     }
 
-    Album withContext(AlbumContext albumContext) {
-        return new Album(artist, name, parts, tracks, albumContext);
-    }
-
-    private List<Artist> resolveArtists(boolean all) {
-        return Stream.of(
+    private List<Artist> resolveArtists() {
+        Stream<Artist> artistStream = Stream.of(
             Stream.of(artist),
             tracks.stream()
                 .map(Track::getArtist),
-            tracks.stream().map(Track::getOtherArtists).flatMap(Collection::stream),
-            context.getCredits().getCredits().stream()
-                .filter(Credit::isPerformer)
-                .map(Credit::getName)
-                .map(Artist::get),
-            all
-                ? trackArtists()
-                : Stream.<Artist>empty())
-            .flatMap(s -> s)
+            tracks.stream().map(Track::getOtherArtists).flatMap(Collection::stream))
+            .flatMap(s -> s);
+        return artistStream
             .flatMap(s ->
                 s.getCompositeArtists().stream())
             .distinct()
             .collect(Collectors.toList());
     }
 
-    private Stream<Artist> trackArtists() {
-        return context.getTrackContexts().stream()
-            .map(TrackContext::getCredits)
-            .map(Credits::getCredits)
-            .flatMap(Collection::stream)
-            .filter(Credit::isPerformer)
-            .map(Credit::getName)
-            .map(Artist::get);
-    }
-
     private static final Comparator<Album> ALBUM_COMPARATOR =
         Comparator.comparing(Album::getArtist).thenComparing(Album::getName);
 
-    private static final long serialVersionUID = 6861992470450497236L;
+    @Serial private static final long serialVersionUID = 6861992470450497236L;
 
     private static final Pattern UNDERSCORE = Pattern.compile("_");
 

@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 
@@ -30,7 +31,7 @@ final class Video implements Serializable {
         return uri;
     }
 
-    private static final long serialVersionUID = 6596987424481176891L;
+    @Serial private static final long serialVersionUID = 6596987424481176891L;
 
     @Override
     public String toString() {

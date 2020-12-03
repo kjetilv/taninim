@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
@@ -68,7 +69,7 @@ public final class Credits implements Serializable {
         return this.credits.stream().filter(other).collect(Collectors.toList());
     }
 
-    private static final long serialVersionUID = 3560105313561183479L;
+    @Serial private static final long serialVersionUID = 3560105313561183479L;
 
     private static Collection<Credit> withoutRedundants(Collection<Credit> credits) {
         Collection<Artist> empty = credits.stream()

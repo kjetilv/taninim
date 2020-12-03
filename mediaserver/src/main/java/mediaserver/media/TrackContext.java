@@ -1,5 +1,6 @@
 package mediaserver.media;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -100,7 +101,7 @@ public final class TrackContext implements Serializable {
         return toInt(position.substring(position.lastIndexOf(s) + 1));
     }
 
-    private static final long serialVersionUID = -1080380514657171993L;
+    @Serial private static final long serialVersionUID = -1080380514657171993L;
 
     private static final Pattern WS = Pattern.compile("\\s+");
 

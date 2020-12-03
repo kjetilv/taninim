@@ -1,5 +1,6 @@
 package mediaserver.externals;
 
+import java.io.Serial;
 import java.util.function.Consumer;
 
 import mediaserver.hash.AbstractHashable;
@@ -38,5 +39,5 @@ public final class FbUser extends AbstractHashable {
         return id;
     }
 
-    private static final long serialVersionUID = 6897348983612649711L;
+    @Serial private static final long serialVersionUID = 6897348983612649711L;
 }

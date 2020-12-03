@@ -102,8 +102,11 @@ public interface Media {
             .map(toUri);
     }
 
-    static List<String> series(DiscogReleaseDigest release) {
-        return release.getSeries().stream().map(DiscogSeriesDigest::getName).collect(Collectors.toList());
+    static List<Series> series(DiscogReleaseDigest release) {
+        return release.getSeries().stream()
+            .map(DiscogSeriesDigest::getName)
+            .map(Series::get)
+            .collect(Collectors.toList());
     }
 
     static Year yearOf(DiscogReleaseDigest release) {
@@ -163,10 +166,6 @@ public interface Media {
 
     Media sortedAlbums(Comparator<AlbumContext> comparator);
 
-    default Media withAlbumContext(AlbumContext albumContext) {
-        return withAlbumContexts(Collections.singleton(albumContext));
-    }
-
     Media withAlbumContexts(Collection<AlbumContext> albumContexts);
 
     Stream<AlbumTrack> getAlbumTrack(UUID uuid);
@@ -216,6 +215,7 @@ public interface Media {
 
     Collection<Album> getAlbums();
 
+    @DAC
     int getAlbumCount();
 
     @DAC
@@ -234,7 +234,7 @@ public interface Media {
     Collection<Series> getSeries();
 
     @DAC
-    Collection<Album> getAlbumsFeaturing(Artist id);
+    List<AlbumContext> getAlbumsFeaturing(Artist id);
 
     Stream<Artist> getArtist(UUID id);
 
