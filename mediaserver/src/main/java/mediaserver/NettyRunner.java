@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
-import static io.netty.channel.ChannelOption.SO_TIMEOUT;
 import static java.lang.StrictMath.toIntExact;
 
 @SuppressWarnings("SameParameterValue")
@@ -36,15 +35,12 @@ final class NettyRunner {
 
     private final Duration timeout;
 
-    private final Duration connectTimeout;
-
-    NettyRunner(int listenThreads, int workThreads, int threads, int queue, Duration timeout, Duration connectTimeout) {
+    NettyRunner(int listenThreads, int workThreads, int threads, int queue, Duration timeout) {
         this.listenThreads = listenThreads;
         this.workThreads = workThreads;
         this.threads = threads;
         this.queue = queue;
         this.timeout = timeout;
-        this.connectTimeout = connectTimeout;
     }
 
     void run(Router router, int port, SslContext sslContext) {
@@ -95,8 +91,7 @@ final class NettyRunner {
         EventLoopGroup workGroup
     ) {
         return new ServerBootstrap()
-            .option(CONNECT_TIMEOUT_MILLIS, toIntExact(connectTimeout.toMillis()))
-            .option(SO_TIMEOUT, toIntExact(timeout.toMillis()))
+            .option(CONNECT_TIMEOUT_MILLIS, toIntExact(timeout.toMillis()))
             .group(listenGroup, workGroup)
             .channel(NioServerSocketChannel.class)
             .handler(new LoggingHandler())

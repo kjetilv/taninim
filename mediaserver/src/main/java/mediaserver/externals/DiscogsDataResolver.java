@@ -85,13 +85,13 @@ public final class DiscogsDataResolver {
 
         return withRetry(3, () -> {
             try {
-                if (regularFile(local) && regularFile(raw) && fresh(raw) ||
-                    discogsTired.get() ||
-                    discogsTries.get() <= 0
-                ) {
+                if (regularFile(local) && regularFile(raw) && fresh(raw)) {
                     return updateAndReadLocalFile(raw, local);
                 }
                 try {
+                    if (discogsTired.get() || discogsTries.get() <= 0) {
+                        return Optional.empty();
+                    }
                     Optional<DiscogReleaseDigest> digest =
                         fetchAndWriteLocalFile(connection.getUri(), local, raw);
                     log.debug("Re-read from discogs: {} -> {}", connection, digest.orElse(null));
@@ -185,7 +185,12 @@ public final class DiscogsDataResolver {
 
     private static boolean regularFile(Path local) {
 
-        return Files.isRegularFile(local);
+        try {
+            return Files.isRegularFile(local) && Files.size(local) > 0;
+        } catch (Exception e) {
+            log.warn("Failed to size " + local + ", treating as irregular", e);
+            return false;
+        }
     }
 
     private static Optional<DiscogReleaseDigest> updateAndReadLocalFile(Path raw, Path local) {

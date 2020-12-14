@@ -30,9 +30,7 @@ public final class Config {
 
     static final int THREAD_QUEUE = count("threadQueue", 32);
 
-    static final Duration IO_TIMEOUT = duration("timeout", Duration.ofMinutes(1));
-
-    static final Duration CONNECT_TIMEOUT = duration("connectTimeout", Duration.ofSeconds(30));
+    static final Duration TIMEOUT = duration("connectTimeout", Duration.ofSeconds(30));
 
     static final Duration REFRESH_TIME = duration("refresh", Duration.ofMinutes(3));
 

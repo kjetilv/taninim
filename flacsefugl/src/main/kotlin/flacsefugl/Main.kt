@@ -38,7 +38,9 @@ fun main() {
                         album(path).contains("zorn") ||
                         album(path).contains("voodoo") ||
                         album(path).contains("the stone issue") ||
+                        album(path).contains("weird little boy") ||
                         album(path).contains("book of angels") ||
+                        album(path).contains("books of angels") ||
                         album(path).contains("book beri") ||
                         album(path).contains("circle maker") ||
                         artist(path).contains("bar kokhba") ||
@@ -56,6 +58,8 @@ fun main() {
                         artist(path) == "evan parker" ||
                         artist(path) == "ruins" ||
                         artist(path) == "hemophiliac" ||
+                        artist(path) == "petra haden" ||
+                        artist(path).contains("spike orchestra") ||
                         artist(path).contains("ruins") && artist(path).contains("derek") ||
                         artist(path).contains("bret higgins") ||
                         artist(path).contains("bill frisell") ||

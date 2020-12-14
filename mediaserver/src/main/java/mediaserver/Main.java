@@ -90,7 +90,7 @@ final class Main {
             new Sessions(ids, SESSION_LENGTH, INACTIVITY_MAX, BYTES_PER_SESSION, DEV_LOGIN);
 
         NettyRunner nettyRunner = new NettyRunner(
-            LISTEN_GROUP, WORK_GROUP, THREAD_GROUP, THREAD_QUEUE, IO_TIMEOUT, CONNECT_TIMEOUT);
+            LISTEN_GROUP, WORK_GROUP, THREAD_GROUP, THREAD_QUEUE, TIMEOUT);
 
         Router router = new Router(sessions, templater, CLOCK,
             streamer,
