@@ -1,6 +1,5 @@
 package mediaserver.stream;
 
-import java.net.SocketAddress;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Arrays;
@@ -9,6 +8,7 @@ import java.util.concurrent.atomic.LongAdder;
 import io.netty.channel.ChannelProgressiveFuture;
 import io.netty.channel.ChannelProgressiveFutureListener;
 import mediaserver.http.Req;
+import mediaserver.media.Album;
 import mediaserver.media.AlbumTrack;
 import mediaserver.media.Track;
 import org.slf4j.Logger;
@@ -40,19 +40,22 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
         this.chunk = chunk;
 
         if (log.isInfoEnabled()) {
+            Album album = albumTrack.getAlbum();
             Track track = albumTrack.getTrack();
-            log.info("{}: {} -> {}: {} {}",
-                this.req.getCtx(), this.range, this.chunk, track.getPrettyTrackNo(), track.getName());
+            log.info("{}: {} -> {}: {} ({}, track {})",
+                this.req.getCtx(), this.range, this.chunk, track.getName(), album.getName(), track.getPrettyTrackNo());
         }
     }
 
     @Override
     public void operationComplete(ChannelProgressiveFuture future) {
         Duration dur = Duration.between(req.getTime(), clock.instant());
-        SocketAddress remote = future.channel().remoteAddress();
         if (log.isInfoEnabled()) {
-            log.info("{}: {} -> {} in {}: {}:{} > {} > {}",
-                req.getCtx(), range, chunk, dur, req, req.getSession(), albumTrack.getTrack().getName(), remote);
+            log.info("{}: {} -> {} in {}: {}:{} {} ({}, track {})",
+                req.getCtx(), range, chunk, dur, req, req.getSession(),
+                albumTrack.getTrack().getName(),
+                albumTrack.getAlbum().getName(),
+                albumTrack.getTrack().getPrettyTrackNo());
         }
     }
 
@@ -63,12 +66,13 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
             long l = progressions.longValue();
             double perc = chunk.getPerc(progress, 2);
             if (l == 0L || lastPerc >= 0.1d && perc - lastPerc >= PERC_LOGGABLE && log.isDebugEnabled()) {
-                String name = albumTrack.getTrack().getName();
+                String album = albumTrack.getAlbum().getName();
+                String track = albumTrack.getTrack().getName();
                 double loggablePerc = Math.max(0.1d, perc);
                 if (crosses(perc, lastPerc, 50, 80)) {
-                    log.info("{} {}: {} / {}%", name, chunk, l, loggablePerc);
+                    log.info("{}/{} {}: {} / {}%", album, track, chunk, l, loggablePerc);
                 } else {
-                    log.debug("{} {}: {} / {}%", name, chunk, l, loggablePerc);
+                    log.debug("{}/{} {}: {} / {}%", album, track, chunk, l, loggablePerc);
                 }
                 lastPerc = perc;
             }
@@ -77,10 +81,10 @@ final class ProgressListener implements ChannelProgressiveFutureListener {
         }
     }
 
+    private static final int PERC_LOGGABLE = 5;
+
     private static boolean crosses(double perc, double lastPerc, int... milestones) {
         return Arrays.stream(milestones)
             .anyMatch(milestone -> lastPerc < milestone && perc >= milestone);
     }
-
-    private static final int PERC_LOGGABLE = 5;
 }

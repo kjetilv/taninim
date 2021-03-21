@@ -9,26 +9,27 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import mediaserver.util.MostlyOnce;
 import mediaserver.util.Print;
 
 public abstract class AbstractHashable
     implements Hashable, Serializable {
 
-    private final AtomicReference<UUID> hash = new AtomicReference<>();
+    private final Supplier<UUID> hash = MostlyOnce.get(this::uuid);
 
-    private final AtomicReference<String> toString = new AtomicReference<>();
+    private final Supplier<String> toString = MostlyOnce.get(this::buildToString);
 
     @Override
     public final UUID getUuid() {
-        return hash.updateAndGet(v -> v == null ? uuid() : v);
+        return hash.get();
     }
 
     protected abstract StringBuilder withStringBody(StringBuilder sb);
 
-    private String build() {
+    private String buildToString() {
         return withStringContents(
             withStringIdentifier(
                 new StringBuilder(getClass().getSimpleName())
@@ -121,6 +122,6 @@ public abstract class AbstractHashable
 
     @Override
     public final String toString() {
-        return toString.updateAndGet(v -> v == null ? build() : v);
+        return toString.get();
     }
 }

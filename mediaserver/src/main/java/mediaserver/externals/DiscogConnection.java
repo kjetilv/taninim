@@ -13,15 +13,22 @@ public final class DiscogConnection {
 
     private final Album album;
 
+    private final mediaserver.externals.iTunesTrack iTunesTrack;
+
     private final URI uri;
 
     private final String id;
 
     private final String type;
 
-    public DiscogConnection(Album album, URI uri) {
+    public DiscogConnection(
+        Album album,
+        iTunesTrack iTunesTrack,
+        URI uri
+    ) {
         this.album = album;
         this.artist = album.getArtist();
+        this.iTunesTrack = iTunesTrack;
         this.uri = uri;
 
         String uriString = uri.toASCIIString();

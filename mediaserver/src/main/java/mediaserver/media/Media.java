@@ -124,6 +124,7 @@ public interface Media {
                     .map(album ->
                         new DiscogConnection(
                             album,
+                            track,
                             URI.create(track.getComments().trim()))))
             .distinct()
             .collect(Collectors.toList());
@@ -250,12 +251,15 @@ public interface Media {
 
     private static Media combineMedia(Media baseMedia, DiscogsDataResolver discogsData) {
         log.info("Adding {} to {}", discogsData, baseMedia);
-        Collection<AlbumContext> albumContexts = baseMedia.getAlbums().stream().flatMap(album -> {
-            Optional<AlbumContext> discogRelease =
-                discogsData.getDiscogRelease(album).map(digest ->
-                    buildAlbumContext(album, digest));
-            return discogRelease.stream();
-        }).collect(Collectors.toList());
+        Stream<Album> stream = baseMedia.getAlbums().stream();
+        Collection<AlbumContext> albumContexts = stream
+            .map(album ->
+                discogsData.getDiscogRelease(album)
+                    .map(digest ->
+                        buildAlbumContext(album, digest))
+                    .orElseGet(() ->
+                        new AlbumContext(album)))
+            .collect(Collectors.toList());
         return baseMedia.withAlbumContexts(albumContexts);
     }
 
