@@ -10,15 +10,6 @@ plugins {
 
 apply { plugin("com.github.johnrengelman.shadow") }
 
-buildscript {
-    repositories {
-        mavenLocal()
-        dependencies {
-            classpath("com.github.johnrengelman:shadow:8.1.0")
-        }
-    }
-}
-
 dependencies {
     implementation("com.github.kjetilv.uplift:uplift-kernel:0.1.0-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-flogs:0.1.0-SNAPSHOT")

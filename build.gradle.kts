@@ -7,6 +7,23 @@ allprojects {
     group = "com.github.kjetilv.flacsefugl"
     version = "1.0-SNAPSHOT"
 
+    buildscript {
+        repositories {
+            mavenLocal()
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/kjetilv/uplift")
+                credentials {
+                    username = resolveUsername()
+                    password = resolveToken()
+                }
+            }
+            dependencies {
+                classpath("com.github.johnrengelman:shadow:8.1.0")
+            }
+        }
+    }
+
     repositories {
         maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
         gradlePluginPortal()

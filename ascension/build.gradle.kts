@@ -8,11 +8,6 @@ plugins {
     id("com.github.kjetilv.uplift.plugins.uplift") version "0.1.0-SNAPSHOT"
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":kudu"))
 
