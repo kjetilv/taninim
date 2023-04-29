@@ -4,8 +4,8 @@ import java.time.Duration;
 
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.Time;
+import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
-import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import mediaserver.taninim.TaninimSettings;
@@ -32,7 +32,7 @@ public final class Main {
             ENV,
             executor("S3", 10)
         );
-        new LamdbdaManaged(
+        new DefaultLamdbdaManaged(
             ENV.awsLambdaUri(),
             clientSettings,
             KuduLambdaHandler.create(

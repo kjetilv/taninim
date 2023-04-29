@@ -12,6 +12,14 @@ allprojects {
         gradlePluginPortal()
         mavenLocal()
         mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/kjetilv/uplift")
+            credentials {
+                username = read(".github_user")
+                password = read(".github_token")
+            }
+        }
     }
 }
 
@@ -35,3 +43,6 @@ fun Exec.execute(command: String) = apply {
 compileKotlin.kotlinOptions {
     jvmTarget = "19"
 }
+
+fun read(file: String): String =
+    project.rootDir.resolve(file).readLines().firstOrNull() ?: "No file $file found"

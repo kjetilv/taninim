@@ -9,6 +9,7 @@ import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.Time;
+import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
@@ -56,8 +57,11 @@ public final class LocalLambdaKudu {
             new DefaultS3AccessorFactory(env, executor("S3", 10))
         );
 
-        LamdbdaManaged lamdbdaManaged =
-            new LamdbdaManaged(localLambda.getLambdaUri(), clientSettings, handler);
+        LamdbdaManaged lamdbdaManaged = new DefaultLamdbdaManaged(
+            localLambda.getLambdaUri(),
+            clientSettings,
+            handler
+        );
 
         ExecutorService executor = executor("runner", 2);
 

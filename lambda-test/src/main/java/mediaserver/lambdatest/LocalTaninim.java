@@ -14,9 +14,9 @@ import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
+import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
-import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import mediaserver.fb.FbAuthenticator;
 import mediaserver.kudu.KuduLambdaHandler;
@@ -76,7 +76,7 @@ public final class LocalTaninim {
             taninimSettings,
             new DefaultS3AccessorFactory(env, exec("kudu-s3"))
         );
-        Runnable kuduLambdaManaged = new LamdbdaManaged(
+        Runnable kuduLambdaManaged = new DefaultLamdbdaManaged(
             kuduLocalLambda.getLambdaUri(),
             kuduClientSettings,
             handler
@@ -110,7 +110,7 @@ public final class LocalTaninim {
             new DefaultS3AccessorFactory(env, exec("yellin-s3")),
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
-        Runnable yellinLamdbdaManaged = new LamdbdaManaged(
+        Runnable yellinLamdbdaManaged = new DefaultLamdbdaManaged(
             yellinLocalLambda.getLambdaUri(),
             yellinClientSettings,
             yellin

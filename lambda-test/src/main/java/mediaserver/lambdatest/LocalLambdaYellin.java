@@ -12,6 +12,7 @@ import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
+import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
@@ -62,7 +63,7 @@ public final class LocalLambdaYellin {
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
 
-        LamdbdaManaged lamdbdaManaged = new LamdbdaManaged(
+        LamdbdaManaged lamdbdaManaged = new DefaultLamdbdaManaged(
             localLambda.getLambdaUri(),
             clientSettings,
             yellin

@@ -18,12 +18,12 @@ public class EmptyEnv implements Env {
     }
 
     @Override
-    public String accessKey() {
+    public String accessKey(String profile) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String secretKey() {
+    public String secretKey(String profile) {
         throw new UnsupportedOperationException();
     }
 

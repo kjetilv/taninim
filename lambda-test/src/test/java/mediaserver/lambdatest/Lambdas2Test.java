@@ -37,6 +37,7 @@ import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LambdaLooper;
@@ -166,7 +167,7 @@ class Lambdas2Test {
             () -> s3Accessor,
             AUTHENTICATOR
         );
-        LamdbdaManaged yellinLambdaManaged = new LamdbdaManaged(
+        LamdbdaManaged yellinLambdaManaged = new DefaultLamdbdaManaged(
             yellinLambda.getLambdaUri(),
             yellinClientSettings,
             yellinHandler
@@ -186,7 +187,7 @@ class Lambdas2Test {
             timeRetriever
         ));
         kuduHandler = KuduLambdaHandler.create(kuduClientSettings, taninimSettings, () -> s3Accessor);
-        LamdbdaManaged kuduLambdaManaged = new LamdbdaManaged(
+        LamdbdaManaged kuduLambdaManaged = new DefaultLamdbdaManaged(
             kuduLambda.getLambdaUri(),
             kuduClientSettings,
             kuduHandler
