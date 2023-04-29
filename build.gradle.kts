@@ -49,4 +49,6 @@ fun resolveUsername() = System.getenv("GITHUB_ACTOR") ?: read(".github_user")
 fun resolveToken() = System.getenv("GITHUB_TOKEN") ?: read(".github_token")
 
 fun read(file: String): String =
-    project.rootDir.resolve(file).readLines().firstOrNull() ?: "No file $file found"
+    project.rootDir.listFiles()?.firstOrNull {
+        it.name.equals(file)
+    }?.readLines()?.firstOrNull() ?: "No file $file found"
