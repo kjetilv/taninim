@@ -19,7 +19,7 @@ dependencies {
     implementation(project(":yellin"))
     implementation(project(":fb"))
 
-    testImplementation(project(":lambda-test"))
+    testImplementation("com.github.kjetilv.uplift:uplift-lambda-test:0.1.0-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
