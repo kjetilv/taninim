@@ -1,0 +1,16 @@
+build/
+!gradle
+.gradle/
+.idea/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+out
+**/out
+
+.classpath.txt
+**/target
+cloud/.classpath
+cloud/.settings
+*.iml
+
+rugen/.svelte-kit

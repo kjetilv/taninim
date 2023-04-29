@@ -1,0 +1,20 @@
+GET https://ghrqcprfuf.execute-api.eu-north-1.amazonaws.com/prod/library.json?t=U47NnpBfT9esCga5MTq49Q HTTP/1.1
+Accept: */*
+Accept-Encoding: identity;q=1, *;q=0
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cache-Control: no-cache
+Connection: keep-alive
+Host: 127.0.0.1:8080
+Pragma: no-cache
+Range: bytes=0-
+
+<> 2022-12-22T173433.206.flac
+<> 2022-12-22T173401.206.flac
+<> 2022-11-26T124326.206.m4a
+<> 2022-11-26T112601.206.flac
+<> 2022-11-26T111318.206.flac
+<> 2022-11-26T111257.206.flac
+<> 2022-11-26T111225.206.flac
+<> 2022-11-26T111136.206.flac
+<> 2022-11-26T111112.206.flac
+<> 2022-11-26T111033.206.flac

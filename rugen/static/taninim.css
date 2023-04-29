@@ -1,0 +1,77 @@
+body, html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #f7fafb;
+}
+
+a:link {
+    color: #22322A;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #4e624c;
+}
+
+a:hover {
+    color: #356a35;
+    background-color: #d1f0e6;
+}
+
+hr {
+    margin: 0;
+    border: 2px groove #b3dfdf;
+}
+
+h1 {
+    color: #408040;
+}
+
+h2 {
+    color: #004000;
+}
+
+h3 {
+    color: #004000;
+}
+
+h4 {
+    color: #004000;
+}
+
+h5 {
+    color: #004000;
+}
+
+.playable-track:hover {
+    text-decoration: underline;
+}
+
+.playable-button {
+    font-size: medium;
+}
+
+.playable-button:hover {
+    text-effect: emboss;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 320px;
+    box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 5px 5px;
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
