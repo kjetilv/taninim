@@ -16,3 +16,4 @@ cloud/.settings
 rugen/.svelte-kit
 
 .github_token
+.github_user
