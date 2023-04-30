@@ -1,10 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.google.cloud.tools.jib.gradle.JibTask
 
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "8.1.0"
-    id("com.google.cloud.tools.jib") version "3.3.1"
     `maven-publish`
 }
 
@@ -40,47 +38,3 @@ tasks.withType<ShadowJar> {
     minimize()
     dependsOn("build")
 }
-
-tasks.withType<JibTask> {
-    dependsOn("shadowJar")
-}
-
-val timestamp = "${System.currentTimeMillis()}"
-fun head(prefix: Int = 0) =
-    File("${rootDir}/.git/HEAD").readLines(Charsets.UTF_8)[0].let { head ->
-        head.split(" ")[1]
-    }.let { head ->
-        File("${rootDir}/.git/${head}").readLines(Charsets.UTF_8)[0]
-    }.let { head ->
-        if (prefix > 0)
-            head.substring(0, prefix)
-        else
-            head
-    }
-
-File(File(System.getProperty("user.home")), ".latest_kudu").printWriter(Charsets.UTF_8)
-    .apply {
-        println(timestamp)
-    }
-    .run {
-        close()
-    }
-
-jib {
-    from {
-        image = "openjdk:19-alpine"
-    }
-    to {
-        image = "732946774009.dkr.ecr.eu-north-1.amazonaws.com/kudu-server"
-        tags = setOf("latest", timestamp, head(8))
-    }
-    container {
-        mainClass = "mediaserver.kudu.server.ServerKudu"
-        ports = listOf("80", "8080")
-        jvmFlags = listOf(
-            "-Dgithash=${head()}",
-            "-Dhashepoch=${timestamp}"
-        )
-    }
-}
-
