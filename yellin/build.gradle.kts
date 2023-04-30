@@ -43,5 +43,3 @@ tasks.withType<ShadowJar> {
     minimize()
     dependsOn("build")
 }
-
-val timestamp = "${System.currentTimeMillis()}"

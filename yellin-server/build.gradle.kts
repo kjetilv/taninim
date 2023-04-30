@@ -39,26 +39,3 @@ tasks.withType<ShadowJar> {
     minimize()
     dependsOn("build")
 }
-
-val timestamp = "${System.currentTimeMillis()}"
-
-fun head(prefix: Int = 0) =
-    File("${rootDir}/.git/HEAD").readLines(Charsets.UTF_8)[0].let { head ->
-        head.split(" ")[1]
-    }.let { head ->
-        File("${rootDir}/.git/${head}").readLines(Charsets.UTF_8)[0]
-    }.let { head ->
-        if (prefix > 0)
-            head.substring(0, prefix)
-        else
-            head
-    }
-
-File(File(System.getProperty("user.home")), ".latest_yellin").printWriter(Charsets.UTF_8)
-    .apply {
-        println(timestamp)
-    }
-    .run {
-        close()
-    }
-

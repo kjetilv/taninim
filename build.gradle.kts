@@ -3,30 +3,11 @@ plugins {
 }
 
 allprojects {
-
     group = "com.github.kjetilv.flacsefugl"
     version = "1.0-SNAPSHOT"
 }
 
 subprojects {
-    buildscript {
-        repositories {
-            mavenLocal()
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/kjetilv/uplift")
-                credentials {
-                    username = resolveUsername()
-                    password = resolveToken()
-                }
-            }
-            dependencies {
-                classpath("com.github.johnrengelman:shadow:8.1.0")
-                classpath("com.github.kjetilv.uplift:uplift-gradle-plugins:0.1.0-SNAPSHOT")
-            }
-        }
-    }
-
     repositories {
         mavenLocal()
         mavenCentral()

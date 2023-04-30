@@ -40,7 +40,7 @@ tasks.getByName<UpliftTask>(name = "uplift") {
 
 fun fbSec(needIt: Boolean = false): String = System.getenv("fbSec")
     ?.takeIf { it.isNotBlank() }
-    ?.takeIf { it.toLowerCase(Locale.ROOT) != "null" }
+    ?.takeIf { it.lowercase(Locale.ROOT) != "null" }
     ?: System.getProperty("fbSec")
     ?: "fbSec must be set in environment".let {
         if (needIt) throw IllegalStateException(it) else it.also(logger::warn)
