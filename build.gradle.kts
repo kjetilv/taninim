@@ -3,8 +3,8 @@ plugins {
 }
 
 allprojects {
-    group = "com.github.kjetilv.flacsefugl"
-    version = "1.0-SNAPSHOT"
+    group = "com.github.kjetilv.taninim"
+    version = "0.1.0-SNAPSHOT"
 }
 
 subprojects {
@@ -18,6 +18,9 @@ subprojects {
             credentials {
                 username = resolveUsername()
                 password = resolveToken()
+            }
+            mavenContent {
+                includeGroup("com.github.kjetilv.uplift")
             }
         }
     }

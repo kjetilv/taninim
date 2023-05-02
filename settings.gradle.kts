@@ -1,9 +1,12 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        mavenLocal()
         maven {
             url = uri("https://plugins.gradle.org/m2/")
+        }
+        mavenLocal()
+        maven {
+            url = uri("https://maven.pkg.github.com/kjetilv/uplift")
         }
     }
 }
