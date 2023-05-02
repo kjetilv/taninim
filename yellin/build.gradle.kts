@@ -41,7 +41,7 @@ tasks.getByName<Test>("test") {
 
 tasks.withType<ShadowJar> {
     manifest {
-        attributes(mapOf(Pair("Main-Class", "mediaserver.yellin.Main")))
+        attributes(mapOf(Pair("Main-Class", "taninim.yellin.Main")))
     }
     mergeServiceFiles()
     minimize()

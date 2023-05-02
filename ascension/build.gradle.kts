@@ -25,7 +25,7 @@ tasks.getByName<UpliftTask>(name = "uplift") {
     ).env(
         "fbSec" to fbSec()
     ).stackWith(
-        "mediaserver.uplift.LambdaStacker"
+        "taninim.uplift.LambdaStacker"
     )
     profile.set("tuplift")
 }.dependsOn(

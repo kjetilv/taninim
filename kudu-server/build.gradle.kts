@@ -32,7 +32,7 @@ tasks.getByName<Test>("test") {
 
 tasks.withType<ShadowJar> {
     manifest {
-        attributes(mapOf(Pair("Main-Class", "mediaserver.kudu.LambdaKudu")))
+        attributes(mapOf(Pair("Main-Class", "taninim.kudu.LambdaKudu")))
     }
     mergeServiceFiles()
     minimize()

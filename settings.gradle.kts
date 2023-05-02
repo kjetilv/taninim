@@ -23,3 +23,5 @@ include("kudu-server")
 
 include("taninim")
 include("ascension")
+
+include("lambda-test")
