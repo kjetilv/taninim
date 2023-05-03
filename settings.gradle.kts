@@ -1,27 +1,29 @@
 pluginManagement {
     repositories {
-        mavenCentral()
+        mavenLocal()
         maven {
             url = uri("https://plugins.gradle.org/m2/")
         }
-        mavenLocal()
         maven {
             url = uri("https://maven.pkg.github.com/kjetilv/uplift")
         }
+        mavenCentral()
     }
 }
 
 rootProject.name = "taninim"
 
+// The river
 include("fb")
-
 include("yellin")
 include("yellin-server")
-
 include("kudu")
 include("kudu-server")
-
 include("taninim")
+
+// The cloud
 include("ascension")
 
+// The crucible
 include("lambda-test")
+

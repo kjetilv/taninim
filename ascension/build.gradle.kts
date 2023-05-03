@@ -10,36 +10,34 @@ plugins {
 dependencies {
     implementation("software.amazon.awscdk:aws-cdk-lib:2.73.0")
     implementation("software.constructs:constructs:10.1.301")
-
     testImplementation(platform("org.junit:junit-bom:5.9.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 apply<UpliftPlugin>()
 
-tasks.getByName<UpliftTask>(name = "uplift") {
+tasks.withType<UpliftTask> {
     configure(
-        account = "${project.property("account")}",
-        region = "${project.property("region")}",
         stack = "taninim"
-    ).env(
+    )
+    env(
         "fbSec" to fbSec()
-    ).stackWith(
+    )
+    stackWith(
         "taninim.uplift.LambdaStacker"
     )
-    profile.set("tuplift")
-}.dependsOn(
-    ":kudu:native-lambda",
-    ":yellin:native-lambda",
-    "build",
-)
+    dependsOn(
+        ":kudu:native-lambda",
+        ":yellin:native-lambda",
+        "build"
+    )
+}
 
 fun fbSec(needIt: Boolean = false): String = System.getenv("fbSec")
     ?.takeIf { it.isNotBlank() }
     ?.takeIf { it.lowercase(Locale.ROOT) != "null" }
     ?: System.getProperty("fbSec")
-    ?: project.property("fbSec")
-        ?.toString()
+    ?: project.property("fbSec")?.toString()
     ?: "fbSec must be set in environment".let {
         if (needIt) throw IllegalStateException(it) else it.also(logger::warn)
     }
