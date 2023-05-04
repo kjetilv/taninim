@@ -15,6 +15,13 @@ subprojects {
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/kjetilv/uplift")
+            credentials {
+                username = resolveUsername()
+                password = resolveToken()
+            }
+            mavenContent {
+                includeGroup("com.github.kjetilv.uplift")
+            }
         }
     }
 }
