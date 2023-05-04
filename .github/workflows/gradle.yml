@@ -30,7 +30,7 @@ jobs:
       - name: Build uplift
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build
+          arguments: build publishToMavenLocal
           build-root-directory: uplift
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
