@@ -28,14 +28,14 @@ jobs:
           java-version: '20'
           distribution: 'temurin'
       - name: Build uplift
-        uses: gradle/gradle-build-action@current
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: build
           build-root-directory: uplift
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build taninim
-        uses: gradle/gradle-build-action@current
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: build
         env:
