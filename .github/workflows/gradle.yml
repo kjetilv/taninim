@@ -18,15 +18,24 @@ jobs:
       contents: read
       packages: read
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 20
-      uses: actions/setup-java@v3
-      with:
-        java-version: '20'
-        distribution: 'temurin'
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: build
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        submodules: true
+      - name: Set up JDK 20
+        uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'temurin'
+      - name: Build uplift
+        uses: gradle/gradle-build-action@current
+        with:
+          arguments: build
+          build-root-directory: uplift
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build taninim
+        uses: gradle/gradle-build-action@current
+        with:
+          arguments: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
