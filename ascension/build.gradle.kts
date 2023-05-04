@@ -21,8 +21,7 @@ tasks.withType<UpliftTask> {
         stack = "taninim"
     )
     env(
-        "fbSec" to get(name = "fbSec", false),
-        "taninimBucket" to get(name = "taninimBucket", false)
+        "fbSec" to get(name = "fbSec"), "taninimBucket" to get(name = "taninimBucket")
     )
     stackWith(
         "taninim.uplift.LambdaStacker"
@@ -35,11 +34,8 @@ tasks.withType<UpliftTask> {
 }
 
 fun get(name: String, needIt: Boolean = false): String =
-    System.getenv(name)
-        ?.takeIf { it.isNotBlank() }
-        ?.takeIf { it.lowercase(Locale.ROOT) != "null" }
-        ?: System.getProperty(name)
-        ?: project.property(name)?.toString()
+    System.getenv(name)?.takeIf { it.isNotBlank() }?.takeIf { it.lowercase(Locale.ROOT) != "null" }
+        ?: System.getProperty(name) ?: project.takeIf { it.hasProperty(name) }?.property(name)?.toString()
         ?: "$name-not-set".let {
             if (needIt) throw IllegalStateException(it) else it.also(logger::warn)
         }
