@@ -8,8 +8,8 @@ plugins {
 }
 
 dependencies {
-    implementation("software.amazon.awscdk:aws-cdk-lib:2.73.0")
-    implementation("software.constructs:constructs:10.1.301")
+    implementation("software.amazon.awscdk:aws-cdk-lib:2.78.0")
+    implementation("software.constructs:constructs:10.2.15")
     testImplementation(platform("org.junit:junit-bom:5.9.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
@@ -21,7 +21,8 @@ tasks.withType<UpliftTask> {
         stack = "taninim"
     )
     env(
-        "fbSec" to fbSec()
+        "fbSec" to get(name = "fbSec"),
+        "taninimBucket" to get(name = "taninimBucket")
     )
     stackWith(
         "taninim.uplift.LambdaStacker"
@@ -33,14 +34,15 @@ tasks.withType<UpliftTask> {
     )
 }
 
-fun fbSec(needIt: Boolean = false): String = System.getenv("fbSec")
-    ?.takeIf { it.isNotBlank() }
-    ?.takeIf { it.lowercase(Locale.ROOT) != "null" }
-    ?: System.getProperty("fbSec")
-    ?: project.property("fbSec")?.toString()
-    ?: "fbSec must be set in environment".let {
-        if (needIt) throw IllegalStateException(it) else it.also(logger::warn)
-    }
+fun get(name: String, needIt: Boolean = false): String =
+    System.getenv(name)
+        ?.takeIf { it.isNotBlank() }
+        ?.takeIf { it.lowercase(Locale.ROOT) != "null" }
+        ?: System.getProperty(name)
+        ?: project.property(name)?.toString()
+        ?: "$name must be set in environment".let {
+            if (needIt) throw IllegalStateException(it) else it.also(logger::warn)
+        }
 
 tasks.test {
     useJUnitPlatform()
