@@ -21,8 +21,8 @@ tasks.withType<UpliftTask> {
         stack = "taninim"
     )
     env(
-        "fbSec" to get(name = "fbSec"),
-        "taninimBucket" to get(name = "taninimBucket")
+        "fbSec" to get(name = "fbSec", false),
+        "taninimBucket" to get(name = "taninimBucket", false)
     )
     stackWith(
         "taninim.uplift.LambdaStacker"
@@ -40,7 +40,7 @@ fun get(name: String, needIt: Boolean = false): String =
         ?.takeIf { it.lowercase(Locale.ROOT) != "null" }
         ?: System.getProperty(name)
         ?: project.property(name)?.toString()
-        ?: "$name must be set in environment".let {
+        ?: "$name-not-set".let {
             if (needIt) throw IllegalStateException(it) else it.also(logger::warn)
         }
 
