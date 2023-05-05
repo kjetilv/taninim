@@ -14,12 +14,18 @@ pluginManagement {
 rootProject.name = "taninim"
 
 // The river
+include("taninim")
+
+// Hell
 include("fb")
+
+// The gates
 include("yellin")
 include("yellin-server")
+
+// The horns
 include("kudu")
 include("kudu-server")
-include("taninim")
 
 // The cloud
 include("ascension")
