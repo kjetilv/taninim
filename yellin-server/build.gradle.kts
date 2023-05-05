@@ -1,7 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    java
     id("com.github.johnrengelman.shadow") version "8.1.1"
     `maven-publish`
 }
@@ -20,15 +19,6 @@ dependencies {
     testImplementation("com.github.kjetilv.uplift:uplift-lambda-test:0.1.0-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
-}
-
-configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_19
-    targetCompatibility = JavaVersion.VERSION_19
-}
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
 }
 
 tasks.withType<ShadowJar> {

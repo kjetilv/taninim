@@ -3,7 +3,6 @@ import com.github.kjetilv.uplift.plugins.UpliftTask
 import java.util.*
 
 plugins {
-    java
     id("com.github.kjetilv.uplift.plugins.uplift") version "0.1.0-SNAPSHOT"
 }
 
@@ -39,7 +38,3 @@ fun get(name: String, needIt: Boolean = false): String =
         ?: "$name-not-set".let {
             if (needIt) throw IllegalStateException(it) else it.also(logger::warn)
         }
-
-tasks.test {
-    useJUnitPlatform()
-}

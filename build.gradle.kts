@@ -8,6 +8,13 @@ allprojects {
 }
 
 subprojects {
+    apply(plugin = "java")
+
+    configure<JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
     repositories {
         mavenLocal()
         mavenCentral()
@@ -24,11 +31,10 @@ subprojects {
             }
         }
     }
-}
 
-configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_19
-    targetCompatibility = JavaVersion.VERSION_19
+    tasks.test {
+        useJUnitPlatform()
+    }
 }
 
 fun String.toCommand() = this.split(" ")

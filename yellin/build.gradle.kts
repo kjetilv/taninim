@@ -3,7 +3,6 @@ import com.github.kjetilv.uplift.plugins.NativeLambdaPlugin
 import com.github.kjetilv.uplift.plugins.NativeLamdbdaTask
 
 plugins {
-    java
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.github.kjetilv.uplift.plugins.native") version "0.1.0-SNAPSHOT"
     `maven-publish`
@@ -25,19 +24,10 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
 }
 
-configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_19
-    targetCompatibility = JavaVersion.VERSION_19
-}
-
 apply<NativeLambdaPlugin>()
 
 tasks.getByName<NativeLamdbdaTask>("native-lambda")
     .dependsOn("shadowJar")
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
-}
 
 tasks.withType<ShadowJar> {
     manifest {
