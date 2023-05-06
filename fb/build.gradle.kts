@@ -1,6 +1,6 @@
 dependencies {
-    implementation("com.github.kjetilv.uplift:uplift-flogs:0.1.0-SNAPSHOT")
-    implementation("com.github.kjetilv.uplift:uplift-kernel:0.1.0-SNAPSHOT")
+    implementation("com.github.kjetilv.uplift:uplift-flogs:0.1.1-SNAPSHOT")
+    implementation("com.github.kjetilv.uplift:uplift-kernel:0.1.1-SNAPSHOT")
 
     implementation("com.restfb:restfb:2023.3.0") {
         exclude(group = "org.slf4j")
