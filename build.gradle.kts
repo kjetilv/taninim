@@ -43,13 +43,13 @@ fun Exec.execute(command: String) = apply {
     commandLine = command.also { logger.info("Command to run: $it") }.toCommand()
 }
 
-fun resolveUsername() = System.getenv("GITHUB_ACTOR") ?: read(".github_user")
+fun resolveUsername() = resolveProperty("githubUser", "GITHUB_ACTOR")
 
-fun resolveToken() = System.getenv("GITHUB_TOKEN") ?: read(".github_token")
+fun resolveToken() = resolveProperty("githubToken", "GITHUB_TOKEN")
 
-fun read(file: String): String =
-    project.rootDir.listFiles()
-        ?.find { it.name.equals(file) }
-        ?.readLines()
-        ?.firstOrNull()
-        ?: "No file $file found"
+fun resolveProperty(property: String, variable: String? = null, defValue: String? = null) =
+    System.getProperty(property)
+        ?: variable?.let { System.getenv(it) }
+        ?: project.takeIf { it.hasProperty(property) }?.property(property)?.toString()
+        ?: defValue
+        ?: property
