@@ -3,13 +3,9 @@ package taninim.lambdatest;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.DataOutputStream;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -19,29 +15,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.kjetilv.uplift.asynchttp.HttpChannelHandler;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
-import com.github.kjetilv.uplift.flambda.LocalLambda;
-import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
+import com.github.kjetilv.uplift.flambda.EmptyEnv;
+import com.github.kjetilv.uplift.flambda.LambdaTestHarness;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
-import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
-import com.github.kjetilv.uplift.lambda.LambdaLooper;
-import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,31 +60,21 @@ class Lambdas2Test {
 
     private Map<String, MyS3.S3Data> s3 = new ConcurrentHashMap<>();
 
-    private ExecutorService testExecutor = executor("test", 4);
-
     private AtomicReference<Instant> time = new AtomicReference<>();
 
     private S3Accessor s3Accessor;
 
     private LambdaHandler kuduHandler;
 
-    private LocalLambda kuduLambda;
-
-    private ExecutorService kuduLambdaExec;
-
-    private ExecutorService kuduServerExec;
-
     private LambdaHandler yellinHandler;
 
-    private LocalLambda yellinLambda;
+    private LambdaTestHarness yellinTestHarness;
 
-    private ExecutorService yellinLambdaExec;
+    private LambdaTestHarness kuduTestHarness;
 
-    private ExecutorService yellinServerExec;
+    private HttpChannelHandler.R yr;
 
-    private LambdaLooper<HttpRequest, HttpResponse<InputStream>> yellinLooper;
-
-    private LambdaLooper<HttpRequest, HttpResponse<InputStream>> kuduLooper;
+    private HttpChannelHandler.R kr;
 
     @BeforeEach
     void setupAll() {
@@ -133,9 +114,9 @@ class Lambdas2Test {
             List.of("content-type", "range")
         );
 
+
         LambdaClientSettings yellinClientSettings = new LambdaClientSettings(
-            new EmptyEnv(),
-            Duration.ofSeconds(10),
+            new com.github.kjetilv.uplift.flambda.EmptyEnv(),
             executor("yell-L", 5),
             executor("yell-S", 5),
             timeRetriever
@@ -143,64 +124,28 @@ class Lambdas2Test {
 
         LambdaClientSettings kuduClientSettings = new LambdaClientSettings(
             new EmptyEnv(),
-            Duration.ofSeconds(10),
             executor("kudu-L", 5),
             executor("kudu-S", 5),
             timeRetriever
         );
 
-        yellinServerExec = executor("aws-yell-S", 5);
-        yellinLambdaExec = executor("aws-yell-L", 5);
-        yellinLambda = new LocalLambda(new LocalLambdaSettings(
-            0,
-            0,
-            8 * 8192,
-            10,
-            yellinServerExec,
-            yellinLambdaExec,
-            kuduCors,
-            timeRetriever
-        ));
         yellinHandler = YellinLambdaHandler.handler(
             yellinClientSettings,
             taninimSettings,
             () -> s3Accessor,
             AUTHENTICATOR
         );
-        LamdbdaManaged yellinLambdaManaged = new DefaultLamdbdaManaged(
-            yellinLambda.getLambdaUri(),
-            yellinClientSettings,
-            yellinHandler
-        );
-        yellinLooper = yellinLambdaManaged.looper();
 
-        kuduServerExec = executor("aws-kudu-S", 5);
-        kuduLambdaExec = executor("aws-kudu-L", 5);
-        kuduLambda = new LocalLambda(new LocalLambdaSettings(
-            0,
-            0,
-            1024 * 1024,
-            10,
-            kuduServerExec,
-            kuduLambdaExec,
-            yellinCors,
-            timeRetriever
-        ));
         kuduHandler = KuduLambdaHandler.create(kuduClientSettings, taninimSettings, () -> s3Accessor);
-        LamdbdaManaged kuduLambdaManaged = new DefaultLamdbdaManaged(
-            kuduLambda.getLambdaUri(),
-            kuduClientSettings,
-            kuduHandler
-        );
 
-        yellinLooper = yellinLambdaManaged.looper();
-        kuduLooper = kuduLambdaManaged.looper();
+        yellinTestHarness = new LambdaTestHarness("yellin", yellinHandler, yellinCors, timeRetriever);
+        kuduTestHarness = new LambdaTestHarness("kudu", kuduHandler, kuduCors, timeRetriever);
 
-        Stream.of(yellinLambda, yellinLooper, kuduLambda, kuduLooper)
-            .forEach(testExecutor::submit);
+        logger().info("Kudu   : {}", kuduTestHarness);
+        logger().info("Yellin : {}", yellinTestHarness);
 
-        logger().info("Kudu @ {} / {}", kuduLambda.getApiUri(), kuduLambda.getLambdaUri());
-        logger().info("Yellin @ {} / {}", yellinLambda.getApiUri(), yellinLambda.getLambdaUri());
+        yr = yellinTestHarness.r();
+        kr = kuduTestHarness.r();
     }
 
     @AfterEach
@@ -208,16 +153,12 @@ class Lambdas2Test {
         s3.clear();
         s3 = null;
         s3Accessor = null;
-        Stream.of(yellinLooper, kuduLooper).forEach(LambdaLooper::close);
-        yellinLooper = kuduLooper = null;
-        Stream.<Closeable>of(kuduLambda, yellinLambda).forEach(Lambdas2Test::close);
-        kuduLambda = yellinLambda = null;
-        Stream.of(yellinServerExec, yellinLambdaExec, kuduServerExec, kuduLambdaExec)
-            .filter(Objects::nonNull)
-            .forEach(ExecutorService::shutdown);
-        yellinServerExec = yellinLambdaExec = kuduServerExec = kuduLambdaExec = null;
-        testExecutor.shutdown();
-        testExecutor = null;
+        yellinTestHarness.close();
+        kuduTestHarness.close();
+
+        yellinTestHarness = null;
+        kuduTestHarness = null;
+
         time = null;
         kuduHandler = null;
         yellinHandler = null;
@@ -417,17 +358,13 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> authAs(String id) {
-        return req("POST", yellinLambda.getApiUri().resolve("/auth"), extAuthResponse(id));
+        return yr.path("/auth").req("POST", extAuthResponse(id));
     }
 
     private CompletableFuture<HttpResponse<String>> stream(Uuid token, Uuid track, String range) {
         Map<String, String> headers = Optional.ofNullable(range).map(header -> Map.of("Range", header)).orElseGet(
             Collections::emptyMap);
-        return req(
-            "GET",
-            kuduLambda.getApiUri().resolve("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())),
-            headers
-        );
+        return kr.path("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())).req("GET", headers);
     }
 
     private void putRandomBytes(String file) {
@@ -454,7 +391,7 @@ class Lambdas2Test {
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
         LeaseRequest value = new LeaseRequest(userId, token.digest(), album.digest());
-        return req(method, yellinLambda.getApiUri().resolve("/lease"), json(value));
+        return yr.path("/lease").req(method, value);
     }
 
     private void setTime(Instant time) {
@@ -753,14 +690,6 @@ class Lambdas2Test {
         );
     }
 
-    private static String json(Object value) {
-        try {
-            return OBJECT_MAPPER.writeValueAsString(value);
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not write: " + value, e);
-        }
-    }
-
     private static void close(Closeable lambda) {
         if (lambda != null) {
             try {
@@ -773,56 +702,6 @@ class Lambdas2Test {
 
     private static Logger logger() {
         return LoggerFactory.getLogger(Lambdas2Test.class);
-    }
-
-    private static CompletableFuture<HttpResponse<String>> req(String method, URI uri) {
-        return req(method, uri, null, false);
-    }
-
-    private static CompletableFuture<HttpResponse<String>> req(String method, URI uri, Map<String, String> headers) {
-        return req(method, uri, headers, null, false);
-    }
-
-    private static CompletableFuture<HttpResponse<String>> req(String method, URI uri, Object body) {
-        return req(method, uri, json(body), true);
-    }
-
-    private static CompletableFuture<HttpResponse<String>> req(String method, URI uri, String body) {
-        return req(method, uri, body, walksLikeADuck(body.trim()));
-    }
-
-    private static boolean walksLikeADuck(String body) {
-        return contained("{", body, "}") || contained("[", body, "]");
-    }
-
-    private static boolean contained(String start, String body, String end) {
-        return body.startsWith(start) && body.endsWith(end);
-    }
-
-    private static CompletableFuture<HttpResponse<String>> req(String method, URI uri, String body, boolean json) {
-        return req(method, uri, null, body, json);
-    }
-
-    private static CompletableFuture<HttpResponse<String>> req(
-        String method, URI uri, Map<String, String> headers, String body, boolean json
-    ) {
-        try {
-            HttpRequest.Builder base = HttpRequest.newBuilder(uri);
-            if (headers != null) {
-                headers.forEach(base::header);
-            }
-            if (body == null) {
-                base.GET();
-            } else {
-                base.method(method, HttpRequest.BodyPublishers.ofString(body));
-            }
-            if (body != null && json) {
-                base.header("Content-Type", "application/json");
-            }
-            return HttpClient.newBuilder().build().sendAsync(base.build(), HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private static MediaIds mediaIds(AlbumTrackIds... albumTrackIds) {

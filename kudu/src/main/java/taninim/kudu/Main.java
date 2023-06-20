@@ -18,7 +18,6 @@ public final class Main {
     public static void main(String[] args) {
         LambdaClientSettings clientSettings = new LambdaClientSettings(
             ENV,
-            Duration.ofMinutes(1),
             executor("L", 10),
             executor("S", 10),
             Time.utcSupplier()

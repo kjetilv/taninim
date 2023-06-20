@@ -40,7 +40,6 @@ public final class LocalLambdaKudu {
         Env env = Env.actual();
         LambdaClientSettings clientSettings = new LambdaClientSettings(
             env,
-            Duration.ofMinutes(1),
             executor("L", 10),
             executor("S", 10),
             Time.utcSupplier()

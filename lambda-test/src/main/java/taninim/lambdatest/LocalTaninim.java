@@ -66,7 +66,6 @@ public final class LocalTaninim {
             ));
         LambdaClientSettings kuduClientSettings = new LambdaClientSettings(
             env,
-            Duration.ofMinutes(1),
             exec("kudu-lambda"),
             exec("kudu-server"),
             Time.utcSupplier()
@@ -98,7 +97,6 @@ public final class LocalTaninim {
             ));
         LambdaClientSettings yellinClientSettings = new LambdaClientSettings(
             env,
-            Duration.ofMinutes(1),
             exec("yellin-lambda"),
             exec("yellin-server"),
             Time.utcSupplier()

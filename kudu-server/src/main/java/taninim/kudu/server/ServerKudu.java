@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import com.github.kjetilv.uplift.asynchttp.ChannelHandler;
+import com.github.kjetilv.uplift.asynchttp.IOServer;
 import com.github.kjetilv.uplift.asynchttp.MainSupport;
-import com.github.kjetilv.uplift.asynchttp.ServerRunner;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.s3.S3Accessor;
@@ -49,9 +49,9 @@ public final class ServerKudu {
         );
 
         try (
-            ServerRunner serverRunner = create(parameters.port(), MAX_REQUEST_LENGTH, executorService)
+            IOServer run = create(parameters.port(), MAX_REQUEST_LENGTH, executorService).run(handler)
         ) {
-            serverRunner.run(handler).join();
+            run.join();
         }
     }
 

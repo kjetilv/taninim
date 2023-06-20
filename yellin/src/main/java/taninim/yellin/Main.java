@@ -21,7 +21,6 @@ public final class Main {
     public static void main(String[] args) {
         LambdaClientSettings clientSettings = new LambdaClientSettings(
             ENV,
-            Duration.ofMinutes(1),
             executor("L", 10),
             executor("S", 10),
             utcSupplier()
@@ -29,7 +28,7 @@ public final class Main {
         TaninimSettings taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
             Duration.ofHours(1),
-            1024 * 1024
+            K * K
         );
         S3AccessorFactory s3AccessorFactory =
             new DefaultS3AccessorFactory(ENV, executor("S3", 10));
@@ -49,4 +48,6 @@ public final class Main {
     }
 
     private static final Env ENV = Env.actual();
+
+    private static final int K = 1024;
 }
