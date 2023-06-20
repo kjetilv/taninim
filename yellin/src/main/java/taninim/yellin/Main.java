@@ -30,9 +30,11 @@ public final class Main {
             Duration.ofHours(1),
             K * K
         );
+
         S3AccessorFactory s3AccessorFactory =
             new DefaultS3AccessorFactory(ENV, executor("S3", 10));
-        Authenticator fbAuthenticator = new FbAuthenticator(Json.STRING_2_JSON_MAP);
+        Authenticator fbAuthenticator =
+            new FbAuthenticator(Json.STRING_2_JSON_MAP);
 
         LambdaHandler handler = YellinLambdaHandler.handler(
             clientSettings,

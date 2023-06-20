@@ -39,7 +39,8 @@ public final class ServerKudu {
             executorService
         );
 
-        MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, Time.utcSupplier());
+        MediaLibrary mediaLibrary =
+            new CloudMediaLibrary(s3Accessor, Time.utcSupplier());
 
         ChannelHandler<StreamingState, KuduChannelHandler> handler = new KuduChannelHandler(
             new DefaultKudu(leasesRegistry, mediaLibrary, parameters.buffer(), Time.utcSupplier()),

@@ -13,8 +13,6 @@ import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import taninim.fb.FbAuthenticator;
-import taninim.yellin.ActivationSerializer;
-import taninim.yellin.LeasesDispatcher;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.MAX_REQUEST_SIZE;
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.possibleIntArg;
@@ -29,12 +27,12 @@ public final class ServerYellin {
 
     public static void main(String[] args) {
         Map<String, String> map = MainSupport.parameterMap(args);
-        Optional<Integer> portArg = possibleIntArg(map, "port");
         ExecutorService executorService = executor("SL");
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
-
-        int port = validatePort(portArg.orElse(MainSupport.DEFAULT_PORT));
-        try (IOServer server = server(port, s3Accessor, executorService, activationSerializer(s3Accessor))) {
+        ChannelHandler<BufferState, YellinChannelHandler> handler = handler(s3Accessor, executorService);
+        try (
+            IOServer server = create(port(map), MAX_REQUEST_SIZE, executorService).run(handler)
+        ) {
             server.join();
         }
     }
@@ -46,27 +44,29 @@ public final class ServerYellin {
 
     private static final Duration LEASE_DURATION = Duration.ofHours(1);
 
-    private static IOServer server(
-        int port, S3Accessor s3Accessor, ExecutorService executor, ActivationSerializer activationSerializer
+    private static int port(Map<String, String> map) {
+        Optional<Integer> portArg = possibleIntArg(map, "port");
+        return validatePort(portArg.orElse(MainSupport.DEFAULT_PORT));
+    }
+
+    private static ChannelHandler<BufferState, YellinChannelHandler> handler(
+        S3Accessor s3Accessor,
+        ExecutorService executorService
     ) {
-        LeasesDispatcher leasesDispatcher =
+        return new YellinChannelHandler(
             leasesDispatcher(
                 s3Accessor,
-                executor,
+                executorService,
                 UTC_CLOCK::instant,
                 SESSION_DURATION,
                 LEASE_DURATION,
                 new FbAuthenticator(Json.STRING_2_JSON_MAP)
-            );
-        ChannelHandler<BufferState, YellinChannelHandler> handler =
-            new YellinChannelHandler(
-                leasesDispatcher,
-                Json.STRING_2_JSON_MAP,
-                activationSerializer::jsonBody,
-                null,
-                MAX_REQUEST_SIZE,
-                UTC_CLOCK::instant
-            );
-        return create(port, MAX_REQUEST_SIZE, executor).run(handler);
+            ),
+            Json.STRING_2_JSON_MAP,
+            activationSerializer(s3Accessor)::jsonBody,
+            null,
+            MAX_REQUEST_SIZE,
+            UTC_CLOCK::instant
+        );
     }
 }
