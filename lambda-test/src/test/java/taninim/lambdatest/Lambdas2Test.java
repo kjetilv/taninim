@@ -25,10 +25,10 @@ import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.kjetilv.uplift.asynchttp.HttpChannelHandler;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaTestHarness;
+import com.github.kjetilv.uplift.flambda.Reqs;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -72,9 +72,9 @@ class Lambdas2Test {
 
     private LambdaTestHarness kuduTestHarness;
 
-    private HttpChannelHandler.R yr;
+    private Reqs yr;
 
-    private HttpChannelHandler.R kr;
+    private Reqs kr;
 
     @BeforeEach
     void setupAll() {
@@ -144,8 +144,8 @@ class Lambdas2Test {
         logger().info("Kudu   : {}", kuduTestHarness);
         logger().info("Yellin : {}", yellinTestHarness);
 
-        yr = yellinTestHarness.r();
-        kr = kuduTestHarness.r();
+        yr = yellinTestHarness.reqs();
+        kr = kuduTestHarness.reqs();
     }
 
     @AfterEach
@@ -358,13 +358,13 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> authAs(String id) {
-        return yr.path("/auth").req("POST", extAuthResponse(id));
+        return yr.path("/auth").execute("POST", extAuthResponse(id));
     }
 
     private CompletableFuture<HttpResponse<String>> stream(Uuid token, Uuid track, String range) {
         Map<String, String> headers = Optional.ofNullable(range).map(header -> Map.of("Range", header)).orElseGet(
             Collections::emptyMap);
-        return kr.path("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())).req("GET", headers);
+        return kr.path("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())).get(headers);
     }
 
     private void putRandomBytes(String file) {
@@ -391,7 +391,7 @@ class Lambdas2Test {
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
         LeaseRequest value = new LeaseRequest(userId, token.digest(), album.digest());
-        return yr.path("/lease").req(method, value);
+        return yr.path("/lease").execute(method, value);
     }
 
     private void setTime(Instant time) {
