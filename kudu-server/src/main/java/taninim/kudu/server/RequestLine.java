@@ -14,22 +14,24 @@ record RequestLine(
 ) {
 
     static Optional<RequestLine> parseRequestLine(String requestLine) {
-        return ParseBits.tailString(requestLine, PREFIX).flatMap(RequestLine::parsePath);
+        return ParseBits.tailString(requestLine, "get /audio/").flatMap(RequestLine::parse);
     }
 
-    private static final String PREFIX = "get /audio/";
+    private static Optional<RequestLine> parse(String request) {
+        return Track.parseTrack(request)
+            .flatMap(track ->
+                requestedTrack(request, track));
+    }
 
-    private static final String QUERY = "?t=";
-
-    private static Optional<RequestLine> parsePath(String request) {
-        Optional<Track> track1 = Track.parseTrack(request);
-        return track1.flatMap(track ->
-            Optional.of(request.lastIndexOf(QUERY))
-                .filter(index -> index >= 0)
-                .map(index -> index + QUERY.length())
-                .flatMap(index -> tailString(request, index))
-                .flatMap(Uuid::maybeFrom)
-                .map(uuid ->
-                    new RequestLine(track, uuid)));
+    private static Optional<RequestLine> requestedTrack(String request, Track track) {
+        int queryIndex = request.lastIndexOf("?t=");
+        if (queryIndex < 0) {
+            return Optional.empty();
+        }
+        int queryStart = queryIndex + "?t=".length();
+        return tailString(request, queryStart)
+            .flatMap(Uuid::maybeFrom)
+            .map(uuid ->
+                new RequestLine(track, uuid));
     }
 }
