@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
-import com.github.kjetilv.uplift.flambda.LambdaTestHarness;
+import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
@@ -68,9 +68,9 @@ class Lambdas2Test {
 
     private LambdaHandler yellinHandler;
 
-    private LambdaTestHarness yellinTestHarness;
+    private LambdaHarness yellinHarness;
 
-    private LambdaTestHarness kuduTestHarness;
+    private LambdaHarness kuduHarness;
 
     private Reqs yr;
 
@@ -138,14 +138,14 @@ class Lambdas2Test {
 
         kuduHandler = KuduLambdaHandler.create(kuduClientSettings, taninimSettings, () -> s3Accessor);
 
-        yellinTestHarness = new LambdaTestHarness("yellin", yellinHandler, yellinCors, timeRetriever);
-        kuduTestHarness = new LambdaTestHarness("kudu", kuduHandler, kuduCors, timeRetriever);
+        yellinHarness = new LambdaHarness("yellin", yellinHandler, yellinCors, timeRetriever);
+        kuduHarness = new LambdaHarness("kudu", kuduHandler, kuduCors, timeRetriever);
 
-        logger().info("Kudu   : {}", kuduTestHarness);
-        logger().info("Yellin : {}", yellinTestHarness);
+        logger().info("Kudu   : {}", kuduHarness);
+        logger().info("Yellin : {}", yellinHarness);
 
-        yr = yellinTestHarness.reqs();
-        kr = kuduTestHarness.reqs();
+        yr = yellinHarness.reqs();
+        kr = kuduHarness.reqs();
     }
 
     @AfterEach
@@ -153,11 +153,11 @@ class Lambdas2Test {
         s3.clear();
         s3 = null;
         s3Accessor = null;
-        yellinTestHarness.close();
-        kuduTestHarness.close();
+        yellinHarness.close();
+        kuduHarness.close();
 
-        yellinTestHarness = null;
-        kuduTestHarness = null;
+        yellinHarness = null;
+        kuduHarness = null;
 
         time = null;
         kuduHandler = null;
