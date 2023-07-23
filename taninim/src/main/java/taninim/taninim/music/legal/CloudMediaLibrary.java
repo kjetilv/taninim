@@ -57,12 +57,12 @@ public final class CloudMediaLibrary implements MediaLibrary {
     }
 
     @Override
-    public Optional<InputStream> write(String file, Consumer<? super OutputStream> writer) {
+    public void write(String file, Consumer<? super OutputStream> writer) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             writer.accept(baos);
             baos.close();
             try (InputStream inputStream = new ByteArrayInputStream(baos.toByteArray())) {
-                return s3.put(file, inputStream, baos.size());
+                s3.put(file, inputStream, baos.size());
             } finally {
                 fileCache.put(file, new Cached<>(time.get(), baos.toByteArray()));
             }

@@ -13,7 +13,7 @@ public interface MediaLibrary {
 
     Optional<? extends InputStream> stream(String file);
 
-    Optional<InputStream> write(String file, Consumer<? super OutputStream> writer);
-
     Optional<? extends InputStream> stream(Chunk chunk, String file);
+
+    void write(String file, Consumer<? super OutputStream> writer);
 }

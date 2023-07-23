@@ -31,7 +31,7 @@ public class LambdaStacker implements Consumer<Stack> {
 
     private static void stackYellin(Stack stack, IBucket taninimBucket) {
         IFunction yellinFunction = Function.Builder.create(stack, "yellin-taninim")
-                .description("Authoriazation and access control")
+                .description("Authorization and access control")
                 .functionName("yellin-taninim")
                 .code(Code.fromAsset("/lambdas/yellin.zip"))
                 .environment(Map.of(

@@ -40,7 +40,7 @@ public record MyS3(
     }
 
     @Override
-    public Optional<InputStream> put(String remoteName, InputStream inputStream, long length) {
+    public void put(String remoteName, InputStream inputStream, long length) {
         log.info("Putting {} bytes into {}", length, remoteName);
         byte[] bytes = BytesIO.readInputStream(inputStream);
         s3.put(remoteName, new S3Data(
@@ -48,7 +48,6 @@ public record MyS3(
             stringValue(remoteName, bytes),
             time.get()
         ));
-        return Optional.of(inputStream);
     }
 
     @Override
