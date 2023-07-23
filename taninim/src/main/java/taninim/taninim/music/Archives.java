@@ -28,6 +28,15 @@ public interface Archives {
         List<String> contents
     ) {
 
+        public String body() {
+            StringBuilder stringBuilder = new StringBuilder();
+            contents.forEach(line -> {
+                stringBuilder.append(line.trim());
+                stringBuilder.append('\n');
+            });
+            return stringBuilder.append('\n').toString();
+        }
+
         private static String printEntry(String spec) {
             Uuid uuid = Uuid.from(spec);
             long epochSec = Long.parseLong(spec.substring(spec.indexOf(' ') + 1));

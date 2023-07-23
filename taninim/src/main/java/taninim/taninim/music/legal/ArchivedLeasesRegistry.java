@@ -66,9 +66,14 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     public Optional<LeasesPath> setActive(Leases leases, Period period) {
         Instant time = this.time.get();
         try {
-            return leases.validAt(time).map(valid -> new LeasesPath(valid, period)).map(leasesPath -> {
-                log.info("Creating leases {}", leasesPath);
-                archives.storeRecord(recordOf(leasesPath));
+            return leases.validAt(time).map(valid ->
+                    new LeasesPath(valid, period)).map(leasesPath -> {
+                ArchivedRecord archivedRecord = recordOf(leasesPath);
+                log.info("Creating leases @ {}: {} bytes, {} lines",
+                        archivedRecord.path(),
+                        archivedRecord.body().length(),
+                        archivedRecord.contents().size());
+                archives.storeRecord(archivedRecord);
                 return leasesPath;
             });
         } finally {

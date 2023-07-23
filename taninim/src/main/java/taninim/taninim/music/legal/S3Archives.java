@@ -23,7 +23,7 @@ public class S3Archives implements Archives {
 
     @Override
     public void storeRecord(ArchivedRecord archivedRecord) {
-        s3.put(String.join("\n", archivedRecord.contents()), archivedRecord.path());
+        s3.put(archivedRecord.body(), archivedRecord.path());
     }
 
     @Override
