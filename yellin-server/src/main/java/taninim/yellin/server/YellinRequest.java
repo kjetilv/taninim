@@ -65,7 +65,7 @@ record YellinRequest(
                                 .map(match ->
                                     HEALTH_REQ))));
         } catch (Exception e) {
-            log.warn("Failed to read auth request: " + requestBuffer, e);
+            log.warn("Failed to read auth request: {}", requestBuffer, e);
             return Optional.empty();
         }
     }
@@ -154,7 +154,7 @@ record YellinRequest(
             Optional<String> json = nextLine.get();
             if (json.isEmpty()) {
                 return Optional.of(body)
-                    .filter(sb -> sb.length() > 0)
+                    .filter(sb -> !sb.isEmpty())
                     .map(StringBuilder::toString);
             }
             json.ifPresent(str ->

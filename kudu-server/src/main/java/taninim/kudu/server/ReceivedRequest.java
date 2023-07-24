@@ -155,11 +155,11 @@ record ReceivedRequest(
         return ParseBits
             .headString(line, index)
             .map(String::trim)
-            .flatMap(head -> ParseBits
-                .tailString(line, index + 1)
-                .map(String::trim)
-                .filter(NON_EMPTY)
-                .map(tail -> Map.entry(head, tail)));
+            .flatMap(head ->
+                tailString(line, index + 1)
+                    .map(String::trim)
+                    .filter(NON_EMPTY)
+                    .map(tail -> Map.entry(head, tail)));
     }
 
     private enum Admin {

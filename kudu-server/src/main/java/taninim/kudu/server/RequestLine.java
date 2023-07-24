@@ -2,7 +2,6 @@ package taninim.kudu.server;
 
 import java.util.Optional;
 
-import com.github.kjetilv.uplift.kernel.io.ParseBits;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
 import taninim.kudu.Track;
 
@@ -14,7 +13,7 @@ record RequestLine(
 ) {
 
     static Optional<RequestLine> parseRequestLine(String requestLine) {
-        return ParseBits.tailString(requestLine, "get /audio/").flatMap(RequestLine::parse);
+        return tailString(requestLine, "get /audio/").flatMap(RequestLine::parse);
     }
 
     private static Optional<RequestLine> parse(String request) {
