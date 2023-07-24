@@ -1,4 +1,4 @@
-package taninim.taninim.music.legal;
+package taninim.music.legal;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,8 +17,8 @@ import java.util.function.Supplier;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import taninim.taninim.music.aural.Chunk;
-import taninim.taninim.music.medias.MediaLibrary;
+import taninim.music.aural.Chunk;
+import taninim.music.medias.MediaLibrary;
 
 import static java.util.Objects.requireNonNull;
 
@@ -57,6 +57,11 @@ public final class CloudMediaLibrary implements MediaLibrary {
     }
 
     @Override
+    public Optional<? extends InputStream> stream(Chunk chunk, String file) {
+        return s3.stream(file, chunk == null ? null : chunk.range());
+    }
+
+    @Override
     public void write(String file, Consumer<? super OutputStream> writer) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             writer.accept(baos);
@@ -69,11 +74,6 @@ public final class CloudMediaLibrary implements MediaLibrary {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to write " + file + " to " + writer, e);
         }
-    }
-
-    @Override
-    public Optional<? extends InputStream> stream(Chunk chunk, String file) {
-        return s3.stream(file, chunk == null ? null : chunk.range());
     }
 
     private Optional<ByteArrayInputStream> update(

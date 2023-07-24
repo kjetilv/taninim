@@ -1,6 +1,6 @@
 package taninim.yellin;
 
-import taninim.taninim.music.LeasesPath;
+import taninim.music.LeasesPath;
 
 public record LeasesActivationResult(
     LeasesActivation leasesActivation,

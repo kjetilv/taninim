@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.FbAuthenticator;
 import taninim.kudu.KuduLambdaHandler;
-import taninim.taninim.TaninimSettings;
+import taninim.TaninimSettings;
 import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;

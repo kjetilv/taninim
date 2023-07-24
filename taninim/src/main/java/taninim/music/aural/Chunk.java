@@ -1,4 +1,4 @@
-package taninim.taninim.music.aural;
+package taninim.music.aural;
 
 import java.text.MessageFormat;
 import java.util.Optional;

@@ -12,12 +12,12 @@ import com.github.kjetilv.uplift.kernel.uuid.Uuid;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
-import taninim.taninim.music.Leases;
-import taninim.taninim.music.LeasesRegistry;
-import taninim.taninim.music.Period;
-import taninim.taninim.music.medias.MediaIds;
-import taninim.taninim.music.medias.UserAuth;
-import taninim.taninim.music.medias.UserRequest;
+import taninim.music.Leases;
+import taninim.music.LeasesRegistry;
+import taninim.music.Period;
+import taninim.music.medias.MediaIds;
+import taninim.music.medias.UserAuth;
+import taninim.music.medias.UserRequest;
 
 import static java.util.Objects.requireNonNull;
 

@@ -12,9 +12,9 @@ import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.s3.S3Accessor;
-import taninim.taninim.music.Archives;
-import taninim.taninim.music.legal.S3Archives;
-import taninim.taninim.music.medias.UserAuths;
+import taninim.music.Archives;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.UserAuths;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 

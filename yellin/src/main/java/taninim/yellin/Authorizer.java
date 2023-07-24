@@ -2,8 +2,8 @@ package taninim.yellin;
 
 import java.util.Optional;
 
-import taninim.taninim.music.medias.UserAuth;
-import taninim.taninim.music.medias.UserRequest;
+import taninim.music.medias.UserAuth;
+import taninim.music.medias.UserRequest;
 
 public interface Authorizer {
 

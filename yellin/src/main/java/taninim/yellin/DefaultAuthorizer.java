@@ -7,9 +7,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import taninim.taninim.music.medias.UserAuth;
-import taninim.taninim.music.medias.UserAuths;
-import taninim.taninim.music.medias.UserRequest;
+import taninim.music.medias.UserAuth;
+import taninim.music.medias.UserAuths;
+import taninim.music.medias.UserRequest;
 
 import static java.util.Objects.requireNonNull;
 

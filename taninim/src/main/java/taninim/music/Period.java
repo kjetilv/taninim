@@ -1,4 +1,4 @@
-package taninim.taninim.music;
+package taninim.music;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -31,7 +31,7 @@ public record Period(
     }
 
     public Period capTo(Duration duration) {
-        return Period.starting(start)
+        return starting(start)
             .ofLength(cappedDuration(requireNonNull(duration, "duration")));
     }
 
@@ -40,7 +40,7 @@ public record Period(
     }
 
     public Stream<Long> epochHoursBack(Duration interval) {
-        long startHour = Period.starting(start.minus(interval)).epochHour();
+        long startHour = starting(start.minus(interval)).epochHour();
         return LongStream.range(startHour, epochHour() + 1L).boxed();
     }
 

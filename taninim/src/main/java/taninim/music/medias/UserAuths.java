@@ -1,4 +1,4 @@
-package taninim.taninim.music.medias;
+package taninim.music.medias;
 
 import java.io.DataInput;
 import java.io.DataOutput;

@@ -1,11 +1,11 @@
-package taninim.taninim.music.medias;
+package taninim.music.medias;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import taninim.taninim.music.aural.Chunk;
+import taninim.music.aural.Chunk;
 
 public interface MediaLibrary {
 

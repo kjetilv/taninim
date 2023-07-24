@@ -12,7 +12,7 @@ import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import org.slf4j.Logger;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
-import taninim.taninim.TaninimSettings;
+import taninim.TaninimSettings;
 
 import static com.github.kjetilv.uplift.lambda.LambdaResult.status;
 import static java.util.Map.entry;

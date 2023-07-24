@@ -17,8 +17,8 @@ import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import taninim.taninim.music.medias.MediaIds;
-import taninim.taninim.music.medias.UserAuths;
+import taninim.music.medias.MediaIds;
+import taninim.music.medias.UserAuths;
 
 public record MyS3(
     Map<String, S3Data> s3,

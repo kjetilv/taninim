@@ -18,13 +18,13 @@ import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.util.OnDemand;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import taninim.fb.Authenticator;
-import taninim.taninim.music.LeasesRegistry;
-import taninim.taninim.music.legal.ArchivedLeasesRegistry;
-import taninim.taninim.music.legal.CloudMediaLibrary;
-import taninim.taninim.music.legal.S3Archives;
-import taninim.taninim.music.medias.MediaIds;
-import taninim.taninim.music.medias.MediaLibrary;
-import taninim.taninim.music.medias.UserAuths;
+import taninim.music.LeasesRegistry;
+import taninim.music.legal.ArchivedLeasesRegistry;
+import taninim.music.legal.CloudMediaLibrary;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.MediaIds;
+import taninim.music.medias.MediaLibrary;
+import taninim.music.medias.UserAuths;
 
 public final class Yellin {
 

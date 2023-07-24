@@ -11,7 +11,7 @@ import com.github.kjetilv.uplift.lambda.LambdaResult;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import taninim.taninim.TaninimSettings;
+import taninim.TaninimSettings;
 
 import static java.util.Map.entry;
 

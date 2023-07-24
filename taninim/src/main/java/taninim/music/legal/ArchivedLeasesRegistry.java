@@ -1,10 +1,4 @@
-package taninim.taninim.music.legal;
-
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import taninim.taninim.music.*;
-import taninim.taninim.music.Archives.ArchivedRecord;
+package taninim.music.legal;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -18,6 +12,16 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import taninim.music.Archives;
+import taninim.music.Archives.ArchivedRecord;
+import taninim.music.Leases;
+import taninim.music.LeasesPath;
+import taninim.music.LeasesRegistry;
+import taninim.music.Period;
 
 import static java.util.Objects.requireNonNull;
 
@@ -34,7 +38,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     private final Archives archives;
 
     public ArchivedLeasesRegistry(
-         Archives archives, Duration leaseDuration, Supplier<Instant> time, Executor executor
+        Archives archives, Duration leaseDuration, Supplier<Instant> time, Executor executor
     ) {
         this.archives = requireNonNull(archives, "archives");
         this.leaseDuration = requireNonNull(leaseDuration, "leaseLimit");
@@ -48,14 +52,14 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         Period period = Period.starting(time).ofLength(leaseDuration);
         try (Stream<String> pathsForToken = archives.retrievePaths(LEASE_PREFIX, recordFor(token))) {
             return pathsForToken.max(BY_EPOCH_HOUR).flatMap(path ->
-                    archives.retrieveRecord(path)
-                            .flatMap(archivedRecord ->
-                                    leases(token, archivedRecord).validAt(time))
-                            .filter(leases ->
-                                    leases.stillActiveAt(period.start()))
-                            .flatMap(leases ->
-                                    leases.validAt(time))
-                            .map(leases -> new LeasesPath(leases, period)));
+                archives.retrieveRecord(path)
+                    .flatMap(archivedRecord ->
+                        leases(token, archivedRecord).validAt(time))
+                    .filter(leases ->
+                        leases.stillActiveAt(period.start()))
+                    .flatMap(leases ->
+                        leases.validAt(time))
+                    .map(leases -> new LeasesPath(leases, period)));
         }
     }
 
@@ -64,12 +68,14 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         Instant time = this.time.get();
         try {
             return leases.validAt(time).map(valid ->
-                    new LeasesPath(valid, period)).map(leasesPath -> {
+                new LeasesPath(valid, period)).map(leasesPath -> {
                 ArchivedRecord archivedRecord = recordOf(leasesPath);
-                log.info("Creating leases @ {}: {} bytes, {} lines",
-                        archivedRecord.path(),
-                        archivedRecord.body().length(),
-                        archivedRecord.contents().size());
+                log.info(
+                    "Creating leases @ {}: {} bytes, {} lines",
+                    archivedRecord.path(),
+                    archivedRecord.body().length(),
+                    archivedRecord.contents().size()
+                );
                 archives.storeRecord(archivedRecord);
                 return leasesPath;
             });
@@ -128,12 +134,12 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     private static List<Leases.Lease> leases(ArchivedRecord archivedRecord) {
         return archivedRecord.contents().stream()
             .map(String::trim)
-                .filter(string -> !string.isBlank())
-                .map(line ->
-                    line.split(" ", 2)).map(tokenLease -> new Leases.Lease(
-                    Uuid.from(tokenLease[0]),
-                    Instant.ofEpochSecond(Long.parseLong(tokenLease[1]))
-                )).toList();
+            .filter(string -> !string.isBlank())
+            .map(line ->
+                line.split(" ", 2)).map(tokenLease -> new Leases.Lease(
+                Uuid.from(tokenLease[0]),
+                Instant.ofEpochSecond(Long.parseLong(tokenLease[1]))
+            )).toList();
     }
 
     private static Long epochHour(String path) {

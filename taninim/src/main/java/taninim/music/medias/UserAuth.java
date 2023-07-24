@@ -1,4 +1,4 @@
-package taninim.taninim.music.medias;
+package taninim.music.medias;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -68,9 +68,9 @@ public record UserAuth(
     @Override
     public int writeTo(DataOutput output) {
         return writeString(output, userId) +
-            writeInstant(output, expiry) +
-            writeUuid(output, token) +
-            writeWritables(output, albumLeases);
+               writeInstant(output, expiry) +
+               writeUuid(output, token) +
+               writeWritables(output, albumLeases);
     }
 
     @Override

@@ -14,7 +14,7 @@ import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import taninim.kudu.KuduLambdaHandler;
-import taninim.taninim.TaninimSettings;
+import taninim.TaninimSettings;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 

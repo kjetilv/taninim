@@ -43,9 +43,9 @@ import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
 import taninim.kudu.KuduLambdaHandler;
-import taninim.taninim.TaninimSettings;
-import taninim.taninim.music.medias.AlbumTrackIds;
-import taninim.taninim.music.medias.MediaIds;
+import taninim.TaninimSettings;
+import taninim.music.medias.AlbumTrackIds;
+import taninim.music.medias.MediaIds;
 import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;

@@ -1,4 +1,4 @@
-package taninim.taninim.music;
+package taninim.music;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -30,16 +30,6 @@ public record Leases(
             : sorted(leases);
     }
 
-    Leases withTracks(List<? extends Uuid> tracks, Instant lapse) {
-        return new Leases(
-            token,
-            Stream.concat(
-                leases.stream(),
-                leases(tracks, lapse)
-            ).toList()
-        );
-    }
-
     public boolean validFor(Uuid trackUUID, Instant time) {
         return leases.stream().anyMatch(lease ->
             lease.isFor(trackUUID) && lease.validAt(time));
@@ -60,6 +50,16 @@ public record Leases(
         return leases().stream()
             .map(Leases.Lease::toLine)
             .toList();
+    }
+
+    Leases withTracks(List<? extends Uuid> tracks, Instant lapse) {
+        return new Leases(
+            token,
+            Stream.concat(
+                leases.stream(),
+                leases(tracks, lapse)
+            ).toList()
+        );
     }
 
     private static List<Lease> sorted(List<Lease> leases) {

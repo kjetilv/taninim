@@ -11,11 +11,11 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import taninim.kudu.DefaultKudu;
-import taninim.taninim.music.LeasesRegistry;
-import taninim.taninim.music.legal.ArchivedLeasesRegistry;
-import taninim.taninim.music.legal.CloudMediaLibrary;
-import taninim.taninim.music.legal.S3Archives;
-import taninim.taninim.music.medias.MediaLibrary;
+import taninim.music.LeasesRegistry;
+import taninim.music.legal.ArchivedLeasesRegistry;
+import taninim.music.legal.CloudMediaLibrary;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.MediaLibrary;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.boolArg;
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.intArg;

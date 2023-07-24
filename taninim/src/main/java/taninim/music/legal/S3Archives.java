@@ -1,4 +1,4 @@
-package taninim.taninim.music.legal;
+package taninim.music.legal;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.github.kjetilv.uplift.s3.S3Accessor;
-import taninim.taninim.music.Archives;
+import taninim.music.Archives;
 
 import static java.util.Objects.requireNonNull;
 

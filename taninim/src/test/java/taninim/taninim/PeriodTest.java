@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
-import taninim.taninim.music.Period;
+import taninim.music.Period;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

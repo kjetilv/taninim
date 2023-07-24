@@ -1,4 +1,4 @@
-package taninim.taninim.music;
+package taninim.music;
 
 import java.text.MessageFormat;
 import java.time.Instant;

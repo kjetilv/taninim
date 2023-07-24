@@ -1,4 +1,4 @@
-package taninim.taninim;
+package taninim;
 
 import java.time.Duration;
 

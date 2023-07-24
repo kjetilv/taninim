@@ -11,7 +11,7 @@ import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.fb.Authenticator;
 import taninim.fb.FbAuthenticator;
-import taninim.taninim.TaninimSettings;
+import taninim.TaninimSettings;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 import static com.github.kjetilv.uplift.kernel.Time.utcSupplier;

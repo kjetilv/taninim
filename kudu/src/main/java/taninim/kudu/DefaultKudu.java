@@ -10,14 +10,14 @@ import com.github.kjetilv.uplift.kernel.uuid.Uuid;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import taninim.taninim.TaninimSettings;
-import taninim.taninim.music.Archives;
-import taninim.taninim.music.LeasesRegistry;
-import taninim.taninim.music.aural.Chunk;
-import taninim.taninim.music.legal.ArchivedLeasesRegistry;
-import taninim.taninim.music.legal.CloudMediaLibrary;
-import taninim.taninim.music.legal.S3Archives;
-import taninim.taninim.music.medias.MediaLibrary;
+import taninim.TaninimSettings;
+import taninim.music.Archives;
+import taninim.music.LeasesRegistry;
+import taninim.music.aural.Chunk;
+import taninim.music.legal.ArchivedLeasesRegistry;
+import taninim.music.legal.CloudMediaLibrary;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.MediaLibrary;
 
 public record DefaultKudu(
     LeasesRegistry leasesRegistry,

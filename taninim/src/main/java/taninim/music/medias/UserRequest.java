@@ -1,4 +1,4 @@
-package taninim.taninim.music.medias;
+package taninim.music.medias;
 
 import java.util.Objects;
 
@@ -23,6 +23,6 @@ public record UserRequest(
 
     boolean matches(UserAuth userAuth) {
         return Objects.equals(userAuth.userId(), this.userId) &&
-            Objects.equals(userAuth.token(), this.token);
+               Objects.equals(userAuth.token(), this.token);
     }
 }

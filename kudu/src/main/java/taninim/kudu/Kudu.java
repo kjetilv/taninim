@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
-import taninim.taninim.music.aural.Chunk;
+import taninim.music.aural.Chunk;
 
 public interface Kudu {
 
