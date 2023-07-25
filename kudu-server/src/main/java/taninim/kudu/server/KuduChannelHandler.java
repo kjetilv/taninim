@@ -68,10 +68,11 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
         }
         return ReceivedRequest.fromHttp(byteBuffer)
             .map(receivedRequest ->
-                receivedRequest.retry() ? INCOMPLETE
-                    : receivedRequest.preflight() ? handlePreflight(receivedRequest, false)
-                        : receivedRequest.health() ? handleHealth(receivedRequest)
-                            : handleStream(state, receivedRequest))
+                receivedRequest.reject() ? REJECTED
+                    : receivedRequest.retry() ? INCOMPLETE
+                        : receivedRequest.preflight() ? handlePreflight(receivedRequest, false)
+                            : receivedRequest.health() ? handleHealth(receivedRequest)
+                                : handleStream(state, receivedRequest))
             .orElseGet(() -> {
                 log.debug("No request read from {}", byteBuffer);
                 return REJECTED;
