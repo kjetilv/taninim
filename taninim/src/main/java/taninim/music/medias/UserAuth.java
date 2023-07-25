@@ -139,17 +139,6 @@ public record UserAuth(
         return Objects.equals(this.userId(), userId);
     }
 
-    public UserAuth at(Instant time) {
-        return new UserAuth(
-            userId,
-            time,
-            token,
-            albumLeases.stream().flatMap(lease ->
-                    lease.at(time).stream())
-                .toList()
-        );
-    }
-
     public boolean validAt(Instant time) {
         return time.isBefore(expiry);
     }
@@ -167,10 +156,6 @@ public record UserAuth(
         @Override
         public int writeTo(DataOutput dos) {
             return writeUuid(dos, albumId) + writeEpoch(dos, expiry);
-        }
-
-        public Optional<AlbumLease> at(Instant time) {
-            return time.isAfter(expiry) ? Optional.empty() : Optional.of(this);
         }
 
         public boolean isFor(Uuid uuid) {

@@ -439,9 +439,8 @@ class LambdasTest {
         return time.get();
     }
 
-    private Instant time(Instant now) {
+    private void time(Instant now) {
         time.set(now);
-        return now;
     }
 
     private void setupDispatcher(Duration sessionDuration, Duration ticketDuration) {
