@@ -79,8 +79,4 @@ public final class ListLeases {
         int dashindex = hourstamp.indexOf('-');
         return Long.parseLong(hourstamp.substring(0, dashindex));
     }
-
-    private static Long epochHour(Instant time) {
-        return time.getEpochSecond() / SECONDS_PER_HOUR;
-    }
 }

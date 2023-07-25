@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
 import org.slf4j.Logger;
@@ -107,17 +106,6 @@ record YellinRequest(
             .findFirst();
     }
 
-    private static Optional<String> afterSubstring(String line, String... prefices) {
-        return Arrays.stream(prefices)
-            .flatMap(prefix -> {
-                int index = line.indexOf(prefix);
-                return index < 0
-                    ? Stream.empty()
-                    : Stream.of(line.substring(index + prefix.length()));
-            })
-            .findFirst();
-    }
-
     private static Optional<YellinRequest> readLease(
         Supplier<Optional<String>> nextLine,
         Function<String, LeasesRequest> toRequest
@@ -136,16 +124,6 @@ record YellinRequest(
         return extractBody(nextLine).map(
             body ->
                 new YellinRequest(ExtAuthResponse.from(body, jsonParser)));
-    }
-
-    private static String unslashed(String path) {
-        if (path.isBlank()) {
-            return path;
-        }
-        if (path.startsWith("/")) {
-            return unslashed(path.substring(1));
-        }
-        return path;
     }
 
     private static Optional<String> extractBody(Supplier<Optional<String>> nextLine) {
