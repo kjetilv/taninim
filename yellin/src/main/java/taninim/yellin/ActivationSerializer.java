@@ -26,11 +26,11 @@ public final class ActivationSerializer {
     }
 
     public byte[] jsonBody(LeasesActivation activation) {
-        return json.apply(Maps.toMap(
-                Maps.ent("name", activation.name()),
-                Maps.ent("userId", activation.userId()),
-                Maps.ent("token", activation.digest()),
-                Maps.ent("trackUUIDs", uuids(activation))
+        return json.apply(Maps.fromOptionalEntries(
+                Maps.optionalEntry("name", activation.name()),
+                Maps.optionalEntry("userId", activation.userId()),
+                Maps.optionalEntry("token", activation.digest()),
+                Maps.optionalEntry("trackUUIDs", uuids(activation))
             )
         ).getBytes(StandardCharsets.UTF_8);
     }
