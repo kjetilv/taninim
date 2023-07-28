@@ -39,11 +39,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
 import taninim.kudu.KuduLambdaHandler;
-import taninim.TaninimSettings;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
 import taninim.yellin.YellinLambdaHandler;
@@ -113,7 +113,6 @@ class Lambdas2Test {
             List.of("GET"),
             List.of("content-type", "range")
         );
-
 
         LambdaClientSettings yellinClientSettings = new LambdaClientSettings(
             new com.github.kjetilv.uplift.flambda.EmptyEnv(),
