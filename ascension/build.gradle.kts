@@ -16,15 +16,12 @@ dependencies {
 apply<UpliftPlugin>()
 
 tasks.withType<UpliftTask> {
-    configure(
-        stack = "taninim"
-    )
+    configure(stack = "taninim")
     env(
-        "fbSec" to get(name = "fbSec"), "taninimBucket" to get(name = "taninimBucket")
+        "fbSec" to get(name = "fbSec"),
+        "taninimBucket" to get(name = "taninimBucket")
     )
-    stackWith(
-        "taninim.uplift.LambdaStacker"
-    )
+    stackWith("taninim.uplift.LambdaStacker")
     dependsOn(
         ":kudu:native-lambda",
         ":yellin:native-lambda",

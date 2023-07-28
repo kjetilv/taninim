@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutorService;
 
 import com.github.kjetilv.uplift.asynchttp.ChannelHandler;
 import com.github.kjetilv.uplift.asynchttp.IOServer;
-import com.github.kjetilv.uplift.asynchttp.MainSupport;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.s3.S3Accessor;
@@ -59,6 +58,8 @@ public final class ServerKudu {
     private ServerKudu() {
     }
 
+    private static final int PORT_80 = 80;
+
     private static final int MAX_REQUEST_LENGTH = 1024;
 
     private static final int DEFAULT_RESPONSE_LENGTH = 64 * 1_024;
@@ -67,7 +68,7 @@ public final class ServerKudu {
         Map<String, String> map = parameterMap(args);
         boolean server = boolArg(map, "server") || possibleIntArg(map, "port").isPresent();
         return new Parameters(
-            validatePort(intArg(map, "port", server ? MainSupport.DEFAULT_PORT : 0)),
+            validatePort(intArg(map, "port", server ? PORT_80 : 0)),
             intArg(map, "buffer", DEFAULT_RESPONSE_LENGTH),
             server
         );

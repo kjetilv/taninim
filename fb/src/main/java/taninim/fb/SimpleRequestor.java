@@ -15,12 +15,7 @@ class SimpleRequestor implements WebRequestor {
     public Response executeGet(Request request) throws IOException {
         HttpResponse<String> send;
         try {
-            send = HttpClient.newBuilder()
-                .build()
-                .send(
-                    HttpRequest.newBuilder().GET().uri(URI.create(request.getFullUrl())).build(),
-                    HttpResponse.BodyHandlers.ofString()
-                );
+            send = HTTP_CLIENT.send(getBuild(request), STRING);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Interrupted", e);
@@ -41,6 +36,14 @@ class SimpleRequestor implements WebRequestor {
     @Override
     public DebugHeaderInfo getDebugHeaderInfo() {
         return null;
+    }
+
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder().build();
+
+    private static final HttpResponse.BodyHandler<String> STRING = HttpResponse.BodyHandlers.ofString();
+
+    private static HttpRequest getBuild(Request request) {
+        return HttpRequest.newBuilder().GET().uri(URI.create(request.getFullUrl())).build();
     }
 
     private static <T> T fail() {

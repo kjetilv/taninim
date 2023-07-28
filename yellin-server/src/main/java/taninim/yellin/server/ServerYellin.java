@@ -30,9 +30,7 @@ public final class ServerYellin {
         ExecutorService executorService = executor("SL");
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
         ChannelHandler<BufferState, YellinChannelHandler> handler = handler(s3Accessor, executorService);
-        try (
-            IOServer server = create(port(map), MAX_REQUEST_SIZE, executorService).run(handler)
-        ) {
+        try (IOServer server = create(port(map), MAX_REQUEST_SIZE, executorService).run(handler)) {
             server.join();
         }
     }
@@ -44,9 +42,11 @@ public final class ServerYellin {
 
     private static final Duration LEASE_DURATION = Duration.ofHours(1);
 
+    public static final int PORT_80 = 80;
+
     private static int port(Map<String, String> map) {
         Optional<Integer> portArg = possibleIntArg(map, "port");
-        return validatePort(portArg.orElse(MainSupport.DEFAULT_PORT));
+        return validatePort(portArg.orElse(PORT_80));
     }
 
     private static ChannelHandler<BufferState, YellinChannelHandler> handler(
