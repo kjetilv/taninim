@@ -56,7 +56,6 @@ public final class ServerYellin {
         return new YellinChannelHandler(
             leasesDispatcher(
                 s3Accessor,
-                executorService,
                 UTC_CLOCK::instant,
                 SESSION_DURATION,
                 LEASE_DURATION,

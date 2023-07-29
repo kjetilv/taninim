@@ -451,12 +451,10 @@ class LambdasTest {
         LeasesRegistry leasesRegistry = new ArchivedLeasesRegistry(
             archives,
             ticketDuration,
-            this::now,
-            null
+            this::now
         );
         leasesDispatcher = Yellin.leasesDispatcher(
             s3Accessor,
-            null,
             this::now,
             sessionDuration,
             ticketDuration,

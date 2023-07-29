@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -30,7 +29,6 @@ public final class Yellin {
 
     public static LeasesDispatcher leasesDispatcher(
         S3Accessor s3Accessor,
-        Executor executor,
         Supplier<Instant> time,
         Duration sessionDuration,
         Duration ticketDuration,
@@ -39,7 +37,7 @@ public final class Yellin {
         S3Archives s3Archives = new S3Archives(s3Accessor);
         MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, time);
         LeasesRegistry leasesRegistry =
-            new ArchivedLeasesRegistry(s3Archives, ticketDuration, time, executor);
+            new ArchivedLeasesRegistry(s3Archives, ticketDuration, time);
 
         OnDemand onDemand = new OnDemand(time);
 

@@ -13,8 +13,8 @@ import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
-import taninim.kudu.KuduLambdaHandler;
 import taninim.TaninimSettings;
+import taninim.kudu.KuduLambdaHandler;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 
@@ -28,22 +28,19 @@ public final class LocalLambdaKudu {
                 8080,
                 8 * 8192,
                 10,
-                executor("aws-L", 10),
-                executor("aws-S", 10),
                 new CorsSettings(
                     List.of("https://tanin.im:5173"),
                     List.of("GET"),
                     List.of("content-type", "range")
                 ),
                 Time.utcSupplier()
-            ));
-        Env env = Env.actual();
-        LambdaClientSettings clientSettings = new LambdaClientSettings(
-            env,
-            executor("L", 10),
-            executor("S", 10),
-            Time.utcSupplier()
+            ),
+            executor("aws-L", 10),
+            executor("aws-S", 10)
         );
+        Env env = Env.actual();
+        LambdaClientSettings clientSettings =
+            new LambdaClientSettings(env, Time.utcSupplier());
         TaninimSettings taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
             Duration.ofHours(4),
@@ -58,7 +55,8 @@ public final class LocalLambdaKudu {
         Runnable lamdbdaManaged = new DefaultLamdbdaManaged(
             localLambda.getLambdaUri(),
             clientSettings,
-            handler
+            handler,
+            executor("L", 10)
         );
 
         ExecutorService executor = executor("runner", 2);

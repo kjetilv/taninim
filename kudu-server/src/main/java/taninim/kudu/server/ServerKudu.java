@@ -34,8 +34,7 @@ public final class ServerKudu {
         LeasesRegistry leasesRegistry = new ArchivedLeasesRegistry(
             new S3Archives(s3Accessor),
             Duration.ofHours(1),
-            Time.utcSupplier(),
-            executorService
+            Time.utcSupplier()
         );
 
         MediaLibrary mediaLibrary =

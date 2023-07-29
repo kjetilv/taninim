@@ -16,8 +16,8 @@ import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
-import taninim.fb.FbAuthenticator;
 import taninim.TaninimSettings;
+import taninim.fb.FbAuthenticator;
 import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
@@ -34,22 +34,19 @@ public final class LocalLambdaYellin {
                 8081,
                 8 * 8192,
                 10,
-                executor("aws-L", 10),
-                executor("aws-S", 10),
                 new CorsSettings(
                     List.of("https://tanin.im:5173"),
                     List.of("POST", "DELETE"),
                     List.of("content-type")
                 ),
                 Time.utcSupplier()
-            ));
-        Env env = Env.actual();
-        LambdaClientSettings clientSettings = new LambdaClientSettings(
-            env,
-            executor("L", 10),
-            executor("S", 10),
-            Time.utcSupplier()
+            ),
+            executor("aws-L", 10),
+            executor("aws-S", 10)
         );
+        Env env = Env.actual();
+        LambdaClientSettings clientSettings =
+            new LambdaClientSettings(env, Time.utcSupplier());
         LambdaHandler yellin = YellinLambdaHandler.handler(
             clientSettings,
             new TaninimSettings(
@@ -64,7 +61,8 @@ public final class LocalLambdaYellin {
         Runnable lamdbdaManaged = new DefaultLamdbdaManaged(
             localLambda.getLambdaUri(),
             clientSettings,
-            yellin
+            yellin,
+            executor("L", 10)
         );
         ExecutorService executor = executor("runner", 2);
 

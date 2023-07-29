@@ -33,7 +33,6 @@ public final class YellinLambdaHandler implements LambdaHandler {
         S3Accessor s3Accessor = s3AccessorFactory.create();
         LeasesDispatcher leasesDispatcher = leasesDispatcher(
             s3Accessor,
-            clientSettings.serverExecutor(),
             clientSettings.time(),
             taninimSettings.sessionDuration(),
             taninimSettings.leaseDuration(),

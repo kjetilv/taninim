@@ -48,7 +48,6 @@ import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
 import taninim.yellin.YellinLambdaHandler;
 
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings(
@@ -114,19 +113,11 @@ class Lambdas2Test {
             List.of("content-type", "range")
         );
 
-        LambdaClientSettings yellinClientSettings = new LambdaClientSettings(
-            new com.github.kjetilv.uplift.flambda.EmptyEnv(),
-            executor("yell-L", 5),
-            executor("yell-S", 5),
-            timeRetriever
-        );
+        LambdaClientSettings yellinClientSettings =
+            new LambdaClientSettings(new com.github.kjetilv.uplift.flambda.EmptyEnv(), timeRetriever);
 
-        LambdaClientSettings kuduClientSettings = new LambdaClientSettings(
-            new EmptyEnv(),
-            executor("kudu-L", 5),
-            executor("kudu-S", 5),
-            timeRetriever
-        );
+        LambdaClientSettings kuduClientSettings =
+            new LambdaClientSettings(new EmptyEnv(), timeRetriever);
 
         yellinHandler = YellinLambdaHandler.handler(
             yellinClientSettings,

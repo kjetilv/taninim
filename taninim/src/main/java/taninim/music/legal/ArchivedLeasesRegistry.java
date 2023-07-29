@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -33,17 +32,16 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     private final Supplier<Instant> time;
 
-    private final Executor executor;
-
     private final Archives archives;
 
     public ArchivedLeasesRegistry(
-        Archives archives, Duration leaseDuration, Supplier<Instant> time, Executor executor
+        Archives archives,
+        Duration leaseDuration,
+        Supplier<Instant> time
     ) {
         this.archives = requireNonNull(archives, "archives");
         this.leaseDuration = requireNonNull(leaseDuration, "leaseLimit");
         this.time = requireNonNull(time, "clock");
-        this.executor = executor;
     }
 
     @Override
@@ -86,18 +84,10 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     private void deleteOutdated(Instant time) {
         Collection<Long> active = Period.starting(time).epochHoursBack(leaseDuration).collect(Collectors.toSet());
-        if (executor == null) {
-            doDeleteOutdated(active);
-        } else {
-            CompletableFuture.runAsync(() -> doDeleteOutdated(active), executor);
-        }
-    }
-
-    private void doDeleteOutdated(Collection<Long> activeEpochHours) {
         try (
             Stream<String> records = archives.retrievePaths(
                 LEASE_PREFIX,
-                path -> !activeEpochHours.contains(epochHour(path))
+                path -> !active.contains(epochHour(path))
             )
         ) {
             List<String> paths = records.toList();
@@ -106,7 +96,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
                 log.debug(
                     "{} outdated prefixes gone, {} still active",
                     (Supplier<Integer>) paths::size,
-                    (Supplier<Integer>) activeEpochHours::size
+                    (Supplier<Integer>) active::size
                 );
             }
         }

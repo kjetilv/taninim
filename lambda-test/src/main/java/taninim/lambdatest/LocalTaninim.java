@@ -20,9 +20,9 @@ import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.TaninimSettings;
 import taninim.fb.FbAuthenticator;
 import taninim.kudu.KuduLambdaHandler;
-import taninim.TaninimSettings;
 import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
@@ -59,17 +59,14 @@ public final class LocalTaninim {
                 8080,
                 kuduSize * 2,
                 10,
-                exec("lambda-server-kudu"),
-                exec("api-server-kudu"),
                 kuduCors,
                 time
-            ));
-        LambdaClientSettings kuduClientSettings = new LambdaClientSettings(
-            env,
-            exec("kudu-lambda"),
-            exec("kudu-server"),
-            Time.utcSupplier()
+            ),
+            exec("lambda-server-kudu"),
+            exec("api-server-kudu")
         );
+        LambdaClientSettings kuduClientSettings =
+            new LambdaClientSettings(env, Time.utcSupplier());
         LambdaHandler handler = KuduLambdaHandler.create(
             kuduClientSettings,
             taninimSettings,
@@ -78,7 +75,8 @@ public final class LocalTaninim {
         Runnable kuduLambdaManaged = new DefaultLamdbdaManaged(
             kuduLocalLambda.getLambdaUri(),
             kuduClientSettings,
-            handler
+            handler,
+            exec("kudu-lambda")
         );
 
         logger().info("Kudu: {}", handler);
@@ -90,17 +88,15 @@ public final class LocalTaninim {
                 8081,
                 yellinSize * 2,
                 10,
-                exec("lambda-server-yellin"),
-                exec("api-server-yellin"),
                 yellinCors,
                 time
-            ));
-        LambdaClientSettings yellinClientSettings = new LambdaClientSettings(
-            env,
-            exec("yellin-lambda"),
-            exec("yellin-server"),
-            Time.utcSupplier()
+            ),
+            exec("lambda-server-yellin"),
+            exec("api-server-yellin")
         );
+
+        LambdaClientSettings yellinClientSettings =
+            new LambdaClientSettings(env, Time.utcSupplier());
 
         LambdaHandler yellin = YellinLambdaHandler.handler(
             yellinClientSettings,
@@ -111,7 +107,8 @@ public final class LocalTaninim {
         Runnable yellinLamdbdaManaged = new DefaultLamdbdaManaged(
             yellinLocalLambda.getLambdaUri(),
             yellinClientSettings,
-            yellin
+            yellin,
+            exec("yellin-lambda")
         );
         logger().info("Yellin: {}", yellin);
 

@@ -16,12 +16,8 @@ public final class Main {
 
     @SuppressWarnings("MagicNumber")
     public static void main(String[] args) {
-        LambdaClientSettings clientSettings = new LambdaClientSettings(
-            ENV,
-            executor("L", 10),
-            executor("S", 10),
-            Time.utcSupplier()
-        );
+        LambdaClientSettings clientSettings =
+            new LambdaClientSettings(ENV, Time.utcSupplier());
         TaninimSettings taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
             Duration.ofHours(4),
@@ -38,7 +34,8 @@ public final class Main {
                 clientSettings,
                 taninimSettings,
                 s3
-            )
+            ),
+            executor("L", 10)
         ).run();
     }
 

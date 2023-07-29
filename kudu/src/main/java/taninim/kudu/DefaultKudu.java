@@ -38,8 +38,7 @@ public record DefaultKudu(
             new ArchivedLeasesRegistry(
                 archives,
                 taninimSettings.leaseDuration(),
-                time,
-                clientSettings.serverExecutor()
+                time
             );
         MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, time);
         return new DefaultKudu(leasesRegistry, mediaLibrary, taninimSettings.transferSize(), time);
