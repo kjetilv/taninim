@@ -13,6 +13,7 @@ import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
 import taninim.music.Leases;
+import taninim.music.LeasesPath;
 import taninim.music.LeasesRegistry;
 import taninim.music.Period;
 import taninim.music.medias.MediaIds;
@@ -64,7 +65,7 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
                 userAuth.validAt(time))
             .map(userAuth ->
                 initialActivation(fbUser, userAuth, time))
-            .flatMap(this::storeActivated);
+            .map(this::storeActivated);
     }
 
     @Override
@@ -74,16 +75,17 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
             .filter(userAuth ->
                 userAuth.validAt(time))
             .flatMap(userAuth ->
-                authorizer.authorize(userRequest(leasesRequest)).map(authorized ->
+                authorizer.authorize(userRequest(leasesRequest))
+                    .map(authorized ->
                         requestedActivation(authorized, leasesRequest, time))
-                    .flatMap(this::storeActivated));
+                    .map(this::storeActivated));
     }
 
     @Override
     public Optional<LeasesActivationResult> dismissLease(LeasesRequest leasesRequest) {
         return authorizer.deauthorize(userRequest(leasesRequest))
-            .map(this::reqeustedDismissal)
-            .flatMap(this::storeActivated);
+            .map(this::requestedDismissal)
+            .map(this::storeActivated);
     }
 
     private LeasesActivation initialActivation(ExtUser fbUser, UserAuth userAuth, Instant time) {
@@ -94,21 +96,21 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
         return new LeasesActivation(null, leasesRequest.userId(), leasesRequest.token(), tracks(userAuth, time));
     }
 
-    private LeasesActivation reqeustedDismissal(UserAuth deauthorized) {
-        return new LeasesActivation(null, deauthorized.userId(), tracks(deauthorized, time.get()));
+    private LeasesActivation requestedDismissal(UserAuth deauthorized) {
+        return new LeasesActivation(
+            null,
+            deauthorized.userId(),
+            tracks(deauthorized, time.get())
+        );
     }
 
-    private Optional<LeasesActivationResult> storeActivated(LeasesActivation activation) {
+    private LeasesActivationResult storeActivated(LeasesActivation activation) {
         Period period = new Period(time.get(), leaseTime);
-        return leasesRegistry.getActive(activation.token())
-            .or(() ->
+        LeasesPath active = leasesRegistry.getActive(activation.token()).orElseGet(() ->
                 leasesRegistry.setActive(new Leases(activation.token()), period))
-            .map(leasesPath ->
-                leasesPath.withTracks(activation.trackUUIDs(), period.getLapse()))
-            .flatMap(leasesPath ->
-                leasesRegistry.setActive(leasesPath.leases(), period))
-            .map(leasesPath ->
-                new LeasesActivationResult(activation, leasesPath));
+            .withTracks(activation.trackUUIDs(), period.getLapse());
+        LeasesPath leasesPath = leasesRegistry.setActive(active.leases(), period);
+        return new LeasesActivationResult(activation, leasesPath);
     }
 
     private List<Uuid> tracks(UserAuth userAuth, Instant time) {

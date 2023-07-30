@@ -39,11 +39,13 @@ public record Leases(
         return leases().isEmpty() || leases().stream().anyMatch(lease -> lease.validAt(time));
     }
 
-    public Optional<Leases> validAt(Instant time) {
-        return Optional.of(new Leases(
+    public Leases validAt(Instant time) {
+        if (leases.isEmpty()) {
+            return this;
+        }
+        return new Leases(
             token,
-            leases().stream().filter(lease -> lease.validAt(time)).toList()
-        ));
+            this.leases().stream().filter(lease -> lease.validAt(time)).toList());
     }
 
     public List<String> toLines() {

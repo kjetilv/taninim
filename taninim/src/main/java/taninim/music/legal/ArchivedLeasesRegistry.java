@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -51,35 +50,38 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         try (Stream<String> pathsForToken = archives.retrievePaths(LEASE_PREFIX, recordFor(token))) {
             return pathsForToken.max(BY_EPOCH_HOUR).flatMap(path ->
                 archives.retrieveRecord(path)
-                    .flatMap(archivedRecord ->
+                    .map(archivedRecord ->
                         leases(token, archivedRecord).validAt(time))
                     .filter(leases ->
                         leases.stillActiveAt(period.start()))
-                    .flatMap(leases ->
+                    .map(leases ->
                         leases.validAt(time))
                     .map(leases -> new LeasesPath(leases, period)));
         }
     }
 
     @Override
-    public Optional<LeasesPath> setActive(Leases leases, Period period) {
+    public LeasesPath setActive(Leases leases, Period period) {
         Instant time = this.time.get();
         try {
-            return leases.validAt(time).map(valid ->
-                new LeasesPath(valid, period)).map(leasesPath -> {
-                ArchivedRecord archivedRecord = recordOf(leasesPath);
-                log.info(
-                    "Creating leases @ {}: {} bytes, {} lines",
-                    archivedRecord.path(),
-                    archivedRecord.body().length(),
-                    archivedRecord.contents().size()
-                );
-                archives.storeRecord(archivedRecord);
-                return leasesPath;
-            });
+            Leases valid = leases.validAt(time);
+            LeasesPath leasesPath = new LeasesPath(valid, period);
+            return stored(leasesPath);
         } finally {
             deleteOutdated(time);
         }
+    }
+
+    private LeasesPath stored(LeasesPath leasesPath) {
+        ArchivedRecord archivedRecord = recordOf(leasesPath);
+        log.info(
+            "Creating leases @ {}: {} bytes, {} lines",
+            archivedRecord.path(),
+            archivedRecord.body().length(),
+            archivedRecord.contents().size()
+        );
+        archives.storeRecord(archivedRecord);
+        return leasesPath;
     }
 
     private void deleteOutdated(Instant time) {

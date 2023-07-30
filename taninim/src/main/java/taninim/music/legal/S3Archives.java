@@ -50,7 +50,13 @@ public class S3Archives implements Archives {
                 InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
                 BufferedReader bufferedReader = new BufferedReader(reader)
             ) {
-                return new ArchivedRecord(path, bufferedReader.lines().toList());
+                return new ArchivedRecord(
+                    path,
+                    bufferedReader.lines()
+                        .filter(s -> !s.isBlank())
+                        .map(String::trim)
+                        .toList()
+                );
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to read " + path, e);
             }

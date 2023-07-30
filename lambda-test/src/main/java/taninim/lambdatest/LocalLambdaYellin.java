@@ -28,32 +28,39 @@ public final class LocalLambdaYellin {
     public static void main(String[] args) {
         Flogs.initialize(ManagedExecutors.threadNamer());
 
-        LocalLambda localLambda = new LocalLambda(
-            new LocalLambdaSettings(
-                9001,
-                8081,
-                8 * 8192,
-                10,
-                new CorsSettings(
-                    List.of("https://tanin.im:5173"),
-                    List.of("POST", "DELETE"),
-                    List.of("content-type")
-                ),
-                Time.utcSupplier()
+        LocalLambdaSettings settings = new LocalLambdaSettings(
+            9001,
+            8081,
+            8 * 8192,
+            10,
+            new CorsSettings(
+                List.of("https://tanin.im:5173"),
+                List.of("POST", "DELETE"),
+                List.of("content-type")
             ),
+            Time.utcSupplier()
+        );
+
+        LocalLambda localLambda = new LocalLambda(
+            settings,
             executor("aws-L", 10),
             executor("aws-S", 10)
         );
+
         Env env = Env.actual();
+
         LambdaClientSettings clientSettings =
             new LambdaClientSettings(env, Time.utcSupplier());
+
+        TaninimSettings taninimSettings = new TaninimSettings(
+            Duration.ofDays(1),
+            Duration.ofHours(1),
+            1024 * 1024
+        );
+
         LambdaHandler yellin = YellinLambdaHandler.handler(
             clientSettings,
-            new TaninimSettings(
-                Duration.ofDays(1),
-                Duration.ofHours(1),
-                1024 * 1024
-            ),
+            taninimSettings,
             new DefaultS3AccessorFactory(env, executor("S3", 10)),
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
@@ -64,6 +71,7 @@ public final class LocalLambdaYellin {
             yellin,
             executor("L", 10)
         );
+
         ExecutorService executor = executor("runner", 2);
 
         executor.submit(localLambda);
