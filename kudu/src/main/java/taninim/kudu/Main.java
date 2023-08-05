@@ -3,6 +3,7 @@ package taninim.kudu;
 import java.time.Duration;
 
 import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -10,12 +11,15 @@ import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
-
 public final class Main {
 
     @SuppressWarnings("MagicNumber")
     public static void main(String[] args) {
+        ManagedExecutors.configure(
+            10,
+            32,
+            10
+        );
         LambdaClientSettings clientSettings =
             new LambdaClientSettings(ENV, Time.utcSupplier());
         TaninimSettings taninimSettings = new TaninimSettings(
@@ -25,7 +29,7 @@ public final class Main {
         );
         S3AccessorFactory s3 = new DefaultS3AccessorFactory(
             ENV,
-            executor("S3", 10)
+            ManagedExecutors.executor("S3")
         );
         new DefaultLamdbdaManaged(
             ENV.awsLambdaUri(),
@@ -35,7 +39,7 @@ public final class Main {
                 taninimSettings,
                 s3
             ),
-            executor("L", 10)
+            ManagedExecutors.executor("L")
         ).run();
     }
 

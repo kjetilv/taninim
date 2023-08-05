@@ -114,8 +114,10 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     }
 
     private List<Uuid> tracks(UserAuth userAuth, Instant time) {
-        return userAuth.albumLeases().stream()
-            .flatMap(auth -> auth.validAt(time).stream())
+        return userAuth.albumLeases()
+            .stream()
+            .flatMap(auth -> auth.validAt(time)
+                .stream())
             .flatMap(this::trackUuids)
             .toList();
     }

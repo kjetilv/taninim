@@ -8,6 +8,7 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -16,12 +17,16 @@ import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.kudu.KuduLambdaHandler;
 
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
-
 @SuppressWarnings({ "MagicNumber", "resource" })
 public final class LocalLambdaKudu {
 
     public static void main(String[] args) {
+        ManagedExecutors.configure(
+            10,
+            32,
+            10
+        );
+
         CorsSettings corsSettings = new CorsSettings(
             List.of("https://tanin.im:5173"),
             List.of("GET"),
@@ -39,8 +44,8 @@ public final class LocalLambdaKudu {
 
         LocalLambda localLambda = new LocalLambda(
             settings,
-            executor("aws-L", 10),
-            executor("aws-S", 10)
+            ManagedExecutors.executor("aws-L"),
+            ManagedExecutors.executor("aws-S")
         );
 
         Env env = Env.actual();
@@ -57,17 +62,17 @@ public final class LocalLambdaKudu {
         LambdaHandler handler = KuduLambdaHandler.create(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(env, executor("S3", 10))
+            new DefaultS3AccessorFactory(env, ManagedExecutors.executor("S3"))
         );
 
         Runnable lamdbdaManaged = new DefaultLamdbdaManaged(
             localLambda.getLambdaUri(),
             clientSettings,
             handler,
-            executor("L", 10)
+            ManagedExecutors.executor("L")
         );
 
-        ExecutorService executor = executor("runner", 2);
+        ExecutorService executor = ManagedExecutors.executor("runner");
 
         executor.submit(localLambda);
         executor.submit(lamdbdaManaged);

@@ -26,6 +26,11 @@ import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 public final class LocalLambdaYellin {
 
     public static void main(String[] args) {
+        ManagedExecutors.configure(
+            10,
+            32,
+            10
+        );
         Flogs.initialize(ManagedExecutors.threadNamer());
 
         LocalLambdaSettings settings = new LocalLambdaSettings(
@@ -43,8 +48,8 @@ public final class LocalLambdaYellin {
 
         LocalLambda localLambda = new LocalLambda(
             settings,
-            executor("aws-L", 10),
-            executor("aws-S", 10)
+            executor("aws-L"),
+            executor("aws-S")
         );
 
         Env env = Env.actual();
@@ -61,7 +66,7 @@ public final class LocalLambdaYellin {
         LambdaHandler yellin = YellinLambdaHandler.handler(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(env, executor("S3", 10)),
+            new DefaultS3AccessorFactory(env, executor("S3")),
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
 
@@ -69,7 +74,7 @@ public final class LocalLambdaYellin {
             localLambda.getLambdaUri(),
             clientSettings,
             yellin,
-            executor("L", 10)
+            executor("L")
         );
 
         ExecutorService executor = executor("runner", 2);

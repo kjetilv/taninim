@@ -1,10 +1,12 @@
 package taninim.music.legal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.github.kjetilv.uplift.s3.S3Accessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import taninim.music.aural.Chunk;
+import taninim.music.medias.MediaLibrary;
+
+import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -13,12 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import com.github.kjetilv.uplift.s3.S3Accessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import taninim.music.aural.Chunk;
-import taninim.music.medias.MediaLibrary;
 
 import static java.util.Objects.requireNonNull;
 
@@ -52,7 +48,8 @@ public final class CloudMediaLibrary implements MediaLibrary {
             Cached<byte[]> lastCached = fileCache.get(file);
             return needsUpdate(info, lastCached)
                 ? update(time.get(), file, info, getLastValidTime(lastCached))
-                : lastCached.optionalData().map(ByteArrayInputStream::new);
+                : lastCached.optionalData()
+                    .map(ByteArrayInputStream::new);
         });
     }
 
@@ -145,15 +142,17 @@ public final class CloudMediaLibrary implements MediaLibrary {
         Supplier<Optional<T>> refresher
     ) {
         return Optional.ofNullable(
-            map.compute(key, (__, cached) ->
-                Optional.ofNullable(cached)
-                    .filter(c ->
-                        !c.outdatedAt(lastValidTime))
-                    .or(() ->
-                        refresher.get().map(t ->
-                            new Cached<>(time, t)))
-                    .orElse(null))
-        ).map(Cached::data);
+                map.compute(key, (__, cached) ->
+                    Optional.ofNullable(cached)
+                        .filter(c ->
+                            !c.outdatedAt(lastValidTime))
+                        .or(() ->
+                            refresher.get()
+                                .map(t ->
+                                    new Cached<>(time, t)))
+                        .orElse(null))
+            )
+            .map(Cached::data);
     }
 
     private record Cached<T>(
