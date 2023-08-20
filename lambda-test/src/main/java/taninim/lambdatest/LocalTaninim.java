@@ -25,7 +25,9 @@ import taninim.fb.FbAuthenticator;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.yellin.YellinLambdaHandler;
 
-@SuppressWarnings({ "MagicNumber", "resource" })
+import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
+
+@SuppressWarnings({ "MagicNumber" })
 public final class LocalTaninim {
 
     public static void main(String[] args) {
@@ -34,7 +36,7 @@ public final class LocalTaninim {
             10,
             10
         );
-        Flogs.initialize(ManagedExecutors.threadNamer());
+        Flogs.initialize(DEBUG, ManagedExecutors.executor("logger", 1));
 
         Env env = Env.actual();
         Supplier<Instant> time = Time.utcSupplier();
@@ -47,12 +49,12 @@ public final class LocalTaninim {
             kuduSize
         );
         CorsSettings kuduCors = new CorsSettings(
-            List.of("https://tanin.im:5173"),
+            List.of("https://tanin.im:5173", "https://kjetilv.github.io"),
             List.of("GET"),
             List.of("content-type", "range")
         );
         CorsSettings yellinCors = new CorsSettings(
-            List.of("https://tanin.im:5173"),
+            List.of("https://tanin.im:5173", "https://kjetilv.github.io"),
             List.of("POST", "DELETE"),
             List.of("content-type")
         );

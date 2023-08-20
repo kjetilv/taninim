@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
+import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
@@ -22,7 +23,7 @@ import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 
-@SuppressWarnings({ "MagicNumber", "resource" })
+@SuppressWarnings({ "MagicNumber" })
 public final class LocalLambdaYellin {
 
     public static void main(String[] args) {
@@ -31,7 +32,7 @@ public final class LocalLambdaYellin {
             32,
             10
         );
-        Flogs.initialize(ManagedExecutors.threadNamer());
+        Flogs.initialize(LogLevel.DEBUG, ManagedExecutors.executor("logging"));
 
         LocalLambdaSettings settings = new LocalLambdaSettings(
             9001,

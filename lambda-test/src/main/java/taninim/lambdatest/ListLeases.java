@@ -22,7 +22,8 @@ import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 public final class ListLeases {
 
     public static void main(String[] args) {
-        Flogs.initialize(ManagedExecutors.threadNamer());
+        ManagedExecutors.configure(4, 10);
+        Flogs.initialize(ManagedExecutors.backgroundLogging());
 
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executor("SL"));
         Archives archives = new S3Archives(s3Accessor);
@@ -38,7 +39,6 @@ public final class ListLeases {
                     userAuth.albumLeases().forEach(lease ->
                         System.out.println(
                             "      " + lease.albumId() + " @ " + lease.expiry()));
-                    //                        s3Accessor.remove("auth-digest.bin");
                 });
             });
 
@@ -65,6 +65,7 @@ public final class ListLeases {
                     }
                 });
             });
+        Flogs.close();
     }
 
     private static final long SECONDS_PER_HOUR = Duration.ofHours(1).toSeconds();

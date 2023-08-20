@@ -4,7 +4,7 @@ import com.github.kjetilv.uplift.plugins.NativeLamdbdaTask
 
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.github.kjetilv.uplift.plugins.native") version "0.1.1-SNAPSHOT"
+    id("com.github.kjetilv.uplift.plugins.lambda") version "0.1.1-SNAPSHOT"
     `maven-publish`
 }
 
@@ -31,5 +31,4 @@ tasks.withType<ShadowJar> {
     }
     mergeServiceFiles()
     minimize()
-    dependsOn("build")
 }

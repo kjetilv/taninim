@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
-import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.music.medias.AlbumTrackIds;
@@ -245,9 +244,9 @@ class Lambdas2Test {
             int end = start + 1;
             return stream(token, track1a, "bytes=" + start + "-" + end);
         }).parallel().forEach(action -> {
-            HttpResponse<String> join = action.join();
-            assertThat(join.statusCode()).isEqualTo(206);
-            assertThat(join.headers().firstValueAsLong("Content-Length")).hasValue(2L);
+            HttpResponse<String> response = action.join();
+            assertThat(response.statusCode()).isEqualTo(206);
+            assertThat(response.headers().firstValueAsLong("Content-Length")).hasValue(2L);
         });
     }
 
@@ -380,8 +379,11 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
-        LeaseRequest value = new LeaseRequest(userId, token.digest(), album.digest());
-        return yr.path("/lease").execute(method, value);
+        return yr.path("/lease").execute(method, Map.of(
+            "userId", userId,
+            "token", token.digest(),
+            "album", album.digest()
+        ));
     }
 
     private void setTime(Instant time) {
@@ -670,13 +672,16 @@ class Lambdas2Test {
         }
     }
 
-    private static ExtAuthResponse extAuthResponse(String userId) {
-        return new ExtAuthResponse(
-            userId,
-            Uuid.random().digest(),
-            Uuid.random().digest(),
-            Duration.ofHours(1),
-            BigInteger.valueOf(Instant.now().getEpochSecond()).add(BigInteger.valueOf(Duration.ofHours(1).getSeconds()))
+    private static Map<String, Object> extAuthResponse(String userId) {
+        BigInteger expirationTime =
+            BigInteger.valueOf(Instant.now().getEpochSecond())
+                .add(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
+        return Map.of(
+            "userID", userId,
+            "accessToken", Uuid.random().digest(),
+            "signedRequest", Uuid.random().digest(),
+            "expiresIn", Duration.ofHours(1),
+            "data_access_expiration_time", expirationTime
         );
     }
 

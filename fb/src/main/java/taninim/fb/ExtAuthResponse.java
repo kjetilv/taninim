@@ -15,24 +15,48 @@ public record ExtAuthResponse(
 
     public static ExtAuthResponse from(
         String body,
-        Function<? super String, ? extends Map<String, Object>> jsonParser
+        Function<? super String, ? extends Map<String, Object>> parser
     ) {
         if (body == null || body.isBlank()) {
             throw new IllegalArgumentException("No data");
         }
         try {
-            Function<String, String> f = lookup(body, jsonParser).andThen(String::valueOf);
+            Function<String, String> f = lookup(body, parser).andThen(String::valueOf);
+            Duration expiresInTime;
+            try {
+                expiresInTime = Duration.parse(f.apply(EXPIRES_IN));
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                    "Could not parse duration: " + f.apply(EXPIRES_IN), e);
+            }
+            BigInteger expirationTime;
+            try {
+                expirationTime = new BigInteger(f.apply(DATA_ACCESS_EXPIRATION_TIME));
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                    "Could not parse expiry time: " + f.apply(DATA_ACCESS_EXPIRATION_TIME), e);
+            }
             return new ExtAuthResponse(
-                f.apply("userID"),
-                f.apply("accessToken"),
-                f.apply("signedRequest"),
-                Duration.parse("PT%sS".formatted(f.apply("expiresIn"))),
-                new BigInteger(f.apply("data_access_expiration_time"))
+                f.apply(USER_ID),
+                f.apply(ACCESS_TOKEN),
+                f.apply(SIGNED_REQUEST),
+                expiresInTime,
+                expirationTime
             );
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read auth: " + body, e);
         }
     }
+
+    private static final String DATA_ACCESS_EXPIRATION_TIME = "data_access_expiration_time";
+
+    private static final String EXPIRES_IN = "expiresIn";
+
+    private static final String ACCESS_TOKEN = "accessToken";
+
+    private static final String USER_ID = "userID";
+
+    private static final String SIGNED_REQUEST = "signedRequest";
 
     private static Function<String, Object> lookup(
         String body, Function<? super String, ? extends Map<String, Object>> jsonParser

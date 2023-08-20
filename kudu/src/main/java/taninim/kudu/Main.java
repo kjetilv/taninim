@@ -2,6 +2,8 @@ package taninim.kudu;
 
 import java.time.Duration;
 
+import com.github.kjetilv.uplift.flogs.LogLevel;
+import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
@@ -19,6 +21,10 @@ public final class Main {
             10,
             32,
             10
+        );
+        Flogs.initialize(
+            LogLevel.DEBUG,
+            ManagedExecutors.executor("logger", 1)
         );
         LambdaClientSettings clientSettings =
             new LambdaClientSettings(ENV, Time.utcSupplier());
@@ -41,6 +47,7 @@ public final class Main {
             ),
             ManagedExecutors.executor("L")
         ).run();
+        Flogs.close();
     }
 
     private static final Env ENV = Env.actual();
