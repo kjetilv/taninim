@@ -21,27 +21,13 @@ public record ExtAuthResponse(
             throw new IllegalArgumentException("No data");
         }
         try {
-            Function<String, String> f = lookup(body, parser).andThen(String::valueOf);
-            Duration expiresInTime;
-            try {
-                expiresInTime = Duration.parse(f.apply(EXPIRES_IN));
-            } catch (Exception e) {
-                throw new IllegalStateException(
-                    "Could not parse duration: " + f.apply(EXPIRES_IN), e);
-            }
-            BigInteger expirationTime;
-            try {
-                expirationTime = new BigInteger(f.apply(DATA_ACCESS_EXPIRATION_TIME));
-            } catch (Exception e) {
-                throw new IllegalStateException(
-                    "Could not parse expiry time: " + f.apply(DATA_ACCESS_EXPIRATION_TIME), e);
-            }
+            Function<String, String> lookup = lookup(body, parser).andThen(String::valueOf);
             return new ExtAuthResponse(
-                f.apply(USER_ID),
-                f.apply(ACCESS_TOKEN),
-                f.apply(SIGNED_REQUEST),
-                expiresInTime,
-                expirationTime
+                lookup.apply(USER_ID),
+                lookup.apply(ACCESS_TOKEN),
+                lookup.apply(SIGNED_REQUEST),
+                duration(lookup, EXPIRES_IN),
+                expiration(lookup, DATA_ACCESS_EXPIRATION_TIME)
             );
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read auth: " + body, e);
@@ -72,6 +58,27 @@ public record ExtAuthResponse(
         }
         return key ->
             map.getOrDefault(key, "");
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static Duration duration(Function<String, String> f, String key) {
+        String value = f.apply(key);
+        try {
+            return Duration.parse(value.startsWith("PT") ? value : "PT%sS".formatted(value));
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                "Could not parse duration: " + value, e);
+        }
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static BigInteger expiration(Function<String, String> f, String key) {
+        String value = f.apply(key);
+        try {
+            return new BigInteger(value);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not parse expiry time: " + value, e);
+        }
     }
 
     @Override
