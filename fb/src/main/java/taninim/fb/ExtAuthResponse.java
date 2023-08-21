@@ -62,12 +62,11 @@ public record ExtAuthResponse(
 
     @SuppressWarnings("SameParameterValue")
     private static Duration duration(Function<String, String> f, String key) {
-        String value = f.apply(key);
         try {
-            return Duration.parse(value.startsWith("PT") ? value : "PT%sS".formatted(value));
+            return Duration.parse( "PT%sS".formatted(f.apply(key)));
         } catch (Exception e) {
             throw new IllegalStateException(
-                "Could not parse duration: " + value, e);
+                "Could not parse duration: " + f.apply(key), e);
         }
     }
 

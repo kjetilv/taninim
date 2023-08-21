@@ -680,7 +680,7 @@ class Lambdas2Test {
             "userID", userId,
             "accessToken", Uuid.random().digest(),
             "signedRequest", Uuid.random().digest(),
-            "expiresIn", Duration.ofHours(1),
+            "expiresIn", Duration.ofHours(1).toSeconds(),
             "data_access_expiration_time", expirationTime
         );
     }
