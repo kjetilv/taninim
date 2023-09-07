@@ -712,7 +712,8 @@ class Lambdas2Test {
         String name,
         String userId,
         String token,
-        List<String> trackUUIDs
+        List<String> trackUUIDs,
+        Long expiry
     ) {
 
     }
@@ -729,7 +730,8 @@ class Lambdas2Test {
         String name,
         String userId,
         String token,
-        List<String> trackUUIDs
+        List<String> trackUUIDs,
+        Long expiry
     ) {
 
     }

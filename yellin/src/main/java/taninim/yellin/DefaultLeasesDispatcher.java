@@ -53,23 +53,17 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     }
 
     @Override
-    public Optional<LeasesActivationResult> currentLease(ExtAuthResponse extAuthResponse, boolean create) {
-        Instant time = this.time.get();
-        Optional<ExtUser> authenticate = authenticator.authenticate(extAuthResponse);
-        if (authenticate.isEmpty()) {
-            return Optional.empty();
-        }
-        ExtUser fbUser = authenticate.get();
-        return authorizer.login(fbUser.id(), create)
-            .filter(userAuth ->
-                userAuth.validAt(time))
-            .map(userAuth ->
-                initialActivation(fbUser, userAuth, time))
-            .map(this::storeActivated);
+    public Optional<LeasesActivation> currentLease(ExtAuthResponse extAuthResponse) {
+        return currentOrRefreshed(extAuthResponse, false);
     }
 
     @Override
-    public Optional<LeasesActivationResult> requestLease(LeasesRequest leasesRequest) {
+    public Optional<LeasesActivation> createLease(ExtAuthResponse extAuthResponse) {
+        return currentOrRefreshed(extAuthResponse, true);
+    }
+
+    @Override
+    public Optional<LeasesActivation> requestLease(LeasesRequest leasesRequest) {
         Instant time = this.time.get();
         return authorizer.login(leasesRequest.userId(), false)
             .filter(userAuth ->
@@ -82,50 +76,78 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     }
 
     @Override
-    public Optional<LeasesActivationResult> dismissLease(LeasesRequest leasesRequest) {
+    public Optional<LeasesActivation> dismissLease(LeasesRequest leasesRequest) {
         return authorizer.deauthorize(userRequest(leasesRequest))
             .map(this::requestedDismissal)
             .map(this::storeActivated);
     }
 
+    private Optional<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
+        Instant time = this.time.get();
+        return authenticator.authenticate(extAuthResponse).flatMap(auth ->
+            authorizer.login(auth.id(), refresh)
+                .filter(userAuth ->
+                    userAuth.validAt(time))
+                .map(userAuth ->
+                    initialActivation(auth, userAuth, time))
+                .map(this::storeActivated));
+    }
+
     private LeasesActivation initialActivation(ExtUser fbUser, UserAuth userAuth, Instant time) {
-        return new LeasesActivation(fbUser.name(), fbUser.id(), userAuth.token(), tracks(userAuth, time));
+        return new LeasesActivation(
+            fbUser.name(),
+            fbUser.id(),
+            userAuth.token(),
+            tracks(userAuth, time),
+            userAuth.expiry()
+        );
     }
 
     private LeasesActivation requestedActivation(UserAuth userAuth, LeasesRequest leasesRequest, Instant time) {
-        return new LeasesActivation(null, leasesRequest.userId(), leasesRequest.token(), tracks(userAuth, time));
+        return new LeasesActivation(
+            null,
+            leasesRequest.userId(),
+            leasesRequest.token(),
+            tracks(userAuth, time),
+            userAuth.expiry()
+        );
     }
 
     private LeasesActivation requestedDismissal(UserAuth deauthorized) {
         return new LeasesActivation(
             null,
             deauthorized.userId(),
-            tracks(deauthorized, time.get())
+            tracks(deauthorized, time.get()),
+            deauthorized.expiry()
         );
     }
 
-    private LeasesActivationResult storeActivated(LeasesActivation activation) {
+    private LeasesActivation storeActivated(LeasesActivation activation) {
         Period period = new Period(time.get(), leaseTime);
-        LeasesPath active = leasesRegistry.getActive(activation.token()).orElseGet(() ->
-                leasesRegistry.setActive(new Leases(activation.token()), period))
-            .withTracks(activation.trackUUIDs(), period.getLapse());
-        LeasesPath leasesPath = leasesRegistry.setActive(active.leases(), period);
-        return new LeasesActivationResult(activation, leasesPath);
+        LeasesPath leasesPath = leasesRegistry.getActive(activation.token())
+            .orElseGet(() ->
+                leasesRegistry.setActive(new Leases(activation.token()), period));
+        LeasesPath activePath = leasesPath.withTracks(activation.trackUUIDs(), period.getLapse());
+        leasesRegistry.setActive(activePath.leases(), period);
+        return activation;
     }
 
     private List<Uuid> tracks(UserAuth userAuth, Instant time) {
-        return userAuth.albumLeases()
-            .stream()
-            .flatMap(auth -> auth.validAt(time)
-                .stream())
+        return userAuth.albumLeases().stream().filter(auth ->
+                auth.validAt(time))
             .flatMap(this::trackUuids)
             .toList();
     }
 
     private Stream<Uuid> trackUuids(UserAuth.AlbumLease auth) {
-        return Optional.ofNullable(mediaIds.get().albumTracks().get(auth.albumId()))
-            .orElseGet(Collections::emptyList)
-            .stream();
+        if (auth == null ) {
+            throw new IllegalArgumentException("Null auth");
+        }
+        List<Uuid> value = mediaIds.get().albumTracks().get(auth.albumId());
+        if (value == null) {
+            return Stream.empty();
+        }
+        return value.stream();
     }
 
     private static UserRequest userRequest(LeasesRequest leasesRequest) {

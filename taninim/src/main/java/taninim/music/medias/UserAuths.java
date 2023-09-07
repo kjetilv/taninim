@@ -63,12 +63,16 @@ public record UserAuths(List<UserAuth> userAuths) implements BinaryWritable {
         return new UserAuths(grouped.entrySet()
             .stream()
             .map(entry ->
-                entry.getValue().stream()
-                    .sorted(Comparator.naturalOrder())
-                    .reduce(UserAuth::combine)
-                    .orElseThrow(() ->
-                        new IllegalStateException("Execpted auths for " + entry.getKey())))
+                auths(entry.getKey(), entry.getValue()))
             .toList());
+    }
+
+    private static UserAuth auths(String name, List<UserAuth> auths) {
+        return auths.stream()
+            .sorted(Comparator.naturalOrder())
+            .reduce(UserAuth::combine)
+            .orElseThrow(() ->
+                new IllegalStateException("Execpted auths for " + name));
     }
 
     public Optional<UserAuth> forUser(String userId) {

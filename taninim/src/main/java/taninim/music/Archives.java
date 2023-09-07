@@ -25,16 +25,28 @@ public interface Archives {
 
     record ArchivedRecord(
         String path,
-        List<String> contents
+        List<String> contents,
+        int length
     ) {
 
+        public ArchivedRecord(String path, List<String> contents) {
+            this(path, contents, -1);
+        }
+
+        public ArchivedRecord(String path, List<String> contents, int length) {
+            this.path = path;
+            this.contents = contents.stream()
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
+            this.length = length < 0 ? this.contents.stream().mapToInt(String::length).sum() : length;
+        }
+
         public String body() {
-            StringBuilder stringBuilder = new StringBuilder();
-            contents.forEach(line -> {
-                stringBuilder.append(line.trim());
-                stringBuilder.append('\n');
-            });
-            return stringBuilder.append('\n').toString();
+            StringBuilder sb = new StringBuilder(length + contents.size());
+            contents.forEach(line ->
+                sb.append(line.trim()).append('\n'));
+            return sb.toString();
         }
 
         private static String printEntry(String spec) {
@@ -46,12 +58,16 @@ public interface Archives {
 
         @Override
         public String toString() {
-            return getClass().getSimpleName() + "[" + path + (contents == null || contents.isEmpty()
+            return getClass().getSimpleName() + "[" + path + (empty()
                 ? ""
                 : ": " + contents.stream()
                     .map(ArchivedRecord::printEntry)
                     .map(String::valueOf)
                     .collect(Collectors.joining(" "))) + "]";
+        }
+
+        private boolean empty() {
+            return contents == null || contents.isEmpty() || contents.stream().allMatch(String::isBlank);
         }
     }
 }

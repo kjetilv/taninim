@@ -26,8 +26,9 @@ dependencies {
 
 apply<NativeLambdaPlugin>()
 
-tasks.getByName<NativeLamdbdaTask>("native-lambda")
-    .dependsOn("shadowJar")
+tasks.withType<NativeLamdbdaTask> {
+    dependsOn("shadowJar")
+}
 
 tasks.withType<ShadowJar> {
     manifest {
@@ -35,4 +36,5 @@ tasks.withType<ShadowJar> {
     }
     mergeServiceFiles()
     minimize()
+    dependsOn("build")
 }

@@ -1,5 +1,6 @@
 package taninim.yellin;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.github.kjetilv.uplift.json.Json;
@@ -10,9 +11,9 @@ import com.github.kjetilv.uplift.lambda.LambdaResult;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import org.slf4j.Logger;
+import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
-import taninim.TaninimSettings;
 
 import static com.github.kjetilv.uplift.lambda.LambdaResult.status;
 import static java.util.Map.entry;
@@ -38,22 +39,15 @@ public final class YellinLambdaHandler implements LambdaHandler {
             taninimSettings.leaseDuration(),
             authenticator
         );
-        ActivationSerializer activationSerializer =
-            activationSerializer(s3Accessor);
-        return new YellinLambdaHandler(
-            leasesDispatcher,
-            activationSerializer
-        );
+        ActivationSerializer activationSerializer = activationSerializer(s3Accessor);
+        return new YellinLambdaHandler(leasesDispatcher, activationSerializer);
     }
 
     private final LeasesDispatcher leasesDispatcher;
 
     private final ActivationSerializer activationSerializer;
 
-    private YellinLambdaHandler(
-        LeasesDispatcher leasesDispatcher,
-        ActivationSerializer activationSerializer
-    ) {
+    private YellinLambdaHandler(LeasesDispatcher leasesDispatcher, ActivationSerializer activationSerializer) {
         this.leasesDispatcher = requireNonNull(leasesDispatcher, "ticketDispatcher");
         this.activationSerializer = requireNonNull(activationSerializer, "activationSerializer");
     }
@@ -65,19 +59,15 @@ public final class YellinLambdaHandler implements LambdaHandler {
         if (body == null) {
             return error("No body in request: {}", BAD_REQUEST);
         }
-
         if (lambdaPayload.isExactly("post", "/auth")) {
             return authenticate(body);
         }
-
         if (lambdaPayload.isExactly("post", "/lease")) {
             return addLease(body);
         }
-
         if (lambdaPayload.isExactly("delete", "/lease")) {
             return removeLease(body);
         }
-
         return error("No such handler: {}", NOT_FOUND);
     }
 
@@ -86,17 +76,16 @@ public final class YellinLambdaHandler implements LambdaHandler {
             ExtAuthResponse.from(body, Json.STRING_2_JSON_MAP);
         return leasesDispatcher.createLease(extAuthResponse)
             .map(result ->
-                result(activationSerializer.jsonBody(result.leasesActivation())))
+                result(activationSerializer.jsonBody(result)))
             .orElseGet(
                 errorSupplier("Failed to authenticate: {}", UNAUTHORIZED));
     }
 
     private LambdaResult addLease(String body) {
-        LeasesRequest leasesRequest =
-            LeasesRequest.acquire(body, Json.STRING_2_JSON_MAP);
-        return leasesDispatcher.requestLease(leasesRequest)
-            .map(result ->
-                result(activationSerializer.jsonBody(result.leasesActivation())))
+        LeasesRequest leasesRequest = LeasesRequest.acquire(body, Json.STRING_2_JSON_MAP);
+        Optional<LeasesActivation> leasesActivation = leasesDispatcher.requestLease(leasesRequest);
+        return leasesActivation.map(activation ->
+                result(activationSerializer.jsonBody(activation)))
             .orElseGet(
                 errorSupplier("Failed to add lease: {}", BAD_REQUEST));
     }
@@ -106,7 +95,7 @@ public final class YellinLambdaHandler implements LambdaHandler {
             LeasesRequest.release(body, Json.STRING_2_JSON_MAP);
         return leasesDispatcher.dismissLease(leasesRequest)
             .map(result ->
-                result(activationSerializer.jsonBody(result.leasesActivation())))
+                result(activationSerializer.jsonBody(result)))
             .orElseGet(
                 errorSupplier("Failed to remove lease: {}", BAD_REQUEST));
     }

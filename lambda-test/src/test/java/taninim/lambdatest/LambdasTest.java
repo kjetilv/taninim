@@ -38,7 +38,6 @@ import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
 import taninim.music.medias.MediaLibrary;
 import taninim.yellin.LeasesActivation;
-import taninim.yellin.LeasesActivationResult;
 import taninim.yellin.LeasesDispatcher;
 import taninim.yellin.LeasesRequest;
 import taninim.yellin.Yellin;
@@ -64,7 +63,6 @@ class LambdasTest {
         void noRentIntime() {
             Uuid firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivationResult::leasesActivation)
                     .map(LeasesActivation::token)
                     .orElseThrow();
 
@@ -84,7 +82,6 @@ class LambdasTest {
 
             Uuid firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivationResult::leasesActivation)
                     .map(LeasesActivation::token)
                     .orElseThrow();
 
@@ -93,8 +90,8 @@ class LambdasTest {
             assertThat(leasesDispatcher.requestLease(
                 new LeasesRequest(userId, firstToken, ACQUIRE, album2))
             ).hasValueSatisfying(activation -> {
-                assertThat(activation.leasesActivation().token()).isEqualTo(firstToken);
-                assertThat(activation.leasesActivation().trackUUIDs()).describedAs(
+                assertThat(activation.token()).isEqualTo(firstToken);
+                assertThat(activation.trackUUIDs()).describedAs(
                     "Expected three tracks and definitely not album " +
                         "UUID %s",
                     album2
@@ -111,8 +108,8 @@ class LambdasTest {
 
             assertThat(leasesDispatcher.currentLease(authResponse(userId)))
                 .hasValueSatisfying(result -> {
-                    assertThat(result.leasesActivation().token()).isEqualTo(firstToken);
-                    assertThat(result.leasesActivation().trackUUIDs()).describedAs(
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
                         "Expected three tracks and definitely not album " +
                             "UUID %s",
                         album2
@@ -130,14 +127,13 @@ class LambdasTest {
         void rentAndTimeoutPlay() {
             Uuid firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivationResult::leasesActivation)
                     .map(LeasesActivation::token)
                     .orElseThrow();
             assertThat(leasesDispatcher.requestLease(
                 new LeasesRequest(userId, firstToken, ACQUIRE, album2)
             )).hasValueSatisfying(result -> {
-                assertThat(result.leasesActivation().token()).isEqualTo(firstToken);
-                assertThat(result.leasesActivation().trackUUIDs()).describedAs(
+                assertThat(result.token()).isEqualTo(firstToken);
+                assertThat(result.trackUUIDs()).describedAs(
                     "Expected two tracks and definitely not album UUID %s",
                     album2
                 ).containsExactly(
@@ -150,8 +146,8 @@ class LambdasTest {
             tick(Duration.ofMinutes(leaseDuration.toMinutes() / 2));
 
             assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
-                assertThat(result.leasesActivation().token()).isEqualTo(firstToken);
-                assertThat(result.leasesActivation().trackUUIDs()).describedAs(
+                assertThat(result.token()).isEqualTo(firstToken);
+                assertThat(result.trackUUIDs()).describedAs(
                     "Expected three tracks and definitely not album UUID %s",
                     album2
                 ).containsExactly(
@@ -165,8 +161,8 @@ class LambdasTest {
 
             assertThat(leasesDispatcher.createLease(authResponse(userId)))
                 .hasValueSatisfying(result -> {
-                    assertThat(result.leasesActivation().token()).isNotEqualTo(firstToken);
-                    assertThat(result.leasesActivation().trackUUIDs()).describedAs("Expected timed-out rental")
+                    assertThat(result.token()).isNotEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs("Expected timed-out rental")
                         .isEmpty();
                 });
         }
@@ -174,7 +170,6 @@ class LambdasTest {
         void rentAndPlayThenTimeout() {
             Uuid firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivationResult::leasesActivation)
                     .map(LeasesActivation::token)
                     .orElseThrow();
             leasesDispatcher.requestLease(new LeasesRequest(userId, firstToken, ACQUIRE, album2));
@@ -209,16 +204,16 @@ class LambdasTest {
             @Test
             void lookupExisting() {
                 assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
-                    assertThat(result.leasesActivation().trackUUIDs()).isEmpty();
+                    assertThat(result.trackUUIDs()).isEmpty();
                     LeasesRequest leasesRequest = new LeasesRequest(
                         userId,
-                        result.leasesActivation().token(),
+                        result.token(),
                         ACQUIRE,
                         album1
                     );
                     assertThat(leasesDispatcher.requestLease(leasesRequest))
                         .hasValueSatisfying(requestResult ->
-                            assertThat(requestResult.leasesActivation().trackUUIDs()).describedAs(
+                            assertThat(requestResult.trackUUIDs()).describedAs(
                                 "Expected two tracks and definitely not album UUID %s",
                                 album1
                             ).containsExactly(track1a, track1b));
@@ -229,14 +224,13 @@ class LambdasTest {
             void failedRent() {
                 assertThat(leasesDispatcher.createLease(authResponse(userId)))
                     .hasValueSatisfying(result ->
-                        assertThat(result.leasesActivation().isEmpty()).isTrue());
+                        assertThat(result.isEmpty()).isTrue());
             }
 
             @Test
             void rentAndReauth() {
                 Uuid firstToken =
                     leasesDispatcher.createLease(authResponse(userId))
-                        .map(LeasesActivationResult::leasesActivation)
                         .map(LeasesActivation::token)
                         .orElseThrow();
                 assertThat(leasesDispatcher.requestLease(new LeasesRequest(
@@ -245,8 +239,8 @@ class LambdasTest {
                     ACQUIRE,
                     album2
                 ))).hasValueSatisfying(result -> {
-                    assertThat(result.leasesActivation().token()).isEqualTo(firstToken);
-                    assertThat(result.leasesActivation().trackUUIDs()).describedAs(
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
                         "Expected two tracks and definitely not album " +
                             "UUID %s",
                         album2
@@ -257,8 +251,8 @@ class LambdasTest {
                     );
                 });
                 assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
-                    assertThat(result.leasesActivation().token()).isEqualTo(firstToken);
-                    assertThat(result.leasesActivation().trackUUIDs()).describedAs(
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
                         "Expected three tracks and definitely not album " +
                             "UUID %s",
                         album2
@@ -274,7 +268,6 @@ class LambdasTest {
             void rentAndRelease() {
                 Uuid firstToken =
                     leasesDispatcher.createLease(authResponse(userId))
-                        .map(LeasesActivationResult::leasesActivation)
                         .map(LeasesActivation::token)
                         .orElseThrow();
                 assertThat(leasesDispatcher.requestLease(new LeasesRequest(
@@ -283,8 +276,8 @@ class LambdasTest {
                     ACQUIRE,
                     album2
                 ))).hasValueSatisfying(result -> {
-                    assertThat(result.leasesActivation().token()).isEqualTo(firstToken);
-                    assertThat(result.leasesActivation().trackUUIDs()).describedAs(
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
                         "Expected three tracks and definitely not album " +
                             "UUID %s",
                         album2
@@ -301,19 +294,18 @@ class LambdasTest {
                     RELEASE,
                     album2
                 ))).hasValueSatisfying(result ->
-                    assertThat(result.leasesActivation().trackUUIDs()).isEmpty());
+                    assertThat(result.trackUUIDs()).isEmpty());
             }
 
             @Test
             void rentAndPlay() {
                 Uuid firstToken = leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivationResult::leasesActivation)
                     .map(LeasesActivation::token)
                     .orElseThrow();
                 assertThat(
                     leasesDispatcher.requestLease(new LeasesRequest(userId, firstToken, ACQUIRE, album2))
                 ).hasValueSatisfying(result ->
-                    assertThat(result.leasesActivation().trackUUIDs()).hasSize(3));
+                    assertThat(result.trackUUIDs()).hasSize(3));
 
                 Track track = new Track(track2b, Track.Format.M4A);
                 TrackRange trackRange = new TrackRange(track, new Range(0L, 10L).withLength(256L), firstToken);
@@ -341,17 +333,17 @@ class LambdasTest {
             setupDispatcher();
             assertThat(leasesDispatcher.createLease(authResponse(userId)))
                 .hasValueSatisfying(result ->
-                    assertThat(result.leasesActivation().isEmpty()).isTrue());
+                    assertThat(result.isEmpty()).isTrue());
         }
 
         @Test
         void authUserShouldProduceRecord() {
             setupDispatcher();
             assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
-                assertThat(result.leasesActivation().isEmpty()).isTrue();
+                assertThat(result.isEmpty()).isTrue();
                 assertThat(leasesDispatcher.createLease(authResponse(userId)))
-                    .hasValueSatisfying(reauth ->
-                        assertThat(reauth.leasesActivation().token()).isEqualTo(result.leasesActivation().token()));
+                    .hasValueSatisfying(activation ->
+                        assertThat(activation.token()).isEqualTo(result.token()));
             });
         }
     }

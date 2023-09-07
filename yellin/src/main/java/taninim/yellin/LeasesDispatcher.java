@@ -6,17 +6,11 @@ import taninim.fb.ExtAuthResponse;
 
 public interface LeasesDispatcher {
 
-    default Optional<LeasesActivationResult> currentLease(ExtAuthResponse extAuthResponse) {
-        return currentLease(extAuthResponse, false);
-    }
+    Optional<LeasesActivation> currentLease(ExtAuthResponse extAuthResponse);
 
-    default Optional<LeasesActivationResult> createLease(ExtAuthResponse extAuthResponse) {
-        return currentLease(extAuthResponse, true);
-    }
+    Optional<LeasesActivation> createLease(ExtAuthResponse extAuthResponse);
 
-    Optional<LeasesActivationResult> currentLease(ExtAuthResponse extAuthResponse, boolean refresh);
+    Optional<LeasesActivation> requestLease(LeasesRequest leasesRequest);
 
-    Optional<LeasesActivationResult> requestLease(LeasesRequest leasesRequest);
-
-    Optional<LeasesActivationResult> dismissLease(LeasesRequest leasesRequest);
+    Optional<LeasesActivation> dismissLease(LeasesRequest leasesRequest);
 }

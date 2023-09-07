@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.ExtAuthResponse;
 import taninim.yellin.LeasesActivation;
-import taninim.yellin.LeasesActivationResult;
 import taninim.yellin.LeasesDispatcher;
 import taninim.yellin.LeasesRequest;
 
@@ -86,8 +85,7 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
     }
 
     private Processing handleCurrentLease(ExtAuthResponse extAuthResponse) {
-        return leasesDispatcher.currentLease(extAuthResponse, true)
-            .map(LeasesActivationResult::leasesActivation)
+        return leasesDispatcher.createLease(extAuthResponse)
             .map(activation -> {
                 log.debug("User {} has access to {} tracks", activation.name(), activation.size());
                 writeResponse(activation);
@@ -99,8 +97,8 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
     private Processing handleNewLease(LeasesRequest leasesRequest) {
         return leasesDispatcher.requestLease(leasesRequest)
             .map(result -> {
-                log.debug("User {} gets access to {} tracks", result.leasesActivation().trackUUIDs().size(), result);
-                writeResponse(result.leasesActivation());
+                log.debug("User {} gets access to {} tracks", result.trackUUIDs().size(), result);
+                writeResponse(result);
                 log.debug("Wrote back {}", result);
                 return Processing.OK;
             }).orElse(Processing.REJECTED);

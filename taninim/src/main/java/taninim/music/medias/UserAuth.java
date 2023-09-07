@@ -140,7 +140,7 @@ public record UserAuth(
     }
 
     public boolean validAt(Instant time) {
-        return time.isBefore(expiry);
+        return expiry.isAfter(requireNonNull(time, "time"));
     }
 
     public record AlbumLease(
@@ -162,8 +162,8 @@ public record UserAuth(
             return albumId.equals(uuid);
         }
 
-        public Optional<AlbumLease> validAt(Instant time) {
-            return Optional.of(time).filter(expiry::isAfter).map(__ -> this);
+        public boolean validAt(Instant time) {
+            return expiry.isAfter(requireNonNull(time, "time"));
         }
     }
 }
