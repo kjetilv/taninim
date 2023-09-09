@@ -23,12 +23,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;
+import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -162,7 +161,7 @@ class Lambdas2Test {
     @Test
     void shouldAcceptKnownUser() {
         HttpResponse<String> response = ok(authAs(userId).join());
-        AuthResponse authResponse = response(AuthResponse.class, response);
+        AuthResponse authResponse = authResponse(response);
         assertThat(authResponse.trackUUIDs()).isEmpty();
         assertThat(authResponse.token()).isNotBlank();
     }
@@ -170,26 +169,26 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToRequestLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         assertThat(auth1.trackUUIDs()).isEmpty();
 
         HttpResponse<String> leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
 
-        LeasesActivation leasesActivation = response(LeasesActivation.class, leaseResponse);
+        LeasesActivation leasesActivation = leasesActivation(leaseResponse);
         assertThat(leasesActivation.trackUUIDs()).containsExactly(track2a.digest(), track2b.digest(), track2c.digest());
     }
 
     @Test
     void shouldBeAbleToRequestLeaseAgain() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         assertThat(auth1.trackUUIDs()).isEmpty();
 
         Uuid token = Uuid.from(auth1.token());
         HttpResponse<String> leaseResponse1 = ok(lease(token, album2).join());
         HttpResponse<String> leaseResponse2 = ok(lease(token, album1).join());
 
-        LeasesActivation leasesActivation = response(LeasesActivation.class, leaseResponse2);
+        LeasesActivation leasesActivation = leasesActivation(leaseResponse2);
         assertThat(leasesActivation.trackUUIDs()).containsExactlyInAnyOrder(
             track1a.digest(),
             track1b.digest(),
@@ -202,7 +201,7 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToDropLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         assertThat(auth1.trackUUIDs()).isEmpty();
 
         Uuid token = Uuid.from(auth1.token());
@@ -211,7 +210,7 @@ class Lambdas2Test {
         ok(lease(token, album1).join());
 
         HttpResponse<String> dropResponse = ok(release(token, album2).join());
-        LeasesActivation leasesDectivation = response(LeasesActivation.class, dropResponse);
+        LeasesActivation leasesDectivation = leasesActivation(dropResponse);
 
         assertThat(leasesDectivation.trackUUIDs()).containsExactlyInAnyOrder(track1a.digest(), track1b.digest());
     }
@@ -219,7 +218,7 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToStreamAfterLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         assertThat(auth1.trackUUIDs()).isEmpty();
 
         Uuid token = Uuid.from(auth1.token());
@@ -232,7 +231,7 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToStreamALotAfterLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         assertThat(auth1.trackUUIDs()).isEmpty();
 
         Uuid token = Uuid.from(auth1.token());
@@ -253,7 +252,7 @@ class Lambdas2Test {
     @Test
     void shouldBeRestrictedToStreamingSize() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         assertThat(auth1.trackUUIDs()).isEmpty();
 
         Uuid token = Uuid.from(auth1.token());
@@ -274,7 +273,7 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToDropLeaseAgain() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         Uuid token = Uuid.from(auth1.token());
 
         HttpResponse<String> leaseResponse1 = ok(lease(token, album2).join());
@@ -282,20 +281,20 @@ class Lambdas2Test {
         HttpResponse<String> dropResponse1 = ok(release(token, album2).join());
         HttpResponse<String> dropResponse2 = ok(release(token, album1).join());
 
-        LeasesActivation leasesDectivation = response(LeasesActivation.class, dropResponse2);
+        LeasesActivation leasesDectivation = leasesActivation(dropResponse2);
         assertThat(leasesDectivation.trackUUIDs()).isEmpty();
     }
 
     @Test
     void shouldFindAlbumsAfterLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
         assertThat(auth1.trackUUIDs()).isEmpty();
 
         HttpResponse<String> leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
 
         HttpResponse<String> authResponse2 = authAs(userId).join();
-        AuthResponse auth2 = response(AuthResponse.class, authResponse2);
+        AuthResponse auth2 = authResponse(authResponse2);
         assertThat(auth2.token()).isEqualTo(auth1.token());
         assertThat(auth2.trackUUIDs()).containsExactly(track2a.digest(), track2b.digest(), track2c.digest());
     }
@@ -303,14 +302,14 @@ class Lambdas2Test {
     @Test
     void leaseShouldTimeOut() {
         HttpResponse<String> authResponse = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse);
+        AuthResponse auth1 = authResponse(authResponse);
 
         HttpResponse<String> leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
 
         passTime(Duration.ofHours(6));
 
         HttpResponse<String> authResponse2 = authAs(userId).join();
-        AuthResponse auth2 = response(AuthResponse.class, authResponse2);
+        AuthResponse auth2 = authResponse(authResponse2);
         assertThat(auth2.token()).isNotEqualTo(auth1.token());
         assertThat(auth2.trackUUIDs()).isEmpty();
     }
@@ -318,7 +317,7 @@ class Lambdas2Test {
     @Test
     void shouldRenewLeaseAfterTimeout() {
         HttpResponse<String> authResponse1 = authAs(userId).join();
-        AuthResponse auth1 = response(AuthResponse.class, authResponse1);
+        AuthResponse auth1 = authResponse(authResponse1);
 
         HttpResponse<String> leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
 
@@ -328,13 +327,13 @@ class Lambdas2Test {
         assertThat(tooLateLeaseResponse.statusCode()).isEqualTo(400);
 
         HttpResponse<String> authResponse2 = authAs(userId).join();
-        AuthResponse auth2 = response(AuthResponse.class, authResponse2);
+        AuthResponse auth2 = authResponse(authResponse2);
         assertThat(auth2.token()).isNotEqualTo(auth1.token());
         assertThat(auth2.trackUUIDs()).isEmpty();
 
         HttpResponse<String> renewedLeaseResponse = ok(lease(Uuid.from(auth2.token()), album1).join());
 
-        AuthResponse reauthResponse = response(AuthResponse.class, renewedLeaseResponse);
+        AuthResponse reauthResponse = authResponse(renewedLeaseResponse);
         assertThat(reauthResponse.trackUUIDs()).containsExactly(track1a.digest(), track1b.digest());
     }
 
@@ -648,8 +647,6 @@ class Lambdas2Test {
         track2c.digest()
     );
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
-
     private static HttpResponse<String> ok(HttpResponse<String> response) {
         assertThat(response.statusCode()).isEqualTo(200);
         return response;
@@ -661,15 +658,6 @@ class Lambdas2Test {
             printWriter.println(mediasJson);
         }
         return gz.toByteArray();
-    }
-
-    private static <T> T response(Class<T> type, HttpResponse<String> response) {
-        String body = response.body();
-        try {
-            return OBJECT_MAPPER.readerFor(type).readValue(body);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private static Map<String, Object> extAuthResponse(String userId) {
@@ -705,6 +693,30 @@ class Lambdas2Test {
 
     private static AlbumTrackIds album(Uuid albumId, Uuid... tracks) {
         return new AlbumTrackIds(albumId, Arrays.asList(tracks));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static LeasesActivation leasesActivation(HttpResponse<String> leaseResponse) {
+        Map<String, Object> map = Json.STRING_2_JSON_MAP.apply(leaseResponse.body());
+        return new LeasesActivation(
+            map.getOrDefault("name", "").toString(),
+            map.getOrDefault("userId", "").toString(),
+            map.getOrDefault("token", "").toString(),
+            (List<String>) map.getOrDefault("trackUUIDs", Collections.<String>emptyList()),
+            Long.parseLong(map.getOrDefault("expiry", "0").toString())
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static AuthResponse authResponse(HttpResponse<String> response) {
+        Map<String, Object> map = Json.STRING_2_JSON_MAP.apply(response.body());
+        return new AuthResponse(
+            map.getOrDefault("name", "").toString(),
+            map.getOrDefault("userId", "").toString(),
+            map.getOrDefault("token", "").toString(),
+            (List<String>) map.getOrDefault("trackUUIDs", Collections.<String>emptyList()),
+            Long.parseLong(map.getOrDefault("expiry", "0").toString())
+        );
     }
 
     @SuppressWarnings("WeakerAccess")
