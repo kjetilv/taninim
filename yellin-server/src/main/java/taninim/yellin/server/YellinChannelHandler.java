@@ -30,13 +30,13 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
 
     private final LeasesDispatcher leasesDispatcher;
 
-    private final Function<String, Map<String, Object>> jsonParser;
+    private final Function<String, Map<?, ?>> jsonParser;
 
     private final Function<LeasesActivation, byte[]> jsonSerializer;
 
     YellinChannelHandler(
         LeasesDispatcher leasesDispatcher,
-        Function<String, Map<String, Object>> jsonParser,
+        Function<String, Map<?, ?>> jsonParser,
         Function<LeasesActivation, byte[]> jsonSerializer,
         AsynchronousByteChannel channel,
         int maxRequestLength,

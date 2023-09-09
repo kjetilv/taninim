@@ -15,7 +15,7 @@ public record ExtAuthResponse(
 
     public static ExtAuthResponse from(
         String body,
-        Function<? super String, ? extends Map<String, Object>> parser
+        Function<? super String, ? extends Map<?, ?>> parser
     ) {
         if (body == null || body.isBlank()) {
             throw new IllegalArgumentException("No data");
@@ -45,9 +45,9 @@ public record ExtAuthResponse(
     private static final String SIGNED_REQUEST = "signedRequest";
 
     private static Function<String, Object> lookup(
-        String body, Function<? super String, ? extends Map<String, Object>> jsonParser
+        String body, Function<? super String, ? extends Map<?, ?>> jsonParser
     ) {
-        Map<String, Object> map;
+        Map<?, ?> map;
         try {
             map = jsonParser.apply(body);
         } catch (Exception e) {
@@ -56,8 +56,7 @@ public record ExtAuthResponse(
         if (map == null || map.isEmpty()) {
             throw new IllegalStateException("No data: `" + body.trim() + "`");
         }
-        return key ->
-            map.getOrDefault(key, "");
+        return map::get;
     }
 
     @SuppressWarnings("SameParameterValue")

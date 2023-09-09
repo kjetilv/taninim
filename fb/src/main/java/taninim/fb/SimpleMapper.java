@@ -8,13 +8,13 @@ import java.util.function.Function;
 import com.restfb.FacebookClient;
 import com.restfb.JsonMapper;
 
-record SimpleMapper(Function<? super String, ? extends Map<String, Object>> reader) implements JsonMapper {
+record SimpleMapper(Function<? super String, ? extends Map<?, ?>> reader) implements JsonMapper {
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T toJavaObject(String json, Class<T> type) {
         try {
-            Map<String, Object> map = reader.apply(json);
+            Map<String, Object> map = (Map<String, Object>) reader.apply(json);
             return (T) new ExtUser(get(map, "name"), get(map, "id"));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read response: " + json, e);

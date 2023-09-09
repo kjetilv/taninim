@@ -20,16 +20,16 @@ public final class FbAuthenticator implements Authenticator {
 
     private final Supplier<char[]> appSecret = FbSec.secretsProvider();
 
-    private final Function<? super String, ? extends Map<String, Object>> reader;
+    private final Function<? super String, ? extends Map<?, ?>> reader;
 
     private final FbListener fbListener;
 
-    public FbAuthenticator(Function<? super String, ? extends Map<String, Object>> reader) {
+    public FbAuthenticator(Function<? super String, ? extends Map<?, ?>> reader) {
         this(reader, null);
     }
 
     public FbAuthenticator(
-        Function<? super String, ? extends Map<String, Object>> reader, FbListener fbListener
+        Function<? super String, ? extends Map<?, ?>> reader, FbListener fbListener
     ) {
         this.reader = requireNonNull(reader, "reader");
         this.fbListener = fbListener == null ? new FbListener() {

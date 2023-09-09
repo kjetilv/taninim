@@ -26,7 +26,7 @@ record YellinRequest(
 
     static Optional<YellinRequest> read(
         ByteBuffer requestBuffer,
-        Function<? super String, ? extends Map<String, Object>> jsonParser
+        Function<String, Map<?, ?>> jsonParser
     ) {
         try {
             return ByteBuffers.readBuffer(requestBuffer, nextLine ->
@@ -118,7 +118,7 @@ record YellinRequest(
 
     private static Optional<YellinRequest> readAuth(
         Supplier<Optional<String>> nextLine,
-        Function<? super String, ? extends Map<String, Object>> jsonParser
+        Function<String, Map<?, ?>> jsonParser
     ) {
         skipHeaders(nextLine);
         return extractBody(nextLine).map(

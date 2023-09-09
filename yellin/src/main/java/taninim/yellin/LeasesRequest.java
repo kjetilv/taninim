@@ -16,14 +16,14 @@ public record LeasesRequest(
 
     public static LeasesRequest acquire(
         String body,
-        Function<? super String, ? extends Map<String, Object>> jsonParser
+        Function<? super String, ? extends Map<?, ?>> jsonParser
     ) {
         return fromMap(Op.ACQUIRE, body, jsonParser);
     }
 
     public static LeasesRequest release(
         String body,
-        Function<? super String, ? extends Map<String, Object>> jsonParser
+        Function<? super String, ? extends Map<?, ?>> jsonParser
     ) {
         return fromMap(Op.RELEASE, body, jsonParser);
     }
@@ -47,7 +47,7 @@ public record LeasesRequest(
     private static LeasesRequest fromMap(
         Op op,
         String body,
-        Function<? super String, ? extends Map<String, Object>> jsonParser
+        Function<? super String, ? extends Map<?, ?>> jsonParser
     ) {
         try {
             Function<String, String> f = lookup(body, jsonParser).andThen(String::valueOf);
@@ -62,12 +62,11 @@ public record LeasesRequest(
         }
     }
 
-    private static Function<String, Object> lookup(
-        String body, Function<? super String, ? extends Map<String, Object>> jsonParser
+    private static Function<String, ?> lookup(
+        String body, Function<? super String, ? extends Map<?, ?>> jsonParser
     ) {
-        Map<String, Object> map = jsonParser.apply(body);
-        return key ->
-            map.getOrDefault(key, "");
+        Map<?, ?> map = jsonParser.apply(body);
+        return map::get;
     }
 
     @Override
