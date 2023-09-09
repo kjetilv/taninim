@@ -32,7 +32,7 @@ public final class ActivationSerializer {
             Maps.fromOptEntries(
                 optEntry("name", activation.name()),
                 optEntry("userId", activation.userId()),
-                optEntry("token", activation.digest()),
+                optEntry("token", activation.digest().orElse(null)),
                 optEntry("trackUUIDs", uuids(activation)),
                 optEntry("expiry", activation.expiry().atZone(UTC).toEpochSecond())
             )
