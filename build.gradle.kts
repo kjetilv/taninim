@@ -10,9 +10,13 @@ allprojects {
 subprojects {
     apply(plugin = "java")
 
-    configure<JavaPluginExtension> {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+            sourceCompatibility = JavaVersion.VERSION_21
+            targetCompatibility = JavaVersion.VERSION_21
+            withSourcesJar()
+        }
     }
 
     repositories {
@@ -32,8 +36,8 @@ subprojects {
         }
     }
 
-    tasks.test {
-        useJUnitPlatform()
+    tasks.withType<Test> {
+        this.useJUnitPlatform()
     }
 }
 
