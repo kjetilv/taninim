@@ -1,9 +1,7 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.kjetilv.uplift.plugins.NativeLambdaPlugin
 import com.github.kjetilv.uplift.plugins.NativeLamdbdaTask
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.github.kjetilv.uplift.plugins.lambda") version "0.1.1-SNAPSHOT"
     `maven-publish`
 }
@@ -27,14 +25,5 @@ dependencies {
 apply<NativeLambdaPlugin>()
 
 tasks.withType<NativeLamdbdaTask> {
-
-}
-
-tasks.withType<ShadowJar> {
-    manifest {
-        attributes(mapOf(Pair("Main-Class", "taninim.yellin.Main")))
-    }
-    mergeServiceFiles()
-    minimize()
-    dependsOn("build")
+    main = "taninim.yellin.Main"
 }

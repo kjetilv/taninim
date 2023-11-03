@@ -1,7 +1,4 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
     `maven-publish`
 }
 
@@ -18,13 +15,4 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-}
-
-tasks.withType<ShadowJar> {
-    manifest {
-        attributes(mapOf(Pair("Main-Class", "taninim.yellin.LambdaYellin")))
-    }
-    mergeServiceFiles()
-    minimize()
-    dependsOn("build")
 }

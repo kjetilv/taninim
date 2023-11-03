@@ -1,11 +1,8 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import groovy.xml.dom.DOMCategory.attributes
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
     `maven-publish`
 }
-
-apply { plugin("com.github.johnrengelman.shadow") }
 
 dependencies {
     implementation("com.github.kjetilv.uplift:uplift-kernel:0.1.1-SNAPSHOT")
@@ -18,13 +15,4 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-}
-
-tasks.withType<ShadowJar> {
-    manifest {
-        attributes(mapOf(Pair("Main-Class", "taninim.kudu.LambdaKudu")))
-    }
-    mergeServiceFiles()
-    minimize()
-    dependsOn("build")
 }
