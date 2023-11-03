@@ -27,7 +27,7 @@ dependencies {
 apply<NativeLambdaPlugin>()
 
 tasks.withType<NativeLamdbdaTask> {
-    dependsOn("shadowJar")
+
 }
 
 tasks.withType<ShadowJar> {

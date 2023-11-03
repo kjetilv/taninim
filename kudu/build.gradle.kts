@@ -23,7 +23,7 @@ dependencies {
 apply<NativeLambdaPlugin>()
 
 tasks.withType<NativeLamdbdaTask> {
-    dependsOn("shadowJar")
+    main = "taninim.kudu.Main"
 }
 
 tasks.withType<ShadowJar> {
