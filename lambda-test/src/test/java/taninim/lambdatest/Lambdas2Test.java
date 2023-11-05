@@ -543,7 +543,7 @@ class Lambdas2Test {
                                                      ]
                                                    }
                                                  ],
-                                                 "obi": "16 Masada compositions performed by a dynamic piano trio featuring Brian Marsella, the astonishing and passionate pianist from Banquet of the Spirits, Zion80 and The Flail. Joined here by the classic Masada rhythm section of Trevor Dunn and Kenny Wollesen, the performances are powerful, focused and incredibly varied. Each piece presents a different musical world, referencing McCoy Tyner, Don Pullen, Erik Satie, Conlon Nancarrow, Horace Silver,Lennie Tristano, Bill Evans, Bach, Bud Powell, RichardTwardzik, Debussy and many others.",
+                                                 "obi": "obi-1",
                                                  "discog": "https://www.discogs.com/release/10215523-John-Zorn-Brian-Marsella-Trio-Buer-Book-Of-Angels-Volume-31",
                                                  "discogImage": "https://i.discogs.com/SKSiB7vvKEWDEJL_s7EkpPw3Q127i-ixoDhX1b8JmLw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMjE1/NTIzLTE0OTM1NDE5/ODUtMTU4OS5qcGVn.jpeg",
                                                  "compilation": true,
