@@ -1,29 +1,20 @@
 package taninim.yellin;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import com.github.kjetilv.uplift.json.Json;
-import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
-import com.github.kjetilv.uplift.lambda.LambdaHandler;
-import com.github.kjetilv.uplift.lambda.LambdaPayload;
-import com.github.kjetilv.uplift.lambda.LambdaResult;
+import com.github.kjetilv.uplift.lambda.*;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import org.slf4j.Logger;
 import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 
-import static com.github.kjetilv.uplift.lambda.LambdaResult.status;
-import static java.util.Map.entry;
+import java.util.Optional;
+
 import static java.util.Objects.requireNonNull;
 import static taninim.yellin.Yellin.activationSerializer;
 import static taninim.yellin.Yellin.leasesDispatcher;
 
-public final class YellinLambdaHandler implements LambdaHandler {
-
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(YellinLambdaHandler.class);
+public final class YellinLambdaHandler extends LambdaHandlerSupport {
 
     public static LambdaHandler handler(
         LambdaClientSettings clientSettings,
@@ -53,22 +44,18 @@ public final class YellinLambdaHandler implements LambdaHandler {
     }
 
     @Override
-    public LambdaResult handle(LambdaPayload lambdaPayload) {
-        String body = lambdaPayload.body();
-
-        if (body == null) {
-            return error("No body in request: {}", BAD_REQUEST);
+    protected Optional<LambdaResult> result(LambdaPayload payload) {
+        String body = payload.body();
+        if (payload.isExactly("post", "/auth")) {
+            return handleBody(body, this::authenticate);
         }
-        if (lambdaPayload.isExactly("post", "/auth")) {
-            return authenticate(body);
+        if (payload.isExactly("post", "/lease")) {
+            return handleBody(body, this::addLease);
         }
-        if (lambdaPayload.isExactly("post", "/lease")) {
-            return addLease(body);
+        if (payload.isExactly("delete", "/lease")) {
+            return handleBody(body, this::removeLease);
         }
-        if (lambdaPayload.isExactly("delete", "/lease")) {
-            return removeLease(body);
-        }
-        return error("No such handler: {}", NOT_FOUND);
+        return Optional.empty();
     }
 
     private LambdaResult authenticate(String body) {
@@ -78,7 +65,7 @@ public final class YellinLambdaHandler implements LambdaHandler {
             .map(result ->
                 result(activationSerializer.jsonBody(result)))
             .orElseGet(
-                errorSupplier("Failed to authenticate: {}", UNAUTHORIZED));
+                errorSupplier(UNAUTHORIZED, "Failed to authenticate: {}", this));
     }
 
     private LambdaResult addLease(String body) {
@@ -87,7 +74,7 @@ public final class YellinLambdaHandler implements LambdaHandler {
         return leasesActivation.map(activation ->
                 result(activationSerializer.jsonBody(activation)))
             .orElseGet(
-                errorSupplier("Failed to add lease: {}", BAD_REQUEST));
+                errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
 
     private LambdaResult removeLease(String body) {
@@ -97,33 +84,7 @@ public final class YellinLambdaHandler implements LambdaHandler {
             .map(result ->
                 result(activationSerializer.jsonBody(result)))
             .orElseGet(
-                errorSupplier("Failed to remove lease: {}", BAD_REQUEST));
-    }
-
-    private static final int OK = 200;
-
-    private static final int BAD_REQUEST = 400;
-
-    private static final int NOT_FOUND = 404;
-
-    private static final int UNAUTHORIZED = 401;
-
-    private static Supplier<LambdaResult> errorSupplier(String error, int statusCode) {
-        return () ->
-            error(error, statusCode);
-    }
-
-    private static LambdaResult error(String error, int statusCode) {
-        log.error(error, statusCode);
-        return status(statusCode);
-    }
-
-    private static LambdaResult result(byte[] body) {
-        return LambdaResult.json(
-            OK,
-            body,
-            entry("Content-Type", "application/json")
-        );
+                errorSupplier(BAD_REQUEST, "Failed to remove lease: {}", this));
     }
 
     @Override

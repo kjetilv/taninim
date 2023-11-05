@@ -1,5 +1,11 @@
 package taninim.music.legal;
 
+import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import taninim.music.*;
+import taninim.music.Archives.ArchivedRecord;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -10,16 +16,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import taninim.music.Archives;
-import taninim.music.Archives.ArchivedRecord;
-import taninim.music.Leases;
-import taninim.music.LeasesPath;
-import taninim.music.LeasesRegistry;
-import taninim.music.Period;
 
 import static java.util.Objects.requireNonNull;
 
@@ -85,7 +81,8 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     private void deleteOutdated(Instant time) {
-        Collection<Long> active = Period.starting(time).epochHoursBack(leaseDuration).collect(Collectors.toSet());
+        Collection<Long> active = Period.starting(time).epochHoursBack(leaseDuration)
+            .collect(Collectors.toSet());
         try (
             Stream<String> records = archives.retrievePaths(
                 LEASE_PREFIX,
@@ -124,19 +121,28 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     private static List<Leases.Lease> leases(ArchivedRecord archivedRecord) {
-        return archivedRecord.contents().stream()
+        return archivedRecord.contents()
+            .stream()
             .map(String::trim)
             .filter(string -> !string.isBlank())
             .map(line ->
-                line.split(" ", 2)).map(tokenLease -> new Leases.Lease(
-                Uuid.from(tokenLease[0]),
-                Instant.ofEpochSecond(Long.parseLong(tokenLease[1]))
-            )).toList();
+                line.split(" ", 2))
+            .map(tokenLease ->
+                new Leases.Lease(
+                    Uuid.from(tokenLease[0]),
+                    Instant.ofEpochSecond(Long.parseLong(tokenLease[1]))
+                ))
+            .toList();
     }
 
     private static Long epochHour(String path) {
         String hourstamp = path.substring(LEASE_PREFIX.length());
         int dashindex = hourstamp.indexOf('-');
         return Long.parseLong(hourstamp.substring(0, dashindex));
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + leaseDuration + " from " + archives + "]";
     }
 }

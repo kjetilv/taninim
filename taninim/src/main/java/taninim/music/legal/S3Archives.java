@@ -44,6 +44,11 @@ public class S3Archives implements Archives {
         s3.remove(paths);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + s3 + "]";
+    }
+
     private Optional<ArchivedRecord> read(String path) {
         return s3.stream(path)
             .map(is -> {

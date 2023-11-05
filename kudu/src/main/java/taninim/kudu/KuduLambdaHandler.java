@@ -1,23 +1,17 @@
 package taninim.kudu;
 
-import java.util.Optional;
-
 import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.kernel.uuid.Uuid;
-import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
-import com.github.kjetilv.uplift.lambda.LambdaHandler;
-import com.github.kjetilv.uplift.lambda.LambdaPayload;
-import com.github.kjetilv.uplift.lambda.LambdaResult;
+import com.github.kjetilv.uplift.lambda.*;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
+
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Map.entry;
 
-public final class KuduLambdaHandler implements LambdaHandler {
-
-    private static final Logger log = LoggerFactory.getLogger(KuduLambdaHandler.class);
+public final class KuduLambdaHandler extends LambdaHandlerSupport {
 
     public static LambdaHandler create(
         LambdaClientSettings clientSettings,
@@ -31,18 +25,11 @@ public final class KuduLambdaHandler implements LambdaHandler {
     private final Kudu kudu;
 
     private KuduLambdaHandler(Kudu kudu) {
-        this.kudu = kudu;
+        this.kudu = Objects.requireNonNull(kudu, "kudu");
     }
 
     @Override
-    public LambdaResult handle(LambdaPayload lambdaPayload) {
-        return result(lambdaPayload).orElseGet(() -> {
-            log.error("No result: {} {}", lambdaPayload, BAD_REQUEST);
-            return LambdaResult.status(BAD_REQUEST);
-        });
-    }
-
-    private Optional<LambdaResult> result(LambdaPayload payload) {
+    protected Optional<LambdaResult> result(LambdaPayload payload) {
         return payload.isPrefixed("get", "/audio/") ? handleAudio(payload, token(payload))
             : payload.isExactly("get", "/library.json") ? handleLibrary(token(payload))
                 : Optional.empty();
@@ -54,7 +41,8 @@ public final class KuduLambdaHandler implements LambdaHandler {
             .flatMap(Range::read)
             .orElseGet(() ->
                 new Range(0L, DEFAULT_START_RANGE));
-        return Track.parseTrack(path).map(track ->
+        return Track.parseTrack(path)
+            .map(track ->
                 new TrackRange(track, range, token))
             .flatMap(kudu::audioBytes)
             .map(KuduLambdaHandler::toResult);
@@ -64,11 +52,7 @@ public final class KuduLambdaHandler implements LambdaHandler {
         return kudu.library(token).map(KuduLambdaHandler::zippedJsonResult);
     }
 
-    private static final int BAD_REQUEST = 400;
-
     private static final int PARTIAL_RESULT = 206;
-
-    private static final int OK = 200;
 
     private static final long DEFAULT_START_RANGE = 1_024L;
 

@@ -62,11 +62,8 @@ public record LeasesRequest(
         }
     }
 
-    private static Function<String, ?> lookup(
-        String body, Function<? super String, ? extends Map<?, ?>> jsonParser
-    ) {
-        Map<?, ?> map = jsonParser.apply(body);
-        return map::get;
+    private static Function<String, ?> lookup(String body, Function<? super String, ? extends Map<?, ?>> parser) {
+        return parser.apply(body)::get;
     }
 
     @Override
