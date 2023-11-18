@@ -99,7 +99,7 @@
         ?.length > 0;
 
     let authorization = false;
-    let errorMessage = false;
+    let errorMessage = "";
 
     let receivedAlbums = [];
     let playableAlbums;
@@ -112,57 +112,56 @@
         let data = event.detail;
         if (data.__done) {
             receivedAlbums = receivedAlbums;
-            errorMessage = false;
+            errorMessage = "";
         } else if (data.__clear) {
             receivedAlbums = [];
-            errorMessage = false;
+            errorMessage = "";
         } else if (data.__error) {
             console.log("Failed to load data");
             console.log(data.error);
             errorMessage = "Failed to load data";
         } else {
             receivedAlbums = [...receivedAlbums, data];
-            errorMessage = false;
+            errorMessage = "";
         }
     };
 
-    const rentedAlbum = event => {
+    const rentedAlbum = () => {
         authorization = authorization;
     };
 
-    const trackSelected = event => {
-        let detail = event.detail;
+    const trackSelected = ({detail}) => {
         selectedAlbum = detail.album;
         selectedTrack = detail.track;
     };
 
-    const albumDismissed = event => {
+    const albumDismissed = () => {
         authorization = authorization;
     };
 
-    const authorized = event => {
-        authorization = event.detail;
-        errorMessage = false;
+    const authorized = ({detail}) => {
+        authorization = detail;
+        errorMessage = "";
     };
 
-    const unauthorized = event => {
+    const unauthorized = ({detail}) => {
         authorization = false;
         console.log("Not auhorized");
-        console.log(event.detail);
+        console.log(detail);
         errorMessage = "Not authorized";
     };
 
-    const unavailable = event => {
+    const unavailable = ({detail}) => {
         authorization = false;
         console.log("Connection failed");
-        console.log(event.detail);
+        console.log(detail);
         errorMessage = "Connection to servers failed";
     };
 
-    const notConnected = event => {
+    const notConnected = ({detail}) => {
         authorization = false;
         console.log("Not connected");
-        console.log(event.detail);
+        console.log(detail);
         errorMessage = "Not connected";
     };
 </script>

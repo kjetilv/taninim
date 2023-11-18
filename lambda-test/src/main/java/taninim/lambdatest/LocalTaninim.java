@@ -1,11 +1,5 @@
 package taninim.lambdatest;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Supplier;
-
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
@@ -14,9 +8,9 @@ import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
-import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
+import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +18,12 @@ import taninim.TaninimSettings;
 import taninim.fb.FbAuthenticator;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.yellin.YellinLambdaHandler;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 
@@ -77,7 +77,7 @@ public final class LocalTaninim {
             taninimSettings,
             new DefaultS3AccessorFactory(env, ManagedExecutors.executor("kudu-s3"))
         );
-        Runnable kuduLambdaManaged = new DefaultLamdbdaManaged(
+        Runnable kuduLambdaManaged = LamdbdaManaged.create(
             kuduLocalLambda.getLambdaUri(),
             kuduClientSettings,
             handler,
@@ -109,7 +109,7 @@ public final class LocalTaninim {
             new DefaultS3AccessorFactory(env, ManagedExecutors.executor("yellin-s3")),
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
-        Runnable yellinLamdbdaManaged = new DefaultLamdbdaManaged(
+        Runnable yellinLamdbdaManaged = LamdbdaManaged.create(
             yellinLocalLambda.getLambdaUri(),
             yellinClientSettings,
             yellin,

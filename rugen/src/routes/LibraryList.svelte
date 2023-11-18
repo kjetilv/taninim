@@ -20,13 +20,13 @@
     const tracks = (section) =>
             section.tracks || [];
 
-    const time = (track) =>
-            Math.floor(track.seconds / 60) + ":" + (track.seconds % 60);
+    const time = ({seconds}) =>
+            Math.floor(seconds / 60) + ":" + (seconds % 60);
 
-    const printArtist = (album, len) =>
-            album.artist.length > len
-                    ? album.artist.substring(0, Math.min(len - 1, album.artist.length)) + "⋯"
-                    : album.artist;
+    const printArtist = ({artist}, len) =>
+            artist.length > len
+                    ? artist.substring(0, Math.min(len - 1, artist.length)) + "⋯"
+                    : artist;
 
     const requestAlbum = (album) => {
         try {

@@ -1,25 +1,25 @@
 package taninim.lambdatest;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
-import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
-import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
+import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.fb.FbAuthenticator;
 import taninim.yellin.YellinLambdaHandler;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 
@@ -71,17 +71,17 @@ public final class LocalLambdaYellin {
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
 
-        Runnable lamdbdaManaged = new DefaultLamdbdaManaged(
+        Runnable lamdbdaManaged = LamdbdaManaged.create(
             localLambda.getLambdaUri(),
             clientSettings,
             yellin,
             executor("L")
         );
 
-        ExecutorService executor = executor("runner", 2);
-
-        executor.submit(localLambda);
-        executor.submit(lamdbdaManaged);
-        executor.shutdown();
+        try (ExecutorService executor = executor("runner", 2)) {
+            executor.submit(localLambda);
+            executor.submit(lamdbdaManaged);
+            executor.shutdown();
+        }
     }
 }

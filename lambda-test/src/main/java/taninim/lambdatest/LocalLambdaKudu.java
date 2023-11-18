@@ -1,21 +1,21 @@
 package taninim.lambdatest;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
-import com.github.kjetilv.uplift.lambda.DefaultLamdbdaManaged;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
+import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.kudu.KuduLambdaHandler;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings({ "MagicNumber", "resource" })
 public final class LocalLambdaKudu {
@@ -65,7 +65,7 @@ public final class LocalLambdaKudu {
             new DefaultS3AccessorFactory(env, ManagedExecutors.executor("S3"))
         );
 
-        Runnable lamdbdaManaged = new DefaultLamdbdaManaged(
+        Runnable lamdbdaManaged = LamdbdaManaged.create(
             localLambda.getLambdaUri(),
             clientSettings,
             handler,
