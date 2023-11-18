@@ -32,7 +32,7 @@ public final class LocalLambdaYellin {
             32,
             10
         );
-        Flogs.initialize(LogLevel.DEBUG, ManagedExecutors.executor("logging"));
+        Flogs.initialize(LogLevel.DEBUG, executor("logging"));
 
         LocalLambdaSettings settings = new LocalLambdaSettings(
             9001,
@@ -53,10 +53,8 @@ public final class LocalLambdaYellin {
             executor("aws-S")
         );
 
-        Env env = Env.actual();
-
         LambdaClientSettings clientSettings =
-            new LambdaClientSettings(env, Time.utcSupplier());
+            new LambdaClientSettings(Env.actual(), Time.utcSupplier());
 
         TaninimSettings taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
@@ -67,7 +65,7 @@ public final class LocalLambdaYellin {
         LambdaHandler yellin = YellinLambdaHandler.handler(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(env, executor("S3")),
+            new DefaultS3AccessorFactory(Env.actual(), executor("S3")),
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
 

@@ -48,10 +48,8 @@ public final class LocalLambdaKudu {
             ManagedExecutors.executor("aws-S")
         );
 
-        Env env = Env.actual();
-
         LambdaClientSettings clientSettings =
-            new LambdaClientSettings(env, Time.utcSupplier());
+            new LambdaClientSettings(Env.actual(), Time.utcSupplier());
 
         TaninimSettings taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
@@ -62,7 +60,7 @@ public final class LocalLambdaKudu {
         LambdaHandler handler = KuduLambdaHandler.create(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(env, ManagedExecutors.executor("S3"))
+            new DefaultS3AccessorFactory(Env.actual(), ManagedExecutors.executor("S3"))
         );
 
         Runnable lamdbdaManaged = LamdbdaManaged.create(

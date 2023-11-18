@@ -27,27 +27,15 @@ import java.util.function.Supplier;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 
-@SuppressWarnings({ "MagicNumber" })
 public final class LocalTaninim {
 
     public static void main(String[] args) {
-        ManagedExecutors.configure(
-            4,
-            10,
-            10
-        );
         Flogs.initialize(DEBUG, ManagedExecutors.executor("logger", 1));
 
-        Env env = Env.actual();
         Supplier<Instant> time = Time.utcSupplier();
 
-        int kuduSize = 1_024 * 1_024;
+        TaninimSettings taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
 
-        TaninimSettings taninimSettings = new TaninimSettings(
-            Duration.ofDays(1),
-            Duration.ofHours(1),
-            kuduSize
-        );
         CorsSettings kuduCors = new CorsSettings(
             List.of("https://tanin.im:5173", "https://kjetilv.github.io"),
             List.of("GET"),
@@ -62,7 +50,7 @@ public final class LocalTaninim {
             new LocalLambdaSettings(
                 9002,
                 8080,
-                kuduSize * 2,
+                K * K * 2,
                 10,
                 kuduCors,
                 time
@@ -70,12 +58,16 @@ public final class LocalTaninim {
             ManagedExecutors.executor("lambda-server-kudu"),
             ManagedExecutors.executor("api-server-kudu")
         );
+
         LambdaClientSettings kuduClientSettings =
-            new LambdaClientSettings(env, Time.utcSupplier());
+            new LambdaClientSettings(Env.actual(), Time.utcSupplier());
         LambdaHandler handler = KuduLambdaHandler.create(
             kuduClientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(env, ManagedExecutors.executor("kudu-s3"))
+            new DefaultS3AccessorFactory(
+                Env.actual(),
+                ManagedExecutors.executor("kudu-s3")
+            )
         );
         Runnable kuduLambdaManaged = LamdbdaManaged.create(
             kuduLocalLambda.getLambdaUri(),
@@ -86,7 +78,7 @@ public final class LocalTaninim {
 
         logger().info("Kudu: {}", handler);
 
-        int yellinSize = 8 * 1_024;
+        int yellinSize = 8 * K;
         LocalLambda yellinLocalLambda = new LocalLambda(
             new LocalLambdaSettings(
                 9001,
@@ -101,12 +93,12 @@ public final class LocalTaninim {
         );
 
         LambdaClientSettings yellinClientSettings =
-            new LambdaClientSettings(env, Time.utcSupplier());
+            new LambdaClientSettings(Env.actual(), Time.utcSupplier());
 
         LambdaHandler yellin = YellinLambdaHandler.handler(
             yellinClientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(env, ManagedExecutors.executor("yellin-s3")),
+            new DefaultS3AccessorFactory(Env.actual(), ManagedExecutors.executor("yellin-s3")),
             new FbAuthenticator(Json.STRING_2_JSON_MAP)
         );
         Runnable yellinLamdbdaManaged = LamdbdaManaged.create(
@@ -117,15 +109,21 @@ public final class LocalTaninim {
         );
         logger().info("Yellin: {}", yellin);
 
-        ExecutorService runner = ManagedExecutors.executor("runner");
-
-        runner.submit(kuduLocalLambda);
-        runner.submit(yellinLocalLambda);
-        runner.submit(kuduLambdaManaged);
-        runner.submit(yellinLamdbdaManaged);
-
-        logger().info("Started");
+        try (ExecutorService runner = ManagedExecutors.executor("runner")) {
+            runner.submit(kuduLocalLambda);
+            runner.submit(yellinLocalLambda);
+            runner.submit(kuduLambdaManaged);
+            runner.submit(yellinLamdbdaManaged);
+            logger().info("Started");
+        }
+        logger().info("Stopped");
     }
+
+    public static final int K = 1_024;
+
+    public static final Duration ONE_DAY = Duration.ofDays(1);
+
+    public static final Duration FOUR_HOURS = Duration.ofHours(1);
 
     private static Logger logger() {
         return LoggerFactory.getLogger(LocalTaninim.class);
