@@ -4,9 +4,11 @@ import com.github.kjetilv.uplift.s3.S3Accessor;
 import taninim.music.Archives;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -28,7 +30,9 @@ public class S3Archives implements Archives {
 
     @Override
     public Optional<ArchivedRecord> retrieveRecord(String path) {
-        return read(path);
+        return s3.stream(path)
+            .map(inputStream ->
+                new ArchivedRecord(path, stream(path, inputStream)));
     }
 
     @Override
@@ -49,23 +53,17 @@ public class S3Archives implements Archives {
         return getClass().getSimpleName() + "[" + s3 + "]";
     }
 
-    private Optional<ArchivedRecord> read(String path) {
-        return s3.stream(path)
-            .map(is -> {
-                try (
-                    InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-                    BufferedReader bufferedReader = new BufferedReader(reader)
-                ) {
-                    return new ArchivedRecord(
-                        path,
-                        bufferedReader.lines()
-                            .filter(s -> !s.isBlank())
-                            .map(String::trim)
-                            .toList()
-                    );
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to read " + path, e);
-                }
-            });
+    private static List<String> stream(String path, InputStream is) {
+        try (
+            InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            BufferedReader bufferedReader = new BufferedReader(reader)
+        ) {
+            return bufferedReader.lines()
+                .filter(s -> !s.isBlank())
+                .map(String::trim)
+                .toList();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read " + path, e);
+        }
     }
 }
