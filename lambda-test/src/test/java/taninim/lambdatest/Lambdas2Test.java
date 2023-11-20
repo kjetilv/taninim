@@ -243,7 +243,7 @@ class Lambdas2Test {
             int start = i * 2;
             int end = start + 1;
             return stream(token, track1a, "bytes=" + start + "-" + end);
-        }).parallel().forEach(action -> {
+        }).forEach(action -> {
             HttpResponse<String> response = action.join();
             assertThat(response.statusCode()).isEqualTo(206);
             assertThat(response.headers().firstValueAsLong("Content-Length")).hasValue(2L);
