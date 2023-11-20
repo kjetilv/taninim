@@ -8,6 +8,7 @@ import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -45,15 +46,14 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
 
     @Override
     protected Optional<LambdaResult> result(LambdaPayload payload) {
-        String body = payload.body();
         if (payload.isExactly("post", "/auth")) {
-            return handleBody(body, this::authenticate);
+            return handleBody(payload.body(), this::authenticate);
         }
         if (payload.isExactly("post", "/lease")) {
-            return handleBody(body, this::addLease);
+            return handleBody(payload.body(), this::addLease);
         }
-        if (payload.isExactly("delete", "/lease")) {
-            return handleBody(body, this::removeLease);
+        if (payload.isPrefixed("delete", "/lease")) {
+            return handleQuery(payload.queryParameters(), this::removeLease);
         }
         return Optional.empty();
     }
@@ -77,9 +77,8 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
                 errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
 
-    private LambdaResult removeLease(String body) {
-        LeasesRequest leasesRequest =
-            LeasesRequest.release(body, Json.STRING_2_JSON_MAP);
+    private LambdaResult removeLease(Map<?, ?> params) {
+        LeasesRequest leasesRequest = LeasesRequest.release(params);
         return leasesDispatcher.dismissLease(leasesRequest)
             .map(result ->
                 result(activationSerializer.jsonBody(result)))

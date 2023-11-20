@@ -1,17 +1,17 @@
 package taninim.yellin.server;
 
+import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import taninim.fb.ExtAuthResponse;
+import taninim.yellin.LeasesRequest;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import taninim.fb.ExtAuthResponse;
-import taninim.yellin.LeasesRequest;
 
 import static com.github.kjetilv.uplift.kernel.io.ParseBits.tailString;
 import static java.util.Objects.requireNonNull;
@@ -30,39 +30,10 @@ record YellinRequest(
     ) {
         try {
             return ByteBuffers.readBuffer(requestBuffer, nextLine ->
-                nextLine.get().map(String::toLowerCase).flatMap(requestLine ->
-
-                    afterPrefix(requestLine, "post /auth")
-                        .flatMap(path ->
-                            readAuth(nextLine, jsonParser))
-
-                        .or(() ->
-                            afterPrefix(requestLine, "post /lease")
-                                .flatMap(path ->
-                                    readLease(
-                                        nextLine,
-                                        body ->
-                                            LeasesRequest.acquire(body, jsonParser)
-                                    )))
-
-                        .or(() ->
-                            afterPrefix(requestLine, "delete /lease")
-                                .flatMap(path ->
-                                    readLease(
-                                        nextLine,
-                                        body ->
-                                            LeasesRequest.release(body, jsonParser)
-                                    )))
-
-                        .or(() ->
-                            afterPrefix(requestLine, "options /")
-                                .map(match ->
-                                    PREFLIGHT_REQ))
-
-                        .or(() ->
-                            afterPrefix(requestLine, "get /health", "head /health")
-                                .map(match ->
-                                    HEALTH_REQ))));
+                nextLine.get()
+                    .map(String::toLowerCase)
+                    .flatMap(requestLine ->
+                        handle(requestLine, nextLine, jsonParser)));
         } catch (Exception e) {
             log.warn("Failed to read auth request: {}", requestBuffer, e);
             return Optional.empty();
@@ -98,6 +69,31 @@ record YellinRequest(
 
     private static final YellinRequest HEALTH_REQ =
         new YellinRequest(null, null, Admin.health);
+
+    private static Optional<YellinRequest> handle(
+        String requestLine, Supplier<Optional<String>> nextLine, Function<String, Map<?, ?>> jsonParser
+    ) {
+        return afterPrefix(requestLine, "post /auth")
+            .flatMap(path ->
+                readAuth(nextLine, jsonParser))
+            .or(() ->
+                afterPrefix(requestLine, "post /lease").flatMap(path ->
+                    readLease(
+                        nextLine,
+                        body ->
+                            LeasesRequest.acquire(body, jsonParser)
+                    )))
+            .or(() ->
+                afterPrefix(requestLine, "delete /lease?")
+                    .flatMap(LeasesRequest::release)
+                    .map(YellinRequest::new))
+            .or(() ->
+                afterPrefix(requestLine, "options /").map(match ->
+                    PREFLIGHT_REQ))
+            .or(() ->
+                afterPrefix(requestLine, "get /health", "head /health").map(match ->
+                    HEALTH_REQ));
+    }
 
     private static Optional<String> afterPrefix(String line, String... prefices) {
         return Arrays.stream(prefices)
@@ -143,7 +139,8 @@ record YellinRequest(
 
     private static void skipHeaders(Supplier<Optional<String>> nextLine) {
         while (true) {
-            Optional<String> nonBlank = nextLine.get().filter(str -> !str.isBlank());
+            Optional<String> nonBlank = nextLine.get()
+                .filter(str -> !str.isBlank());
             if (nonBlank.isEmpty()) {
                 return;
             }

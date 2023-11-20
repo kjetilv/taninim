@@ -70,9 +70,9 @@ class Lambdas2Test {
 
     private LambdaHarness kuduHarness;
 
-    private Reqs yr;
+    private Reqs yellinReqs;
 
-    private Reqs kr;
+    private Reqs kuduReqs;
 
     @BeforeEach
     void setupAll() {
@@ -133,8 +133,8 @@ class Lambdas2Test {
         logger().info("Kudu   : {}", kuduHarness);
         logger().info("Yellin : {}", yellinHarness);
 
-        yr = yellinHarness.reqs();
-        kr = kuduHarness.reqs();
+        yellinReqs = yellinHarness.reqs();
+        kuduReqs = kuduHarness.reqs();
     }
 
     @AfterEach
@@ -347,13 +347,13 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> authAs(String id) {
-        return yr.path("/auth").execute("POST", extAuthResponse(id));
+        return yellinReqs.path("/auth").execute("POST", extAuthResponse(id));
     }
 
     private CompletableFuture<HttpResponse<String>> stream(Uuid token, Uuid track, String range) {
         Map<String, String> headers = Optional.ofNullable(range).map(header -> Map.of("Range", header)).orElseGet(
             Collections::emptyMap);
-        return kr.path("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())).get(headers);
+        return kuduReqs.path("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())).get(headers);
     }
 
     private void putRandomBytes(String file) {
@@ -379,7 +379,11 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
-        return yr.path("/lease").execute(method, Map.of(
+        if ("DELETE".equalsIgnoreCase(method)) {
+            return yellinReqs.path("/lease?userId=" + userId + "&token=" + token.digest() + "&album=" + album.digest())
+                .execute(method);
+        }
+        return yellinReqs.path("/lease").execute(method, Map.of(
             "userId", userId,
             "token", token.digest(),
             "album", album.digest()
