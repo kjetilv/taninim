@@ -47,7 +47,7 @@ public class LambdaStacker implements Consumer<Stack> {
         functionUrl(stack, "yellin-taninim-fu", yellin)
             .cors(corsOptions(
                 List.of(POST, DELETE),
-                List.of("Origin", "Content-Type")
+                List.of("Content-Type")
             ))
             .build();
     }
@@ -66,7 +66,7 @@ public class LambdaStacker implements Consumer<Stack> {
             .authType(FunctionUrlAuthType.NONE)
             .cors(corsOptions(
                 List.of(GET),
-                List.of("Origin", "Content-Type", "Range")
+                List.of("Content-Type", "Range")
             ))
             .build();
     }
