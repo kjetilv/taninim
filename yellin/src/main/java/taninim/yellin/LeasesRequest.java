@@ -17,12 +17,19 @@ public record LeasesRequest(
     Uuid album
 ) {
 
-    public static LeasesRequest acquire(String body, Function<? super String, ? extends Map<?, ?>> jsonParser) {
+
+    public static LeasesRequest acquire(
+        String body,
+        Function<? super String, ? extends Map<?, ?>> jsonParser
+    ) {
         return fromMap(Op.ACQUIRE, body, jsonParser);
     }
 
-    public static LeasesRequest release(Map<?, ?> params) {
-        return fromMap(Op.RELEASE, params);
+    public static LeasesRequest release(
+        String body,
+        Function<? super String, ? extends Map<?, ?>> jsonParser
+    ) {
+        return fromMap(Op.RELEASE, body, jsonParser);
     }
 
     public enum Op {

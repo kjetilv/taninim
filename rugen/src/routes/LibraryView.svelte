@@ -21,12 +21,17 @@
 
     const albumDismissed = album => {
         try {
-            fetch(`${endpoint}/lease?userId=${authorization.userId}&album=${album.uuid}&token=${authorization.token}`, {
+            fetch(`${endpoint}/lease`, {
                 method: "DELETE",
                 cache: "no-cache",
                 headers: {
                     "Content-Type": "application/json"
-                }
+                },
+                body: JSON.stringify({
+                    userId: authorization.userId,
+                    token: authorization.token,
+                    album: album.uuid
+                })
             }).then(async response => {
                 if (response?.status < 300) {
                     dispatch("albumDismissed", {

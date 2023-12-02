@@ -43,7 +43,7 @@
 />
 
 <LibraryView
-        endpoint={kuduUrl}
+        endpoint={yellUrl}
         bind:authorization={authorization}
         bind:playableAlbums={playableAlbums}
         bind:receivedAlbums={receivedAlbums}

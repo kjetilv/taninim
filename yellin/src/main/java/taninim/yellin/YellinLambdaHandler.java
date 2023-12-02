@@ -8,8 +8,8 @@ import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 
-import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 import static taninim.yellin.Yellin.activationSerializer;
@@ -45,15 +45,25 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + leasesDispatcher + ", " + activationSerializer + "]";
+    }
+
+    @Override
     protected Optional<LambdaResult> result(LambdaPayload payload) {
-        if (payload.isExactly("post", "/auth")) {
-            return handleBody(payload.body(), this::authenticate);
+        if (payload.isPost()) {
+            if (payload.isExactly("/auth")) {
+                return handle(payload.body(), this::authenticate);
+            }
+            if (payload.isExactly("/lease")) {
+                return handle(payload.body(), this::addLease);
+            }
+            if (payload.isExactly("/unlease")) {
+                return handle(payload.body(), this::removeLease);
+            }
         }
-        if (payload.isExactly("post", "/lease")) {
-            return handleBody(payload.body(), this::addLease);
-        }
-        if (payload.isPrefixed("delete", "/lease")) {
-            return handleQuery(payload.queryParameters(), this::removeLease);
+        if (payload.isExactly("DELETE", "/lease")) {
+            return handle(payload.body(), this::removeLease);
         }
         return Optional.empty();
     }
@@ -77,8 +87,8 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
                 errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
 
-    private LambdaResult removeLease(Map<?, ?> params) {
-        LeasesRequest leasesRequest = LeasesRequest.release(params);
+    private LambdaResult removeLease(String body) {
+        LeasesRequest leasesRequest = LeasesRequest.release(body, Json.STRING_2_JSON_MAP);
         return leasesDispatcher.dismissLease(leasesRequest)
             .map(result ->
                 result(activationSerializer.jsonBody(result)))
@@ -86,8 +96,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
                 errorSupplier(BAD_REQUEST, "Failed to remove lease: {}", this));
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + leasesDispatcher + ", " + activationSerializer + "]";
+    private static Optional<LambdaResult> handle(String body, Function<String, LambdaResult> bodyHandler) {
+        return Optional.ofNullable(body).map(bodyHandler);
     }
 }

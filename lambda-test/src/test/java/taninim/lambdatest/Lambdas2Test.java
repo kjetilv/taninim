@@ -379,10 +379,6 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
-        if ("DELETE".equalsIgnoreCase(method)) {
-            return yellinReqs.path("/lease?userId=" + userId + "&token=" + token.digest() + "&album=" + album.digest())
-                .execute(method);
-        }
         return yellinReqs.path("/lease").execute(method, Map.of(
             "userId", userId,
             "token", token.digest(),

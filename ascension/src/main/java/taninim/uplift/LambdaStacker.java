@@ -94,13 +94,18 @@ public class LambdaStacker implements Consumer<Stack> {
     }
 
     private static FunctionUrlCorsOptions corsOptions(List<HttpMethod> methods, List<String> headers) {
-        return FunctionUrlCorsOptions.builder()
+        FunctionUrlCorsOptions.Builder builder = FunctionUrlCorsOptions.builder()
             .allowedMethods(methods)
-            .allowedOrigins(List.of("https://tanin.im:5173", "https://kjetilv.github.io"))
-            .allowedHeaders(headers)
+            .allowedOrigins(List.of(
+                "https://tanin.im:5173",
+                "https://kjetilv.github.io"
+            ))
             .maxAge(Duration.days(1))
-            .allowCredentials(true)
-            .build();
+            .allowCredentials(false);
+        if (headers != null && !headers.isEmpty()) {
+            builder.allowedHeaders(headers);
+        }
+        return builder.build();
     }
 
     private static String get(String property) {
