@@ -1,17 +1,5 @@
 package taninim.yellin;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.TemporalAmount;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.util.OnDemand;
 import com.github.kjetilv.uplift.s3.S3Accessor;
@@ -23,6 +11,18 @@ import taninim.music.legal.S3Archives;
 import taninim.music.medias.MediaIds;
 import taninim.music.medias.MediaLibrary;
 import taninim.music.medias.UserAuths;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class Yellin {
 
@@ -77,10 +77,6 @@ public final class Yellin {
         );
     }
 
-    public static ActivationSerializer activationSerializer() {
-        return new ActivationSerializer(Json.OBJECT_2_STRING);
-    }
-
     private Yellin() {
 
     }
@@ -106,7 +102,8 @@ public final class Yellin {
         return mediaLibrary.stream("ids.json").map(inputStream -> {
             Map<?, ?> acls = Json.BYTES_2_JSON_MAP.apply(inputStream);
             List<Map<String, Object>> acl = (List<Map<String, Object>>) acls.get("acl");
-            return acl.stream().map(map -> map.get("ser")).map(String::valueOf).toList();
+            return acl.stream().map(map ->
+                map.get("ser")).map(String::valueOf).toList();
         }).orElseGet(Collections::emptyList);
     }
 
