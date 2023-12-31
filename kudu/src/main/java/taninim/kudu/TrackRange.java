@@ -1,7 +1,7 @@
 package taninim.kudu;
 
 import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static java.util.Objects.requireNonNull;
 

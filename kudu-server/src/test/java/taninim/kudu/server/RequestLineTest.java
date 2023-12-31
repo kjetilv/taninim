@@ -2,7 +2,7 @@ package taninim.kudu.server;
 
 import java.util.Optional;
 
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import org.junit.jupiter.api.Test;
 import taninim.kudu.Track;
 

@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;

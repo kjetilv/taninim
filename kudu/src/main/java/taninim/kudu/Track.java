@@ -3,7 +3,7 @@ package taninim.kudu;
 import java.util.Locale;
 import java.util.Optional;
 
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static com.github.kjetilv.uplift.kernel.io.ParseBits.tailString;
 

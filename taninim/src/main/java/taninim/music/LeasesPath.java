@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.List;
 
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 public record LeasesPath(
     Leases leases,

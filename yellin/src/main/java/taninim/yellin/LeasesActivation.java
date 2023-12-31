@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.json.anno.JsonRecord;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
+@JsonRecord
 public record LeasesActivation(
     String name,
     String userId,

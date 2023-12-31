@@ -2,7 +2,7 @@ package taninim.music;
 
 import java.util.Optional;
 
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 public interface LeasesRegistry {
 

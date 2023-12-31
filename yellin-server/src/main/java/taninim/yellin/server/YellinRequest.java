@@ -4,11 +4,11 @@ import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.ExtAuthResponse;
+import taninim.fb.ExtAuthResponseRW;
 import taninim.yellin.LeasesRequest;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,24 +16,19 @@ import java.util.function.Supplier;
 import static com.github.kjetilv.uplift.kernel.io.ParseBits.tailString;
 import static java.util.Objects.requireNonNull;
 
-record YellinRequest(
-    ExtAuthResponse fbAuth,
-    LeasesRequest request,
-    Admin admin
-) {
+record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin) {
 
     private static final Logger log = LoggerFactory.getLogger(YellinRequest.class);
 
     static Optional<YellinRequest> read(
-        ByteBuffer requestBuffer,
-        Function<String, Map<?, ?>> jsonParser
+        ByteBuffer requestBuffer
     ) {
         try {
             return ByteBuffers.readBuffer(requestBuffer, nextLine ->
                 nextLine.get()
                     .map(String::toLowerCase)
                     .flatMap(requestLine ->
-                        handle(requestLine, nextLine, jsonParser)));
+                        handle(requestLine, nextLine)));
         } catch (Exception e) {
             log.warn("Failed to read auth request: {}", requestBuffer, e);
             return Optional.empty();
@@ -71,21 +66,21 @@ record YellinRequest(
         new YellinRequest(null, null, Admin.health);
 
     private static Optional<YellinRequest> handle(
-        String requestLine, Supplier<Optional<String>> nextLine, Function<String, Map<?, ?>> jsonParser
+        String requestLine, Supplier<Optional<String>> nextLine
     ) {
         return afterPrefix(requestLine, "post /auth")
             .flatMap(path ->
-                readAuth(nextLine, jsonParser))
+                readAuth(nextLine))
             .or(() ->
                 afterPrefix(requestLine, "post /lease").flatMap(path ->
                     readLease(
                         nextLine,
-                        body ->
-                            LeasesRequest.acquire(body, jsonParser)
-                    )))
+                        LeasesRequest::acquire
+                    )
+                ))
             .or(() ->
                 afterPrefix(requestLine, "delete /lease?")
-                    .flatMap(LeasesRequest::release)
+                    .flatMap(LeasesRequest::releaseQueryPars)
                     .map(YellinRequest::new))
             .or(() ->
                 afterPrefix(requestLine, "options /").map(match ->
@@ -112,14 +107,11 @@ record YellinRequest(
             .map(YellinRequest::new);
     }
 
-    private static Optional<YellinRequest> readAuth(
-        Supplier<Optional<String>> nextLine,
-        Function<String, Map<?, ?>> jsonParser
-    ) {
+    private static Optional<YellinRequest> readAuth(Supplier<Optional<String>> nextLine) {
         skipHeaders(nextLine);
         return extractBody(nextLine).map(
             body ->
-                new YellinRequest(ExtAuthResponse.from(body, jsonParser)));
+                new YellinRequest(ExtAuthResponseRW.INSTANCE.read(body)));
     }
 
     private static Optional<String> extractBody(Supplier<Optional<String>> nextLine) {

@@ -2,7 +2,6 @@ package taninim.yellin;
 
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.flogs.LogLevel;
-import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -43,7 +42,7 @@ public final class Main {
         S3AccessorFactory s3AccessorFactory =
             new DefaultS3AccessorFactory(ENV, executor("S3", 10));
         Authenticator fbAuthenticator =
-            new FbAuthenticator(Json.STRING_2_JSON_MAP);
+            new FbAuthenticator();
 
         LambdaHandler handler = YellinLambdaHandler.handler(
             clientSettings,

@@ -1,22 +1,9 @@
 package taninim.lambdatest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.math.BigInteger;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.TemporalAmount;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
 import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -37,10 +24,20 @@ import taninim.music.legal.S3Archives;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
 import taninim.music.medias.MediaLibrary;
-import taninim.yellin.LeasesActivation;
-import taninim.yellin.LeasesDispatcher;
-import taninim.yellin.LeasesRequest;
-import taninim.yellin.Yellin;
+import taninim.yellin.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static taninim.yellin.LeasesRequest.Op.ACQUIRE;
@@ -48,305 +45,6 @@ import static taninim.yellin.LeasesRequest.Op.RELEASE;
 
 @SuppressWarnings("MagicNumber")
 class LambdasTest {
-
-    @SuppressWarnings("unused")
-    @Nested
-    class TimedWithLibrary {
-
-        @BeforeEach
-        void setup() {
-            time(Instant.EPOCH);
-            initLibrary();
-        }
-
-        @Test
-        void noRentIntime() {
-            Uuid firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivation::token)
-                    .orElseThrow();
-
-            tick(5, 4, sessionDuration);
-
-            assertThat(leasesDispatcher.requestLease(new LeasesRequest(
-                userId,
-                firstToken,
-                ACQUIRE,
-                album2
-            ))).isEmpty();
-        }
-
-        @Test
-        void rentAndReauth() {
-            time(Instant.EPOCH.plus(Duration.ofDays(1).plusHours(8)));
-
-            Uuid firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivation::token)
-                    .orElseThrow();
-
-            tick(1, 4, leaseDuration);
-
-            assertThat(leasesDispatcher.requestLease(
-                new LeasesRequest(userId, firstToken, ACQUIRE, album2))
-            ).hasValueSatisfying(activation -> {
-                assertThat(activation.token()).isEqualTo(firstToken);
-                assertThat(activation.trackUUIDs()).describedAs(
-                    "Expected three tracks and definitely not album " +
-                        "UUID %s",
-                    album2
-                ).containsExactly(
-                    track2a,
-                    track2b,
-                    track2c
-                );
-            });
-
-            assertThat(s3Accessor.list("lease-")).hasSize(1);
-
-            tick(1, 2, leaseDuration);
-
-            assertThat(leasesDispatcher.currentLease(authResponse(userId)))
-                .hasValueSatisfying(result -> {
-                    assertThat(result.token()).isEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs(
-                        "Expected three tracks and definitely not album " +
-                            "UUID %s",
-                        album2
-                    ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
-                    );
-                });
-
-            assertThat(s3Accessor.list("lease-")).hasSize(1);
-        }
-
-        @Test
-        void rentAndTimeoutPlay() {
-            Uuid firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivation::token)
-                    .orElseThrow();
-            assertThat(leasesDispatcher.requestLease(
-                new LeasesRequest(userId, firstToken, ACQUIRE, album2)
-            )).hasValueSatisfying(result -> {
-                assertThat(result.token()).isEqualTo(firstToken);
-                assertThat(result.trackUUIDs()).describedAs(
-                    "Expected two tracks and definitely not album UUID %s",
-                    album2
-                ).containsExactly(
-                    track2a,
-                    track2b,
-                    track2c
-                );
-            });
-
-            tick(Duration.ofMinutes(leaseDuration.toMinutes() / 2));
-
-            assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
-                assertThat(result.token()).isEqualTo(firstToken);
-                assertThat(result.trackUUIDs()).describedAs(
-                    "Expected three tracks and definitely not album UUID %s",
-                    album2
-                ).containsExactly(
-                    track2a,
-                    track2b,
-                    track2c
-                );
-            });
-
-            tick(leaseDuration);
-
-            assertThat(leasesDispatcher.createLease(authResponse(userId)))
-                .hasValueSatisfying(result -> {
-                    assertThat(result.token()).isNotEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs("Expected timed-out rental")
-                        .isEmpty();
-                });
-        }
-
-        void rentAndPlayThenTimeout() {
-            Uuid firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivation::token)
-                    .orElseThrow();
-            leasesDispatcher.requestLease(new LeasesRequest(userId, firstToken, ACQUIRE, album2));
-            Track track = new Track(track2b, Track.Format.M4A);
-            TrackRange trackRange = new TrackRange(track, new Range(0L, 10L), firstToken);
-
-            assertThat(kudu.library(firstToken)).isPresent();
-            assertThat(kudu.library(Uuid.random())).isNotPresent();
-
-            tick(Duration.ofDays(1));
-
-            assertThat(kudu.library(firstToken)).isEmpty();
-        }
-
-        @BeforeEach
-        void setupLibrary() {
-            LambdasTest.this.setupDispatcher(sessionDuration, leaseDuration);
-        }
-    }
-
-    @Nested
-    class Untimed {
-
-        @Nested
-        class WithLibrary {
-
-            @BeforeEach
-            void setup() {
-                initLibrary();
-            }
-
-            @Test
-            void lookupExisting() {
-                assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
-                    assertThat(result.trackUUIDs()).isEmpty();
-                    LeasesRequest leasesRequest = new LeasesRequest(
-                        userId,
-                        result.token(),
-                        ACQUIRE,
-                        album1
-                    );
-                    assertThat(leasesDispatcher.requestLease(leasesRequest))
-                        .hasValueSatisfying(requestResult ->
-                            assertThat(requestResult.trackUUIDs()).describedAs(
-                                "Expected two tracks and definitely not album UUID %s",
-                                album1
-                            ).containsExactly(track1a, track1b));
-                });
-            }
-
-            @Test
-            void failedRent() {
-                assertThat(leasesDispatcher.createLease(authResponse(userId)))
-                    .hasValueSatisfying(result ->
-                        assertThat(result.isEmpty()).isTrue());
-            }
-
-            @Test
-            void rentAndReauth() {
-                Uuid firstToken =
-                    leasesDispatcher.createLease(authResponse(userId))
-                        .map(LeasesActivation::token)
-                        .orElseThrow();
-                assertThat(leasesDispatcher.requestLease(new LeasesRequest(
-                    userId,
-                    firstToken,
-                    ACQUIRE,
-                    album2
-                ))).hasValueSatisfying(result -> {
-                    assertThat(result.token()).isEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs(
-                        "Expected two tracks and definitely not album " +
-                            "UUID %s",
-                        album2
-                    ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
-                    );
-                });
-                assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
-                    assertThat(result.token()).isEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs(
-                        "Expected three tracks and definitely not album " +
-                            "UUID %s",
-                        album2
-                    ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
-                    );
-                });
-            }
-
-            @Test
-            void rentAndRelease() {
-                Uuid firstToken =
-                    leasesDispatcher.createLease(authResponse(userId))
-                        .map(LeasesActivation::token)
-                        .orElseThrow();
-                assertThat(leasesDispatcher.requestLease(new LeasesRequest(
-                    userId,
-                    firstToken,
-                    ACQUIRE,
-                    album2
-                ))).hasValueSatisfying(result -> {
-                    assertThat(result.token()).isEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs(
-                        "Expected three tracks and definitely not album " +
-                            "UUID %s",
-                        album2
-                    ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
-                    );
-                });
-
-                assertThat(leasesDispatcher.dismissLease(new LeasesRequest(
-                    userId,
-                    firstToken,
-                    RELEASE,
-                    album2
-                ))).hasValueSatisfying(result ->
-                    assertThat(result.trackUUIDs()).isEmpty());
-            }
-
-            @Test
-            void rentAndPlay() {
-                Uuid firstToken = leasesDispatcher.createLease(authResponse(userId))
-                    .map(LeasesActivation::token)
-                    .orElseThrow();
-                assertThat(
-                    leasesDispatcher.requestLease(new LeasesRequest(userId, firstToken, ACQUIRE, album2))
-                ).hasValueSatisfying(result ->
-                    assertThat(result.trackUUIDs()).hasSize(3));
-
-                Track track = new Track(track2b, Track.Format.M4A);
-                TrackRange trackRange = new TrackRange(track, new Range(0L, 10L).withLength(256L), firstToken);
-
-                assertThat(kudu.audioBytes(trackRange)).hasValueSatisfying(audioBytes -> {
-                    assertThat(audioBytes.chunk()).isEqualTo(new Chunk("m4a", 0L, 10L, 256L));
-                    assertThat(audioBytes.bytes()).hasSize(10);
-                });
-            }
-        }
-
-        @BeforeEach
-        void setupDispatcher() {
-            LambdasTest.this.setupDispatcher(sessionDuration, leaseDuration);
-        }
-
-        @Test
-        void rejectStrangers() {
-            setupDispatcher();
-            assertThat(leasesDispatcher.createLease(authResponse(Uuid.random().digest()))).isEmpty();
-        }
-
-        @Test
-        void authUserWithoutRentals() {
-            setupDispatcher();
-            assertThat(leasesDispatcher.createLease(authResponse(userId)))
-                .hasValueSatisfying(result ->
-                    assertThat(result.isEmpty()).isTrue());
-        }
-
-        @Test
-        void authUserShouldProduceRecord() {
-            setupDispatcher();
-            assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
-                assertThat(result.isEmpty()).isTrue();
-                assertThat(leasesDispatcher.createLease(authResponse(userId)))
-                    .hasValueSatisfying(activation ->
-                        assertThat(activation.token()).isEqualTo(result.token()));
-            });
-        }
-    }
 
     private final Duration sessionDuration = Duration.ofDays(1);
 
@@ -371,14 +69,14 @@ class LambdasTest {
     private final String userId = Uuid.random().digest();
 
     private final String idsJson = """
-                                   {
-                                     "acl": [
-                                       {
-                                         "ser": "%s"
-                                       }
-                                     ]
-                                   }
-                                   """.formatted(userId);
+        {
+          "acl": [
+            {
+              "ser": "%s"
+            }
+          ]
+        }
+        """.formatted(userId);
 
     private final Map<String, MyS3.S3Data> s3 = new ConcurrentHashMap<>();
 
@@ -397,12 +95,6 @@ class LambdasTest {
         storeSongs(track1a, track1b, track2a, track2b, track2c);
     }
 
-    private void storeSongs(Uuid... tracks) {
-        for (Uuid track: tracks) {
-            put(track.uuid().toString() + ".m4a");
-        }
-    }
-
     @BeforeEach
     void setUp() {
         s3Accessor = new MyS3(s3, this::now);
@@ -417,6 +109,12 @@ class LambdasTest {
     void tearDown() {
         archives = null;
         leasesDispatcher = null;
+    }
+
+    private void storeSongs(Uuid... tracks) {
+        for (Uuid track : tracks) {
+            put(track.uuid().toString() + ".m4a");
+        }
     }
 
     private void tick(int numerator, int denominator, Duration duration) {
@@ -491,5 +189,321 @@ class LambdasTest {
 
     private static AlbumTrackIds album(Uuid albumId, Uuid... tracks) {
         return new AlbumTrackIds(albumId, Arrays.asList(tracks));
+    }
+
+    @SuppressWarnings("unused")
+    @Nested
+    class TimedWithLibrary {
+
+        @BeforeEach
+        void setup() {
+            time(Instant.EPOCH);
+            initLibrary();
+        }
+
+        @Test
+        void noRentIntime() {
+            Uuid firstToken =
+                leasesDispatcher.createLease(authResponse(userId))
+                    .map(LeasesActivation::token)
+                    .orElseThrow();
+
+            tick(5, 4, sessionDuration);
+
+            assertThat(leasesDispatcher.requestLease(new LeasesRequest(
+                ACQUIRE,
+                new LeasesData(
+                    userId,
+                    firstToken,
+                    album2
+                )
+            ))).isEmpty();
+        }
+
+        @Test
+        void rentAndReauth() {
+            time(Instant.EPOCH.plus(Duration.ofDays(1).plusHours(8)));
+
+            Uuid firstToken =
+                leasesDispatcher.createLease(authResponse(userId))
+                    .map(LeasesActivation::token)
+                    .orElseThrow();
+
+            tick(1, 4, leaseDuration);
+
+            assertThat(leasesDispatcher.requestLease(
+                new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2)))
+            ).hasValueSatisfying(activation -> {
+                assertThat(activation.token()).isEqualTo(firstToken);
+                assertThat(activation.trackUUIDs()).describedAs(
+                    "Expected three tracks and definitely not album " +
+                    "UUID %s",
+                    album2
+                ).containsExactly(
+                    track2a,
+                    track2b,
+                    track2c
+                );
+            });
+
+            assertThat(s3Accessor.list("lease-")).hasSize(1);
+
+            tick(1, 2, leaseDuration);
+
+            assertThat(leasesDispatcher.currentLease(authResponse(userId)))
+                .hasValueSatisfying(result -> {
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
+                        "Expected three tracks and definitely not album " +
+                        "UUID %s",
+                        album2
+                    ).containsExactly(
+                        track2a,
+                        track2b,
+                        track2c
+                    );
+                });
+
+            assertThat(s3Accessor.list("lease-")).hasSize(1);
+        }
+
+        @Test
+        void rentAndTimeoutPlay() {
+            Uuid firstToken =
+                leasesDispatcher.createLease(authResponse(userId))
+                    .map(LeasesActivation::token)
+                    .orElseThrow();
+            assertThat(leasesDispatcher.requestLease(
+                new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2))
+            )).hasValueSatisfying(result -> {
+                assertThat(result.token()).isEqualTo(firstToken);
+                assertThat(result.trackUUIDs()).describedAs(
+                    "Expected two tracks and definitely not album UUID %s",
+                    album2
+                ).containsExactly(
+                    track2a,
+                    track2b,
+                    track2c
+                );
+            });
+
+            tick(Duration.ofMinutes(leaseDuration.toMinutes() / 2));
+
+            assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
+                assertThat(result.token()).isEqualTo(firstToken);
+                assertThat(result.trackUUIDs()).describedAs(
+                    "Expected three tracks and definitely not album UUID %s",
+                    album2
+                ).containsExactly(
+                    track2a,
+                    track2b,
+                    track2c
+                );
+            });
+
+            tick(leaseDuration);
+
+            assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                .hasValueSatisfying(result -> {
+                    assertThat(result.token()).isNotEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs("Expected timed-out rental")
+                        .isEmpty();
+                });
+        }
+
+        void rentAndPlayThenTimeout() {
+            Uuid firstToken =
+                leasesDispatcher.createLease(authResponse(userId))
+                    .map(LeasesActivation::token)
+                    .orElseThrow();
+            leasesDispatcher.requestLease(new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2)));
+            Track track = new Track(track2b, Track.Format.M4A);
+            TrackRange trackRange = new TrackRange(track, new Range(0L, 10L), firstToken);
+
+            assertThat(kudu.library(firstToken)).isPresent();
+            assertThat(kudu.library(Uuid.random())).isNotPresent();
+
+            tick(Duration.ofDays(1));
+
+            assertThat(kudu.library(firstToken)).isEmpty();
+        }
+
+        @BeforeEach
+        void setupLibrary() {
+            LambdasTest.this.setupDispatcher(sessionDuration, leaseDuration);
+        }
+    }
+
+    @Nested
+    class Untimed {
+
+        @BeforeEach
+        void setupDispatcher() {
+            LambdasTest.this.setupDispatcher(sessionDuration, leaseDuration);
+        }
+
+        @Test
+        void rejectStrangers() {
+            setupDispatcher();
+            assertThat(leasesDispatcher.createLease(authResponse(Uuid.random().digest()))).isEmpty();
+        }
+
+        @Test
+        void authUserWithoutRentals() {
+            setupDispatcher();
+            assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                .hasValueSatisfying(result ->
+                    assertThat(result.isEmpty()).isTrue());
+        }
+
+        @Test
+        void authUserShouldProduceRecord() {
+            setupDispatcher();
+            assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
+                assertThat(result.isEmpty()).isTrue();
+                assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                    .hasValueSatisfying(activation ->
+                        assertThat(activation.token()).isEqualTo(result.token()));
+            });
+        }
+
+        @Nested
+        class WithLibrary {
+
+            @BeforeEach
+            void setup() {
+                initLibrary();
+            }
+
+            @Test
+            void lookupExisting() {
+                assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
+                    assertThat(result.trackUUIDs()).isEmpty();
+                    LeasesRequest leasesRequest = new LeasesRequest(
+                        ACQUIRE,
+                        new LeasesData(
+                            userId,
+                            result.token(),
+                            album1
+                        )
+                    );
+                    assertThat(leasesDispatcher.requestLease(leasesRequest))
+                        .hasValueSatisfying(requestResult ->
+                            assertThat(requestResult.trackUUIDs()).describedAs(
+                                "Expected two tracks and definitely not album UUID %s",
+                                album1
+                            ).containsExactly(track1a, track1b));
+                });
+            }
+
+            @Test
+            void failedRent() {
+                assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                    .hasValueSatisfying(result ->
+                        assertThat(result.isEmpty()).isTrue());
+            }
+
+            @Test
+            void rentAndReauth() {
+                Uuid firstToken =
+                    leasesDispatcher.createLease(authResponse(userId))
+                        .map(LeasesActivation::token)
+                        .orElseThrow();
+                assertThat(leasesDispatcher.requestLease(new LeasesRequest(
+                    ACQUIRE,
+                    new LeasesData(
+                        userId,
+                        firstToken,
+                        album2
+                    )
+                ))).hasValueSatisfying(result -> {
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
+                        "Expected two tracks and definitely not album " +
+                        "UUID %s",
+                        album2
+                    ).containsExactly(
+                        track2a,
+                        track2b,
+                        track2c
+                    );
+                });
+                assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
+                        "Expected three tracks and definitely not album " +
+                        "UUID %s",
+                        album2
+                    ).containsExactly(
+                        track2a,
+                        track2b,
+                        track2c
+                    );
+                });
+            }
+
+            @Test
+            void rentAndRelease() {
+                Uuid firstToken =
+                    leasesDispatcher.createLease(authResponse(userId))
+                        .map(LeasesActivation::token)
+                        .orElseThrow();
+                assertThat(leasesDispatcher.requestLease(new LeasesRequest(
+                    ACQUIRE,
+                    new LeasesData(
+                        userId,
+                        firstToken,
+                        album2
+                    )
+                ))).hasValueSatisfying(result -> {
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
+                        "Expected three tracks and definitely not album " +
+                        "UUID %s",
+                        album2
+                    ).containsExactly(
+                        track2a,
+                        track2b,
+                        track2c
+                    );
+                });
+
+                assertThat(leasesDispatcher.dismissLease(new LeasesRequest(
+                    RELEASE,
+                    new LeasesData(
+                        userId,
+                        firstToken,
+                        album2
+                    )
+                ))).hasValueSatisfying(result ->
+                    assertThat(result.trackUUIDs()).isEmpty());
+            }
+
+            @Test
+            void rentAndPlay() {
+                Uuid firstToken = leasesDispatcher.createLease(authResponse(userId))
+                    .map(LeasesActivation::token)
+                    .orElseThrow();
+                assertThat(
+                    leasesDispatcher.requestLease(new LeasesRequest(
+                        ACQUIRE,
+                        new LeasesData(
+                            userId,
+                            firstToken,
+                            album2
+                        )
+                    ))
+                ).hasValueSatisfying(result ->
+                    assertThat(result.trackUUIDs()).hasSize(3));
+
+                Track track = new Track(track2b, Track.Format.M4A);
+                TrackRange trackRange = new TrackRange(track, new Range(0L, 10L).withLength(256L), firstToken);
+
+                assertThat(kudu.audioBytes(trackRange)).hasValueSatisfying(audioBytes -> {
+                    assertThat(audioBytes.chunk()).isEqualTo(new Chunk("m4a", 0L, 10L, 256L));
+                    assertThat(audioBytes.bytes()).hasSize(10);
+                });
+            }
+        }
     }
 }

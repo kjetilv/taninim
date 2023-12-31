@@ -4,7 +4,6 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.flogs.Flogs;
-import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
@@ -99,7 +98,7 @@ public final class LocalTaninim {
             yellinClientSettings,
             taninimSettings,
             new DefaultS3AccessorFactory(Env.actual(), ManagedExecutors.executor("yellin-s3")),
-            new FbAuthenticator(Json.STRING_2_JSON_MAP)
+            new FbAuthenticator()
         );
         Runnable yellinLamdbdaManaged = LamdbdaManaged.create(
             yellinLocalLambda.getLambdaUri(),

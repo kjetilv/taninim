@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
@@ -64,7 +64,7 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     @Override
     public Optional<LeasesActivation> requestLease(LeasesRequest leasesRequest) {
         Instant time = this.time.get();
-        return authorizer.login(leasesRequest.userId(), false)
+        return authorizer.login(leasesRequest.leasesData().userId(), false)
             .filter(userAuth ->
                 userAuth.validAt(time))
             .flatMap(userAuth ->
@@ -105,8 +105,8 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     private LeasesActivation requestedActivation(UserAuth userAuth, LeasesRequest leasesRequest, Instant time) {
         return new LeasesActivation(
             null,
-            leasesRequest.userId(),
-            leasesRequest.token(),
+            leasesRequest.leasesData().userId(),
+            leasesRequest.leasesData().token(),
             tracks(userAuth, time),
             userAuth.expiry()
         );
@@ -143,14 +143,14 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
             throw new IllegalArgumentException("Null auth");
         }
         List<Uuid> value = mediaIds.get().albumTracks().get(auth.albumId());
-        if (value == null) {
-            return Stream.empty();
-        }
-        return value.stream();
+        return value == null
+            ? Stream.empty()
+            : value.stream();
     }
 
     private static UserRequest userRequest(LeasesRequest leasesRequest) {
-        return new UserRequest(leasesRequest.userId(), leasesRequest.token(), leasesRequest.album());
+        LeasesData data = leasesRequest.leasesData();
+        return new UserRequest(data.userId(), data.token(), data.album());
     }
 
     @Override

@@ -14,7 +14,7 @@ import com.github.kjetilv.uplift.asynchttp.ByteChannelStreamBridgingReader;
 import com.github.kjetilv.uplift.asynchttp.Processing;
 import com.github.kjetilv.uplift.asynchttp.Transfer;
 import com.github.kjetilv.uplift.asynchttp.WritableBuffer;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.Kudu;

@@ -1,37 +1,14 @@
 package taninim.lambdatest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.DataOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.TemporalAmount;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +21,21 @@ import taninim.kudu.KuduLambdaHandler;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
 import taninim.yellin.YellinLambdaHandler;
+
+import java.io.*;
+import java.math.BigInteger;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static taninim.lambdatest.Parse.authResponse;
@@ -163,7 +155,7 @@ class Lambdas2Test {
     void shouldAcceptKnownUser() {
         HttpResponse<String> response = ok(authAs(userId).join());
         AuthResponse authResponse = authResponse(response.body());
-        assertThat(authResponse.trackUUIDs()).isEmpty();
+        assertThat(authResponse.trackUUIDs()).isNullOrEmpty();
         assertThat(authResponse.token()).isNotBlank();
     }
 
@@ -171,7 +163,7 @@ class Lambdas2Test {
     void shouldBeAbleToRequestLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
         AuthResponse auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isEmpty();
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         LeasesActivation leasesActivation =
             leasesActivation(ok(lease(Uuid.from(auth1.token()), album2).join()).body());
@@ -183,7 +175,7 @@ class Lambdas2Test {
     void shouldBeAbleToRequestLeaseAgain() {
         HttpResponse<String> authResponse = authAs(userId).join();
         AuthResponse auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isEmpty();
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         Uuid token = Uuid.from(auth1.token());
         HttpResponse<String> leaseResponse1 = ok(lease(token, album2).join());
@@ -203,7 +195,7 @@ class Lambdas2Test {
     void shouldBeAbleToDropLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
         AuthResponse auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isEmpty();
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         Uuid token = Uuid.from(auth1.token());
 
@@ -220,7 +212,7 @@ class Lambdas2Test {
     void shouldBeAbleToStreamAfterLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
         AuthResponse auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isEmpty();
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         Uuid token = Uuid.from(auth1.token());
         ok(lease(token, album2).join());
@@ -233,28 +225,29 @@ class Lambdas2Test {
     void shouldBeAbleToStreamALotAfterLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
         AuthResponse auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isEmpty();
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         Uuid token = Uuid.from(auth1.token());
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
 
         IntStream.range(0, 128).mapToObj(i -> {
-            int start = i * 2;
-            int end = start + 1;
-            return stream(token, track1a, "bytes=" + start + "-" + end);
-        }).forEach(action -> {
-            HttpResponse<String> response = action.join();
-            assertThat(response.statusCode()).isEqualTo(206);
-            assertThat(response.headers().firstValueAsLong("Content-Length")).hasValue(2L);
-        });
+                int start = i * 2;
+                int end = start + 1;
+                return stream(token, track1a, "bytes=" + start + "-" + end);
+            })
+            .forEach(action -> {
+                HttpResponse<String> response = action.join();
+                assertThat(response.statusCode()).isEqualTo(206);
+                assertThat(response.headers().firstValueAsLong("Content-Length")).hasValue(2L);
+            });
     }
 
     @Test
     void shouldBeRestrictedToStreamingSize() {
         HttpResponse<String> authResponse = authAs(userId).join();
         AuthResponse auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isEmpty();
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         Uuid token = Uuid.from(auth1.token());
         ok(lease(token, album2).join());
@@ -283,14 +276,14 @@ class Lambdas2Test {
         HttpResponse<String> dropResponse2 = ok(release(token, album1).join());
 
         LeasesActivation leasesDectivation = leasesActivation(dropResponse2.body());
-        assertThat(leasesDectivation.trackUUIDs()).isEmpty();
+        assertThat(leasesDectivation.trackUUIDs()).isNullOrEmpty();
     }
 
     @Test
     void shouldFindAlbumsAfterLease() {
         HttpResponse<String> authResponse = authAs(userId).join();
         AuthResponse auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isEmpty();
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         HttpResponse<String> leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
 
@@ -312,7 +305,7 @@ class Lambdas2Test {
         HttpResponse<String> authResponse2 = authAs(userId).join();
         AuthResponse auth2 = authResponse(authResponse2.body());
         assertThat(auth2.token()).isNotEqualTo(auth1.token());
-        assertThat(auth2.trackUUIDs()).isEmpty();
+        assertThat(auth2.trackUUIDs()).isNullOrEmpty();
     }
 
     @Test
@@ -330,7 +323,7 @@ class Lambdas2Test {
         HttpResponse<String> authResponse2 = authAs(userId).join();
         AuthResponse auth2 = authResponse(authResponse2.body());
         assertThat(auth2.token()).isNotEqualTo(auth1.token());
-        assertThat(auth2.trackUUIDs()).isEmpty();
+        assertThat(auth2.trackUUIDs()).isNullOrEmpty();
 
         HttpResponse<String> renewedLeaseResponse = ok(lease(Uuid.from(auth2.token()), album1).join());
 
@@ -351,8 +344,9 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> stream(Uuid token, Uuid track, String range) {
-        Map<String, String> headers = Optional.ofNullable(range).map(header -> Map.of("Range", header)).orElseGet(
-            Collections::emptyMap);
+        Map<String, String> headers = Optional.ofNullable(range)
+            .map(header -> Map.of("Range", header)).orElseGet(
+                Collections::emptyMap);
         return kuduReqs.path("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())).get(headers);
     }
 
@@ -420,225 +414,225 @@ class Lambdas2Test {
     ));
 
     private static final String idsJson = """
-                                          {
-                                            "acl": [
-                                              {
-                                                "ser": "%s"
-                                              }
-                                            ]
-                                          }
-                                          """.formatted(userId);
+        {
+          "acl": [
+            {
+              "ser": "%s"
+            }
+          ]
+        }
+        """.formatted(userId);
 
     private static final String mediasJson = """
-                                             [
-                                               {
-                                                 "uuid": "%s",
-                                                 "name": "Buer: Book of Angels vol. 31",
-                                                 "artist": "Brian Marsella",
-                                                 "year": 2017,
-                                                 "artists": [
-                                                   {
-                                                     "uuid": "DZ8tx-pzPFa3UES6gswUYg",
-                                                     "name": "Brian Marsella"
-                                                   },
-                                                   {
-                                                     "uuid": "PYlV94yfO42XwBkNOQzLGQ",
-                                                     "name": "Kenny Wollesen"
-                                                   },
-                                                   {
-                                                     "uuid": "-QQNc2RfMaCH_VRyRsnVHw",
-                                                     "name": "Trevor Dunn"
-                                                   },
-                                                   {
-                                                     "uuid": "kpK9rVmrMO_opipEA3MhsA",
-                                                     "name": "John Zorn"
-                                                   },
-                                                   {
-                                                     "uuid": "ptJqfOSWN5a-Ky4VFSJSEQ",
-                                                     "name": "Brian Marsella Trio"
-                                                   }
-                                                 ],
-                                                 "credits": [
-                                                   {
-                                                     "artist": "Brian Marsella",
-                                                     "credit": "Piano"
-                                                   },
-                                                   {
-                                                     "artist": "Kenny Wollesen",
-                                                     "credit": "Drums"
-                                                   },
-                                                   {
-                                                     "artist": "Trevor Dunn",
-                                                     "credit": "Bass"
-                                                   },
-                                                   {
-                                                     "artist": "John Zorn",
-                                                     "credit": "Arranged By"
-                                                   },
-                                                   {
-                                                     "artist": "Brian Marsella",
-                                                     "credit": "Arranged By"
-                                                   },
-                                                   {
-                                                     "artist": "Brian Marsella Trio"
-                                                   },
-                                                   {
-                                                     "artist": "John Zorn"
-                                                   }
-                                                 ],
-                                                 "prodCredits": [
-                                                   {
-                                                     "name": "Aaron Nevezie",
-                                                     "credit": "Recorded By, Mixed By"
-                                                   },
-                                                   {
-                                                     "name": "John Zorn",
-                                                     "credit": "Producer [Produced By]"
-                                                   },
-                                                   {
-                                                     "name": "Scott Hull (2)",
-                                                     "credit": "Mastered By"
-                                                   },
-                                                   {
-                                                     "name": "M. Jarrault",
-                                                     "credit": "Illustration"
-                                                   },
-                                                   {
-                                                     "name": "Kazunori Sugiyama",
-                                                     "credit": "Executive-Producer [Associate Producer]"
-                                                   },
-                                                   {
-                                                     "name": "John Zorn",
-                                                     "credit": "Executive-Producer"
-                                                   },
-                                                   {
-                                                     "name": "Heung-Heung Chin",
-                                                     "credit": "Design"
-                                                   },
-                                                   {
-                                                     "name": "Chippy (3)",
-                                                     "credit": "Design"
-                                                   },
-                                                   {
-                                                     "name": "John Zorn",
-                                                     "credit": "Composed By [All Music Composed By]"
-                                                   }
-                                                 ],
-                                                 "sections": [
-                                                   {
-                                                     "name": "1",
-                                                     "tracks": [
-                                                       {
-                                                         "uuid": "%s",
-                                                         "no": "1",
-                                                         "name": "Jekusiel",
-                                                         "seconds": 308
-                                                       },
-                                                       {
-                                                         "uuid": "%s",
-                                                         "no": "2",
-                                                         "name": "Diniel",
-                                                         "seconds": 259
-                                                       }
-                                                     ]
-                                                   }
-                                                 ],
-                                                 "obi": "obi-1",
-                                                 "discog": "https://www.discogs.com/release/10215523-John-Zorn-Brian-Marsella-Trio-Buer-Book-Of-Angels-Volume-31",
-                                                 "discogImage": "https://i.discogs.com/SKSiB7vvKEWDEJL_s7EkpPw3Q127i-ixoDhX1b8JmLw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMjE1/NTIzLTE0OTM1NDE5/ODUtMTU4OS5qcGVn.jpeg",
-                                                 "compilation": true,
-                                                 "series": [
-                                                   {
-                                                     "name": "Archival Series"
-                                                   },
-                                                   {
-                                                     "name": "Book Of Angels"
-                                                   }
-                                                 ]
-                                               },
-                                               {
-                                                 "uuid": "%s",
-                                                 "name": "Yankees",
-                                                 "artist": "Derek Bailey, George Lewis, John Zorn",
-                                                 "year": 1998,
-                                                 "artists": [
-                                                   {
-                                                     "uuid": "bfqedqONOwKiPnrTfBrXeQ",
-                                                     "name": "Derek Bailey"
-                                                   },
-                                                   {
-                                                     "uuid": "ALohcUuMMEOyHsW4vril7w",
-                                                     "name": "George Lewis"
-                                                   },
-                                                   {
-                                                     "uuid": "kpK9rVmrMO_opipEA3MhsA",
-                                                     "name": "John Zorn"
-                                                   }
-                                                 ],
-                                                 "credits": [
-                                                   {
-                                                     "artist": "George Lewis",
-                                                     "credit": "Trombone"
-                                                   },
-                                                   {
-                                                     "artist": "John Zorn",
-                                                     "credit": "Alto Saxophone, Soprano Saxophone, Clarinet, Featuring [Game Calls]"
-                                                   },
-                                                   {
-                                                     "artist": "Derek Bailey",
-                                                     "credit": "Acoustic Guitar, Electric Guitar"
-                                                   },
-                                                   {
-                                                     "artist": "John Zorn"
-                                                   },
-                                                   {
-                                                     "artist": "George Lewis"
-                                                   },
-                                                   {
-                                                     "artist": "Derek Bailey"
-                                                   }
-                                                 ],
-                                                 "prodCredits": [
-                                                   {
-                                                     "name": "Martin Bisi",
-                                                     "credit": "Recorded By"
-                                                   },
-                                                   {
-                                                     "name": "Howie Weinberg",
-                                                     "credit": "Mastered By"
-                                                   }
-                                                 ],
-                                                 "sections": [
-                                                   {
-                                                     "name": "1",
-                                                     "tracks": [
-                                                       {
-                                                         "uuid": "%s",
-                                                         "no": "1",
-                                                         "name": "City City City",
-                                                         "seconds": 509
-                                                       },
-                                                       {
-                                                         "uuid": "%s",
-                                                         "no": "2",
-                                                         "name": "The Legend Of Enos Slaughter",
-                                                         "seconds": 566
-                                                       },
-                                                       {
-                                                         "uuid": "%s",
-                                                         "no": "3",
-                                                         "name": "Who's On First",
-                                                         "seconds": 195
-                                                       }
-                                                     ]
-                                                   }
-                                                 ],
-                                                 "discog": "https://www.discogs.com/release/1147845-Derek-Bailey-George-Lewis-John-Zorn-Yankees",
-                                                 "discogImage": "https://i.discogs.com/ArKKqO8J7ftuYQpKA1XAoRhg3dY-U9iixERzF6hyCAM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExNDc4/NDUtMTE5NTk3Mzk0/My5qcGVn.jpeg",
-                                                 "compilation": true
-                                               }
-                                             ]
-                                             """.formatted(
+        [
+          {
+            "uuid": "%s",
+            "name": "Buer: Book of Angels vol. 31",
+            "artist": "Brian Marsella",
+            "year": 2017,
+            "artists": [
+              {
+                "uuid": "DZ8tx-pzPFa3UES6gswUYg",
+                "name": "Brian Marsella"
+              },
+              {
+                "uuid": "PYlV94yfO42XwBkNOQzLGQ",
+                "name": "Kenny Wollesen"
+              },
+              {
+                "uuid": "-QQNc2RfMaCH_VRyRsnVHw",
+                "name": "Trevor Dunn"
+              },
+              {
+                "uuid": "kpK9rVmrMO_opipEA3MhsA",
+                "name": "John Zorn"
+              },
+              {
+                "uuid": "ptJqfOSWN5a-Ky4VFSJSEQ",
+                "name": "Brian Marsella Trio"
+              }
+            ],
+            "credits": [
+              {
+                "artist": "Brian Marsella",
+                "credit": "Piano"
+              },
+              {
+                "artist": "Kenny Wollesen",
+                "credit": "Drums"
+              },
+              {
+                "artist": "Trevor Dunn",
+                "credit": "Bass"
+              },
+              {
+                "artist": "John Zorn",
+                "credit": "Arranged By"
+              },
+              {
+                "artist": "Brian Marsella",
+                "credit": "Arranged By"
+              },
+              {
+                "artist": "Brian Marsella Trio"
+              },
+              {
+                "artist": "John Zorn"
+              }
+            ],
+            "prodCredits": [
+              {
+                "name": "Aaron Nevezie",
+                "credit": "Recorded By, Mixed By"
+              },
+              {
+                "name": "John Zorn",
+                "credit": "Producer [Produced By]"
+              },
+              {
+                "name": "Scott Hull (2)",
+                "credit": "Mastered By"
+              },
+              {
+                "name": "M. Jarrault",
+                "credit": "Illustration"
+              },
+              {
+                "name": "Kazunori Sugiyama",
+                "credit": "Executive-Producer [Associate Producer]"
+              },
+              {
+                "name": "John Zorn",
+                "credit": "Executive-Producer"
+              },
+              {
+                "name": "Heung-Heung Chin",
+                "credit": "Design"
+              },
+              {
+                "name": "Chippy (3)",
+                "credit": "Design"
+              },
+              {
+                "name": "John Zorn",
+                "credit": "Composed By [All Music Composed By]"
+              }
+            ],
+            "sections": [
+              {
+                "name": "1",
+                "tracks": [
+                  {
+                    "uuid": "%s",
+                    "no": "1",
+                    "name": "Jekusiel",
+                    "seconds": 308
+                  },
+                  {
+                    "uuid": "%s",
+                    "no": "2",
+                    "name": "Diniel",
+                    "seconds": 259
+                  }
+                ]
+              }
+            ],
+            "obi": "obi-1",
+            "discog": "https://www.discogs.com/release/10215523-John-Zorn-Brian-Marsella-Trio-Buer-Book-Of-Angels-Volume-31",
+            "discogImage": "https://i.discogs.com/SKSiB7vvKEWDEJL_s7EkpPw3Q127i-ixoDhX1b8JmLw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMjE1/NTIzLTE0OTM1NDE5/ODUtMTU4OS5qcGVn.jpeg",
+            "compilation": true,
+            "series": [
+              {
+                "name": "Archival Series"
+              },
+              {
+                "name": "Book Of Angels"
+              }
+            ]
+          },
+          {
+            "uuid": "%s",
+            "name": "Yankees",
+            "artist": "Derek Bailey, George Lewis, John Zorn",
+            "year": 1998,
+            "artists": [
+              {
+                "uuid": "bfqedqONOwKiPnrTfBrXeQ",
+                "name": "Derek Bailey"
+              },
+              {
+                "uuid": "ALohcUuMMEOyHsW4vril7w",
+                "name": "George Lewis"
+              },
+              {
+                "uuid": "kpK9rVmrMO_opipEA3MhsA",
+                "name": "John Zorn"
+              }
+            ],
+            "credits": [
+              {
+                "artist": "George Lewis",
+                "credit": "Trombone"
+              },
+              {
+                "artist": "John Zorn",
+                "credit": "Alto Saxophone, Soprano Saxophone, Clarinet, Featuring [Game Calls]"
+              },
+              {
+                "artist": "Derek Bailey",
+                "credit": "Acoustic Guitar, Electric Guitar"
+              },
+              {
+                "artist": "John Zorn"
+              },
+              {
+                "artist": "George Lewis"
+              },
+              {
+                "artist": "Derek Bailey"
+              }
+            ],
+            "prodCredits": [
+              {
+                "name": "Martin Bisi",
+                "credit": "Recorded By"
+              },
+              {
+                "name": "Howie Weinberg",
+                "credit": "Mastered By"
+              }
+            ],
+            "sections": [
+              {
+                "name": "1",
+                "tracks": [
+                  {
+                    "uuid": "%s",
+                    "no": "1",
+                    "name": "City City City",
+                    "seconds": 509
+                  },
+                  {
+                    "uuid": "%s",
+                    "no": "2",
+                    "name": "The Legend Of Enos Slaughter",
+                    "seconds": 566
+                  },
+                  {
+                    "uuid": "%s",
+                    "no": "3",
+                    "name": "Who's On First",
+                    "seconds": 195
+                  }
+                ]
+              }
+            ],
+            "discog": "https://www.discogs.com/release/1147845-Derek-Bailey-George-Lewis-John-Zorn-Yankees",
+            "discogImage": "https://i.discogs.com/ArKKqO8J7ftuYQpKA1XAoRhg3dY-U9iixERzF6hyCAM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExNDc4/NDUtMTE5NTk3Mzk0/My5qcGVn.jpeg",
+            "compilation": true
+          }
+        ]
+        """.formatted(
         album1.digest(),
         track1a.digest(),
         track2a.digest(),
@@ -696,17 +690,6 @@ class Lambdas2Test {
         return new AlbumTrackIds(albumId, Arrays.asList(tracks));
     }
 
-    @SuppressWarnings("WeakerAccess")
-    record AuthResponse(
-        String name,
-        String userId,
-        String token,
-        List<String> trackUUIDs,
-        Long expiry
-    ) {
-
-    }
-
     public record LeaseRequest(
         String userId,
         String token,
@@ -716,6 +699,17 @@ class Lambdas2Test {
     }
 
     public record LeasesActivation(
+        String name,
+        String userId,
+        String token,
+        List<String> trackUUIDs,
+        Long expiry
+    ) {
+
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    record AuthResponse(
         String name,
         String userId,
         String token,

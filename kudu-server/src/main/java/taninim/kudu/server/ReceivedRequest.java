@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
 import com.github.kjetilv.uplift.kernel.io.ParseBits;
 import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.TrackRange;

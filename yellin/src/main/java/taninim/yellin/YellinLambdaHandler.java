@@ -1,18 +1,17 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.lambda.*;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
+import taninim.fb.ExtAuthResponseRW;
 
 import java.util.Optional;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
-import static taninim.yellin.Yellin.activationSerializer;
 import static taninim.yellin.Yellin.leasesDispatcher;
 
 public final class YellinLambdaHandler extends LambdaHandlerSupport {
@@ -31,22 +30,18 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
             taninimSettings.leaseDuration(),
             authenticator
         );
-        ActivationSerializer activationSerializer = activationSerializer(s3Accessor);
-        return new YellinLambdaHandler(leasesDispatcher, activationSerializer);
+        return new YellinLambdaHandler(leasesDispatcher);
     }
 
     private final LeasesDispatcher leasesDispatcher;
 
-    private final ActivationSerializer activationSerializer;
-
-    private YellinLambdaHandler(LeasesDispatcher leasesDispatcher, ActivationSerializer activationSerializer) {
+    private YellinLambdaHandler(LeasesDispatcher leasesDispatcher) {
         this.leasesDispatcher = requireNonNull(leasesDispatcher, "ticketDispatcher");
-        this.activationSerializer = requireNonNull(activationSerializer, "activationSerializer");
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + leasesDispatcher + ", " + activationSerializer + "]";
+        return getClass().getSimpleName() + "[" + leasesDispatcher + "]";
     }
 
     @Override
@@ -70,28 +65,28 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
 
     private LambdaResult authenticate(String body) {
         ExtAuthResponse extAuthResponse =
-            ExtAuthResponse.from(body, Json.STRING_2_JSON_MAP);
+            ExtAuthResponseRW.INSTANCE.read(body);
         return leasesDispatcher.createLease(extAuthResponse)
             .map(result ->
-                result(activationSerializer.jsonBody(result)))
+                result(LeasesActivationRW.INSTANCE.bytes(result)))
             .orElseGet(
                 errorSupplier(UNAUTHORIZED, "Failed to authenticate: {}", this));
     }
 
     private LambdaResult addLease(String body) {
-        LeasesRequest leasesRequest = LeasesRequest.acquire(body, Json.STRING_2_JSON_MAP);
+        LeasesRequest leasesRequest = LeasesRequest.acquire(body);
         Optional<LeasesActivation> leasesActivation = leasesDispatcher.requestLease(leasesRequest);
         return leasesActivation.map(activation ->
-                result(activationSerializer.jsonBody(activation)))
+                result(LeasesActivationRW.INSTANCE.bytes(activation)))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
 
     private LambdaResult removeLease(String body) {
-        LeasesRequest leasesRequest = LeasesRequest.release(body, Json.STRING_2_JSON_MAP);
+        LeasesRequest leasesRequest = LeasesRequest.release(body);
         return leasesDispatcher.dismissLease(leasesRequest)
             .map(result ->
-                result(activationSerializer.jsonBody(result)))
+                result(LeasesActivationRW.INSTANCE.bytes(result)))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to remove lease: {}", this));
     }

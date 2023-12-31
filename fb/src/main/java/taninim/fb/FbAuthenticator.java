@@ -1,18 +1,14 @@
 package taninim.fb;
 
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public final class FbAuthenticator implements Authenticator {
 
@@ -20,18 +16,13 @@ public final class FbAuthenticator implements Authenticator {
 
     private final Supplier<char[]> appSecret = FbSec.secretsProvider();
 
-    private final Function<? super String, ? extends Map<?, ?>> reader;
-
     private final FbListener fbListener;
 
-    public FbAuthenticator(Function<? super String, ? extends Map<?, ?>> reader) {
-        this(reader, null);
+    public FbAuthenticator() {
+        this(null);
     }
 
-    public FbAuthenticator(
-        Function<? super String, ? extends Map<?, ?>> reader, FbListener fbListener
-    ) {
-        this.reader = requireNonNull(reader, "reader");
+    public FbAuthenticator(FbListener fbListener) {
         this.fbListener = fbListener == null ? new FbListener() {
 
         } : fbListener;
@@ -63,7 +54,7 @@ public final class FbAuthenticator implements Authenticator {
             authResponse.accessToken(),
             new String(appSecret.get()),
             new SimpleRequestor(),
-            new SimpleMapper(reader),
+            new SimpleMapper(),
             Version.LATEST
         );
     }

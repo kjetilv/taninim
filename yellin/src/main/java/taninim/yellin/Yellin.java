@@ -77,8 +77,8 @@ public final class Yellin {
         );
     }
 
-    public static ActivationSerializer activationSerializer(S3Accessor s3Accessor) {
-        return new ActivationSerializer(Json.OBJECT_2_STRING, s3Accessor::presign);
+    public static ActivationSerializer activationSerializer() {
+        return new ActivationSerializer(Json.OBJECT_2_STRING);
     }
 
     private Yellin() {

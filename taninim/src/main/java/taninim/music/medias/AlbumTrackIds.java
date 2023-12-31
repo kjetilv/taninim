@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static java.util.Objects.requireNonNull;
 

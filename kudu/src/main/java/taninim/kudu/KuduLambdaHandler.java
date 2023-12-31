@@ -1,7 +1,7 @@
 package taninim.kudu;
 
 import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.kernel.uuid.Uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import com.github.kjetilv.uplift.lambda.*;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;

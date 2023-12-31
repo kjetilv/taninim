@@ -5,7 +5,6 @@ import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.flogs.LogLevel;
-import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
@@ -66,7 +65,7 @@ public final class LocalLambdaYellin {
             clientSettings,
             taninimSettings,
             new DefaultS3AccessorFactory(Env.actual(), executor("S3")),
-            new FbAuthenticator(Json.STRING_2_JSON_MAP)
+            new FbAuthenticator()
         );
 
         Runnable lamdbdaManaged = LamdbdaManaged.create(

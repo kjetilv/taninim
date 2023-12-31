@@ -1,26 +1,20 @@
 package taninim.yellin.server;
 
+import com.github.kjetilv.uplift.asynchttp.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import taninim.fb.ExtAuthResponse;
+import taninim.yellin.LeasesActivation;
+import taninim.yellin.LeasesActivationRW;
+import taninim.yellin.LeasesDispatcher;
+import taninim.yellin.LeasesRequest;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
-
-import com.github.kjetilv.uplift.asynchttp.BufferState;
-import com.github.kjetilv.uplift.asynchttp.BufferStateChannelHandler;
-import com.github.kjetilv.uplift.asynchttp.BufferedWriter;
-import com.github.kjetilv.uplift.asynchttp.Processing;
-import com.github.kjetilv.uplift.asynchttp.Writable;
-import com.github.kjetilv.uplift.asynchttp.WritableBuffer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import taninim.fb.ExtAuthResponse;
-import taninim.yellin.LeasesActivation;
-import taninim.yellin.LeasesDispatcher;
-import taninim.yellin.LeasesRequest;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,30 +24,20 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
 
     private final LeasesDispatcher leasesDispatcher;
 
-    private final Function<String, Map<?, ?>> jsonParser;
-
-    private final Function<LeasesActivation, byte[]> jsonSerializer;
-
     YellinChannelHandler(
         LeasesDispatcher leasesDispatcher,
-        Function<String, Map<?, ?>> jsonParser,
-        Function<LeasesActivation, byte[]> jsonSerializer,
         AsynchronousByteChannel channel,
         int maxRequestLength,
         Supplier<Instant> time
     ) {
         super(channel, maxRequestLength, time);
         this.leasesDispatcher = leasesDispatcher;
-        this.jsonParser = requireNonNull(jsonParser, "jsonParser");
-        this.jsonSerializer = requireNonNull(jsonSerializer, "jsonSerializer");
     }
 
     @Override
     public YellinChannelHandler bind(AsynchronousByteChannel channel) {
         return new YellinChannelHandler(
             leasesDispatcher,
-            jsonParser,
-            jsonSerializer,
             requireNonNull(channel, "channel"),
             maxRequestLength(),
             clock()
@@ -62,7 +46,7 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
 
     @Override
     protected Processing process(BufferState state) {
-        return YellinRequest.read(state.requestBuffer(), jsonParser)
+        return YellinRequest.read(state.requestBuffer())
             .map(this::processing)
             .orElse(Processing.INCOMPLETE);
     }
@@ -113,23 +97,23 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
         }
     }
 
-    private Writable<ByteBuffer> response(LeasesActivation activation) {
-        byte[] body = jsonSerializer.apply(activation);
+    private static final String CONTENT_HEADERS =
+        """
+            HTTP/1.1 200
+            Access-Control-Allow-Origin: *
+            Access-Control-Allow-Methods: GET, HEAD, POST, DELETE
+            Content-Type: application/json
+            Content-Length: %d
+            Cache-Control: no-cache
+
+            """;
+
+    private static Writable<ByteBuffer> response(LeasesActivation activation) {
+        byte[] body = LeasesActivationRW.INSTANCE.write(activation).getBytes(StandardCharsets.UTF_8);
         byte[] headers = jsonHeaders(body.length);
         ByteBuffer byteBuffer = ByteBuffer.wrap(append(headers, body));
         return new WritableBuffer<>(byteBuffer, byteBuffer.capacity());
     }
-
-    private static final String CONTENT_HEADERS =
-        """
-        HTTP/1.1 200
-        Access-Control-Allow-Origin: *
-        Access-Control-Allow-Methods: GET, HEAD, POST, DELETE
-        Content-Type: application/json
-        Content-Length: %d
-        Cache-Control: no-cache
-
-        """;
 
     private static byte[] jsonHeaders(int length) {
         return String.format(CONTENT_HEADERS, length).getBytes(StandardCharsets.UTF_8);
@@ -138,7 +122,7 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
     private static byte[] append(byte[]... parts) {
         byte[] response = new byte[Arrays.stream(parts).mapToInt(part -> part.length).sum()];
         int offset = 0;
-        for (byte[] part: parts) {
+        for (byte[] part : parts) {
             try {
                 System.arraycopy(part, 0, response, offset, part.length);
             } finally {
