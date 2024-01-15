@@ -29,7 +29,7 @@ import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 public final class LocalTaninim {
 
     public static void main(String[] args) {
-        Flogs.initialize(DEBUG, ManagedExecutors.executor("logger", 1));
+        Flogs.initialize(DEBUG);
 
         Supplier<Instant> time = Time.utcSupplier();
 

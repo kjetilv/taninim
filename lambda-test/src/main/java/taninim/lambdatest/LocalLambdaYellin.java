@@ -31,7 +31,7 @@ public final class LocalLambdaYellin {
             32,
             10
         );
-        Flogs.initialize(LogLevel.DEBUG, executor("logging"));
+        Flogs.initialize(LogLevel.DEBUG);
 
         LocalLambdaSettings settings = new LocalLambdaSettings(
             9001,

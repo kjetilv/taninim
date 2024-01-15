@@ -23,7 +23,7 @@ public final class ListLeases {
 
     public static void main(String[] args) {
         ManagedExecutors.configure(4, 10);
-        Flogs.initialize(ManagedExecutors.backgroundLogging());
+        Flogs.initialize();
 
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executor("SL"));
         Archives archives = new S3Archives(s3Accessor);

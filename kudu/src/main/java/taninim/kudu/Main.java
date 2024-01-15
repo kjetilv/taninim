@@ -21,7 +21,7 @@ public final class Main {
     @SuppressWarnings("MagicNumber")
     public static void main(String[] args) {
         ManagedExecutors.configure(10, 32, 10);
-        Flogs.initialize(DEBUG, ManagedExecutors.executor("logger", 1));
+        Flogs.initialize(DEBUG);
         try {
             LambdaClientSettings clientSettings =
                 new LambdaClientSettings(ENV, Time.utcSupplier());

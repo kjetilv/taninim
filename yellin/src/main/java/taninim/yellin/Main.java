@@ -27,8 +27,7 @@ public final class Main {
             10
         );
         Flogs.initialize(
-            LogLevel.DEBUG,
-            executor("logger", 1)
+            LogLevel.DEBUG
         );
 
         LambdaClientSettings clientSettings =
