@@ -1,6 +1,7 @@
 package taninim.yellin.server;
 
 import com.github.kjetilv.uplift.asynchttp.*;
+import com.github.kjetilv.uplift.json.events.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.ExtAuthResponse;
@@ -9,6 +10,7 @@ import taninim.yellin.LeasesActivationRW;
 import taninim.yellin.LeasesDispatcher;
 import taninim.yellin.LeasesRequest;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +20,7 @@ import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
+@SuppressWarnings("LoggingSimilarMessage")
 class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandler> {
 
     private static final Logger log = LoggerFactory.getLogger(YellinChannelHandler.class);
@@ -108,8 +111,11 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
 
             """;
 
+    private static final JsonWriter<byte[], LeasesActivation, ByteArrayOutputStream> LEASES_ACT_WRITER =
+        LeasesActivationRW.INSTANCE.streamWriter();
+
     private static Writable<ByteBuffer> response(LeasesActivation activation) {
-        byte[] body = LeasesActivationRW.INSTANCE.write(activation).getBytes(StandardCharsets.UTF_8);
+        byte[] body = LEASES_ACT_WRITER.write(activation);
         byte[] headers = jsonHeaders(body.length);
         ByteBuffer byteBuffer = ByteBuffer.wrap(append(headers, body));
         return new WritableBuffer<>(byteBuffer, byteBuffer.capacity());

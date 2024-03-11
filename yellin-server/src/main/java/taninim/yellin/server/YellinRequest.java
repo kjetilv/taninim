@@ -1,5 +1,6 @@
 package taninim.yellin.server;
 
+import com.github.kjetilv.uplift.json.events.JsonReader;
 import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,9 @@ record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin)
     private static final YellinRequest HEALTH_REQ =
         new YellinRequest(null, null, Admin.health);
 
+    private static final JsonReader<String, ExtAuthResponse> EXT_AUTH_READER =
+        ExtAuthResponseRW.INSTANCE.stringReader();
+
     private static Optional<YellinRequest> handle(
         String requestLine, Supplier<Optional<String>> nextLine
     ) {
@@ -109,9 +113,8 @@ record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin)
 
     private static Optional<YellinRequest> readAuth(Supplier<Optional<String>> nextLine) {
         skipHeaders(nextLine);
-        return extractBody(nextLine).map(
-            body ->
-                new YellinRequest(ExtAuthResponseRW.INSTANCE.read(body)));
+        return extractBody(nextLine).map(body ->
+            new YellinRequest(EXT_AUTH_READER.read(body)));
     }
 
     private static Optional<String> extractBody(Supplier<Optional<String>> nextLine) {

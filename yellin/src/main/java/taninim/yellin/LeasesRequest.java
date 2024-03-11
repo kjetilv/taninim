@@ -1,5 +1,6 @@
 package taninim.yellin;
 
+import com.github.kjetilv.uplift.json.events.JsonReader;
 import com.github.kjetilv.uplift.kernel.http.QueryParams;
 import com.github.kjetilv.uplift.uuid.Uuid;
 
@@ -15,11 +16,11 @@ public record LeasesRequest(
     public static LeasesRequest acquire(
         String body
     ) {
-        return new LeasesRequest(Op.ACQUIRE, LeasesDataRW.INSTANCE.read(body));
+        return new LeasesRequest(Op.ACQUIRE, LEASES_DATA_READER.read(body));
     }
 
     public static LeasesRequest release(String body) {
-        return new LeasesRequest(Op.RELEASE, LeasesDataRW.INSTANCE.read(body));
+        return new LeasesRequest(Op.RELEASE, LEASES_DATA_READER.read(body));
     }
 
     public static Optional<LeasesRequest> releaseQueryPars(String path) {
@@ -43,10 +44,10 @@ public record LeasesRequest(
         return getClass().getSimpleName() + "[" + op + " " + leasesData + "]";
     }
 
-    public enum Op {
+    private static final JsonReader<String, LeasesData> LEASES_DATA_READER = LeasesDataRW.INSTANCE.stringReader();
 
+    public enum Op {
         ACQUIRE,
         RELEASE
-
     }
 }

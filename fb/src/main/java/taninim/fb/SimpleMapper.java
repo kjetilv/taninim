@@ -1,5 +1,6 @@
 package taninim.fb;
 
+import com.github.kjetilv.uplift.json.events.JsonReader;
 import com.restfb.FacebookClient;
 import com.restfb.JsonMapper;
 
@@ -12,7 +13,7 @@ record SimpleMapper() implements JsonMapper {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T toJavaObject(String json, Class<T> type) {
-        return (T) ExtUserRW.INSTANCE.read(json);
+        return (T) USER_READER.read(json);
     }
 
     @Override
@@ -33,6 +34,8 @@ record SimpleMapper() implements JsonMapper {
     @Override
     public void setFacebookClient(FacebookClient facebookClient) {
     }
+
+    private static final JsonReader<String, ExtUser> USER_READER = ExtUserRW.INSTANCE.stringReader();
 
     private static <T> T fail() {
         throw new UnsupportedOperationException("Not supported");

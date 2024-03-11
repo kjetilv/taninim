@@ -1,5 +1,7 @@
 package taninim.yellin;
 
+import com.github.kjetilv.uplift.json.events.JsonReader;
+import com.github.kjetilv.uplift.json.events.JsonWriter;
 import com.github.kjetilv.uplift.lambda.*;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
@@ -8,6 +10,7 @@ import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -64,11 +67,10 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     private LambdaResult authenticate(String body) {
-        ExtAuthResponse extAuthResponse =
-            ExtAuthResponseRW.INSTANCE.read(body);
+        ExtAuthResponse extAuthResponse = RESPONSE_JSON_READER.read(body);
         return leasesDispatcher.createLease(extAuthResponse)
             .map(result ->
-                result(LeasesActivationRW.INSTANCE.bytes(result)))
+                result(LEASES_WRITER.write(result)))
             .orElseGet(
                 errorSupplier(UNAUTHORIZED, "Failed to authenticate: {}", this));
     }
@@ -77,7 +79,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         LeasesRequest leasesRequest = LeasesRequest.acquire(body);
         Optional<LeasesActivation> leasesActivation = leasesDispatcher.requestLease(leasesRequest);
         return leasesActivation.map(activation ->
-                result(LeasesActivationRW.INSTANCE.bytes(activation)))
+                result(LEASES_WRITER.write(activation)))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
@@ -86,12 +88,19 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         LeasesRequest leasesRequest = LeasesRequest.release(body);
         return leasesDispatcher.dismissLease(leasesRequest)
             .map(result ->
-                result(LeasesActivationRW.INSTANCE.bytes(result)))
+                result(LEASES_WRITER.write(result)))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to remove lease: {}", this));
     }
 
+    private static final JsonWriter<byte[], LeasesActivation, ByteArrayOutputStream> LEASES_WRITER =
+        LeasesActivationRW.INSTANCE.streamWriter();
+
+    private static final JsonReader<String, ExtAuthResponse> RESPONSE_JSON_READER =
+        ExtAuthResponseRW.INSTANCE.stringReader();
+
     private static Optional<LambdaResult> handle(String body, Function<String, LambdaResult> bodyHandler) {
-        return Optional.ofNullable(body).map(bodyHandler);
+        return Optional.ofNullable(body)
+            .map(bodyHandler);
     }
 }
