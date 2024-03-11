@@ -5,8 +5,6 @@ import com.restfb.FacebookClient;
 import com.restfb.JsonMapper;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 record SimpleMapper() implements JsonMapper {
 
@@ -39,11 +37,5 @@ record SimpleMapper() implements JsonMapper {
 
     private static <T> T fail() {
         throw new UnsupportedOperationException("Not supported");
-    }
-
-    private static String get(Map<String, Object> map, String key) {
-        return Optional.ofNullable(map.get(key))
-            .map(Object::toString)
-            .orElseThrow(() -> new IllegalArgumentException("No " + key + " in " + map));
     }
 }
