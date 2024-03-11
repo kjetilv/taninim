@@ -7,8 +7,8 @@ plugins {
 }
 
 dependencies {
-    implementation("software.amazon.awscdk:aws-cdk-lib:2.88.0")
-    implementation("software.constructs:constructs:10.2.69")
+    implementation("software.amazon.awscdk:aws-cdk-lib:2.124.0")
+    implementation("software.constructs:constructs:10.3.0")
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }

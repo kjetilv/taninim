@@ -5,7 +5,7 @@ dependencies {
     implementation("com.github.kjetilv.uplift:uplift-kernel:0.1.1-SNAPSHOT")
     annotationProcessor("com.github.kjetilv.uplift:uplift-json:0.1.1-SNAPSHOT")
 
-    implementation("com.restfb:restfb:2023.9.0") {
+    implementation("com.restfb:restfb:2024.1.0") {
         exclude(group = "org.slf4j")
     }
 
