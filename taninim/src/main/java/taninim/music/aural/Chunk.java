@@ -1,11 +1,10 @@
 package taninim.music.aural;
 
+import com.github.kjetilv.uplift.kernel.io.Range;
+
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.stream.LongStream;
-
-import com.github.kjetilv.uplift.kernel.io.Print;
-import com.github.kjetilv.uplift.kernel.io.Range;
 
 @SuppressWarnings("unused")
 public record Chunk(
@@ -94,10 +93,9 @@ public record Chunk(
         long startPerc = start * 100 / totalSize;
         long endPerc = end * 100 / totalSize;
         return MessageFormat.format(
-            "{0}[{1} {2}/{3}%]",
+            "{0}[{1} {2}%]",
             getClass().getSimpleName(),
             rangeResponseHeader(),
-            Print.bytes(length()),
             startPerc == endPerc ? startPerc : startPerc + "-" + endPerc
         );
     }

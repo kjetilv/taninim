@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.kernel.util.Maps;
+import taninim.util.Maps;
 
 public record UserAuths(List<UserAuth> userAuths) implements BinaryWritable {
 

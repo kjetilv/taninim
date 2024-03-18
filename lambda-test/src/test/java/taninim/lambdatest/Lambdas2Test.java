@@ -362,7 +362,8 @@ class Lambdas2Test {
 
     private void put(String file, BinaryWritable id) {
         try (
-            ByteArrayOutputStream boas = new ByteArrayOutputStream(); DataOutputStream dos = new DataOutputStream(boas)
+            ByteArrayOutputStream boas = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(boas)
         ) {
             id.writeTo(dos);
             dos.close();

@@ -1,13 +1,13 @@
 package taninim.yellin;
 
+import com.github.kjetilv.uplift.json.anno.JsonRecord;
+import com.github.kjetilv.uplift.uuid.Uuid;
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import com.github.kjetilv.uplift.json.anno.JsonRecord;
-import com.github.kjetilv.uplift.uuid.Uuid;
 
 @JsonRecord
 public record LeasesActivation(
@@ -44,7 +44,8 @@ public record LeasesActivation(
     }
 
     public Optional<String> digest() {
-        return Optional.ofNullable(token).map(Uuid::digest);
+        return Optional.ofNullable(token)
+            .map(Uuid::digest);
     }
 
     @Override

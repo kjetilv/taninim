@@ -1,8 +1,8 @@
 package taninim.yellin;
 
-import java.util.Optional;
-
 import taninim.fb.ExtAuthResponse;
+
+import java.util.Optional;
 
 public interface LeasesDispatcher {
 

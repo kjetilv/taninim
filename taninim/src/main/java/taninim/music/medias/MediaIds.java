@@ -8,8 +8,8 @@ import java.util.stream.IntStream;
 
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.kernel.util.Maps;
 import com.github.kjetilv.uplift.uuid.Uuid;
+import taninim.util.Maps;
 
 public record MediaIds(List<AlbumTrackIds> albumTrackIds) implements BinaryWritable {
 

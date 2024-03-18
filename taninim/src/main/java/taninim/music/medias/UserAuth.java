@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
-import com.github.kjetilv.uplift.kernel.util.Maps;
 import com.github.kjetilv.uplift.uuid.Uuid;
+import taninim.util.Maps;
 
 import static com.github.kjetilv.uplift.kernel.io.BytesIO.*;
 import static java.util.Objects.requireNonNull;

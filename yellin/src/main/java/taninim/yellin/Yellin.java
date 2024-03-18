@@ -64,8 +64,9 @@ public final class Yellin {
         );
 
         Authenticator userAuthenticator = authResponse ->
-            authenticator.authenticate(authResponse).filter(extUser ->
-                users.get().contains(extUser.id()));
+            authenticator.authenticate(authResponse)
+                .filter(extUser ->
+                    users.get().contains(extUser.id()));
 
         return new DefaultLeasesDispatcher(
             userAuthenticator,
@@ -78,7 +79,6 @@ public final class Yellin {
     }
 
     private Yellin() {
-
     }
 
     private static final TemporalAmount REFRESH_INTERVAL = Duration.ofHours(1);
@@ -99,12 +99,16 @@ public final class Yellin {
 
     @SuppressWarnings("unchecked")
     private static List<String> ids(MediaLibrary mediaLibrary) {
-        return mediaLibrary.stream("ids.json").map(inputStream -> {
-            Map<?, ?> acls = Json.BYTES_2_JSON_MAP.apply(inputStream);
-            List<Map<String, Object>> acl = (List<Map<String, Object>>) acls.get("acl");
-            return acl.stream().map(map ->
-                map.get("ser")).map(String::valueOf).toList();
-        }).orElseGet(Collections::emptyList);
+        return mediaLibrary.stream("ids.json")
+            .map(inputStream -> {
+                Map<?, ?> acls = Json.BYTES_2_JSON_MAP.apply(inputStream);
+                List<Map<String, Object>> acl = (List<Map<String, Object>>) acls.get("acl");
+                return acl.stream()
+                    .map(map ->
+                        map.get("ser"))
+                    .map(String::valueOf)
+                    .toList();
+            }).orElseGet(Collections::emptyList);
     }
 
     private static void authIds(MediaLibrary mediaLibrary, UserAuths userAuths) {

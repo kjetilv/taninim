@@ -1,12 +1,5 @@
 package taninim.yellin;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
@@ -18,6 +11,13 @@ import taninim.music.Period;
 import taninim.music.medias.MediaIds;
 import taninim.music.medias.UserAuth;
 import taninim.music.medias.UserRequest;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -81,6 +81,11 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
             .map(this::storeActivated);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + leasesRegistry + "]";
+    }
+
     private Optional<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
         Instant time = this.time.get();
         return authenticator.authenticate(extAuthResponse).flatMap(auth ->
@@ -132,14 +137,16 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     }
 
     private List<Uuid> tracks(UserAuth userAuth, Instant time) {
-        return userAuth.albumLeases().stream().filter(auth ->
+        return userAuth.albumLeases()
+            .stream()
+            .filter(auth ->
                 auth.validAt(time))
             .flatMap(this::trackUuids)
             .toList();
     }
 
     private Stream<Uuid> trackUuids(UserAuth.AlbumLease auth) {
-        if (auth == null ) {
+        if (auth == null) {
             throw new IllegalArgumentException("Null auth");
         }
         List<Uuid> value = mediaIds.get().albumTracks().get(auth.albumId());
@@ -151,10 +158,5 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     private static UserRequest userRequest(LeasesRequest leasesRequest) {
         LeasesData data = leasesRequest.leasesData();
         return new UserRequest(data.userId(), data.token(), data.album());
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + leasesRegistry + "]";
     }
 }

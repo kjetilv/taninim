@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.github.kjetilv.uplift.kernel.util.Maps;
 import com.github.kjetilv.uplift.uuid.Uuid;
+import taninim.util.Maps;
 
 import static java.util.Objects.requireNonNull;
 

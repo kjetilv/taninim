@@ -5,7 +5,7 @@ import java.util.Optional;
 import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.kudu.Track;
 
-import static com.github.kjetilv.uplift.kernel.io.ParseBits.tailString;
+import static taninim.util.ParseBits.tailString;
 
 record RequestLine(
     Track track,

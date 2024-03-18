@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.github.kjetilv.uplift.kernel.io.ParseBits.tailString;
+import static taninim.util.ParseBits.tailString;
 import static java.util.Objects.requireNonNull;
 
 record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin) {

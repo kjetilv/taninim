@@ -1,38 +1,17 @@
 package taninim.kudu;
 
+import com.github.kjetilv.uplift.uuid.Uuid;
+
 import java.util.Locale;
 import java.util.Optional;
 
-import com.github.kjetilv.uplift.uuid.Uuid;
+import static taninim.util.ParseBits.tailString;
 
-import static com.github.kjetilv.uplift.kernel.io.ParseBits.tailString;
-
-public record Track(
-    Uuid trackUUID,
-    Format format
-) {
+public record Track(Uuid trackUUID, Format format) {
 
     public static Optional<Track> parseTrack(String audioFile) {
         return format(audioFile).map(format ->
-            new Track(
-                Uuid.from(audioFile),
-                format
-            ));
-    }
-
-    public enum Format {
-        FLAC,
-        M4A;
-
-        private final String suffix;
-
-        Format() {
-            this.suffix = name().toLowerCase();
-        }
-
-        public String suffix() {
-            return suffix;
-        }
+            new Track(Uuid.from(audioFile), format));
     }
 
     String file() {
@@ -53,5 +32,20 @@ public record Track(
         return tailLowerCased.startsWith("m4a")
             ? Optional.of(Format.M4A)
             : tailLowerCased.startsWith("flac") ? Optional.of(Format.FLAC) : Optional.empty();
+    }
+
+    public enum Format {
+        FLAC,
+        M4A;
+
+        private final String suffix;
+
+        Format() {
+            this.suffix = name().toLowerCase();
+        }
+
+        public String suffix() {
+            return suffix;
+        }
     }
 }

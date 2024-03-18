@@ -1,15 +1,15 @@
 package taninim.yellin;
 
+import taninim.music.medias.UserAuth;
+import taninim.music.medias.UserAuths;
+import taninim.music.medias.UserRequest;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import taninim.music.medias.UserAuth;
-import taninim.music.medias.UserAuths;
-import taninim.music.medias.UserRequest;
 
 import static java.util.Objects.requireNonNull;
 
@@ -108,7 +108,8 @@ final class DefaultAuthorizer implements Authorizer {
         UserRequest request,
         UserAuths userAuths
     ) {
-        return userAuths.userAuths().stream()
+        return userAuths.userAuths()
+            .stream()
             .filter(userAuth ->
                 isForOther(userAuth, request))
             .flatMap(existingAuth ->

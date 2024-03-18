@@ -5,11 +5,7 @@ import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static java.util.Objects.requireNonNull;
 
-public record TrackRange(
-    Track track,
-    Range range,
-    Uuid token
-) {
+public record TrackRange(Track track, Range range, Uuid token) {
 
     public TrackRange(Track track, Range range, Uuid token) {
         this.track = requireNonNull(track, "track");
