@@ -6,7 +6,6 @@ import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
@@ -19,18 +18,12 @@ import taninim.yellin.YellinLambdaHandler;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
-
-@SuppressWarnings({ "MagicNumber" })
+@SuppressWarnings({"MagicNumber"})
 public final class LocalLambdaYellin {
 
     public static void main(String[] args) {
-        ManagedExecutors.configure(
-            10,
-            32,
-            10
-        );
         Flogs.initialize(LogLevel.DEBUG);
 
         LocalLambdaSettings settings = new LocalLambdaSettings(
@@ -46,10 +39,11 @@ public final class LocalLambdaYellin {
             Time.utcSupplier()
         );
 
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
         LocalLambda localLambda = new LocalLambda(
             settings,
-            executor("aws-L"),
-            executor("aws-S")
+            executor,
+            executor
         );
 
         LambdaClientSettings clientSettings =
@@ -64,7 +58,7 @@ public final class LocalLambdaYellin {
         LambdaHandler yellin = YellinLambdaHandler.handler(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(Env.actual(), executor("S3")),
+            new DefaultS3AccessorFactory(Env.actual(), executor),
             new FbAuthenticator()
         );
 
@@ -72,13 +66,10 @@ public final class LocalLambdaYellin {
             localLambda.getLambdaUri(),
             clientSettings,
             yellin,
-            executor("L")
+            executor
         );
 
-        try (ExecutorService executor = executor("runner", 2)) {
-            executor.submit(localLambda);
-            executor.submit(lamdbdaManaged);
-            executor.shutdown();
-        }
+        executor.submit(localLambda);
+        executor.submit(lamdbdaManaged);
     }
 }

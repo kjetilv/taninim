@@ -5,7 +5,6 @@ import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
@@ -22,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
@@ -45,6 +45,7 @@ public final class LocalTaninim {
             List.of("POST", "DELETE"),
             List.of("content-type")
         );
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
         LocalLambda kuduLocalLambda = new LocalLambda(
             new LocalLambdaSettings(
                 9002,
@@ -54,8 +55,8 @@ public final class LocalTaninim {
                 kuduCors,
                 time
             ),
-            ManagedExecutors.executor("lambda-server-kudu"),
-            ManagedExecutors.executor("api-server-kudu")
+            executor,
+            executor
         );
 
         LambdaClientSettings kuduClientSettings =
@@ -65,14 +66,14 @@ public final class LocalTaninim {
             taninimSettings,
             new DefaultS3AccessorFactory(
                 Env.actual(),
-                ManagedExecutors.executor("kudu-s3")
+                executor
             )
         );
         Runnable kuduLambdaManaged = LamdbdaManaged.create(
             kuduLocalLambda.getLambdaUri(),
             kuduClientSettings,
             handler,
-            ManagedExecutors.executor("kudu-lambda")
+            executor
         );
 
         logger().info("Kudu: {}", handler);
@@ -87,8 +88,8 @@ public final class LocalTaninim {
                 yellinCors,
                 time
             ),
-            ManagedExecutors.executor("lambda-server-yellin"),
-            ManagedExecutors.executor("api-server-yellin")
+            executor,
+            executor
         );
 
         LambdaClientSettings yellinClientSettings =
@@ -97,24 +98,25 @@ public final class LocalTaninim {
         LambdaHandler yellin = YellinLambdaHandler.handler(
             yellinClientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(Env.actual(), ManagedExecutors.executor("yellin-s3")),
+            new DefaultS3AccessorFactory(
+                Env.actual(),
+                executor
+            ),
             new FbAuthenticator()
         );
         Runnable yellinLamdbdaManaged = LamdbdaManaged.create(
             yellinLocalLambda.getLambdaUri(),
             yellinClientSettings,
             yellin,
-            ManagedExecutors.executor("yellin-lambda")
+            executor
         );
         logger().info("Yellin: {}", yellin);
 
-        try (ExecutorService runner = ManagedExecutors.executor("runner")) {
-            runner.submit(kuduLocalLambda);
-            runner.submit(yellinLocalLambda);
-            runner.submit(kuduLambdaManaged);
-            runner.submit(yellinLamdbdaManaged);
-            logger().info("Started");
-        }
+        executor.submit(kuduLocalLambda);
+        executor.submit(yellinLocalLambda);
+        executor.submit(kuduLambdaManaged);
+        executor.submit(yellinLamdbdaManaged);
+        logger().info("Started");
         logger().info("Stopped");
     }
 

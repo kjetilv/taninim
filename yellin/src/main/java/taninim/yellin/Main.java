@@ -3,7 +3,6 @@ package taninim.yellin;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
@@ -14,18 +13,13 @@ import taninim.fb.Authenticator;
 import taninim.fb.FbAuthenticator;
 
 import java.time.Duration;
+import java.util.concurrent.Executors;
 
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 import static com.github.kjetilv.uplift.kernel.Time.utcSupplier;
 
 public final class Main {
 
     public static void main(String[] args) {
-        ManagedExecutors.configure(
-            10,
-            32,
-            10
-        );
         Flogs.initialize(
             LogLevel.DEBUG
         );
@@ -39,7 +33,7 @@ public final class Main {
         );
 
         S3AccessorFactory s3AccessorFactory =
-            new DefaultS3AccessorFactory(ENV, executor("S3", 10));
+            new DefaultS3AccessorFactory(ENV, Executors.newVirtualThreadPerTaskExecutor());
         Authenticator fbAuthenticator =
             new FbAuthenticator();
 
@@ -53,7 +47,7 @@ public final class Main {
             ENV.awsLambdaUri(),
             clientSettings,
             handler,
-            executor("L", 10)
+            Executors.newVirtualThreadPerTaskExecutor()
         ).run();
 
         Flogs.close();

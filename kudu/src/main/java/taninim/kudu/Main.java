@@ -2,7 +2,6 @@ package taninim.kudu;
 
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
@@ -12,7 +11,7 @@ import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 
 import java.time.Duration;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 
@@ -20,7 +19,6 @@ public final class Main {
 
     @SuppressWarnings("MagicNumber")
     public static void main(String[] args) {
-        ManagedExecutors.configure(10, 32, 10);
         Flogs.initialize(DEBUG);
         try {
             LambdaClientSettings clientSettings =
@@ -30,12 +28,15 @@ public final class Main {
                 new TaninimSettings(A_DAY, FOUR_HOURS, K * K);
 
             S3AccessorFactory s3 =
-                new DefaultS3AccessorFactory(ENV, ManagedExecutors.executor("S3"));
+                new DefaultS3AccessorFactory(ENV, Executors.newVirtualThreadPerTaskExecutor());
 
             LambdaHandler lambdaHandler = KuduLambdaHandler.create(clientSettings, taninimSettings, s3);
-            ExecutorService lambdaExecutor = ManagedExecutors.executor("L");
-
-            LamdbdaManaged.create(ENV.awsLambdaUri(), clientSettings, lambdaHandler, lambdaExecutor).run();
+            LamdbdaManaged.create(
+                ENV.awsLambdaUri(),
+                clientSettings,
+                lambdaHandler,
+                Executors.newVirtualThreadPerTaskExecutor()
+            ).run();
         } finally {
             Flogs.close();
         }

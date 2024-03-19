@@ -1,5 +1,12 @@
 package taninim.lambdatest;
 
+import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.s3.S3Accessor;
+import taninim.music.Archives;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.UserAuths;
+
 import java.io.DataInputStream;
 import java.time.Duration;
 import java.time.Instant;
@@ -7,25 +14,15 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Locale;
-
-import com.github.kjetilv.uplift.flogs.Flogs;
-import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.ManagedExecutors;
-import com.github.kjetilv.uplift.s3.S3Accessor;
-import taninim.music.Archives;
-import taninim.music.legal.S3Archives;
-import taninim.music.medias.UserAuths;
-
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class ListLeases {
 
     public static void main(String[] args) {
-        ManagedExecutors.configure(4, 10);
         Flogs.initialize();
 
-        S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executor("SL"));
+        S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Executors.newVirtualThreadPerTaskExecutor());
         Archives archives = new S3Archives(s3Accessor);
         System.out.println("auth-digest.bin:");
         s3Accessor.stream("auth-digest.bin")
@@ -33,13 +30,15 @@ public final class ListLeases {
                 UserAuths.from(new DataInputStream(inputStream)))
             .ifPresent(userAuths -> {
                 System.out.println("  User-auths:");
-                userAuths.userAuths().forEach(userAuth -> {
-                    System.out.println(
-                        "    User: " + userAuth.userId() + ", " + userAuth.albumLeases().size() + " leases:");
-                    userAuth.albumLeases().forEach(lease ->
+                userAuths.userAuths()
+                    .forEach(userAuth -> {
                         System.out.println(
-                            "      " + lease.albumId() + " @ " + lease.expiry()));
-                });
+                            "    User: " + userAuth.userId() + ", " + userAuth.albumLeases().size() + " leases:");
+                        userAuth.albumLeases()
+                            .forEach(lease ->
+                                System.out.println(
+                                    "      " + lease.albumId() + " @ " + lease.expiry()));
+                    });
             });
 
         System.out.println("Leases:");
@@ -52,18 +51,21 @@ public final class ListLeases {
                     info.lastModified().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
                 System.out.println(
                     "  " + instant.atOffset(ZoneOffset.UTC).format(DAY_HOUR) + ": (" + time + ")");
-                s3Accessor.stream(lease).ifPresent(inputStream -> {
-                    archives.retrieveRecord(lease).stream().findFirst()
-                        .ifPresent(archivedRecord ->
-                            System.out.println("    " + archivedRecord));
-                    int tracks = archives.retrieveRecord(lease)
-                        .map(Archives.ArchivedRecord::contents)
-                        .map(Collection::size)
-                        .orElse(0);
-                    if (tracks > 0) {
-                        System.out.println("    Tracks: " + tracks);
-                    }
-                });
+                s3Accessor.stream(lease)
+                    .ifPresent(inputStream -> {
+                        archives.retrieveRecord(lease)
+                            .stream()
+                            .findFirst()
+                            .ifPresent(archivedRecord ->
+                                System.out.println("    " + archivedRecord));
+                        int tracks = archives.retrieveRecord(lease)
+                            .map(Archives.ArchivedRecord::contents)
+                            .map(Collection::size)
+                            .orElse(0);
+                        if (tracks > 0) {
+                            System.out.println("    Tracks: " + tracks);
+                        }
+                    });
             });
         Flogs.close();
     }

@@ -4,7 +4,6 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.ManagedExecutors;
 import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
@@ -16,17 +15,12 @@ import taninim.kudu.KuduLambdaHandler;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-@SuppressWarnings({ "MagicNumber", "resource" })
+@SuppressWarnings({"MagicNumber", "resource"})
 public final class LocalLambdaKudu {
 
     public static void main(String[] args) {
-        ManagedExecutors.configure(
-            10,
-            32,
-            10
-        );
-
         CorsSettings corsSettings = new CorsSettings(
             List.of("https://tanin.im:5173"),
             List.of("GET"),
@@ -44,8 +38,8 @@ public final class LocalLambdaKudu {
 
         LocalLambda localLambda = new LocalLambda(
             settings,
-            ManagedExecutors.executor("aws-L"),
-            ManagedExecutors.executor("aws-S")
+            Executors.newVirtualThreadPerTaskExecutor(),
+            Executors.newVirtualThreadPerTaskExecutor()
         );
 
         LambdaClientSettings clientSettings =
@@ -60,20 +54,22 @@ public final class LocalLambdaKudu {
         LambdaHandler handler = KuduLambdaHandler.create(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(Env.actual(), ManagedExecutors.executor("S3"))
+            new DefaultS3AccessorFactory(
+                Env.actual(),
+                Executors.newVirtualThreadPerTaskExecutor()
+            )
         );
 
         Runnable lamdbdaManaged = LamdbdaManaged.create(
             localLambda.getLambdaUri(),
             clientSettings,
             handler,
-            ManagedExecutors.executor("L")
+            Executors.newVirtualThreadPerTaskExecutor()
         );
 
-        ExecutorService executor = ManagedExecutors.executor("runner");
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
         executor.submit(localLambda);
         executor.submit(lamdbdaManaged);
-        executor.shutdown();
     }
 }

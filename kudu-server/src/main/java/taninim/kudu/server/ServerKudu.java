@@ -1,9 +1,5 @@
 package taninim.kudu.server;
 
-import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-
 import com.github.kjetilv.uplift.asynchttp.ChannelHandler;
 import com.github.kjetilv.uplift.asynchttp.IOServer;
 import com.github.kjetilv.uplift.kernel.Env;
@@ -16,19 +12,19 @@ import taninim.music.legal.CloudMediaLibrary;
 import taninim.music.legal.S3Archives;
 import taninim.music.medias.MediaLibrary;
 
-import static com.github.kjetilv.uplift.asynchttp.MainSupport.boolArg;
-import static com.github.kjetilv.uplift.asynchttp.MainSupport.intArg;
-import static com.github.kjetilv.uplift.asynchttp.MainSupport.parameterMap;
-import static com.github.kjetilv.uplift.asynchttp.MainSupport.possibleIntArg;
-import static com.github.kjetilv.uplift.asynchttp.MainSupport.validatePort;
+import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
 import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 
 public final class ServerKudu {
 
     public static void main(String[] args) {
         Parameters parameters = parameters(args);
-        ExecutorService executorService = executor("SL");
+        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
 
         LeasesRegistry leasesRegistry = new ArchivedLeasesRegistry(

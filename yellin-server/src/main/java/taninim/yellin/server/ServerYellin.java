@@ -11,10 +11,10 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
 import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
-import static com.github.kjetilv.uplift.kernel.ManagedExecutors.executor;
 import static com.github.kjetilv.uplift.kernel.Time.UTC_CLOCK;
 import static taninim.yellin.Yellin.leasesDispatcher;
 
@@ -22,7 +22,7 @@ public final class ServerYellin {
 
     public static void main(String[] args) {
         Map<String, String> map = parameterMap(args);
-        ExecutorService executorService = executor("SL");
+        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
         ChannelHandler<BufferState, YellinChannelHandler> handler = handler(s3Accessor, executorService);
         try (IOServer server = create(port(map), MAX_REQUEST_SIZE, executorService).run(handler)) {
