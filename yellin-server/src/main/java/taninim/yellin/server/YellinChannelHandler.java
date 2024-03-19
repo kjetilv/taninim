@@ -112,7 +112,7 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
             """;
 
     private static final JsonWriter<byte[], LeasesActivation, ByteArrayOutputStream> LEASES_ACT_WRITER =
-        LeasesActivationRW.INSTANCE.streamWriter();
+        LeasesActivationRW.INSTANCE.bytesWriter();
 
     private static Writable<ByteBuffer> response(LeasesActivation activation) {
         byte[] body = LEASES_ACT_WRITER.write(activation);

@@ -4,6 +4,7 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;
+import com.github.kjetilv.uplift.json.events.JsonWriter;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
@@ -16,10 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
+import taninim.fb.ExtAuthResponse;
+import taninim.fb.ExtAuthResponseRW;
 import taninim.fb.ExtUser;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
+import taninim.yellin.LeasesData;
+import taninim.yellin.LeasesDataRW;
 import taninim.yellin.YellinLambdaHandler;
 
 import java.io.*;
@@ -374,10 +379,8 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
-        return yellinReqs.path("/lease").execute(method, Map.of(
-            "userId", userId,
-            "token", token.digest(),
-            "album", album.digest()
+        return yellinReqs.path("/lease").execute(method, LEASES_DATA_WRITER.write(
+            new LeasesData(userId, token, album)
         ));
     }
 
@@ -409,10 +412,11 @@ class Lambdas2Test {
 
     private static final String userId = Uuid.random().digest();
 
-    private static final Authenticator AUTHENTICATOR = authResponse -> Optional.of(new ExtUser(
-        "dave",
-        authResponse.userID()
-    ));
+    private static final JsonWriter<String, ExtAuthResponse, StringBuilder>
+        RESPONSE_WRITER = ExtAuthResponseRW.INSTANCE.stringWriter();
+
+    private static final Authenticator AUTHENTICATOR = authResponse ->
+        Optional.of(new ExtUser("dave", authResponse.userID()));
 
     private static final String idsJson = """
         {
@@ -643,6 +647,9 @@ class Lambdas2Test {
         track2c.digest()
     );
 
+    private static final JsonWriter<String, LeasesData, StringBuilder> LEASES_DATA_WRITER =
+        LeasesDataRW.INSTANCE.stringWriter();
+
     private static HttpResponse<String> ok(HttpResponse<String> response) {
         assertThat(response.statusCode()).isEqualTo(200);
         return response;
@@ -656,17 +663,17 @@ class Lambdas2Test {
         return gz.toByteArray();
     }
 
-    private static Map<String, Object> extAuthResponse(String userId) {
+    private static String extAuthResponse(String userId) {
         BigInteger expirationTime =
             BigInteger.valueOf(Instant.now().getEpochSecond())
                 .add(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
-        return Map.of(
-            "userID", userId,
-            "accessToken", Uuid.random().digest(),
-            "signedRequest", Uuid.random().digest(),
-            "expiresIn", Duration.ofHours(1).toSeconds(),
-            "data_access_expiration_time", expirationTime
-        );
+        return RESPONSE_WRITER.write(new ExtAuthResponse(
+            userId,
+            Uuid.random().digest(),
+            Uuid.random().digest(),
+            Duration.ofHours(1),
+            expirationTime
+        ));
     }
 
     private static void close(Closeable lambda) {
@@ -696,7 +703,6 @@ class Lambdas2Test {
         String token,
         String album
     ) {
-
     }
 
     public record LeasesActivation(
@@ -706,10 +712,8 @@ class Lambdas2Test {
         List<String> trackUUIDs,
         Long expiry
     ) {
-
     }
 
-    @SuppressWarnings("WeakerAccess")
     record AuthResponse(
         String name,
         String userId,
@@ -717,6 +721,5 @@ class Lambdas2Test {
         List<String> trackUUIDs,
         Long expiry
     ) {
-
     }
 }

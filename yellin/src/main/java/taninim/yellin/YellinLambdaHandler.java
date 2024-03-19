@@ -94,13 +94,12 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     private static final JsonWriter<byte[], LeasesActivation, ByteArrayOutputStream> LEASES_WRITER =
-        LeasesActivationRW.INSTANCE.streamWriter();
+        LeasesActivationRW.INSTANCE.bytesWriter();
 
     private static final JsonReader<String, ExtAuthResponse> RESPONSE_JSON_READER =
         ExtAuthResponseRW.INSTANCE.stringReader();
 
     private static Optional<LambdaResult> handle(String body, Function<String, LambdaResult> bodyHandler) {
-        return Optional.ofNullable(body)
-            .map(bodyHandler);
+        return Optional.ofNullable(body).map(bodyHandler);
     }
 }
