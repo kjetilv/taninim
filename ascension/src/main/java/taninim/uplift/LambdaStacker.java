@@ -71,7 +71,6 @@ public class LambdaStacker implements Consumer<Stack> {
             .build();
     }
 
-    @NotNull
     private static Function.Builder functionBuilder(Stack stack, String id) {
         return Function.Builder.create(stack, id);
     }
@@ -81,7 +80,7 @@ public class LambdaStacker implements Consumer<Stack> {
             .handler("bootstrap")
             .architecture(ARM_64)
             .memorySize(128)
-            .runtime(Runtime.PROVIDED_AL2)
+        .runtime(Runtime.PROVIDED_AL2023)
             .timeout(Duration.seconds(20))
             .build();
         return yellinFunction;

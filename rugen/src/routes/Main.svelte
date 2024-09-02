@@ -91,7 +91,7 @@
     const yellUrl = "https://xy7nctvhyccdaxbhyrwo57leu40nyfly.lambda-url.eu-north-1.on.aws";
 
     const isAuthorized = track =>
-      track && track.uuid && authorization.trackUUIDs.includes(track.uuid);
+      track && track.uuid && authorization.trackUUIDs && authorization.trackUUIDs.includes(track.uuid);
 
     const canPlay = album =>
       authorization && album.sections?.flatMap(section => section.tracks || [])
