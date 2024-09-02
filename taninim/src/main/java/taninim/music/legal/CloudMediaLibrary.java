@@ -73,6 +73,11 @@ public final class CloudMediaLibrary implements MediaLibrary {
         }
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[infos:" + infos.size() + " fileCache:" + fileCache.size() + "]";
+    }
+
     private Optional<ByteArrayInputStream> update(
         Instant currentTime,
         String file,
