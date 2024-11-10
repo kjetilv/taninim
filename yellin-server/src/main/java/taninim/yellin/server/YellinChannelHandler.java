@@ -72,7 +72,7 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
     }
 
     private Processing handleCurrentLease(ExtAuthResponse extAuthResponse) {
-        return leasesDispatcher.createLease(extAuthResponse)
+        return leasesDispatcher.currentLease(extAuthResponse)
             .map(activation -> {
                 log.debug("User {} has access to {} tracks", activation.name(), activation.size());
                 writeResponse(activation);
