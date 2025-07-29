@@ -101,7 +101,7 @@ public final class Yellin {
     private static List<String> ids(MediaLibrary mediaLibrary) {
         return mediaLibrary.stream("ids.json")
             .map(inputStream -> {
-                Map<?, ?> acls = Json.BYTES_2_JSON_MAP.apply(inputStream);
+                Map<?, ?> acls = (Map<?, ?>) Json.INSTANCE.read(inputStream);
                 List<Map<String, Object>> acl = (List<Map<String, Object>>) acls.get("acl");
                 return acl.stream()
                     .map(map ->

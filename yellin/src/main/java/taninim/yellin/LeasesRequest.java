@@ -1,6 +1,6 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.json.events.JsonReader;
+import com.github.kjetilv.uplift.json.JsonReader;
 import com.github.kjetilv.uplift.kernel.http.QueryParams;
 import com.github.kjetilv.uplift.uuid.Uuid;
 

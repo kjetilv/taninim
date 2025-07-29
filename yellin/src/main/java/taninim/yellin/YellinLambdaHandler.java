@@ -1,7 +1,7 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.json.events.JsonReader;
-import com.github.kjetilv.uplift.json.events.JsonWriter;
+import com.github.kjetilv.uplift.json.JsonReader;
+import com.github.kjetilv.uplift.json.JsonWriter;
 import com.github.kjetilv.uplift.lambda.*;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
