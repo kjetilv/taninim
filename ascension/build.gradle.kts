@@ -16,7 +16,10 @@ dependencies {
 apply<UpliftPlugin>()
 
 tasks.withType<UpliftTask> {
-    configure(stack = "taninim")
+    configure(
+        stack = "taninim",
+        arch = "x86_64"
+    )
     env(
         "fbSec" to get(name = "fbSec"),
         "taninimBucket" to get(name = "taninimBucket")
