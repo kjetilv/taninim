@@ -20,31 +20,28 @@ public final class Main {
     @SuppressWarnings("MagicNumber")
     public static void main(String[] args) {
         Flogs.initialize(DEBUG);
-        try {
-            LambdaClientSettings clientSettings =
-                new LambdaClientSettings(ENV, Time.utcSupplier());
 
-            TaninimSettings taninimSettings =
-                new TaninimSettings(A_DAY, FOUR_HOURS, K * K);
+        LambdaClientSettings clientSettings =
+            new LambdaClientSettings(ENV, Time.utcSupplier());
 
-            S3AccessorFactory s3 =
-                new DefaultS3AccessorFactory(ENV, Executors.newVirtualThreadPerTaskExecutor());
+        TaninimSettings taninimSettings =
+            new TaninimSettings(A_DAY, FOUR_HOURS, K * K);
 
-            LambdaHandler lambdaHandler = KuduLambdaHandler.create(clientSettings, taninimSettings, s3);
-            LamdbdaManaged.create(
-                ENV.awsLambdaUri(),
-                clientSettings,
-                lambdaHandler,
-                Executors.newVirtualThreadPerTaskExecutor()
-            ).run();
-        } finally {
-            Flogs.close();
-        }
+        S3AccessorFactory s3 =
+            new DefaultS3AccessorFactory(ENV, Executors.newVirtualThreadPerTaskExecutor());
+
+        LambdaHandler lambdaHandler = KuduLambdaHandler.create(clientSettings, taninimSettings, s3);
+        LamdbdaManaged.create(
+            ENV.awsLambdaUri(),
+            clientSettings,
+            lambdaHandler,
+            Executors.newVirtualThreadPerTaskExecutor()
+        ).run();
     }
 
-    public static final Duration A_DAY = Duration.ofDays(1);
+    private static final Duration A_DAY = Duration.ofDays(1);
 
-    public static final Duration FOUR_HOURS = Duration.ofHours(4);
+    private static final Duration FOUR_HOURS = Duration.ofHours(4);
 
     private static final Env ENV = Env.actual();
 

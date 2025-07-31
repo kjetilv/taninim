@@ -17,3 +17,8 @@ rugen/.svelte-kit
 gradle.properties
 
 **/node_modules
+
+### Java
+**/src/main/generated
+**/src/test/generated
+**/src/test/generated_tests

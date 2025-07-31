@@ -24,7 +24,7 @@ apply<NativeLambdaPlugin>()
 
 tasks.withType<NativeLamdbdaTask> {
     main = "taninim.kudu.Main"
-    javaDist = URI.create("https://download.oracle.com/graalvm/24/latest/graalvm-jdk-24_linux-x64_bin.tar.gz")
+    javaDist = URI.create("https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-24.0.2/graalvm-community-jdk-24.0.2_linux-x64_bin.tar.gz")
     arch = "amd64"
     enablePreview = true
     addModules = "jdk.incubator.vector"

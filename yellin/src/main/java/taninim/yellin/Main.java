@@ -20,9 +20,7 @@ import static com.github.kjetilv.uplift.kernel.Time.utcSupplier;
 public final class Main {
 
     public static void main(String[] args) {
-        Flogs.initialize(
-            LogLevel.DEBUG
-        );
+        Flogs.initialize(LogLevel.DEBUG);
 
         LambdaClientSettings clientSettings =
             new LambdaClientSettings(ENV, utcSupplier());
@@ -49,8 +47,6 @@ public final class Main {
             handler,
             Executors.newVirtualThreadPerTaskExecutor()
         ).run();
-
-        Flogs.close();
     }
 
     private static final Env ENV = Env.actual();
