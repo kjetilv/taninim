@@ -1,10 +1,9 @@
 package taninim.uplift;
 
-import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.*;
+import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.IBucket;
 
@@ -14,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static software.amazon.awscdk.services.lambda.Architecture.ARM_64;
+import static software.amazon.awscdk.services.lambda.Architecture.X86_64;
 import static software.amazon.awscdk.services.lambda.HttpMethod.*;
 import static software.amazon.awscdk.services.logs.RetentionDays.ONE_DAY;
 
@@ -78,7 +77,7 @@ public class LambdaStacker implements Consumer<Stack> {
     private static IFunction complete(Function.Builder builder) {
         IFunction yellinFunction = builder
             .handler("bootstrap")
-            .architecture(ARM_64)
+            .architecture(X86_64)
             .memorySize(128)
         .runtime(Runtime.PROVIDED_AL2023)
             .timeout(Duration.seconds(20))
