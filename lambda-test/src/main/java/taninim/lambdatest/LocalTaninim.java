@@ -36,12 +36,12 @@ public final class LocalTaninim {
         TaninimSettings taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
 
         CorsSettings kuduCors = new CorsSettings(
-            List.of("https://tanin.im:5173", "https://kjetilv.github.io"),
+            List.of("https://kjetilv.github.io"),
             List.of("GET"),
             List.of("content-type", "range")
         );
         CorsSettings yellinCors = new CorsSettings(
-            List.of("https://tanin.im:5173", "https://kjetilv.github.io"),
+            List.of("https://kjetilv.github.io"),
             List.of("POST", "DELETE"),
             List.of("content-type")
         );
@@ -120,11 +120,11 @@ public final class LocalTaninim {
         logger().info("Stopped");
     }
 
-    public static final int K = 1_024;
+    private static final int K = 1_024;
 
-    public static final Duration ONE_DAY = Duration.ofDays(1);
+    private static final Duration ONE_DAY = Duration.ofDays(1);
 
-    public static final Duration FOUR_HOURS = Duration.ofHours(1);
+    private static final Duration FOUR_HOURS = Duration.ofHours(1);
 
     private static Logger logger() {
         return LoggerFactory.getLogger(LocalTaninim.class);

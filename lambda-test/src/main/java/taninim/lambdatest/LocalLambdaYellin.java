@@ -32,7 +32,7 @@ public final class LocalLambdaYellin {
             8 * 8192,
             10,
             new CorsSettings(
-                List.of("https://tanin.im:5173"),
+                List.of("https://kjetilv.github.io"),
                 List.of("POST", "DELETE"),
                 List.of("content-type")
             ),

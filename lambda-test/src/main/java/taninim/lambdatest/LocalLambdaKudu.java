@@ -22,7 +22,7 @@ public final class LocalLambdaKudu {
 
     public static void main(String[] args) {
         CorsSettings corsSettings = new CorsSettings(
-            List.of("https://tanin.im:5173"),
+            List.of("https://kjetilv.github.io"),
             List.of("GET"),
             List.of("content-type", "range")
         );
