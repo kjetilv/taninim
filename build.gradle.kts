@@ -1,5 +1,3 @@
-import sun.jvmstat.monitor.MonitoredVmUtil.jvmArgs
-
 plugins {
     java
 }
@@ -46,10 +44,6 @@ subprojects {
 }
 
 fun String.toCommand() = this.split(" ")
-
-fun Exec.execute(command: String) = apply {
-    commandLine = command.also { logger.info("Command to run: $it") }.toCommand()
-}
 
 fun resolveUsername() = resolveProperty("githubUser", "GITHUB_ACTOR")
 
