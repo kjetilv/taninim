@@ -25,11 +25,13 @@ record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin)
         ByteBuffer requestBuffer
     ) {
         try {
-            return ByteBuffers.readBuffer(requestBuffer, nextLine ->
-                nextLine.get()
-                    .map(String::toLowerCase)
-                    .flatMap(requestLine ->
-                        handle(requestLine, nextLine)));
+            return ByteBuffers.readBuffer(
+                requestBuffer, nextLine ->
+                    nextLine.get()
+                        .map(String::toLowerCase)
+                        .flatMap(requestLine ->
+                            handle(requestLine, nextLine))
+            );
         } catch (Exception e) {
             log.warn("Failed to read auth request: {}", requestBuffer, e);
             return Optional.empty();
@@ -73,25 +75,20 @@ record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin)
         String requestLine, Supplier<Optional<String>> nextLine
     ) {
         return afterPrefix(requestLine, "post /auth")
-            .flatMap(path ->
-                readAuth(nextLine))
+            .flatMap(_ -> readAuth(nextLine))
             .or(() ->
-                afterPrefix(requestLine, "post /lease").flatMap(path ->
-                    readLease(
-                        nextLine,
-                        LeasesRequest::acquire
-                    )
-                ))
+                afterPrefix(requestLine, "post /lease").flatMap(_ -> readLease(
+                    nextLine,
+                    LeasesRequest::acquire
+                )))
             .or(() ->
                 afterPrefix(requestLine, "delete /lease?")
                     .flatMap(LeasesRequest::releaseQueryPars)
                     .map(YellinRequest::new))
             .or(() ->
-                afterPrefix(requestLine, "options /").map(match ->
-                    PREFLIGHT_REQ))
+                afterPrefix(requestLine, "options /").map(_ -> PREFLIGHT_REQ))
             .or(() ->
-                afterPrefix(requestLine, "get /health", "head /health").map(match ->
-                    HEALTH_REQ));
+                afterPrefix(requestLine, "get /health", "head /health").map(_ -> HEALTH_REQ));
     }
 
     private static Optional<String> afterPrefix(String line, String... prefices) {

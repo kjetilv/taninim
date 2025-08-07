@@ -52,7 +52,7 @@ public final class ListLeases {
                 System.out.println(
                     "  " + instant.atOffset(ZoneOffset.UTC).format(DAY_HOUR) + ": (" + time + ")");
                 s3Accessor.stream(lease)
-                    .ifPresent(inputStream -> {
+                    .ifPresent(_ -> {
                         archives.retrieveRecord(lease)
                             .stream()
                             .findFirst()
