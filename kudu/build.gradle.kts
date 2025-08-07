@@ -1,6 +1,5 @@
 import com.github.kjetilv.uplift.plugins.NativeLambdaPlugin
 import com.github.kjetilv.uplift.plugins.NativeLamdbdaTask
-import java.net.URI
 
 plugins {
     id("com.github.kjetilv.uplift.plugins.lambda") version "0.1.1-SNAPSHOT"
@@ -24,9 +23,4 @@ apply<NativeLambdaPlugin>()
 
 tasks.withType<NativeLamdbdaTask> {
     main = "taninim.kudu.Main"
-    javaDist = URI.create("https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-24.0.2/graalvm-community-jdk-24.0.2_linux-x64_bin.tar.gz")
-    arch = "amd64"
-    enablePreview = true
-    addModules = "jdk.incubator.vector"
-    otherOptions = "-H:+ForeignAPISupport -H:+VectorAPISupport"
 }

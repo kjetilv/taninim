@@ -40,12 +40,7 @@ subprojects {
 
     tasks {
         withType<Test>().all {
-            jvmArgs("--enable-preview", "--add-modules", "jdk.incubator.vector")
             useJUnitPlatform()
-        }
-
-        withType<JavaExec>().configureEach {
-            jvmArgs("--enable-preview", "--add-modules", "jdk.incubator.vector")
         }
     }
 }
