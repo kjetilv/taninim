@@ -1,7 +1,7 @@
 package taninim.yellin.server;
 
 import com.github.kjetilv.uplift.asynchttp.*;
-import com.github.kjetilv.uplift.json.events.JsonWriter;
+import com.github.kjetilv.uplift.json.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.ExtAuthResponse;

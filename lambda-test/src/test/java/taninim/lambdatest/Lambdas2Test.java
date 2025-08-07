@@ -4,7 +4,7 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;
-import com.github.kjetilv.uplift.json.events.JsonWriter;
+import com.github.kjetilv.uplift.json.JsonWriter;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;

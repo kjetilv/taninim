@@ -67,7 +67,6 @@ public final class ListLeases {
                         }
                     });
             });
-        Flogs.close();
     }
 
     private static final long SECONDS_PER_HOUR = Duration.ofHours(1).toSeconds();

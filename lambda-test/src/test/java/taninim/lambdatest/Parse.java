@@ -1,6 +1,6 @@
 package taninim.lambdatest;
 
-import com.github.kjetilv.uplift.json.events.JsonReader;
+import com.github.kjetilv.uplift.json.JsonReader;
 import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.yellin.LeasesActivation;
 import taninim.yellin.LeasesActivationRW;

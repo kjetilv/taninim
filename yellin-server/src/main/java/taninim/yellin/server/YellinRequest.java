@@ -1,6 +1,6 @@
 package taninim.yellin.server;
 
-import com.github.kjetilv.uplift.json.events.JsonReader;
+import com.github.kjetilv.uplift.json.JsonReader;
 import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +14,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static taninim.util.ParseBits.tailString;
 import static java.util.Objects.requireNonNull;
+import static taninim.util.ParseBits.tailString;
 
 record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin) {
 
