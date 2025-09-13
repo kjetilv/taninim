@@ -15,12 +15,12 @@ import java.util.concurrent.Executors;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
 import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
-import static com.github.kjetilv.uplift.kernel.Time.UTC_CLOCK;
+import static com.github.kjetilv.uplift.util.Time.UTC_CLOCK;
 import static taninim.yellin.Yellin.leasesDispatcher;
 
 public final class ServerYellin {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         Map<String, String> map = parameterMap(args);
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
