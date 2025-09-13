@@ -3,8 +3,8 @@ package taninim.kudu.server;
 import com.github.kjetilv.uplift.asynchttp.ChannelHandler;
 import com.github.kjetilv.uplift.asynchttp.IOServer;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.util.Time;
 import taninim.kudu.DefaultKudu;
 import taninim.music.LeasesRegistry;
 import taninim.music.legal.ArchivedLeasesRegistry;
@@ -22,7 +22,7 @@ import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
 
 public final class ServerKudu {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         Parameters parameters = parameters(args);
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
@@ -44,7 +44,7 @@ public final class ServerKudu {
         );
 
         try (
-            IOServer run = create(parameters.port(), MAX_REQUEST_LENGTH, executorService).run(handler)
+            IOServer run = create(parameters.port(), MAX_REQUEST_LENGTH).run(handler)
         ) {
             run.join();
         }

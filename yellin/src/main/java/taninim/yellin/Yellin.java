@@ -1,8 +1,10 @@
 package taninim.yellin;
 
+import com.github.kjetilv.uplift.hash.HashKind;
 import com.github.kjetilv.uplift.json.Json;
-import com.github.kjetilv.uplift.kernel.util.OnDemand;
+import com.github.kjetilv.uplift.json.mame.CachingJsonSessions;
 import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.util.OnDemand;
 import taninim.fb.Authenticator;
 import taninim.music.LeasesRegistry;
 import taninim.music.legal.ArchivedLeasesRegistry;
@@ -81,6 +83,8 @@ public final class Yellin {
     private Yellin() {
     }
 
+    private static final Json JSON  = Json.instance(CachingJsonSessions.create(HashKind.K128));
+
     private static final TemporalAmount REFRESH_INTERVAL = Duration.ofHours(1);
 
     private static MediaIds mediaIds(MediaLibrary mediaLibrary) {
@@ -101,7 +105,7 @@ public final class Yellin {
     private static List<String> ids(MediaLibrary mediaLibrary) {
         return mediaLibrary.stream("ids.json")
             .map(inputStream -> {
-                Map<?, ?> acls = (Map<?, ?>) Json.INSTANCE.read(inputStream);
+                Map<?, ?> acls = (Map<?, ?>) JSON.read(inputStream);
                 List<Map<String, Object>> acl = (List<Map<String, Object>>) acls.get("acl");
                 return acl.stream()
                     .map(map ->
@@ -112,12 +116,14 @@ public final class Yellin {
     }
 
     private static void authIds(MediaLibrary mediaLibrary, UserAuths userAuths) {
-        mediaLibrary.write("auth-digest.bin", outputStream -> {
-            try (DataOutputStream dos = new DataOutputStream(outputStream)) {
-                userAuths.writeTo(dos);
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to write " + userAuths, e);
+        mediaLibrary.write(
+            "auth-digest.bin", outputStream -> {
+                try (DataOutputStream dos = new DataOutputStream(outputStream)) {
+                    userAuths.writeTo(dos);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to write " + userAuths, e);
+                }
             }
-        });
+        );
     }
 }

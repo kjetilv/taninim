@@ -6,11 +6,13 @@ import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
+import com.github.kjetilv.uplift.util.Time;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.FbAuthenticator;
 import taninim.yellin.YellinLambdaHandler;
@@ -23,8 +25,10 @@ import java.util.concurrent.Executors;
 @SuppressWarnings({"MagicNumber"})
 public final class LocalLambdaYellin {
 
-    public static void main(String[] args) {
+    static void main() {
         Flogs.initialize(LogLevel.DEBUG);
+
+        Logger logger = LoggerFactory.getLogger(LocalLambdaYellin.class);
 
         LocalLambdaSettings settings = new LocalLambdaSettings(
             9001,
@@ -39,12 +43,7 @@ public final class LocalLambdaYellin {
             Time.utcSupplier()
         );
 
-        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-        LocalLambda localLambda = new LocalLambda(
-            settings,
-            executor,
-            executor
-        );
+        LocalLambda localLambda = new LocalLambda(settings );
 
         LambdaClientSettings clientSettings =
             new LambdaClientSettings(Env.actual(), Time.utcSupplier());
@@ -58,18 +57,22 @@ public final class LocalLambdaYellin {
         LambdaHandler yellin = YellinLambdaHandler.handler(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(Env.actual(), executor),
+            new DefaultS3AccessorFactory(Env.actual()),
             new FbAuthenticator()
         );
 
         Runnable lamdbdaManaged = LamdbdaManaged.create(
             localLambda.getLambdaUri(),
             clientSettings,
-            yellin,
-            executor
+            yellin
         );
+        try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+            executor.submit(localLambda);
+            executor.submit(lamdbdaManaged);
+            logger.info("Started");
+        }
+    }
 
-        executor.submit(localLambda);
-        executor.submit(lamdbdaManaged);
+    private LocalLambdaYellin() {
     }
 }

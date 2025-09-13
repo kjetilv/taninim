@@ -24,8 +24,8 @@ public final class ServerYellin {
         Map<String, String> map = parameterMap(args);
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
-        ChannelHandler<BufferState, YellinChannelHandler> handler = handler(s3Accessor, executorService);
-        try (IOServer server = create(port(map), MAX_REQUEST_SIZE, executorService).run(handler)) {
+        ChannelHandler<BufferState, YellinChannelHandler> handler = handler(s3Accessor);
+        try (IOServer server = create(port(map), MAX_REQUEST_SIZE).run(handler)) {
             server.join();
         }
     }
@@ -44,10 +44,7 @@ public final class ServerYellin {
         return validatePort(portArg.orElse(PORT_80));
     }
 
-    private static ChannelHandler<BufferState, YellinChannelHandler> handler(
-        S3Accessor s3Accessor,
-        ExecutorService executorService
-    ) {
+    private static ChannelHandler<BufferState, YellinChannelHandler> handler(S3Accessor s3Accessor) {
         return new YellinChannelHandler(
             leasesDispatcher(
                 s3Accessor,

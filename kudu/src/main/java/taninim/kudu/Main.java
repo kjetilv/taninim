@@ -2,7 +2,6 @@ package taninim.kudu;
 
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.kernel.Time;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
@@ -10,8 +9,8 @@ import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 
+import java.time.Clock;
 import java.time.Duration;
-import java.util.concurrent.Executors;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 
@@ -22,21 +21,19 @@ public final class Main {
         Flogs.initialize(DEBUG);
 
         LambdaClientSettings clientSettings =
-            new LambdaClientSettings(ENV, Time.utcSupplier());
+            new LambdaClientSettings(ENV, Clock.systemUTC()::instant);
 
         TaninimSettings taninimSettings =
             new TaninimSettings(A_DAY, FOUR_HOURS, K * K);
 
-        S3AccessorFactory s3 =
-            new DefaultS3AccessorFactory(ENV, Executors.newVirtualThreadPerTaskExecutor());
+        S3AccessorFactory s3 = new DefaultS3AccessorFactory(ENV);
 
         LambdaHandler lambdaHandler = KuduLambdaHandler.create(clientSettings, taninimSettings, s3);
-        LamdbdaManaged.create(
-            ENV.awsLambdaUri(),
-            clientSettings,
-            lambdaHandler,
-            Executors.newVirtualThreadPerTaskExecutor()
-        ).run();
+        try (LamdbdaManaged lamdbdaManaged = LamdbdaManaged.create(ENV.awsLambdaUri(), clientSettings, lambdaHandler)) {
+            lamdbdaManaged.run();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to close/run", e);
+        }
     }
 
     private static final Duration A_DAY = Duration.ofDays(1);
