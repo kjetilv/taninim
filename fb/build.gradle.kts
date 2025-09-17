@@ -10,7 +10,4 @@ dependencies {
     implementation("com.restfb:restfb:2025.9.0") {
         exclude(group = "org.slf4j")
     }
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
 }

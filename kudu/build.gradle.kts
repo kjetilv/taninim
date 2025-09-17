@@ -14,9 +14,6 @@ dependencies {
     implementation("com.github.kjetilv.uplift:uplift-s3:0.1.1-SNAPSHOT")
 
     implementation(project(":taninim"))
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
 }
 
 apply<NativeLambdaPlugin>()
