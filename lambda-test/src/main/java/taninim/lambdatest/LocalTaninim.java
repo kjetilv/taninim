@@ -8,7 +8,7 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
-import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
+import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,13 +58,11 @@ public final class LocalTaninim {
         );
 
         LambdaClientSettings kuduClientSettings =
-            new LambdaClientSettings(Env.actual(), com.github.kjetilv.uplift.util.Time.utcSupplier());
+            new LambdaClientSettings(ENV, com.github.kjetilv.uplift.util.Time.utcSupplier());
         LambdaHandler handler = KuduLambdaHandler.create(
             kuduClientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(
-                Env.actual()
-            )
+            S3AccessorFactory.defaultFactory(ENV)
         );
         Runnable kuduLambdaManaged = LamdbdaManaged.create(
             kuduLocalLambda.getLambdaUri(),
@@ -87,14 +85,12 @@ public final class LocalTaninim {
         );
 
         LambdaClientSettings yellinClientSettings =
-            new LambdaClientSettings(Env.actual(), Time.utcSupplier());
+            new LambdaClientSettings(ENV, Time.utcSupplier());
 
         LambdaHandler yellin = YellinLambdaHandler.handler(
             yellinClientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(
-                Env.actual()
-            ),
+            S3AccessorFactory.defaultFactory(ENV),
             new FbAuthenticator()
         );
         Runnable yellinLamdbdaManaged = LamdbdaManaged.create(
@@ -122,4 +118,6 @@ public final class LocalTaninim {
     private static final Duration ONE_DAY = Duration.ofDays(1);
 
     private static final Duration FOUR_HOURS = Duration.ofHours(1);
+
+    private static final Env ENV = Env.actual();
 }

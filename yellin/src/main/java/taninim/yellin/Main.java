@@ -6,7 +6,6 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
-import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.util.Time;
 import taninim.TaninimSettings;
@@ -28,7 +27,7 @@ public final class Main {
             K * K
         );
 
-        S3AccessorFactory s3AccessorFactory = new DefaultS3AccessorFactory(ENV);
+        S3AccessorFactory s3AccessorFactory = S3AccessorFactory.defaultFactory(ENV);
         Authenticator fbAuthenticator = new FbAuthenticator();
 
         LambdaHandler handler = YellinLambdaHandler.handler(

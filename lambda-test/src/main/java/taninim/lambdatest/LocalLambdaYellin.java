@@ -9,7 +9,7 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
-import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
+import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public final class LocalLambdaYellin {
         LambdaHandler yellin = YellinLambdaHandler.handler(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(Env.actual()),
+            S3AccessorFactory.defaultFactory(Env.actual()),
             new FbAuthenticator()
         );
 

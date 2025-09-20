@@ -5,7 +5,6 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
-import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 
@@ -26,7 +25,7 @@ public final class Main {
         TaninimSettings taninimSettings =
             new TaninimSettings(A_DAY, FOUR_HOURS, K * K);
 
-        S3AccessorFactory s3 = new DefaultS3AccessorFactory(ENV);
+        S3AccessorFactory s3 =  S3AccessorFactory.defaultFactory(ENV);
 
         LambdaHandler lambdaHandler = KuduLambdaHandler.create(clientSettings, taninimSettings, s3);
         try (LamdbdaManaged lamdbdaManaged = LamdbdaManaged.create(ENV.awsLambdaUri(), clientSettings, lambdaHandler)) {

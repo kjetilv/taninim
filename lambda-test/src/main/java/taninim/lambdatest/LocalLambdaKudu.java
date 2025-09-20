@@ -7,7 +7,7 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
-import com.github.kjetilv.uplift.s3.DefaultS3AccessorFactory;
+import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.kudu.KuduLambdaHandler;
 
@@ -42,7 +42,7 @@ public final class LocalLambdaKudu {
         LocalLambda localLambda = new LocalLambda(settings);
 
         LambdaClientSettings clientSettings =
-            new LambdaClientSettings(Env.actual(), clock);
+            new LambdaClientSettings(ENV, clock);
 
         TaninimSettings taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
@@ -53,7 +53,7 @@ public final class LocalLambdaKudu {
         LambdaHandler handler = KuduLambdaHandler.create(
             clientSettings,
             taninimSettings,
-            new DefaultS3AccessorFactory(Env.actual())
+            S3AccessorFactory.defaultFactory(ENV)
         );
 
         Runnable lamdbdaManaged =
@@ -67,4 +67,6 @@ public final class LocalLambdaKudu {
 
     private LocalLambdaKudu() {
     }
+
+    private static final Env ENV = Env.actual();
 }
