@@ -1,17 +1,8 @@
 package taninim.music.legal;
 
-import com.github.kjetilv.uplift.s3.S3Accessor;
-import taninim.music.Archives;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import module java.base;
+import module taninim.taninim;
+import module uplift.s3;
 
 import static java.util.Objects.requireNonNull;
 

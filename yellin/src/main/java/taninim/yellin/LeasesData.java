@@ -1,7 +1,7 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.json.anno.JsonRecord;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import module uplift.json.anno;
+import module uplift.uuid;
 
 @JsonRecord
 public record LeasesData(

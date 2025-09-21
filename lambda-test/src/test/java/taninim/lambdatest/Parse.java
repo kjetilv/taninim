@@ -1,9 +1,8 @@
 package taninim.lambdatest;
 
-import com.github.kjetilv.uplift.json.JsonReader;
-import com.github.kjetilv.uplift.uuid.Uuid;
-import taninim.yellin.LeasesActivation;
-import taninim.yellin.LeasesActivationRW;
+import module taninim.yellin;
+import module uplift.json;
+import module uplift.uuid;
 
 final class Parse {
 

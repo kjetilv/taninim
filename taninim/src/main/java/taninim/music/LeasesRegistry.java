@@ -1,8 +1,7 @@
 package taninim.music;
 
-import java.util.Optional;
-
-import com.github.kjetilv.uplift.uuid.Uuid;
+import module java.base;
+import module uplift.uuid;
 
 public interface LeasesRegistry {
 

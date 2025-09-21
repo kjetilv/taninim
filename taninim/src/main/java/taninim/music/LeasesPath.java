@@ -1,10 +1,7 @@
 package taninim.music;
 
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.List;
-
-import com.github.kjetilv.uplift.uuid.Uuid;
+import module java.base;
+import module uplift.uuid;
 
 public record LeasesPath(
     Leases leases,

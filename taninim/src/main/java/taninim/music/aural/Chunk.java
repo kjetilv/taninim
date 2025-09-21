@@ -1,10 +1,7 @@
 package taninim.music.aural;
 
-import com.github.kjetilv.uplift.kernel.io.Range;
-
-import java.text.MessageFormat;
-import java.util.Optional;
-import java.util.stream.LongStream;
+import module java.base;
+import module uplift.kernel;
 
 @SuppressWarnings("unused")
 public record Chunk(

@@ -1,6 +1,7 @@
 package taninim.fb;
 
-import com.github.kjetilv.uplift.json.anno.JsonRecord;
+import module java.base;
+import module uplift.json.anno;
 
 import static java.util.Objects.requireNonNull;
 

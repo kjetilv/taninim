@@ -1,6 +1,6 @@
 package taninim.fb;
 
-import java.util.Optional;
+import module java.base;
 
 @FunctionalInterface
 public interface FbAuthenticator {

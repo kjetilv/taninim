@@ -1,6 +1,6 @@
 package taninim.kudu.server;
 
-import com.github.kjetilv.uplift.uuid.Uuid;
+import module uplift.uuid;
 
 record LibraryRequest(Uuid token) {
 

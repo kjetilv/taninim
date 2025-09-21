@@ -1,11 +1,9 @@
 package taninim.kudu;
 
-import java.io.InputStream;
-import java.util.Optional;
-
-import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.uuid.Uuid;
-import taninim.music.aural.Chunk;
+import module java.base;
+import module taninim.taninim;
+import module uplift.kernel;
+import module uplift.uuid;
 
 public interface Kudu {
 

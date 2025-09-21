@@ -1,6 +1,6 @@
 package taninim.fb;
 
-import java.time.Duration;
+import module java.base;
 
 public interface FbListener {
 

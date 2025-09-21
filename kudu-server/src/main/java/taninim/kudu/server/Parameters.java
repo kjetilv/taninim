@@ -5,5 +5,4 @@ record Parameters(
     int buffer,
     boolean server
 ) {
-
 }

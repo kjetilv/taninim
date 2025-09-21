@@ -1,28 +1,17 @@
 package taninim.lambdatest;
 
-import com.github.kjetilv.uplift.flambda.CorsSettings;
-import com.github.kjetilv.uplift.flambda.LocalLambda;
-import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
-import com.github.kjetilv.uplift.flogs.Flogs;
-import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
-import com.github.kjetilv.uplift.lambda.LambdaHandler;
-import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
-import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import com.github.kjetilv.uplift.util.Time;
+import module java.base;
+import module taninim.fb;
+import module taninim.kudu;
+import module taninim.taninim;
+import module taninim.yellin;
+import module uplift.flambda;
+import module uplift.flogs;
+import module uplift.kernel;
+import module uplift.lambda;
+import module uplift.s3;
+import module uplift.util;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import taninim.TaninimSettings;
-import taninim.fb.FbAuthenticator;
-import taninim.kudu.KuduLambdaHandler;
-import taninim.yellin.YellinLambdaHandler;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Supplier;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 

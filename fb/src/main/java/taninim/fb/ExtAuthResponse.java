@@ -1,9 +1,7 @@
 package taninim.fb;
 
-import com.github.kjetilv.uplift.json.anno.JsonRecord;
-
-import java.math.BigInteger;
-import java.time.Duration;
+import module java.base;
+import module uplift.json.anno;
 
 @JsonRecord
 public record ExtAuthResponse(

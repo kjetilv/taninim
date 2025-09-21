@@ -1,17 +1,12 @@
 package taninim.uplift;
 
+import module java.base;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.services.lambda.*;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.IBucket;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import static software.amazon.awscdk.services.lambda.Architecture.ARM_64;
 import static software.amazon.awscdk.services.lambda.HttpMethod.*;

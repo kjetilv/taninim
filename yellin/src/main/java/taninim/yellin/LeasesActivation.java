@@ -1,13 +1,8 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.json.anno.JsonRecord;
-import com.github.kjetilv.uplift.uuid.Uuid;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import module java.base;
+import module uplift.json.anno;
+import module uplift.uuid;
 
 @JsonRecord
 public record LeasesActivation(

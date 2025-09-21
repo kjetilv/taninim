@@ -1,13 +1,11 @@
 package taninim.kudu;
 
-import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.uuid.Uuid;
-import com.github.kjetilv.uplift.lambda.*;
-import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import taninim.TaninimSettings;
-
-import java.util.Objects;
-import java.util.Optional;
+import module java.base;
+import module taninim.taninim;
+import module uplift.kernel;
+import module uplift.lambda;
+import module uplift.s3;
+import module uplift.uuid;
 
 import static java.util.Map.entry;
 

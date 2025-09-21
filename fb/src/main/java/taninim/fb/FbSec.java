@@ -1,6 +1,6 @@
 package taninim.fb;
 
-import java.util.function.Supplier;
+import module java.base;
 
 public final class FbSec {
 

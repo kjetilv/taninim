@@ -1,23 +1,12 @@
 package taninim.lambdatest;
 
-import com.github.kjetilv.uplift.flambda.CorsSettings;
-import com.github.kjetilv.uplift.flambda.LocalLambda;
-import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
-import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
-import com.github.kjetilv.uplift.lambda.LambdaHandler;
-import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
-import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import taninim.TaninimSettings;
-import taninim.kudu.KuduLambdaHandler;
-
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Supplier;
+import module java.base;
+import module taninim.kudu;
+import module taninim.taninim;
+import module uplift.flambda;
+import module uplift.kernel;
+import module uplift.lambda;
+import module uplift.s3;
 
 @SuppressWarnings({"MagicNumber"})
 public final class LocalLambdaKudu {

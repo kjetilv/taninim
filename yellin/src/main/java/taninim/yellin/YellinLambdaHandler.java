@@ -6,7 +6,6 @@ import module taninim.taninim;
 import module uplift.json;
 import module uplift.lambda;
 import module uplift.s3;
-import com.github.kjetilv.uplift.json.JsonWriter;
 
 import static java.util.Objects.requireNonNull;
 import static taninim.yellin.Yellin.leasesDispatcher;

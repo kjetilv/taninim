@@ -1,9 +1,8 @@
 package taninim.fb;
 
+import module java.base;
 import com.restfb.FacebookClient;
 import com.restfb.JsonMapper;
-
-import java.util.List;
 
 record SimpleMapper() implements JsonMapper {
 
