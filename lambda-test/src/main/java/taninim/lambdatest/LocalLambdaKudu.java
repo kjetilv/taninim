@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 @SuppressWarnings({"MagicNumber"})
 public final class LocalLambdaKudu {
 
-    static void main(String[] args) {
+    static void main() {
         CorsSettings corsSettings = new CorsSettings(
             List.of("https://kjetilv.github.io"),
             List.of("GET"),

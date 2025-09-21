@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class ListLeases {
 
-    public static void main(String[] args) {
+    static void main() {
         Flogs.initialize();
 
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Executors.newVirtualThreadPerTaskExecutor());
@@ -67,6 +67,9 @@ public final class ListLeases {
                         }
                     });
             });
+    }
+
+    private ListLeases() {
     }
 
     private static final long SECONDS_PER_HOUR = Duration.ofHours(1).toSeconds();

@@ -20,12 +20,12 @@ import org.slf4j.LoggerFactory;
 import taninim.music.medias.MediaIds;
 import taninim.music.medias.UserAuths;
 
-public record MyS3(
+public record MemoryS3(
     Map<String, S3Data> s3,
     Supplier<Instant> time
 ) implements S3Accessor {
 
-    private static final Logger log = LoggerFactory.getLogger(MyS3.class);
+    private static final Logger log = LoggerFactory.getLogger(MemoryS3.class);
 
     @Override
     public Optional<? extends InputStream> stream(String name, Range range) {

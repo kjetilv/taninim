@@ -78,7 +78,7 @@ class LambdasTest {
         }
         """.formatted(userId);
 
-    private final Map<String, MyS3.S3Data> s3 = new ConcurrentHashMap<>();
+    private final Map<String, MemoryS3.S3Data> s3 = new ConcurrentHashMap<>();
 
     private S3Accessor s3Accessor;
 
@@ -97,7 +97,7 @@ class LambdasTest {
 
     @BeforeEach
     void setUp() {
-        s3Accessor = new MyS3(s3, this::now);
+        s3Accessor = new MemoryS3(s3, this::now);
         archives = new S3Archives(s3Accessor);
         s3Accessor.put(idsJson, "ids.json");
         mediaLibrary = new CloudMediaLibrary(s3Accessor, this::now);

@@ -53,7 +53,7 @@ import static taninim.lambdatest.Parse.leasesActivation;
 )
 class Lambdas2Test {
 
-    private Map<String, MyS3.S3Data> s3 = new ConcurrentHashMap<>();
+    private Map<String, MemoryS3.S3Data> s3 = new ConcurrentHashMap<>();
 
     private AtomicReference<Instant> time = new AtomicReference<>();
 
@@ -75,7 +75,7 @@ class Lambdas2Test {
     void setupAll() {
         setTime(Instant.EPOCH);
 
-        s3Accessor = new MyS3(s3, this::now);
+        s3Accessor = new MemoryS3(s3, this::now);
         s3Accessor.put(idsJson, "ids.json");
         s3Accessor.put("media.jsonl.gz", zippedLibrary());
 

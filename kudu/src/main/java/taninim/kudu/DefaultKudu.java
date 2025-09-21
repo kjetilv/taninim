@@ -1,15 +1,10 @@
 package taninim.kudu;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.uuid.Uuid;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.TaninimSettings;
 import taninim.music.Archives;
 import taninim.music.LeasesRegistry;
@@ -18,6 +13,11 @@ import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
 import taninim.music.legal.S3Archives;
 import taninim.music.medias.MediaLibrary;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public record DefaultKudu(
     LeasesRegistry leasesRegistry,
@@ -46,7 +46,7 @@ public record DefaultKudu(
 
     @Override
     public Optional<Library> libraryStream(Uuid token) {
-        return leasesRegistry.getActive(token).flatMap(ticket ->
+        return leasesRegistry.getActive(token).flatMap(_ ->
             mediaLibrary.fileSize("media.jsonl.gz").flatMap(size ->
                 mediaLibrary.stream(null, "media.jsonl.gz")
                     .map(inputStream ->
