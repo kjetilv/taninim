@@ -91,7 +91,7 @@ public final class LocalTaninim {
             yellinClientSettings,
             taninimSettings,
             S3AccessorFactory.defaultFactory(ENV),
-            new FbAuthenticator()
+            FbAuthenticator.simple()
         );
         Runnable yellinLamdbdaManaged = LamdbdaManaged.create(
             yellinLocalLambda.getLambdaUri(),

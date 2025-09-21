@@ -8,5 +8,5 @@ public interface LeasesRegistry {
 
     Optional<LeasesPath> getActive(Uuid token);
 
-    LeasesPath setActive(Leases leases, Period period);
+    LeasesPath setActive(Leases leases, LeasePeriod leasePeriod);
 }

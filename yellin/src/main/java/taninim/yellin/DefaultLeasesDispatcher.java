@@ -1,29 +1,15 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.uuid.Uuid;
-import taninim.fb.Authenticator;
-import taninim.fb.ExtAuthResponse;
-import taninim.fb.ExtUser;
-import taninim.music.Leases;
-import taninim.music.LeasesPath;
-import taninim.music.LeasesRegistry;
-import taninim.music.Period;
-import taninim.music.medias.MediaIds;
-import taninim.music.medias.UserAuth;
-import taninim.music.medias.UserRequest;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import module java.base;
+import module taninim.fb;
+import module taninim.taninim;
+import module uplift.uuid;
 
 import static java.util.Objects.requireNonNull;
 
 public class DefaultLeasesDispatcher implements LeasesDispatcher {
 
-    private final Authenticator authenticator;
+    private final FbAuthenticator fbAuthenticator;
 
     private final Authorizer authorizer;
 
@@ -36,14 +22,14 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     private final Supplier<Instant> time;
 
     DefaultLeasesDispatcher(
-        Authenticator authenticator,
+        FbAuthenticator fbAuthenticator,
         Authorizer authorizer,
         LeasesRegistry leasesRegistry,
         Supplier<MediaIds> mediaIds,
         Duration leaseTime,
         Supplier<Instant> time
     ) {
-        this.authenticator = requireNonNull(authenticator, "authenticator");
+        this.fbAuthenticator = requireNonNull(fbAuthenticator, "authenticator");
         this.authorizer = requireNonNull(authorizer, "authorizer");
         this.leasesRegistry = requireNonNull(leasesRegistry, "ticketOffice");
         this.mediaIds = requireNonNull(mediaIds, "mediaIds");
@@ -67,7 +53,7 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
         return authorizer.login(leasesRequest.leasesData().userId(), false)
             .filter(userAuth ->
                 userAuth.validAt(time))
-            .flatMap(userAuth ->
+            .flatMap(_ ->
                 authorizer.authorize(userRequest(leasesRequest))
                     .map(authorized ->
                         requestedActivation(authorized, leasesRequest, time))
@@ -81,14 +67,9 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
             .map(this::storeActivated);
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + leasesRegistry + "]";
-    }
-
     private Optional<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
         Instant time = this.time.get();
-        return authenticator.authenticate(extAuthResponse).flatMap(auth ->
+        return fbAuthenticator.authenticate(extAuthResponse).flatMap(auth ->
             authorizer.login(auth.id(), refresh)
                 .filter(userAuth ->
                     userAuth.validAt(time))
@@ -127,12 +108,12 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     }
 
     private LeasesActivation storeActivated(LeasesActivation activation) {
-        Period period = new Period(time.get(), leaseTime);
+        LeasePeriod leasePeriod = new LeasePeriod(time.get(), leaseTime);
         LeasesPath leasesPath = leasesRegistry.getActive(activation.token())
             .orElseGet(() ->
-                leasesRegistry.setActive(new Leases(activation.token()), period));
-        LeasesPath activePath = leasesPath.withTracks(activation.trackUUIDs(), period.getLapse());
-        leasesRegistry.setActive(activePath.leases(), period);
+                leasesRegistry.setActive(new Leases(activation.token()), leasePeriod));
+        LeasesPath activePath = leasesPath.withTracks(activation.trackUUIDs(), leasePeriod.getLapse());
+        leasesRegistry.setActive(activePath.leases(), leasePeriod);
         return activation;
     }
 
@@ -158,5 +139,10 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     private static UserRequest userRequest(LeasesRequest leasesRequest) {
         LeasesData data = leasesRequest.leasesData();
         return new UserRequest(data.userId(), data.token(), data.album());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + leasesRegistry + "]";
     }
 }

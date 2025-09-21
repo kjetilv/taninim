@@ -1,22 +1,12 @@
 package taninim.yellin.server;
 
-import com.github.kjetilv.uplift.asynchttp.*;
-import com.github.kjetilv.uplift.json.JsonWriter;
+import module java.base;
+import module taninim.fb;
+import module taninim.yellin;
+import module uplift.asynchttp;
+import module uplift.flogs;
+import module uplift.json;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import taninim.fb.ExtAuthResponse;
-import taninim.yellin.LeasesActivation;
-import taninim.yellin.LeasesActivationRW;
-import taninim.yellin.LeasesDispatcher;
-import taninim.yellin.LeasesRequest;
-
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousByteChannel;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -93,7 +83,7 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
 
     private void writeResponse(LeasesActivation activation) {
         Writable<ByteBuffer> writable = response(activation);
-        try (BufferedWriter<ByteBuffer> writer = responseWriter()) {
+        try (BufferingWriter<ByteBuffer> writer = responseWriter()) {
             writer.write(writable);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond: " + activation, e);

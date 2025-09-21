@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 import com.github.kjetilv.uplift.asynchttp.AbstractChannelHandler;
 import com.github.kjetilv.uplift.asynchttp.BufferedReader;
-import com.github.kjetilv.uplift.asynchttp.BufferedWriter;
+import com.github.kjetilv.uplift.asynchttp.BufferingWriter;
 import com.github.kjetilv.uplift.asynchttp.ByteChannelStreamBridgingReader;
 import com.github.kjetilv.uplift.asynchttp.Processing;
 import com.github.kjetilv.uplift.asynchttp.Transfer;
@@ -111,7 +111,7 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
 
     private StreamingState transferLibrary(StreamingState streamingState, Kudu.Library library) {
         try (
-            BufferedWriter<? super ByteBuffer> writer = responseWriter()
+            BufferingWriter<? super ByteBuffer> writer = responseWriter()
         ) {
             ByteBuffer headerBuffer = textBuffer(libraryHeaders(library.size()));
             writer.write(new WritableBuffer<>(headerBuffer, headerBuffer.capacity()));
@@ -127,7 +127,7 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
 
     private StreamingState transferAudio(StreamingState state, Chunk chunk, InputStream audioStream) {
         try (
-            BufferedWriter<? super ByteBuffer> writer = responseWriter()
+            BufferingWriter<? super ByteBuffer> writer = responseWriter()
         ) {
             ByteBuffer headerBuffer = textBuffer(audioHeaders(chunk));
             writer.write(new WritableBuffer<>(headerBuffer, headerBuffer.capacity()));

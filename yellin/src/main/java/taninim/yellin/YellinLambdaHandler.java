@@ -1,18 +1,12 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.json.JsonReader;
+import module java.base;
+import module taninim.fb;
+import module taninim.taninim;
+import module uplift.json;
+import module uplift.lambda;
+import module uplift.s3;
 import com.github.kjetilv.uplift.json.JsonWriter;
-import com.github.kjetilv.uplift.lambda.*;
-import com.github.kjetilv.uplift.s3.S3Accessor;
-import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import taninim.TaninimSettings;
-import taninim.fb.Authenticator;
-import taninim.fb.ExtAuthResponse;
-import taninim.fb.ExtAuthResponseRW;
-
-import java.io.ByteArrayOutputStream;
-import java.util.Optional;
-import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 import static taninim.yellin.Yellin.leasesDispatcher;
@@ -23,7 +17,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         LambdaClientSettings clientSettings,
         TaninimSettings taninimSettings,
         S3AccessorFactory s3AccessorFactory,
-        Authenticator authenticator
+        FbAuthenticator fbAuthenticator
     ) {
         S3Accessor s3Accessor = s3AccessorFactory.create();
         LeasesDispatcher leasesDispatcher = leasesDispatcher(
@@ -31,7 +25,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
             clientSettings.time(),
             taninimSettings.sessionDuration(),
             taninimSettings.leaseDuration(),
-            authenticator
+            fbAuthenticator
         );
         return new YellinLambdaHandler(leasesDispatcher);
     }

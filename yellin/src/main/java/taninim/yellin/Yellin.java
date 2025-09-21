@@ -1,30 +1,13 @@
 package taninim.yellin;
 
-import com.github.kjetilv.uplift.hash.HashKind;
-import com.github.kjetilv.uplift.json.Json;
-import com.github.kjetilv.uplift.json.mame.CachingJsonSessions;
-import com.github.kjetilv.uplift.s3.S3Accessor;
-import com.github.kjetilv.uplift.util.OnDemand;
-import taninim.fb.Authenticator;
-import taninim.music.LeasesRegistry;
-import taninim.music.legal.ArchivedLeasesRegistry;
-import taninim.music.legal.CloudMediaLibrary;
-import taninim.music.legal.S3Archives;
-import taninim.music.medias.MediaIds;
-import taninim.music.medias.MediaLibrary;
-import taninim.music.medias.UserAuths;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.TemporalAmount;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import module java.base;
+import module taninim.fb;
+import module taninim.taninim;
+import module uplift.hash;
+import module uplift.json;
+import module uplift.json.mame;
+import module uplift.s3;
+import module uplift.util;
 
 public final class Yellin {
 
@@ -33,7 +16,7 @@ public final class Yellin {
         Supplier<Instant> time,
         Duration sessionDuration,
         Duration ticketDuration,
-        Authenticator authenticator
+        FbAuthenticator fbAuthenticator
     ) {
         S3Archives s3Archives = new S3Archives(s3Accessor);
         MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, time);
@@ -65,13 +48,13 @@ public final class Yellin {
             time
         );
 
-        Authenticator userAuthenticator = authResponse ->
-            authenticator.authenticate(authResponse)
+        FbAuthenticator userFbAuthenticator = authResponse ->
+            fbAuthenticator.authenticate(authResponse)
                 .filter(extUser ->
                     users.get().contains(extUser.id()));
 
         return new DefaultLeasesDispatcher(
-            userAuthenticator,
+            userFbAuthenticator,
             authorizer,
             leasesRegistry,
             mediaIds,

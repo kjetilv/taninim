@@ -9,7 +9,6 @@ import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.util.Time;
 import taninim.TaninimSettings;
-import taninim.fb.Authenticator;
 import taninim.fb.FbAuthenticator;
 
 import java.time.Duration;
@@ -28,7 +27,7 @@ public final class Main {
         );
 
         S3AccessorFactory s3AccessorFactory = S3AccessorFactory.defaultFactory(ENV);
-        Authenticator fbAuthenticator = new FbAuthenticator();
+        FbAuthenticator fbAuthenticator = FbAuthenticator.simple();
 
         LambdaHandler handler = YellinLambdaHandler.handler(
             clientSettings,

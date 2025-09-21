@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
-import taninim.fb.Authenticator;
+import taninim.fb.FbAuthenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
 import taninim.fb.ExtUser;
@@ -119,7 +119,7 @@ class Lambdas2Test {
             yellinClientSettings,
             taninimSettings,
             () -> s3Accessor,
-            AUTHENTICATOR
+            FB_AUTHENTICATOR
         );
 
         kuduHandler = KuduLambdaHandler.create(kuduClientSettings, taninimSettings, () -> s3Accessor);
@@ -415,7 +415,7 @@ class Lambdas2Test {
     private static final JsonWriter<String, ExtAuthResponse, StringBuilder>
         RESPONSE_WRITER = ExtAuthResponseRW.INSTANCE.stringWriter();
 
-    private static final Authenticator AUTHENTICATOR = authResponse ->
+    private static final FbAuthenticator FB_AUTHENTICATOR = authResponse ->
         Optional.of(new ExtUser("dave", authResponse.userID()));
 
     private static final String idsJson = """

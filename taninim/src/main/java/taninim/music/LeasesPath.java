@@ -8,21 +8,21 @@ import com.github.kjetilv.uplift.uuid.Uuid;
 
 public record LeasesPath(
     Leases leases,
-    Period period
+    LeasePeriod leasePeriod
 ) {
 
     public String toPath() {
         return MessageFormat.format(
             "{0}{1,number,00000000}-{2}{3}",
             LEASE_PREFIX,
-            period.epochHour(),
+            leasePeriod.epochHour(),
             leases.token().digest(),
             LEASE_SUFFIX
         );
     }
 
     public LeasesPath withTracks(List<? extends Uuid> uuids, Instant lapse) {
-        return new LeasesPath(leases.withTracks(uuids, lapse), period);
+        return new LeasesPath(leases.withTracks(uuids, lapse), leasePeriod);
     }
 
     private static final String LEASE_PREFIX = "lease-";
@@ -31,6 +31,6 @@ public record LeasesPath(
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + leases + "/ " + period + " @ " + toPath() + "]";
+        return getClass().getSimpleName() + "[" + leases + "/ " + leasePeriod + " @ " + toPath() + "]";
     }
 }

@@ -42,26 +42,26 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     @Override
     public Optional<LeasesPath> getActive(Uuid token) {
         Instant time = this.time.get();
-        Period period = Period.starting(time).ofLength(leaseDuration);
+        LeasePeriod leasePeriod = LeasePeriod.starting(time).ofLength(leaseDuration);
         try (Stream<String> pathsForToken = archives.retrievePaths(LEASE_PREFIX, recordFor(token))) {
             return pathsForToken.max(BY_EPOCH_HOUR).flatMap(path ->
                 archives.retrieveRecord(path)
                     .map(archivedRecord ->
                         leases(token, archivedRecord).validAt(time))
                     .filter(leases ->
-                        leases.stillActiveAt(period.start()))
+                        leases.stillActiveAt(leasePeriod.start()))
                     .map(leases ->
                         leases.validAt(time))
-                    .map(leases -> new LeasesPath(leases, period)));
+                    .map(leases -> new LeasesPath(leases, leasePeriod)));
         }
     }
 
     @Override
-    public LeasesPath setActive(Leases leases, Period period) {
+    public LeasesPath setActive(Leases leases, LeasePeriod leasePeriod) {
         Instant time = this.time.get();
         try {
             Leases valid = leases.validAt(time);
-            LeasesPath leasesPath = new LeasesPath(valid, period);
+            LeasesPath leasesPath = new LeasesPath(valid, leasePeriod);
             return stored(leasesPath);
         } finally {
             deleteOutdated(time);
@@ -81,7 +81,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     private void deleteOutdated(Instant time) {
-        Collection<Long> active = Period.starting(time).epochHoursBack(leaseDuration)
+        Collection<Long> active = LeasePeriod.starting(time).epochHoursBack(leaseDuration)
             .collect(Collectors.toSet());
         try (
             Stream<String> records = archives.retrievePaths(

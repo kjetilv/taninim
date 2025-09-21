@@ -1,17 +1,10 @@
 package taninim.yellin.server;
 
-import com.github.kjetilv.uplift.asynchttp.BufferState;
-import com.github.kjetilv.uplift.asynchttp.ChannelHandler;
-import com.github.kjetilv.uplift.asynchttp.IOServer;
-import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.s3.S3Accessor;
-import taninim.fb.FbAuthenticator;
-
-import java.time.Duration;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import module java.base;
+import module taninim.fb;
+import module uplift.asynchttp;
+import module uplift.kernel;
+import module uplift.s3;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
 import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
@@ -51,7 +44,7 @@ public final class ServerYellin {
                 UTC_CLOCK::instant,
                 SESSION_DURATION,
                 LEASE_DURATION,
-                new FbAuthenticator()
+                FbAuthenticator.simple()
             ),
             null,
             MAX_REQUEST_SIZE,

@@ -9,28 +9,25 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-public record Period(
-    Instant start,
-    Duration duration
-) {
+public record LeasePeriod(Instant start, Duration duration) {
 
-    public static Period starting(Instant start) {
-        return new Period(start);
+    public static LeasePeriod starting(Instant start) {
+        return new LeasePeriod(start);
     }
 
-    public Period {
+    public LeasePeriod {
         requireNonNull(start, "start");
     }
 
-    public Period(Instant start) {
+    public LeasePeriod(Instant start) {
         this(requireNonNull(start, "start"), null);
     }
 
-    public Period ofLength(Duration duration) {
-        return new Period(start, requireNonNull(duration, "duration"));
+    public LeasePeriod ofLength(Duration duration) {
+        return new LeasePeriod(start, requireNonNull(duration, "duration"));
     }
 
-    public Period capTo(Duration duration) {
+    public LeasePeriod capTo(Duration duration) {
         return starting(start)
             .ofLength(cappedDuration(requireNonNull(duration, "duration")));
     }
