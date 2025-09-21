@@ -50,7 +50,7 @@ final class DefaultAuthorizer implements Authorizer {
     public Optional<UserAuth> authorize(UserRequest request) {
         UserAuths userAuths = this.authIds.get();
         return conflictingLease(request, userAuths)
-            .map(conflicting ->
+            .map(_ ->
                 Optional.<UserAuth>empty())
             .orElseGet(() ->
                 addAuth(userAuths, request));
