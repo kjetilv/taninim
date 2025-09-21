@@ -48,7 +48,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     @Override
-    protected Optional<LambdaResult> result(LambdaPayload payload) {
+    protected Optional<LambdaResult> lambdaResult(LambdaPayload payload) {
         if (payload.isPost()) {
             if (payload.isExactly("/auth")) {
                 return handle(payload.body(), this::authenticate);
@@ -70,7 +70,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         ExtAuthResponse extAuthResponse = RESPONSE_JSON_READER.read(body);
         return leasesDispatcher.createLease(extAuthResponse)
             .map(result ->
-                result(LEASES_WRITER.write(result)))
+                lambdaResult(LEASES_WRITER.write(result)))
             .orElseGet(
                 errorSupplier(UNAUTHORIZED, "Failed to authenticate: {}", this));
     }
@@ -79,7 +79,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         LeasesRequest leasesRequest = LeasesRequest.acquire(body);
         Optional<LeasesActivation> leasesActivation = leasesDispatcher.requestLease(leasesRequest);
         return leasesActivation.map(activation ->
-                result(LEASES_WRITER.write(activation)))
+                lambdaResult(LEASES_WRITER.write(activation)))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
@@ -88,7 +88,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         LeasesRequest leasesRequest = LeasesRequest.release(body);
         return leasesDispatcher.dismissLease(leasesRequest)
             .map(result ->
-                result(LEASES_WRITER.write(result)))
+                lambdaResult(LEASES_WRITER.write(result)))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to remove lease: {}", this));
     }

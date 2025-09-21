@@ -29,7 +29,7 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
     }
 
     @Override
-    protected Optional<LambdaResult> result(LambdaPayload payload) {
+    protected Optional<LambdaResult> lambdaResult(LambdaPayload payload) {
         return payload.isPrefixed("get", "/audio/") ? handleAudio(payload, token(payload))
             : payload.isExactly("get", "/library.json") ? handleLibrary(token(payload))
                 : Optional.empty();
