@@ -2,9 +2,9 @@ package taninim.music.legal;
 
 import module java.base;
 import module taninim.taninim;
-import module uplift.flogs;
 import module uplift.s3;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.requireNonNull;
 

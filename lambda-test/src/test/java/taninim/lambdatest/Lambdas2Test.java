@@ -8,7 +8,6 @@ import module taninim.kudu;
 import module taninim.taninim;
 import module taninim.yellin;
 import module uplift.flambda;
-import module uplift.flogs;
 import module uplift.json;
 import module uplift.kernel;
 import module uplift.lambda;
@@ -16,6 +15,7 @@ import module uplift.s3;
 import module uplift.util;
 import module uplift.uuid;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static taninim.lambdatest.Parse.authResponse;

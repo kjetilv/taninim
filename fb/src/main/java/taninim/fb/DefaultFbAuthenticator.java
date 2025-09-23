@@ -1,11 +1,11 @@
 package taninim.fb;
 
 import module java.base;
-import module uplift.flogs;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Version;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class DefaultFbAuthenticator implements FbAuthenticator {
 

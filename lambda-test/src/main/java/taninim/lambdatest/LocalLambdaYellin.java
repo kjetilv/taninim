@@ -5,12 +5,14 @@ import module taninim.fb;
 import module taninim.taninim;
 import module taninim.yellin;
 import module uplift.flambda;
-import module uplift.flogs;
 import module uplift.kernel;
 import module uplift.lambda;
 import module uplift.s3;
 import module uplift.util;
+import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.LogLevel;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"MagicNumber"})
 public final class LocalLambdaYellin {

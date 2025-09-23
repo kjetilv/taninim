@@ -2,10 +2,10 @@ package taninim.lambdatest;
 
 import module java.base;
 import module taninim.taninim;
-import module uplift.flogs;
 import module uplift.kernel;
 import module uplift.s3;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public record MemoryS3(
     Map<String, S3Data> s3,
