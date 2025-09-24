@@ -8,13 +8,12 @@ import module uplift.kernel;
 import module uplift.s3;
 import module uplift.util;
 
-import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
 import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
 
-public final class ServerKudu {
+public record ServerKudu(Parameters parameters) implements Runnable{
 
-    static void main(String[] args) {
-        Parameters parameters = parameters(args);
+    @Override
+    public void run() {
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
 
@@ -41,22 +40,5 @@ public final class ServerKudu {
         }
     }
 
-    private ServerKudu() {
-    }
-
-    private static final int PORT_80 = 80;
-
     private static final int MAX_REQUEST_LENGTH = 1024;
-
-    private static final int DEFAULT_RESPONSE_LENGTH = 64 * 1_024;
-
-    private static Parameters parameters(String[] args) {
-        Map<String, String> map = parameterMap(args);
-        boolean server = boolArg(map, "server") || possibleIntArg(map, "port").isPresent();
-        return new Parameters(
-            validatePort(intArg(map, "port", server ? PORT_80 : 0)),
-            intArg(map, "buffer", DEFAULT_RESPONSE_LENGTH),
-            server
-        );
-    }
 }

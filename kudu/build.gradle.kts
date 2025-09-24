@@ -18,6 +18,4 @@ dependencies {
 
 apply<NativeLambdaPlugin>()
 
-tasks.withType<NativeLamdbdaTask> {
-    main = "taninim.kudu.Main"
-}
+tasks.withType<NativeLamdbdaTask> { main = "kudu" }

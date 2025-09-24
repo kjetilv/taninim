@@ -16,25 +16,28 @@ public record MemoryS3(
 
     @Override
     public Optional<? extends InputStream> stream(String name, Range range) {
-        return Optional.ofNullable(s3.get(name)).map(data ->
-            range == null
-                ? new ByteArrayInputStream(data.data())
-                : new ByteArrayInputStream(
-                    data.data(),
-                    Math.toIntExact(range.start()),
-                    Math.toIntExact(range.exclusiveEnd() - range.start())
-                ));
+        return Optional.ofNullable(s3.get(name))
+            .map(data ->
+                range == null
+                    ? new ByteArrayInputStream(data.data())
+                    : new ByteArrayInputStream(
+                        data.data(),
+                        Math.toIntExact(range.start()),
+                        Math.toIntExact(range.exclusiveEnd() - range.start())
+                    ));
     }
 
     @Override
     public void put(String remoteName, InputStream inputStream, long length) {
         log.info("Putting {} bytes into {}", length, remoteName);
         byte[] bytes = BytesIO.readInputStream(inputStream);
-        s3.put(remoteName, new S3Data(
-            bytes,
-            stringValue(remoteName, bytes),
-            time.get()
-        ));
+        s3.put(
+            remoteName, new S3Data(
+                bytes,
+                stringValue(remoteName, bytes),
+                time.get()
+            )
+        );
     }
 
     @Override
@@ -51,7 +54,7 @@ public record MemoryS3(
 
     @Override
     public void remove(Collection<String> objects) {
-        for (String object: objects) {
+        for (String object : objects) {
             log.info("Removing {}", object);
             s3.remove(object);
         }
@@ -78,11 +81,5 @@ public record MemoryS3(
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public record S3Data(
-        byte[] data,
-        String str,
-        Instant time
-    ) {
-
-    }
 }
+

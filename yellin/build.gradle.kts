@@ -28,6 +28,4 @@ dependencies {
 
 apply<NativeLambdaPlugin>()
 
-tasks.withType<NativeLamdbdaTask> {
-    main = "taninim.yellin.Main"
-}
+tasks.withType<NativeLamdbdaTask> { main = "yellin" }

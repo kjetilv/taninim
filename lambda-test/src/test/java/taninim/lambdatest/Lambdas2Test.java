@@ -354,9 +354,11 @@ class Lambdas2Test {
     }
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
-        return yellinReqs.path("/lease").execute(method, LEASES_DATA_WRITER.write(
-            new LeasesData(userId, token, album)
-        ));
+        return yellinReqs.path("/lease").execute(
+            method, LEASES_DATA_WRITER.write(
+                new LeasesData(userId, token, album)
+            )
+        );
     }
 
     private void setTime(Instant time) {
