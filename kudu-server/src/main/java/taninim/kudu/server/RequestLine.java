@@ -6,17 +6,14 @@ import module uplift.uuid;
 
 import static taninim.util.ParseBits.tailString;
 
-record RequestLine(
-    Track track,
-    Uuid token
-) {
+record RequestLine(Track track, Uuid token) {
 
     static Optional<RequestLine> parseRequestLine(String requestLine) {
         return tailString(requestLine, "get /audio/").flatMap(RequestLine::parse);
     }
 
     private static Optional<RequestLine> parse(String request) {
-        return Track.parseTrack(request)
+        return Track.parse(request)
             .flatMap(track ->
                 requestedTrack(request, track));
     }

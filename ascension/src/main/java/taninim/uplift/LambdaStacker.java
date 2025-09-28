@@ -10,10 +10,11 @@ import software.amazon.awscdk.services.s3.IBucket;
 
 import static software.amazon.awscdk.services.lambda.Architecture.ARM_64;
 import static software.amazon.awscdk.services.lambda.HttpMethod.*;
-import static software.amazon.awscdk.services.logs.RetentionDays.ONE_DAY;
 
 @SuppressWarnings({"unused", "MagicNumber"})
 public class LambdaStacker implements Consumer<Stack> {
+
+    public static final String BUCKET_PROPERTY = "taninimBucket";
 
     @Override
     public void accept(Stack stack) {
@@ -21,8 +22,6 @@ public class LambdaStacker implements Consumer<Stack> {
         stackYellin(stack, taninimBucket);
         stackKudu(stack, taninimBucket);
     }
-
-    public static final String BUCKET_PROPERTY = "taninimBucket";
 
     private static final String FB_SEC = "fbSec";
 
@@ -51,10 +50,8 @@ public class LambdaStacker implements Consumer<Stack> {
             .description("Serves authorized audio streams")
             .functionName("kudu-taninim")
             .code(Code.fromAsset("/lambdas/kudu.zip"))
-            .environment(Map.of(
-                BUCKET_ENV_VAR, get(BUCKET_PROPERTY)
-            ))
-            .logRetention(ONE_DAY));
+            .environment(Map.of(BUCKET_ENV_VAR, get(BUCKET_PROPERTY)))
+        );
         taninimBucket.grantRead(Objects.requireNonNull(kudu.getRole()));
         functionUrl(stack, "kudu-taninim-fu", kudu)
             .authType(FunctionUrlAuthType.NONE)
@@ -74,7 +71,7 @@ public class LambdaStacker implements Consumer<Stack> {
             .handler("bootstrap")
             .architecture(ARM_64)
             .memorySize(128)
-        .runtime(Runtime.PROVIDED_AL2023)
+            .runtime(Runtime.PROVIDED_AL2023)
             .timeout(Duration.seconds(20))
             .build();
         return yellinFunction;

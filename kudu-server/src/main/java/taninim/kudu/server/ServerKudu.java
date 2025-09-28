@@ -10,7 +10,7 @@ import module uplift.util;
 
 import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
 
-public record ServerKudu(Parameters parameters) implements Runnable{
+public record ServerKudu(Parameters parameters) implements Runnable {
 
     @Override
     public void run() {
@@ -23,8 +23,7 @@ public record ServerKudu(Parameters parameters) implements Runnable{
             Time.utcSupplier()
         );
 
-        MediaLibrary mediaLibrary =
-            new CloudMediaLibrary(s3Accessor, Time.utcSupplier());
+        MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, Time.utcSupplier());
 
         ChannelHandler<StreamingState, KuduChannelHandler> handler = new KuduChannelHandler(
             new DefaultKudu(leasesRegistry, mediaLibrary, parameters.buffer(), Time.utcSupplier()),
@@ -33,9 +32,7 @@ public record ServerKudu(Parameters parameters) implements Runnable{
             Time.utcSupplier()
         );
 
-        try (
-            IOServer run = create(parameters.port(), MAX_REQUEST_LENGTH).run(handler)
-        ) {
+        try (IOServer run = create(parameters.port(), MAX_REQUEST_LENGTH).run(handler)) {
             run.join();
         }
     }

@@ -36,7 +36,7 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
 
     @Override
     public StreamingState channelState(ByteBuffer byteBuffer) {
-        return new StreamingState(byteBuffer);
+        return StreamingState.from(byteBuffer);
     }
 
     @Override

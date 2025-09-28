@@ -39,7 +39,7 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
             .flatMap(Range::read)
             .orElseGet(() ->
                 new Range(0L, DEFAULT_START_RANGE));
-        return Track.parseTrack(path)
+        return Track.parse(path)
             .map(track ->
                 new TrackRange(track, range, token))
             .flatMap(kudu::audioBytes)
@@ -62,7 +62,7 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
         return LambdaResult.binary(
             PARTIAL_RESULT,
             audioBytes.bytes(),
-            entry("content-type", "audio/" + audioBytes.trackRange().format()),
+            entry("content-type", "audio/" + audioBytes.trackRange().track().format().suffix()),
             entry("accept-ranges", "bytes"),
             entry("content-range", audioBytes.chunk().rangeResponseHeader()),
             entry("content-length", String.valueOf(audioBytes.chunk().length())),

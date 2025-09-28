@@ -5,11 +5,8 @@ import module uplift.asynchttp;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
 
-public record Parameters(
-    int port,
-    int buffer,
-    boolean server
-) {
+public record Parameters(int port, int buffer, boolean server) {
+
     private static final int PORT_80 = 80;
 
     private static final int DEFAULT_RESPONSE_LENGTH = 64 * 1_024;

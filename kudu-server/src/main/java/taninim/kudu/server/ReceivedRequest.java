@@ -10,11 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import static taninim.util.ParseBits.tailString;
 
-record ReceivedRequest(
-    TrackRange trackRange,
-    LibraryRequest libraryRequest,
-    Admin admin
-) {
+record ReceivedRequest(TrackRange trackRange, LibraryRequest libraryRequest, Admin admin) {
 
     private static final Logger log = LoggerFactory.getLogger(ReceivedRequest.class);
 

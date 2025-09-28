@@ -8,7 +8,8 @@ import module uplift.uuid;
 public interface Kudu {
 
     default Optional<byte[]> library(Uuid token) {
-        return libraryStream(token).map(Library::stream).map(BytesIO::readInputStream);
+        return libraryStream(token).map(Library::stream)
+            .map(BytesIO::readInputStream);
     }
 
     Optional<Library> libraryStream(Uuid token);
@@ -17,26 +18,12 @@ public interface Kudu {
 
     Optional<AudioStream> audioStream(TrackRange trackRange);
 
-    record Library(
-        long size,
-        InputStream stream
-    ) {
-
+    record Library(long size, InputStream stream) {
     }
 
-    record AudioStream(
-        TrackRange trackRange,
-        Chunk chunk,
-        InputStream stream
-    ) {
-
+    record AudioStream(TrackRange trackRange, Chunk chunk, InputStream stream) {
     }
 
-    record AudioBytes(
-        TrackRange trackRange,
-        Chunk chunk,
-        byte[] bytes
-    ) {
-
+    record AudioBytes(TrackRange trackRange, Chunk chunk, byte[] bytes) {
     }
 }

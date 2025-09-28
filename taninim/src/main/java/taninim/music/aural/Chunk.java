@@ -4,12 +4,7 @@ import module java.base;
 import module uplift.kernel;
 
 @SuppressWarnings("unused")
-public record Chunk(
-    String format,
-    long start,
-    long end,
-    long totalSize
-) {
+public record Chunk(String format, long start, long end, long totalSize) {
 
     public static Optional<Chunk> create(Range range, String format, long transferSize) {
         if (range.length() == null) {

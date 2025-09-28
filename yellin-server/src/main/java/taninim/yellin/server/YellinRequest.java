@@ -15,9 +15,7 @@ record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin)
 
     private static final Logger log = LoggerFactory.getLogger(YellinRequest.class);
 
-    static Optional<YellinRequest> read(
-        ByteBuffer requestBuffer
-    ) {
+    static Optional<YellinRequest> read(ByteBuffer requestBuffer) {
         try {
             return ByteBuffers.readBuffer(
                 requestBuffer, nextLine ->

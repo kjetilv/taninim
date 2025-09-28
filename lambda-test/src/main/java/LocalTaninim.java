@@ -10,6 +10,8 @@ import module uplift.lambda;
 import module uplift.s3;
 import module uplift.util;
 
+import org.slf4j.Logger;
+
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 import static com.github.kjetilv.uplift.util.Time.utcSupplier;
 

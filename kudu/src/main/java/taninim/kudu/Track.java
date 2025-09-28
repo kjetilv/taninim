@@ -3,13 +3,19 @@ package taninim.kudu;
 import module java.base;
 import module uplift.uuid;
 
+import static java.util.Objects.requireNonNull;
 import static taninim.util.ParseBits.tailString;
 
 public record Track(Uuid trackUUID, Format format) {
 
-    public static Optional<Track> parseTrack(String audioFile) {
+    public static Optional<Track> parse(String audioFile) {
         return format(audioFile).map(format ->
             new Track(Uuid.from(audioFile), format));
+    }
+
+    public Track {
+        requireNonNull(trackUUID, "trackUUID");
+        requireNonNull(format, "format");
     }
 
     String file() {
@@ -17,19 +23,19 @@ public record Track(Uuid trackUUID, Format format) {
     }
 
     private static Optional<Format> format(String audioId) {
-        return formatTail(audioId)
+        return tailString(audioId, Uuid.DIGEST_LENGTH + 1)
+            .map(Track::lc)
             .flatMap(Track::toFormat);
     }
 
-    private static Optional<String> formatTail(String audioId) {
-        return tailString(audioId, Uuid.DIGEST_LENGTH + 1);
+    private static Optional<Format> toFormat(String tail) {
+        return Arrays.stream(Format.values())
+            .filter(format -> format.matches(tail))
+            .findFirst();
     }
 
-    private static Optional<Format> toFormat(String tail) {
-        String tailLowerCased = tail.toLowerCase(Locale.ROOT);
-        return tailLowerCased.startsWith("m4a")
-            ? Optional.of(Format.M4A)
-            : tailLowerCased.startsWith("flac") ? Optional.of(Format.FLAC) : Optional.empty();
+    private static String lc(String name) {
+        return name.toLowerCase(Locale.ROOT);
     }
 
     public enum Format {
@@ -39,11 +45,15 @@ public record Track(Uuid trackUUID, Format format) {
         private final String suffix;
 
         Format() {
-            this.suffix = name().toLowerCase();
+            this.suffix = lc(name());
         }
 
         public String suffix() {
             return suffix;
+        }
+
+        public boolean matches(String fileName) {
+            return fileName.endsWith(suffix());
         }
     }
 }

@@ -54,7 +54,7 @@ public record DefaultKudu(
     private <T> Optional<T> bytes(TrackRange trackRange, Function<? super Chunk, Optional<T>> streamer) {
         return leasesRegistry.getActive(trackRange.token())
             .filter(leasesPath ->
-                leasesPath.leases().validFor(trackRange.trackUUID(), time.get()))
+                leasesPath.leases().validFor(trackRange.track().trackUUID(), time.get()))
             .flatMap(validLease ->
                 chunk(trackRange, transferSize)
                     .flatMap(streamer));
@@ -62,7 +62,7 @@ public record DefaultKudu(
 
     private Function<Chunk, Optional<AudioBytes>> byteReader(TrackRange trackRange) {
         return chunk ->
-            mediaLibrary.stream(chunk, trackRange.file())
+            mediaLibrary.stream(chunk, trackRange.track().file())
                 .map(BytesIO::readInputStream)
                 .map(bytes ->
                     new AudioBytes(trackRange, chunk, bytes));
@@ -70,13 +70,13 @@ public record DefaultKudu(
 
     private Function<Chunk, Optional<AudioStream>> byteStreamer(TrackRange trackRange) {
         return chunk ->
-            mediaLibrary.stream(chunk, trackRange.file())
+            mediaLibrary.stream(chunk, trackRange.track().file())
                 .map(bytes ->
                     new AudioStream(trackRange, chunk, bytes));
     }
 
     private Optional<Chunk> chunk(TrackRange trackRange, int transferSize) {
-        return mediaLibrary.fileSize(trackRange.file()).flatMap(fileSize ->
-            Chunk.create(trackRange.range().withLength(fileSize), trackRange.format(), transferSize));
+        return mediaLibrary.fileSize(trackRange.track().file()).flatMap(fileSize ->
+            Chunk.create(trackRange.range().withLength(fileSize), trackRange.track().format().suffix(), transferSize));
     }
 }
