@@ -82,8 +82,8 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
     }
 
     private void writeResponse(LeasesActivation activation) {
-        Writable<ByteBuffer> writable = response(activation);
-        try (BufferingWriter<ByteBuffer> writer = responseWriter()) {
+        var writable = response(activation);
+        try (var writer = responseWriter()) {
             writer.write(writable);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to respond: " + activation, e);
@@ -105,9 +105,9 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
         LeasesActivationRW.INSTANCE.bytesWriter();
 
     private static Writable<ByteBuffer> response(LeasesActivation activation) {
-        byte[] body = LEASES_ACT_WRITER.write(activation);
-        byte[] headers = jsonHeaders(body.length);
-        ByteBuffer byteBuffer = ByteBuffer.wrap(append(headers, body));
+        var body = LEASES_ACT_WRITER.write(activation);
+        var headers = jsonHeaders(body.length);
+        var byteBuffer = ByteBuffer.wrap(append(headers, body));
         return new WritableBuffer<>(byteBuffer, byteBuffer.capacity());
     }
 
@@ -116,9 +116,9 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
     }
 
     private static byte[] append(byte[]... parts) {
-        byte[] response = new byte[Arrays.stream(parts).mapToInt(part -> part.length).sum()];
-        int offset = 0;
-        for (byte[] part : parts) {
+        var response = new byte[Arrays.stream(parts).mapToInt(part -> part.length).sum()];
+        var offset = 0;
+        for (var part : parts) {
             try {
                 System.arraycopy(part, 0, response, offset, part.length);
             } finally {

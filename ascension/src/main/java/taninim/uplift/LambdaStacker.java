@@ -18,7 +18,7 @@ public class LambdaStacker implements Consumer<Stack> {
 
     @Override
     public void accept(Stack stack) {
-        IBucket taninimBucket = bucket(stack);
+        var taninimBucket = bucket(stack);
         stackYellin(stack, taninimBucket);
         stackKudu(stack, taninimBucket);
     }
@@ -28,7 +28,7 @@ public class LambdaStacker implements Consumer<Stack> {
     private static final String BUCKET_ENV_VAR = "TANINIM_BUCKET";
 
     private static void stackYellin(Stack stack, IBucket taninimBucket) {
-        IFunction yellin = complete(functionBuilder(stack, "yellin-taninim")
+        var yellin = complete(functionBuilder(stack, "yellin-taninim")
             .description("Authorization and access control")
             .functionName("yellin-taninim")
             .code(Code.fromAsset("/lambdas/yellin.zip"))
@@ -46,7 +46,7 @@ public class LambdaStacker implements Consumer<Stack> {
     }
 
     private static void stackKudu(Stack stack, IBucket taninimBucket) {
-        IFunction kudu = complete(functionBuilder(stack, "kudu-taninim")
+        var kudu = complete(functionBuilder(stack, "kudu-taninim")
             .description("Serves authorized audio streams")
             .functionName("kudu-taninim")
             .code(Code.fromAsset("/lambdas/kudu.zip"))
@@ -84,7 +84,7 @@ public class LambdaStacker implements Consumer<Stack> {
     }
 
     private static FunctionUrlCorsOptions corsOptions(List<HttpMethod> methods, List<String> headers) {
-        FunctionUrlCorsOptions.Builder builder = FunctionUrlCorsOptions.builder()
+        var builder = FunctionUrlCorsOptions.builder()
             .allowedMethods(methods)
             .allowedOrigins(List.of("https://kjetilv.github.io"))
             .maxAge(Duration.days(1))

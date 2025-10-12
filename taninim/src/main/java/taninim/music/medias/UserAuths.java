@@ -55,11 +55,11 @@ public record UserAuths(List<UserAuth> userAuths) implements BinaryWritable {
     }
 
     public UserAuths updatedWith(UserAuth userAuth, Instant time) {
-        List<UserAuth> authList = Stream.concat(userAuths.stream(), Stream.of(userAuth))
+        var authList = Stream.concat(userAuths.stream(), Stream.of(userAuth))
             .map(auth ->
                 auth.withoutExpiredLeasesAt(time))
             .toList();
-        Map<String, List<UserAuth>> grouped = Maps.groupBy(authList, UserAuth::userId);
+        var grouped = Maps.groupBy(authList, UserAuth::userId);
         return new UserAuths(grouped.entrySet()
             .stream()
             .map(entry ->

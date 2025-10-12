@@ -23,7 +23,7 @@ public record LeasesRequest(
     }
 
     public static Optional<LeasesRequest> releaseQueryPars(String path) {
-        QueryParams.Look look = QueryParams.get(path);
+        var look = QueryParams.get(path);
         return look.up("userId")
             .flatMap(userId ->
                 look.up("album").flatMap(Uuid::maybeFrom)

@@ -20,6 +20,10 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     private final Supplier<Instant> time;
 
+    public static MediaLibrary create(S3Accessor s3, Supplier<Instant> time) {
+        return CloudMediaLibrary.create(s3, time);
+    }
+
     public CloudMediaLibrary(S3Accessor s3, Supplier<Instant> time) {
         this.s3 = requireNonNull(s3, "s3");
         this.time = time;
@@ -27,7 +31,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     @Override
     public Optional<Long> fileSize(String file) {
-        Map<String, S3Accessor.RemoteInfo> update = infosWithPrefix(file);
+        var update = infosWithPrefix(file);
         return Optional.ofNullable(update.get(file))
             .map(S3Accessor.RemoteInfo::size);
     }
@@ -35,7 +39,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
     @Override
     public Optional<? extends InputStream> stream(String file) {
         return infoWithPrefix(file).flatMap(info -> {
-            Cached<byte[]> lastCached = fileCache.get(file);
+            var lastCached = fileCache.get(file);
             return needsUpdate(info, lastCached)
                 ? update(time.get(), file, info, getLastValidTime(lastCached))
                 : lastCached.optionalData()
@@ -50,7 +54,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     @Override
     public void write(String file, Consumer<? super OutputStream> writer) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+        try (var baos = new ByteArrayOutputStream()) {
             writer.accept(baos);
             baos.close();
             try (InputStream inputStream = new ByteArrayInputStream(baos.toByteArray())) {
@@ -95,8 +99,8 @@ public final class CloudMediaLibrary implements MediaLibrary {
     }
 
     private Map<String, S3Accessor.RemoteInfo> infosWithPrefix(String file) {
-        String prefix = file.substring(0, 1);
-        Instant time = this.time.get();
+        var prefix = file.substring(0, 1);
+        var time = this.time.get();
         return update(infos, prefix, time, time.plus(TIMEOUT), () ->
             Optional.ofNullable(s3.remoteInfos(prefix))
         ).orElseGet(Collections::emptyMap);
@@ -109,12 +113,12 @@ public final class CloudMediaLibrary implements MediaLibrary {
     }
 
     private static byte[] bytes(S3Accessor.RemoteInfo info, InputStream inputStream) {
-        int size = Math.toIntExact(info.size());
-        byte[] bytes = new byte[size];
-        int fillIndex = 0;
+        var size = Math.toIntExact(info.size());
+        var bytes = new byte[size];
+        var fillIndex = 0;
         try {
             while (true) {
-                int bytesRead = inputStream.read(bytes, fillIndex, size - fillIndex);
+                var bytesRead = inputStream.read(bytes, fillIndex, size - fillIndex);
                 fillIndex += bytesRead;
                 if (fillIndex >= size) {
                     return bytes;

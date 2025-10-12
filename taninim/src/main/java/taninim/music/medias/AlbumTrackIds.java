@@ -18,7 +18,7 @@ public record AlbumTrackIds(
 
     static AlbumTrackIds from(DataInput input) {
         try {
-            Uuid title = Uuid.read(input);
+            var title = Uuid.read(input);
             return new AlbumTrackIds(title, BytesIO.readUuids(input));
         } catch (Exception e) {
             throw new IllegalStateException(e);

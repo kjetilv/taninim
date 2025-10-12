@@ -32,7 +32,7 @@ public record LeasePeriod(Instant start, Duration duration) {
     }
 
     public Stream<Long> epochHoursBack(Duration interval) {
-        long startHour = starting(start.minus(interval)).epochHour();
+        var startHour = starting(start.minus(interval)).epochHour();
         return LongStream.range(startHour, epochHour() + 1L).boxed();
     }
 

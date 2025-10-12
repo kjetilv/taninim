@@ -7,18 +7,18 @@ import module uplift.kernel;
 import module uplift.lambda;
 import module uplift.s3;
 import module uplift.util;
-import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.flogs.LogLevel;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
 
 @SuppressWarnings({"MagicNumber"})
 void main() {
-    Flogs.initialize(LogLevel.DEBUG);
+    initialize(LogLevel.DEBUG);
 
-    Logger logger = LoggerFactory.getLogger("LocalLambdaYellin");
+    var logger = LoggerFactory.getLogger("LocalLambdaYellin");
 
-    LocalLambdaSettings settings = new LocalLambdaSettings(
+    var settings = new LocalLambdaSettings(
         9001,
         8081,
         8 * 8192,
@@ -31,30 +31,30 @@ void main() {
         Time.utcSupplier()
     );
 
-    LocalLambda localLambda = new LocalLambda(settings);
+    var localLambda = new LocalLambda(settings);
 
-    LambdaClientSettings clientSettings =
+    var clientSettings =
         new LambdaClientSettings(Env.actual(), Time.utcSupplier());
 
-    TaninimSettings taninimSettings = new TaninimSettings(
+    var taninimSettings = new TaninimSettings(
         Duration.ofDays(1),
         Duration.ofHours(1),
         1024 * 1024
     );
 
-    LambdaHandler yellin = YellinLambdaHandler.handler(
+    var yellin = YellinLambdaHandler.handler(
         clientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(Env.actual()),
         FbAuthenticator.simple()
     );
 
-    Runnable lamdbdaManaged = LamdbdaManaged.create(
+    var lamdbdaManaged = LamdbdaManaged.create(
         localLambda.getLambdaUri(),
         clientSettings,
         yellin
     );
-    try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+    try (var executor = Executors.newFixedThreadPool(2)) {
         executor.submit(localLambda);
         executor.submit(lamdbdaManaged);
         logger.info("Started");

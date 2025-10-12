@@ -11,7 +11,7 @@ final class Parse {
     }
 
     static Lambdas2Test.LeasesActivation leasesActivation(String body) {
-        LeasesActivation read = ACTIVATION_READER.read(body);
+        var read = ACTIVATION_READER.read(body);
         return new Lambdas2Test.LeasesActivation(
             read.name(),
             read.userId(),
@@ -22,7 +22,7 @@ final class Parse {
     }
 
     static Lambdas2Test.AuthResponse authResponse(String body) {
-        LeasesActivation read = ACTIVATION_READER.read(body);
+        var read = ACTIVATION_READER.read(body);
         return new Lambdas2Test.AuthResponse(
             read.name(),
             read.userId(),

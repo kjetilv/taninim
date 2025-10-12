@@ -11,24 +11,23 @@ import taninim.yellin.YellinLambdaHandler;
 void main() {
     Flogs.initialize(LogLevel.DEBUG);
 
-    LambdaClientSettings clientSettings =
-        new LambdaClientSettings(ENV, Time.utcSupplier());
-    TaninimSettings taninimSettings = new TaninimSettings(
+    var clientSettings = new LambdaClientSettings(ENV, Time.utcSupplier());
+    var taninimSettings = new TaninimSettings(
         Duration.ofDays(1),
         Duration.ofHours(1),
         K * K
     );
 
-    S3AccessorFactory s3AccessorFactory = S3AccessorFactory.defaultFactory(ENV);
-    FbAuthenticator fbAuthenticator = FbAuthenticator.simple();
+    var s3AccessorFactory = S3AccessorFactory.defaultFactory(ENV);
+    var fbAuthenticator = FbAuthenticator.simple();
 
-    LambdaHandler handler = YellinLambdaHandler.handler(
+    var handler = YellinLambdaHandler.handler(
         clientSettings,
         taninimSettings,
         s3AccessorFactory,
         fbAuthenticator
     );
-    try (LamdbdaManaged lamdbdaManaged = LamdbdaManaged.create(ENV.awsLambdaUri(), clientSettings, handler)) {
+    try (var lamdbdaManaged = LamdbdaManaged.create(ENV.awsLambdaUri(), clientSettings, handler)) {
         lamdbdaManaged.run();
     } catch (Exception e) {
         throw new RuntimeException("Failed to run/close", e);

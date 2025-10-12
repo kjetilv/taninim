@@ -4,12 +4,14 @@ import module uplift.flogs;
 import module uplift.kernel;
 import module uplift.s3;
 
+import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
+
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 void main() {
-    Flogs.initialize();
+    initialize();
 
-    S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Executors.newVirtualThreadPerTaskExecutor());
-    Archives archives = new S3Archives(s3Accessor);
+    var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Executors.newVirtualThreadPerTaskExecutor());
+    var archives = S3Archives.create(s3Accessor);
     System.out.println("auth-digest.bin:");
     s3Accessor.stream("auth-digest.bin")
         .map(inputStream ->
@@ -30,10 +32,10 @@ void main() {
     System.out.println("Leases:");
     s3Accessor.listInfos("lease")
         .forEach(info -> {
-            String lease = info.key();
-            Instant instant =
+            var lease = info.key();
+            var instant =
                 Instant.ofEpochSecond(SECONDS_PER_HOUR * epochHour(lease));
-            String time =
+            var time =
                 info.lastModified().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
             System.out.println(
                 "  " + instant.atOffset(ZoneOffset.UTC).format(DAY_HOUR) + ": (" + time + ")");
@@ -63,7 +65,7 @@ private static final DateTimeFormatter DAY_HOUR =
     DateTimeFormatter.ofPattern("HH @ MMM dd", Locale.ROOT);
 
 private static Long epochHour(String path) {
-    String hourstamp = path.substring(LEASE_PREFIX.length());
-    int dashindex = hourstamp.indexOf('-');
+    var hourstamp = path.substring(LEASE_PREFIX.length());
+    var dashindex = hourstamp.indexOf('-');
     return Long.parseLong(hourstamp.substring(0, dashindex));
 }

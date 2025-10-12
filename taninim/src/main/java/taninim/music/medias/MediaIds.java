@@ -15,7 +15,7 @@ public record MediaIds(List<AlbumTrackIds> albumTrackIds) implements BinaryWrita
 
     public static MediaIds from(DataInput input) {
         try {
-            List<AlbumTrackIds> albumTrackIds = IntStream.range(0, input.readInt())
+            var albumTrackIds = IntStream.range(0, input.readInt())
                 .mapToObj(__ -> AlbumTrackIds.from(input))
                 .toList();
             return new MediaIds(albumTrackIds);

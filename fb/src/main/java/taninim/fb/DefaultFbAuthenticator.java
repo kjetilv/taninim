@@ -27,12 +27,12 @@ final class DefaultFbAuthenticator implements FbAuthenticator {
 
     @Override
     public Optional<ExtUser> authenticate(ExtAuthResponse authResponse) {
-        String id = authResponse.userID();
+        var id = authResponse.userID();
         try {
             log.debug("Looking up {}", authResponse);
             return getExtUser(authResponse, id).map(remoteUser -> {
                 log.debug("Retrieved user {}/{}, {}", remoteUser, remoteUser.id(), authResponse);
-                String userId = remoteUser.id();
+                var userId = remoteUser.id();
                 fbListener.response(remoteUser.name(), userId, authResponse.expiresIn());
                 if (remoteUser.hasId(id)) {
                     fbListener.allowed(remoteUser.name(), userId);

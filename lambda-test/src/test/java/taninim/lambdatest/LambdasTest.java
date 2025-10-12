@@ -71,9 +71,9 @@ class LambdasTest {
     @BeforeEach
     void setUp() {
         s3Accessor = new MemoryS3(s3, this::now);
-        archives = new S3Archives(s3Accessor);
+        archives = S3Archives.create(s3Accessor);
         s3Accessor.put(idsJson, "ids.json");
-        mediaLibrary = new CloudMediaLibrary(s3Accessor, this::now);
+        mediaLibrary = CloudMediaLibrary.create(s3Accessor, this::now);
 
         initLibrary();
     }
@@ -85,7 +85,7 @@ class LambdasTest {
     }
 
     private void storeSongs(Uuid... tracks) {
-        for (Uuid track : tracks) {
+        for (var track : tracks) {
             put(track.uuid().toString() + ".m4a");
         }
     }
@@ -111,7 +111,7 @@ class LambdasTest {
             authResponse.userID(),
             authResponse.userID()
         ));
-        LeasesRegistry leasesRegistry = new ArchivedLeasesRegistry(
+        var leasesRegistry = ArchivedLeasesRegistry.create(
             archives,
             ticketDuration,
             this::now
@@ -128,7 +128,7 @@ class LambdasTest {
 
     private void put(String file, BinaryWritable id) {
         try (
-            ByteArrayOutputStream boas = new ByteArrayOutputStream(); DataOutputStream dos = new DataOutputStream(boas)
+            var boas = new ByteArrayOutputStream(); var dos = new DataOutputStream(boas)
         ) {
             id.writeTo(dos);
             dos.close();
@@ -139,14 +139,14 @@ class LambdasTest {
     }
 
     private void put(String file) {
-        byte[] bytes = new byte[256];
+        var bytes = new byte[256];
         ThreadLocalRandom.current().nextBytes(bytes);
         s3Accessor.put(file, bytes);
     }
 
     private static ExtAuthResponse authResponse(String id) {
-        Duration expiresIn = Duration.ofMinutes(1);
-        Instant expirationTime = Instant.now().plus(expiresIn);
+        var expiresIn = Duration.ofMinutes(1);
+        var expirationTime = Instant.now().plus(expiresIn);
         return new ExtAuthResponse(
             id == null ? Uuid.random().digest() : id,
             Uuid.random().digest(),
@@ -176,7 +176,7 @@ class LambdasTest {
 
         @Test
         void noRentIntime() {
-            Uuid firstToken =
+            var firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
@@ -197,7 +197,7 @@ class LambdasTest {
         void rentAndReauth() {
             time(Instant.EPOCH.plus(Duration.ofDays(1).plusHours(8)));
 
-            Uuid firstToken =
+            var firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
@@ -242,7 +242,7 @@ class LambdasTest {
 
         @Test
         void rentAndTimeoutPlay() {
-            Uuid firstToken =
+            var firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
@@ -285,13 +285,13 @@ class LambdasTest {
         }
 
         void rentAndPlayThenTimeout() {
-            Uuid firstToken =
+            var firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
             leasesDispatcher.requestLease(new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2)));
-            Track track = new Track(track2b, Track.Format.M4A);
-            TrackRange trackRange = new TrackRange(track, new Range(0L, 10L), firstToken);
+            var track = new Track(track2b, Track.Format.M4A);
+            var trackRange = new TrackRange(track, new Range(0L, 10L), firstToken);
 
             assertThat(kudu.library(firstToken)).isPresent();
             assertThat(kudu.library(Uuid.random())).isNotPresent();
@@ -352,7 +352,7 @@ class LambdasTest {
             void lookupExisting() {
                 assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
                     assertThat(result.trackUUIDs()).isEmpty();
-                    LeasesRequest leasesRequest = new LeasesRequest(
+                    var leasesRequest = new LeasesRequest(
                         ACQUIRE,
                         new LeasesData(
                             userId,
@@ -378,7 +378,7 @@ class LambdasTest {
 
             @Test
             void rentAndReauth() {
-                Uuid firstToken =
+                var firstToken =
                     leasesDispatcher.createLease(authResponse(userId))
                         .map(LeasesActivation::token)
                         .orElseThrow();
@@ -417,7 +417,7 @@ class LambdasTest {
 
             @Test
             void rentAndRelease() {
-                Uuid firstToken =
+                var firstToken =
                     leasesDispatcher.createLease(authResponse(userId))
                         .map(LeasesActivation::token)
                         .orElseThrow();
@@ -454,7 +454,7 @@ class LambdasTest {
 
             @Test
             void rentAndPlay() {
-                Uuid firstToken = leasesDispatcher.createLease(authResponse(userId))
+                var firstToken = leasesDispatcher.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
                 assertThat(
@@ -469,8 +469,8 @@ class LambdasTest {
                 ).hasValueSatisfying(result ->
                     assertThat(result.trackUUIDs()).hasSize(3));
 
-                Track track = new Track(track2b, Track.Format.M4A);
-                TrackRange trackRange = new TrackRange(track, new Range(0L, 10L).withLength(256L), firstToken);
+                var track = new Track(track2b, Track.Format.M4A);
+                var trackRange = new TrackRange(track, new Range(0L, 10L).withLength(256L), firstToken);
 
                 assertThat(kudu.audioBytes(trackRange)).hasValueSatisfying(audioBytes -> {
                     assertThat(audioBytes.chunk()).isEqualTo(new Chunk("m4a", 0L, 10L, 256L));

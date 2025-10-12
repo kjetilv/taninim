@@ -49,7 +49,7 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
 
     @Override
     public Optional<LeasesActivation> requestLease(LeasesRequest leasesRequest) {
-        Instant time = this.time.get();
+        var time = this.time.get();
         return authorizer.login(leasesRequest.leasesData().userId(), false)
             .filter(userAuth ->
                 userAuth.validAt(time))
@@ -68,7 +68,7 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     }
 
     private Optional<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
-        Instant time = this.time.get();
+        var time = this.time.get();
         return fbAuthenticator.authenticate(extAuthResponse).flatMap(auth ->
             authorizer.login(auth.id(), refresh)
                 .filter(userAuth ->
@@ -108,11 +108,11 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     }
 
     private LeasesActivation storeActivated(LeasesActivation activation) {
-        LeasePeriod leasePeriod = new LeasePeriod(time.get(), leaseTime);
-        LeasesPath leasesPath = leasesRegistry.getActive(activation.token())
+        var leasePeriod = new LeasePeriod(time.get(), leaseTime);
+        var leasesPath = leasesRegistry.getActive(activation.token())
             .orElseGet(() ->
                 leasesRegistry.setActive(new Leases(activation.token()), leasePeriod));
-        LeasesPath activePath = leasesPath.withTracks(activation.trackUUIDs(), leasePeriod.getLapse());
+        var activePath = leasesPath.withTracks(activation.trackUUIDs(), leasePeriod.getLapse());
         leasesRegistry.setActive(activePath.leases(), leasePeriod);
         return activation;
     }
@@ -130,14 +130,14 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
         if (auth == null) {
             throw new IllegalArgumentException("Null auth");
         }
-        List<Uuid> value = mediaIds.get().albumTracks().get(auth.albumId());
+        var value = mediaIds.get().albumTracks().get(auth.albumId());
         return value == null
             ? Stream.empty()
             : value.stream();
     }
 
     private static UserRequest userRequest(LeasesRequest leasesRequest) {
-        LeasesData data = leasesRequest.leasesData();
+        var data = leasesRequest.leasesData();
         return new UserRequest(data.userId(), data.token(), data.album());
     }
 

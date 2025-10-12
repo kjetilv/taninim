@@ -18,8 +18,8 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         S3AccessorFactory s3AccessorFactory,
         FbAuthenticator fbAuthenticator
     ) {
-        S3Accessor s3Accessor = s3AccessorFactory.create();
-        LeasesDispatcher leasesDispatcher = leasesDispatcher(
+        var s3Accessor = s3AccessorFactory.create();
+        var leasesDispatcher = leasesDispatcher(
             s3Accessor,
             clientSettings.time(),
             taninimSettings.sessionDuration(),
@@ -60,7 +60,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     private LambdaResult authenticate(String body) {
-        ExtAuthResponse extAuthResponse = RESPONSE_JSON_READER.read(body);
+        var extAuthResponse = RESPONSE_JSON_READER.read(body);
         return leasesDispatcher.createLease(extAuthResponse)
             .map(result ->
                 lambdaResult(LEASES_WRITER.write(result)))
@@ -69,8 +69,8 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     private LambdaResult addLease(String body) {
-        LeasesRequest leasesRequest = LeasesRequest.acquire(body);
-        Optional<LeasesActivation> leasesActivation = leasesDispatcher.requestLease(leasesRequest);
+        var leasesRequest = LeasesRequest.acquire(body);
+        var leasesActivation = leasesDispatcher.requestLease(leasesRequest);
         return leasesActivation.map(activation ->
                 lambdaResult(LEASES_WRITER.write(activation)))
             .orElseGet(
@@ -78,7 +78,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     private LambdaResult removeLease(String body) {
-        LeasesRequest leasesRequest = LeasesRequest.release(body);
+        var leasesRequest = LeasesRequest.release(body);
         return leasesDispatcher.dismissLease(leasesRequest)
             .map(result ->
                 lambdaResult(LEASES_WRITER.write(result)))

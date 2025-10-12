@@ -29,14 +29,14 @@ public record UserAuth(
 
     static UserAuth from(DataInput input) {
         try {
-            String userId = readString(input);
-            Instant time = readInstant(input);
-            Uuid token = readUuid(input);
-            int count = input.readInt();
+            var userId = readString(input);
+            var time = readInstant(input);
+            var token = readUuid(input);
+            var count = input.readInt();
             List<AlbumLease> albumLeases = new ArrayList<>(count);
-            for (int i = 0; i < count; i++) {
-                Uuid uuid = readUuid(input);
-                Instant expiry = readInstant(input);
+            for (var i = 0; i < count; i++) {
+                var uuid = readUuid(input);
+                var expiry = readInstant(input);
                 albumLeases.add(new AlbumLease(uuid, expiry));
             }
             return new UserAuth(userId, time, token, albumLeases);
@@ -92,11 +92,11 @@ public record UserAuth(
 
     public UserAuth combine(UserAuth update) {
         if (matches(update)) {
-            List<AlbumLease> combinedAlbumLeases = Stream.concat(
+            var combinedAlbumLeases = Stream.concat(
                 albumLeases.stream(),
                 update.albumLeases().stream()
             ).toList();
-            List<AlbumLease> newestAlbumLeases = Maps.groupBy(combinedAlbumLeases, AlbumLease::albumId)
+            var newestAlbumLeases = Maps.groupBy(combinedAlbumLeases, AlbumLease::albumId)
                 .values()
                 .stream()
                 .map(leaseGroup ->

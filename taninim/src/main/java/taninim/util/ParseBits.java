@@ -12,14 +12,14 @@ public final class ParseBits {
     }
 
     public static Optional<String> tailString(String line, int index) {
-        int lastIndex = line.length() - 1;
+        var lastIndex = line.length() - 1;
         return index < lastIndex
             ? Optional.of(line.substring(index))
             : Optional.empty();
     }
 
     public static Optional<String> headString(String s, int index) {
-        int lastIndex = s.length() - 1;
+        var lastIndex = s.length() - 1;
         return index < lastIndex
             ? Optional.of(s.substring(0, index))
             : Optional.empty();

@@ -13,13 +13,21 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(ArchivedLeasesRegistry.class);
 
+    public static LeasesRegistry create(
+        Archives archives,
+        Duration leaseDuration,
+        Supplier<Instant> time
+    ) {
+        return new ArchivedLeasesRegistry(archives, leaseDuration, time);
+    }
+
     private final Duration leaseDuration;
 
     private final Supplier<Instant> time;
 
     private final Archives archives;
 
-    public ArchivedLeasesRegistry(
+    private ArchivedLeasesRegistry(
         Archives archives,
         Duration leaseDuration,
         Supplier<Instant> time
@@ -31,9 +39,9 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     @Override
     public Optional<LeasesPath> getActive(Uuid token) {
-        Instant time = this.time.get();
-        LeasePeriod leasePeriod = LeasePeriod.starting(time).ofLength(leaseDuration);
-        try (Stream<String> pathsForToken = archives.retrievePaths(LEASE_PREFIX, recordFor(token))) {
+        var time = this.time.get();
+        var leasePeriod = LeasePeriod.starting(time).ofLength(leaseDuration);
+        try (var pathsForToken = archives.retrievePaths(LEASE_PREFIX, recordFor(token))) {
             return pathsForToken.max(BY_EPOCH_HOUR).flatMap(path ->
                 archives.retrieveRecord(path)
                     .map(archivedRecord ->
@@ -48,10 +56,10 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     @Override
     public LeasesPath setActive(Leases leases, LeasePeriod leasePeriod) {
-        Instant time = this.time.get();
+        var time = this.time.get();
         try {
-            Leases valid = leases.validAt(time);
-            LeasesPath leasesPath = new LeasesPath(valid, leasePeriod);
+            var valid = leases.validAt(time);
+            var leasesPath = new LeasesPath(valid, leasePeriod);
             return stored(leasesPath);
         } finally {
             deleteOutdated(time);
@@ -59,7 +67,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     private LeasesPath stored(LeasesPath leasesPath) {
-        ArchivedRecord archivedRecord = recordOf(leasesPath);
+        var archivedRecord = recordOf(leasesPath);
         log.info(
             "Creating leases @ {}: {} bytes, {} lines",
             archivedRecord.path(),
@@ -74,12 +82,12 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         Collection<Long> active = LeasePeriod.starting(time).epochHoursBack(leaseDuration)
             .collect(Collectors.toSet());
         try (
-            Stream<String> records = archives.retrievePaths(
+            var records = archives.retrievePaths(
                 LEASE_PREFIX,
                 path -> !active.contains(epochHour(path))
             )
         ) {
-            List<String> paths = records.toList();
+            var paths = records.toList();
             if (!paths.isEmpty()) {
                 archives.clearRecords(paths);
                 log.debug(
@@ -102,7 +110,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     private static Predicate<String> recordFor(Uuid token) {
-        String endPath = token.digest() + LEASE_SUFFIX;
+        var endPath = token.digest() + LEASE_SUFFIX;
         return path -> path.endsWith(endPath);
     }
 
@@ -126,8 +134,8 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     private static Long epochHour(String path) {
-        String hourstamp = path.substring(LEASE_PREFIX.length());
-        int dashindex = hourstamp.indexOf('-');
+        var hourstamp = path.substring(LEASE_PREFIX.length());
+        var dashindex = hourstamp.indexOf('-');
         return Long.parseLong(hourstamp.substring(0, dashindex));
     }
 

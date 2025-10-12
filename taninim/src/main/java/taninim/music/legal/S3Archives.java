@@ -6,11 +6,15 @@ import module uplift.s3;
 
 import static java.util.Objects.requireNonNull;
 
-public class S3Archives implements Archives {
+public final class S3Archives implements Archives {
 
     private final S3Accessor s3;
 
-    public S3Archives(S3Accessor s3) {
+    public static Archives create(S3Accessor s3) {
+        return new S3Archives(s3);
+    }
+
+    private S3Archives(S3Accessor s3) {
         this.s3 = requireNonNull(s3, "s3");
     }
 
@@ -28,7 +32,7 @@ public class S3Archives implements Archives {
 
     @Override
     public Stream<String> retrievePaths(String prefix, Predicate<? super String> filter) {
-        Stream<String> paths = s3.list(requireNonNull(prefix, "prefix"));
+        var paths = s3.list(requireNonNull(prefix, "prefix"));
         return filter == null
             ? paths
             : paths.filter(filter);
@@ -46,8 +50,8 @@ public class S3Archives implements Archives {
 
     private static List<String> stream(String path, InputStream is) {
         try (
-            InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-            BufferedReader bufferedReader = new BufferedReader(reader)
+            var reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            var bufferedReader = new BufferedReader(reader)
         ) {
             return bufferedReader.lines()
                 .filter(s -> !s.isBlank())

@@ -18,29 +18,31 @@ public final class Yellin {
         Duration ticketDuration,
         FbAuthenticator fbAuthenticator
     ) {
-        S3Archives s3Archives = new S3Archives(s3Accessor);
-        MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, time);
-        LeasesRegistry leasesRegistry =
-            new ArchivedLeasesRegistry(s3Archives, ticketDuration, time);
+        var s3Archives = S3Archives.create(s3Accessor);
+        var mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
+        var leasesRegistry =
+            ArchivedLeasesRegistry.create(s3Archives, ticketDuration, time);
 
-        OnDemand onDemand = new OnDemand(time);
+        var onDemand = new OnDemand(time);
 
-        Supplier<List<String>> users =
+        var users =
             onDemand.<List<String>>after(REFRESH_INTERVAL).get(() ->
                 ids(mediaLibrary));
 
-        Supplier<MediaIds> mediaIds =
+        var mediaIds =
             onDemand.<MediaIds>after(REFRESH_INTERVAL).get(() ->
                 mediaIds(mediaLibrary));
 
-        Supplier<UserAuths> authIds =
+        var authIds =
             onDemand.<UserAuths>after(REFRESH_INTERVAL).get(() ->
                 authIds(mediaLibrary));
 
-        Consumer<UserAuths> updateAuthIds = userAuths -> authIds(mediaLibrary, userAuths);
-        Consumer<UserAuths> forceUpdate = userAuths -> onDemand.force(authIds, userAuths);
+        Consumer<UserAuths> updateAuthIds = userAuths ->
+            authIds(mediaLibrary, userAuths);
+        Consumer<UserAuths> forceUpdate = userAuths ->
+            onDemand.force(authIds, userAuths);
 
-        Authorizer authorizer = new DefaultAuthorizer(
+        var authorizer = DefaultAuthorizer.create(
             authIds,
             updateAuthIds.andThen(forceUpdate),
             sessionDuration,
@@ -66,7 +68,7 @@ public final class Yellin {
     private Yellin() {
     }
 
-    private static final Json JSON  = Json.instance(CachingJsonSessions.create(HashKind.K128));
+    private static final Json JSON = Json.instance(CachingJsonSessions.create(HashKind.K128));
 
     private static final TemporalAmount REFRESH_INTERVAL = Duration.ofHours(1);
 
@@ -88,8 +90,8 @@ public final class Yellin {
     private static List<String> ids(MediaLibrary mediaLibrary) {
         return mediaLibrary.stream("ids.json")
             .map(inputStream -> {
-                Map<?, ?> acls = (Map<?, ?>) JSON.read(inputStream);
-                List<Map<String, Object>> acl = (List<Map<String, Object>>) acls.get("acl");
+                var acls = (Map<?, ?>) JSON.read(inputStream);
+                var acl = (List<Map<String, Object>>) acls.get("acl");
                 return acl.stream()
                     .map(map ->
                         map.get("ser"))
@@ -101,7 +103,7 @@ public final class Yellin {
     private static void authIds(MediaLibrary mediaLibrary, UserAuths userAuths) {
         mediaLibrary.write(
             "auth-digest.bin", outputStream -> {
-                try (DataOutputStream dos = new DataOutputStream(outputStream)) {
+                try (var dos = new DataOutputStream(outputStream)) {
                     userAuths.writeTo(dos);
                 } catch (IOException e) {
                     throw new IllegalStateException("Failed to write " + userAuths, e);

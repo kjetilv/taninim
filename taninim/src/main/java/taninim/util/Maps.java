@@ -25,7 +25,7 @@ public final class Maps {
         if (l == null || l.size() <= 1) {
             return l;
         }
-        List<Map.Entry<T, List<V>>> dupes = dupes(l, id);
+        var dupes = dupes(l, id);
         if (dupes.isEmpty()) {
             return l;
         }

@@ -33,15 +33,15 @@ public interface Archives {
         }
 
         public String body() {
-            StringBuilder sb = new StringBuilder(length + contents.size());
+            var sb = new StringBuilder(length + contents.size());
             contents.forEach(line ->
                 sb.append(line.trim()).append('\n'));
             return sb.toString();
         }
 
         private static String printEntry(String spec) {
-            Uuid uuid = Uuid.from(spec);
-            long epochSec = Long.parseLong(spec.substring(spec.indexOf(' ') + 1));
+            var uuid = Uuid.from(spec);
+            var epochSec = Long.parseLong(spec.substring(spec.indexOf(' ') + 1));
             return uuid + "@" + Instant.ofEpochSecond(epochSec).atOffset(ZoneOffset.UTC).format(
                 DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT));
         }

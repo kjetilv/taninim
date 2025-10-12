@@ -6,11 +6,11 @@ public final class FbSec {
 
     public static Supplier<char[]> secretsProvider() {
         return () -> {
-            String fbSec = System.getProperty(FB_SEC);
+            var fbSec = System.getProperty(FB_SEC);
             if (set(fbSec)) {
                 return fbSec.toCharArray();
             }
-            String envSec = System.getenv(FB_SEC);
+            var envSec = System.getenv(FB_SEC);
             if (set(envSec)) {
                 return envSec.toCharArray();
             }

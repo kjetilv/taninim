@@ -19,11 +19,11 @@ record RequestLine(Track track, Uuid token) {
     }
 
     private static Optional<RequestLine> requestedTrack(String request, Track track) {
-        int queryIndex = request.lastIndexOf("?t=");
+        var queryIndex = request.lastIndexOf("?t=");
         if (queryIndex < 0) {
             return Optional.empty();
         }
-        int queryStart = queryIndex + "?t=".length();
+        var queryStart = queryIndex + "?t=".length();
         return tailString(request, queryStart)
             .flatMap(Uuid::maybeFrom)
             .map(uuid ->

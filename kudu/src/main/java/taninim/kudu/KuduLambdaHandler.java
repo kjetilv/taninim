@@ -34,8 +34,8 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
     }
 
     private Optional<LambdaResult> handleAudio(LambdaPayload payload, Uuid token) {
-        String path = payload.path("/audio/");
-        Range range = payload.header("range")
+        var path = payload.path("/audio/");
+        var range = payload.header("range")
             .flatMap(Range::read)
             .orElseGet(() ->
                 new Range(0L, DEFAULT_START_RANGE));

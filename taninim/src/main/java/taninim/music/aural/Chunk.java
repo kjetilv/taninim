@@ -10,7 +10,7 @@ public record Chunk(String format, long start, long end, long totalSize) {
         if (range.length() == null) {
             throw new IllegalStateException("Cannot compute chunk, missing length: " + range);
         }
-        Long start = range.start();
+        var start = range.start();
         if (start == null || start < range.length()) {
             try {
                 return Optional.of(new Chunk(
@@ -48,7 +48,7 @@ public record Chunk(String format, long start, long end, long totalSize) {
     }
 
     public double getPerc(long progress, int decs) {
-        int dims = Math.toIntExact(Math.round(StrictMath.pow(10, decs)));
+        var dims = Math.toIntExact(Math.round(StrictMath.pow(10, decs)));
         return Math.toIntExact(100 * dims * (start + progress) / totalSize) / (double) dims;
     }
 
@@ -67,8 +67,8 @@ public record Chunk(String format, long start, long end, long totalSize) {
     private static final String BYTES = "bytes ";
 
     private static long computeExclusiveEnd(Range range, long fileSize, long transferSize) {
-        long specifiedEnd = range.exclusiveEnd() == null ? fileSize : Math.min(range.exclusiveEnd(), fileSize);
-        boolean truncate = transferSize > 0 && transferSize < fileSize;
+        var specifiedEnd = range.exclusiveEnd() == null ? fileSize : Math.min(range.exclusiveEnd(), fileSize);
+        var truncate = transferSize > 0 && transferSize < fileSize;
         return LongStream.of(
                 specifiedEnd,
                 range.start() + fileSize,
@@ -82,8 +82,8 @@ public record Chunk(String format, long start, long end, long totalSize) {
 
     @Override
     public String toString() {
-        long startPerc = start * 100 / totalSize;
-        long endPerc = end * 100 / totalSize;
+        var startPerc = start * 100 / totalSize;
+        var endPerc = end * 100 / totalSize;
         return MessageFormat.format(
             "{0}[{1} {2}%]",
             getClass().getSimpleName(),

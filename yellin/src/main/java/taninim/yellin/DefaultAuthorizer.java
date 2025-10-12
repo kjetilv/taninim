@@ -7,6 +7,16 @@ import static java.util.Objects.requireNonNull;
 
 final class DefaultAuthorizer implements Authorizer {
 
+    static Authorizer create(
+        Supplier<UserAuths> authIds,
+        Consumer<UserAuths> updateAuthIds,
+        Duration sessionDuration,
+        Duration leaseDuration,
+        Supplier<Instant> time
+    ) {
+        return new DefaultAuthorizer(authIds, updateAuthIds, sessionDuration, leaseDuration, time);
+    }
+
     private final Supplier<UserAuths> authIds;
 
     private final Consumer<UserAuths> updateAuthIds;
@@ -17,7 +27,7 @@ final class DefaultAuthorizer implements Authorizer {
 
     private final Supplier<Instant> time;
 
-    DefaultAuthorizer(
+    private DefaultAuthorizer(
         Supplier<UserAuths> authIds,
         Consumer<UserAuths> updateAuthIds,
         Duration sessionDuration,
@@ -33,8 +43,8 @@ final class DefaultAuthorizer implements Authorizer {
 
     @Override
     public Optional<UserAuth> login(String userId, boolean createSession) {
-        UserAuths userAuths = this.authIds.get();
-        Instant time = this.time.get();
+        var userAuths = this.authIds.get();
+        var time = this.time.get();
         return userAuths.forUser(userId)
             .map(userAuth ->
                 userAuth.withoutExpiredLeasesAt(time))
@@ -48,7 +58,7 @@ final class DefaultAuthorizer implements Authorizer {
 
     @Override
     public Optional<UserAuth> authorize(UserRequest request) {
-        UserAuths userAuths = this.authIds.get();
+        var userAuths = this.authIds.get();
         return conflictingLease(request, userAuths)
             .map(_ ->
                 Optional.<UserAuth>empty())
@@ -58,7 +68,7 @@ final class DefaultAuthorizer implements Authorizer {
 
     @Override
     public Optional<UserAuth> deauthorize(UserRequest request) {
-        UserAuths userAuths = this.authIds.get();
+        var userAuths = this.authIds.get();
         return updatedUserAuths(
             request,
             userAuths.without(requestedAuth(request, time.get()))
@@ -66,14 +76,14 @@ final class DefaultAuthorizer implements Authorizer {
     }
 
     private Optional<UserAuth> addAuth(UserAuths userAuths, UserRequest request) {
-        Instant time = this.time.get();
-        UserAuth requestedAuth = requestedAuth(request, time);
-        UserAuths updatedAuths = userAuths.updatedWith(requestedAuth, time);
+        var time = this.time.get();
+        var requestedAuth = requestedAuth(request, time);
+        var updatedAuths = userAuths.updatedWith(requestedAuth, time);
         return updatedUserAuths(request, updatedAuths);
     }
 
     private UserAuth createLogin(UserAuths userAuths, String userId, Instant time) {
-        UserAuth userAuth = new UserAuth(userId, time.plus(sessionDuration));
+        var userAuth = new UserAuth(userId, time.plus(sessionDuration));
         updateAuthIds.accept(userAuths.updatedWith(userAuth, time));
         return userAuth;
     }

@@ -107,9 +107,9 @@ record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin)
     }
 
     private static Optional<String> extractBody(Supplier<Optional<String>> nextLine) {
-        StringBuilder body = new StringBuilder();
+        var body = new StringBuilder();
         while (true) {
-            Optional<String> json = nextLine.get();
+            var json = nextLine.get();
             if (json.isEmpty()) {
                 return Optional.of(body)
                     .filter(sb -> !sb.isEmpty())
@@ -123,7 +123,7 @@ record YellinRequest(ExtAuthResponse fbAuth, LeasesRequest request, Admin admin)
 
     private static void skipHeaders(Supplier<Optional<String>> nextLine) {
         while (true) {
-            Optional<String> nonBlank = nextLine.get()
+            var nonBlank = nextLine.get()
                 .filter(str -> !str.isBlank());
             if (nonBlank.isEmpty()) {
                 return;

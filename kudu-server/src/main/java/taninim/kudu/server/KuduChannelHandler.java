@@ -14,11 +14,20 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
 
     private static final Logger log = LoggerFactory.getLogger(KuduChannelHandler.class);
 
+    static ChannelHandler<StreamingState, KuduChannelHandler> create(
+        Kudu kudu,
+        int maxRequestLength,
+        int bufferSize,
+        Supplier<Instant> time
+    ) {
+        return new KuduChannelHandler(kudu, maxRequestLength, bufferSize, time);
+    }
+
     private final Kudu kudu;
 
     private final int bufferSize;
 
-    KuduChannelHandler(Kudu kudu, int maxRequestLength, int bufferSize, Supplier<Instant> time) {
+    private KuduChannelHandler(Kudu kudu, int maxRequestLength, int bufferSize, Supplier<Instant> time) {
         this(kudu, null, maxRequestLength, bufferSize, time);
     }
 
@@ -46,7 +55,7 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
 
     @Override
     protected Processing process(StreamingState state) {
-        ByteBuffer byteBuffer = state.requestBuffer();
+        var byteBuffer = state.requestBuffer();
         if (!byteBuffer.hasArray()) {
             return FAIL;
         }
@@ -64,7 +73,7 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
     }
 
     private Processing handleStream(StreamingState state, ReceivedRequest receivedRequest) {
-        Optional<Processing> processing = receivedRequest.library()
+        var processing = receivedRequest.library()
             ? handleLibrary(state, receivedRequest)
             : handleAudio(state, receivedRequest);
         return processing.orElseGet(() -> {
@@ -87,7 +96,7 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
     }
 
     private Optional<Processing> handleLibrary(StreamingState state, ReceivedRequest receivedRequest) {
-        Uuid token = receivedRequest.libraryRequest().token();
+        var token = receivedRequest.libraryRequest().token();
         return kudu.libraryStream(token).map(library ->
                 transferLibrary(state, library))
             .map(KuduChannelHandler::complete);
@@ -97,12 +106,12 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
         try (
             BufferingWriter<? super ByteBuffer> writer = responseWriter()
         ) {
-            ByteBuffer headerBuffer = textBuffer(libraryHeaders(library.size()));
+            var headerBuffer = textBuffer(libraryHeaders(library.size()));
             writer.write(new WritableBuffer<>(headerBuffer, headerBuffer.capacity()));
-            int bufferSize = Math.toIntExact(Math.min(this.bufferSize, library.size()));
-            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+            var bufferSize = Math.toIntExact(Math.min(this.bufferSize, library.size()));
+            var buffer = ByteBuffer.allocate(bufferSize);
             BufferingReader<ByteBuffer> reader = new ByteChannelStreamBridgingReader(library.stream(), buffer);
-            long written = new Transfer(library.size(), bufferSize).copy(reader, writer);
+            var written = new Transfer(library.size(), bufferSize).copy(reader, writer);
             return streamingState.transferred(written);
         } catch (Exception e) {
             return streamingState.error(e);
@@ -113,13 +122,13 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
         try (
             BufferingWriter<? super ByteBuffer> writer = responseWriter()
         ) {
-            ByteBuffer headerBuffer = textBuffer(audioHeaders(chunk));
+            var headerBuffer = textBuffer(audioHeaders(chunk));
             writer.write(new WritableBuffer<>(headerBuffer, headerBuffer.capacity()));
-            int size = Math.toIntExact(chunk.length());
-            int bufferSize = Math.min(this.bufferSize, size);
-            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+            var size = Math.toIntExact(chunk.length());
+            var bufferSize = Math.min(this.bufferSize, size);
+            var buffer = ByteBuffer.allocate(bufferSize);
             BufferingReader<ByteBuffer> reader = new ByteChannelStreamBridgingReader(audioStream, buffer);
-            long written = new Transfer(chunk.length(), bufferSize).copy(reader, writer);
+            var written = new Transfer(chunk.length(), bufferSize).copy(reader, writer);
             return state.transferred(written);
         } catch (Exception e) {
             return state.error(e);

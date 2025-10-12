@@ -71,7 +71,7 @@ record ReceivedRequest(TrackRange trackRange, LibraryRequest libraryRequest, Adm
         new ReceivedRequest(null, null, Admin.reject);
 
     private static ReceivedRequest receivedRequest(String line, Supplier<Optional<String>> nextLine) {
-        String lc = line.toLowerCase(Locale.ROOT);
+        var lc = line.toLowerCase(Locale.ROOT);
         return lc.startsWith("get /audio/") ? trackRequest(line, nextLine)
             : lc.startsWith("options /") ? PREFLIGHT_REQ
                 : lc.startsWith("get /health") || lc.startsWith("head /health") ? HEALTH_REQ
@@ -99,18 +99,18 @@ record ReceivedRequest(TrackRange trackRange, LibraryRequest libraryRequest, Adm
         RequestLine requestLine,
         Supplier<Optional<String>> nextLine
     ) {
-        int headersParsed = 0;
+        var headersParsed = 0;
         while (true) {
-            Optional<String> rawHeader = nextLine.get();
+            var rawHeader = nextLine.get();
             if (rawHeader.isEmpty()) {
                 return Optional.of(RETRY_REQ);
             }
-            Optional<String> headerLine = rawHeader.map(ReceivedRequest::toLowerCase);
-            Optional<Map.Entry<String, String>> header = headerLine.flatMap(ReceivedRequest::header);
+            var headerLine = rawHeader.map(ReceivedRequest::toLowerCase);
+            var header = headerLine.flatMap(ReceivedRequest::header);
             headersParsed++;
-            Optional<String> rangeHeader = header.filter(ReceivedRequest::isRange).map(Map.Entry::getValue);
+            var rangeHeader = header.filter(ReceivedRequest::isRange).map(Map.Entry::getValue);
             if (rangeHeader.isPresent()) {
-                String arg = rangeHeader.get();
+                var arg = rangeHeader.get();
                 return rangeHeader.flatMap(Range::read)
                     .map(validRange ->
                         new TrackRange(requestLine.track(), validRange, requestLine.token()))
@@ -137,7 +137,7 @@ record ReceivedRequest(TrackRange trackRange, LibraryRequest libraryRequest, Adm
     }
 
     private static Optional<Map.Entry<String, String>> header(String line) {
-        int index = line.indexOf(':');
+        var index = line.indexOf(':');
         if (index < 0) {
             return Optional.empty();
         }

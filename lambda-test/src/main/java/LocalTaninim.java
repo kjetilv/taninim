@@ -10,29 +10,28 @@ import module uplift.lambda;
 import module uplift.s3;
 import module uplift.util;
 
-import org.slf4j.Logger;
-
+import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 import static com.github.kjetilv.uplift.util.Time.utcSupplier;
 
 void main() {
-    Flogs.initialize(DEBUG);
-    Logger logger = LoggerFactory.getLogger("LocalTaninim");
-    Supplier<Instant> time = utcSupplier();
+    initialize(DEBUG);
+    var logger = LoggerFactory.getLogger("LocalTaninim");
+    var time = utcSupplier();
 
-    TaninimSettings taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
+    var taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
 
-    CorsSettings kuduCors = new CorsSettings(
+    var kuduCors = new CorsSettings(
         List.of("https://kjetilv.github.io"),
         List.of("GET"),
         List.of("content-type", "range")
     );
-    CorsSettings yellinCors = new CorsSettings(
+    var yellinCors = new CorsSettings(
         List.of("https://kjetilv.github.io"),
         List.of("POST", "DELETE"),
         List.of("content-type")
     );
-    LocalLambda kuduLocalLambda = new LocalLambda(
+    var kuduLocalLambda = new LocalLambda(
         new LocalLambdaSettings(
             9002,
             8080,
@@ -43,14 +42,14 @@ void main() {
         )
     );
 
-    LambdaClientSettings kuduClientSettings =
+    var kuduClientSettings =
         new LambdaClientSettings(ENV, utcSupplier());
-    LambdaHandler handler = KuduLambdaHandler.create(
+    var handler = KuduLambdaHandler.create(
         kuduClientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV)
     );
-    Runnable kuduLambdaManaged = LamdbdaManaged.create(
+    var kuduLambdaManaged = LamdbdaManaged.create(
         kuduLocalLambda.getLambdaUri(),
         kuduClientSettings,
         handler
@@ -58,8 +57,8 @@ void main() {
 
     logger.info("Kudu: {}", handler);
 
-    int yellinSize = 8 * K;
-    LocalLambda yellinLocalLambda = new LocalLambda(
+    var yellinSize = 8 * K;
+    var yellinLocalLambda = new LocalLambda(
         new LocalLambdaSettings(
             9001,
             8081,
@@ -70,23 +69,23 @@ void main() {
         )
     );
 
-    LambdaClientSettings yellinClientSettings =
+    var yellinClientSettings =
         new LambdaClientSettings(ENV, utcSupplier());
 
-    LambdaHandler yellin = YellinLambdaHandler.handler(
+    var yellin = YellinLambdaHandler.handler(
         yellinClientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV),
         FbAuthenticator.simple()
     );
-    Runnable yellinLamdbdaManaged = LamdbdaManaged.create(
+    var yellinLamdbdaManaged = LamdbdaManaged.create(
         yellinLocalLambda.getLambdaUri(),
         yellinClientSettings,
         yellin
     );
     logger.info("Yellin: {}", yellin);
 
-    try (ExecutorService executor = Executors.newFixedThreadPool(4)) {
+    try (var executor = Executors.newFixedThreadPool(4)) {
         executor.submit(kuduLocalLambda);
         executor.submit(yellinLocalLambda);
         executor.submit(kuduLambdaManaged);

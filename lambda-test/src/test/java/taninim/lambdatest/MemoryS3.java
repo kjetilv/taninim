@@ -30,7 +30,7 @@ public record MemoryS3(
     @Override
     public void put(String remoteName, InputStream inputStream, long length) {
         log.info("Putting {} bytes into {}", length, remoteName);
-        byte[] bytes = BytesIO.readInputStream(inputStream);
+        var bytes = BytesIO.readInputStream(inputStream);
         s3.put(
             remoteName, new S3Data(
                 bytes,
@@ -54,7 +54,7 @@ public record MemoryS3(
 
     @Override
     public void remove(Collection<String> objects) {
-        for (String object : objects) {
+        for (var object : objects) {
             log.info("Removing {}", object);
             s3.remove(object);
         }
@@ -62,14 +62,14 @@ public record MemoryS3(
 
     private static String stringValue(String remoteName, byte[] bytes) {
         if (remoteName.startsWith("auth-digest")) {
-            try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(bytes))) {
+            try (var input = new DataInputStream(new ByteArrayInputStream(bytes))) {
                 return UserAuths.from(input).toString();
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
         }
         if (remoteName.startsWith("media-digest")) {
-            try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(bytes))) {
+            try (var input = new DataInputStream(new ByteArrayInputStream(bytes))) {
                 return MediaIds.from(input).toString();
             } catch (IOException e) {
                 throw new IllegalStateException(e);

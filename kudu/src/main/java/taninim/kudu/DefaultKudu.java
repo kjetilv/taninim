@@ -19,16 +19,16 @@ public record DefaultKudu(
         TaninimSettings taninimSettings,
         S3AccessorFactory s3AccessorFactory
     ) {
-        S3Accessor s3Accessor = s3AccessorFactory.create();
-        Supplier<Instant> time = clientSettings.time();
-        Archives archives = new S3Archives(s3Accessor);
-        LeasesRegistry leasesRegistry =
-            new ArchivedLeasesRegistry(
+        var s3Accessor = s3AccessorFactory.create();
+        var time = clientSettings.time();
+        var archives = S3Archives.create(s3Accessor);
+        var leasesRegistry =
+            ArchivedLeasesRegistry.create(
                 archives,
                 taninimSettings.leaseDuration(),
                 time
             );
-        MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, time);
+        var mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
         return new DefaultKudu(leasesRegistry, mediaLibrary, taninimSettings.transferSize(), time);
     }
 

@@ -14,25 +14,30 @@ public record ServerKudu(Parameters parameters) implements Runnable {
 
     @Override
     public void run() {
-        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
-        S3Accessor s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
+        var executorService = Executors.newVirtualThreadPerTaskExecutor();
+        var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
 
-        LeasesRegistry leasesRegistry = new ArchivedLeasesRegistry(
-            new S3Archives(s3Accessor),
+        var leasesRegistry = ArchivedLeasesRegistry.create(
+            S3Archives.create(s3Accessor),
             Duration.ofHours(1),
             Time.utcSupplier()
         );
 
-        MediaLibrary mediaLibrary = new CloudMediaLibrary(s3Accessor, Time.utcSupplier());
+        var mediaLibrary = CloudMediaLibrary.create(s3Accessor, Time.utcSupplier());
 
-        ChannelHandler<StreamingState, KuduChannelHandler> handler = new KuduChannelHandler(
-            new DefaultKudu(leasesRegistry, mediaLibrary, parameters.buffer(), Time.utcSupplier()),
+        var handler = KuduChannelHandler.create(
+            new DefaultKudu(
+                leasesRegistry,
+                mediaLibrary,
+                parameters.buffer(),
+                Time.utcSupplier()
+            ),
             MAX_REQUEST_LENGTH,
             parameters.buffer(),
             Time.utcSupplier()
         );
 
-        try (IOServer run = create(parameters.port(), MAX_REQUEST_LENGTH).run(handler)) {
+        try (var run = create(parameters.port(), MAX_REQUEST_LENGTH).run(handler)) {
             run.join();
         }
     }

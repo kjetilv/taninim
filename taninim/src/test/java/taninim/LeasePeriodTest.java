@@ -12,20 +12,20 @@ class LeasePeriodTest {
 
     @Test
     void should_accept_cap() {
-        Duration length = new LeasePeriod(Instant.EPOCH, Duration.ofHours(4))
+        var length = new LeasePeriod(Instant.EPOCH, Duration.ofHours(4))
             .capTo(Duration.ofHours(1)).duration();
         assertThat(length).isEqualTo(Duration.ofHours(1));
     }
 
     @Test
     void shouldProduceEpochHour() {
-        LeasePeriod leasePeriod = LeasePeriod.starting(Instant.EPOCH.plus(Duration.ofHours(10)));
+        var leasePeriod = LeasePeriod.starting(Instant.EPOCH.plus(Duration.ofHours(10)));
         assertThat(leasePeriod.epochHour()).isEqualTo(10);
     }
 
     @Test
     void shouldProduceEpochHoursBack() {
-        LeasePeriod leasePeriod = LeasePeriod.starting(Instant.EPOCH.plus(Duration.ofHours(10)));
+        var leasePeriod = LeasePeriod.starting(Instant.EPOCH.plus(Duration.ofHours(10)));
         assertThat(leasePeriod.epochHoursBack(
             Duration.ofHours(5))).containsExactly(5L, 6L, 7L, 8L, 9L, 10L);
     }
