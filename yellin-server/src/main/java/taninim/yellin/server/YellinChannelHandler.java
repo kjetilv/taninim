@@ -52,8 +52,8 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
         return switch (request) {
             case YellinRequest.Preflight _ -> handlePreflight(true);
             case YellinRequest.Health ignored -> handleHealth();
-            case YellinRequest.Auth(ExtAuthResponse response) -> handleCurrentLease(response);
-            case YellinRequest.Lease(LeasesRequest leasesRequest) -> handleNewLease(leasesRequest);
+            case YellinRequest.Auth(var response) -> handleCurrentLease(response);
+            case YellinRequest.Lease(var leasesRequest) -> handleNewLease(leasesRequest);
             case YellinRequest.Unknown unknown -> fail(unknown);
         };
     }

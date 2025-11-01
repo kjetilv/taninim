@@ -24,8 +24,8 @@ public final class Yellin {
         Duration ticketDuration,
         FbAuthenticator fbAuthenticator
     ) {
-        Archives s3Archives = S3Archives.create(s3Accessor);
-        MediaLibrary mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
+        var s3Archives = S3Archives.create(s3Accessor);
+        var mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
         var leasesRegistry =
             ArchivedLeasesRegistry.create(s3Archives, ticketDuration, time);
 
