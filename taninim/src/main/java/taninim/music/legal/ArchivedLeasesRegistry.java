@@ -1,11 +1,15 @@
 package taninim.music.legal;
 
 import module java.base;
-import module taninim.taninim;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.music.Archives;
 import taninim.music.Archives.ArchivedRecord;
+import taninim.music.LeasePeriod;
+import taninim.music.Leases;
+import taninim.music.LeasesPath;
+import taninim.music.LeasesRegistry;
 
 import static java.util.Objects.requireNonNull;
 

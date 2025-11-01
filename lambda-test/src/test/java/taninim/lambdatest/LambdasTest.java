@@ -1,16 +1,30 @@
 package taninim.lambdatest;
 
 import module java.base;
-import module java.net.http;
-import module org.junit.jupiter.api;
-import module taninim.fb;
-import module taninim.kudu;
-import module taninim.taninim;
-import module taninim.yellin;
-import module uplift.json;
-import module uplift.kernel;
-import module uplift.s3;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
+import com.github.kjetilv.uplift.kernel.io.Range;
+import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.uuid.Uuid;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import taninim.fb.ExtAuthResponse;
+import taninim.fb.ExtUser;
+import taninim.fb.FbAuthenticator;
+import taninim.kudu.DefaultKudu;
+import taninim.kudu.Kudu;
+import taninim.kudu.Track;
+import taninim.kudu.TrackRange;
+import taninim.music.Archives;
+import taninim.music.aural.Chunk;
+import taninim.music.legal.ArchivedLeasesRegistry;
+import taninim.music.legal.CloudMediaLibrary;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.AlbumTrackIds;
+import taninim.music.medias.MediaIds;
+import taninim.music.medias.MediaLibrary;
+import taninim.yellin.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static taninim.yellin.LeasesRequest.Op.ACQUIRE;
@@ -51,7 +65,7 @@ class LambdasTest {
         }
         """.formatted(userId);
 
-    private final Map<String, MemoryS3.S3Data> s3 = new ConcurrentHashMap<>();
+    private final Map<String, S3Data> s3 = new ConcurrentHashMap<>();
 
     private S3Accessor s3Accessor;
 

@@ -1,9 +1,9 @@
 package taninim.yellin;
 
 import module java.base;
-import module uplift.json;
-import module uplift.kernel;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.json.JsonReader;
+import com.github.kjetilv.uplift.kernel.http.QueryParams;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static java.util.Objects.requireNonNull;
 

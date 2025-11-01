@@ -1,10 +1,13 @@
 import module java.base;
-import module taninim.kudu;
-import module taninim.taninim;
-import module uplift.flambda;
-import module uplift.kernel;
-import module uplift.lambda;
-import module uplift.s3;
+import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.flambda.LocalLambda;
+import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
+import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
+import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
+import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import taninim.TaninimSettings;
+import taninim.kudu.KuduLambdaHandler;
 
 @SuppressWarnings({"MagicNumber"})
 void main() {

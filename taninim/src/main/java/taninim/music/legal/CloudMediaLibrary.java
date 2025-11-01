@@ -1,10 +1,11 @@
 package taninim.music.legal;
 
 import module java.base;
-import module taninim.taninim;
-import module uplift.s3;
+import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.music.aural.Chunk;
+import taninim.music.medias.MediaLibrary;
 
 import static java.util.Objects.requireNonNull;
 
@@ -21,7 +22,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
     private final Supplier<Instant> time;
 
     public static MediaLibrary create(S3Accessor s3, Supplier<Instant> time) {
-        return CloudMediaLibrary.create(s3, time);
+        return new CloudMediaLibrary(s3, time);
     }
 
     public CloudMediaLibrary(S3Accessor s3, Supplier<Instant> time) {
@@ -124,7 +125,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
                     return bytes;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("Failed to read " + info, e);
         }
     }
@@ -141,7 +142,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
         Supplier<Optional<T>> refresher
     ) {
         return Optional.ofNullable(
-                map.compute(key, (__, cached) ->
+                map.compute(key, (_, cached) ->
                     Optional.ofNullable(cached)
                         .filter(c ->
                             !c.outdatedAt(lastValidTime))

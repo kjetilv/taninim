@@ -1,7 +1,7 @@
 package taninim.yellin;
 
 import module java.base;
-import module taninim.fb;
+import taninim.fb.ExtAuthResponse;
 
 public interface LeasesDispatcher {
 

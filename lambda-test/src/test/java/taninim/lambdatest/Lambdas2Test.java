@@ -1,21 +1,34 @@
 package taninim.lambdatest;
 
 import module java.base;
-import module java.net.http;
-import module org.junit.jupiter.api;
-import module taninim.fb;
-import module taninim.kudu;
-import module taninim.taninim;
-import module taninim.yellin;
-import module uplift.flambda;
-import module uplift.json;
-import module uplift.kernel;
-import module uplift.lambda;
-import module uplift.s3;
-import module uplift.util;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.flambda.EmptyEnv;
+import com.github.kjetilv.uplift.flambda.LambdaHarness;
+import com.github.kjetilv.uplift.flambda.Reqs;
+import com.github.kjetilv.uplift.json.JsonWriter;
+import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
+import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
+import com.github.kjetilv.uplift.lambda.LambdaHandler;
+import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.uuid.Uuid;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.TaninimSettings;
+import taninim.fb.ExtAuthResponse;
+import taninim.fb.ExtAuthResponseRW;
+import taninim.fb.ExtUser;
+import taninim.fb.FbAuthenticator;
+import taninim.kudu.KuduLambdaHandler;
+import taninim.music.medias.AlbumTrackIds;
+import taninim.music.medias.MediaIds;
+import taninim.yellin.LeasesData;
+import taninim.yellin.LeasesDataRW;
+import taninim.yellin.YellinLambdaHandler;
+
+import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static taninim.lambdatest.Parse.authResponse;
@@ -28,7 +41,7 @@ import static taninim.lambdatest.Parse.leasesActivation;
 )
 class Lambdas2Test {
 
-    private Map<String, MemoryS3.S3Data> s3 = new ConcurrentHashMap<>();
+    private Map<String, S3Data> s3 = new ConcurrentHashMap<>();
 
     private AtomicReference<Instant> time = new AtomicReference<>();
 

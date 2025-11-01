@@ -1,11 +1,13 @@
 package taninim.lambdatest;
 
 import module java.base;
-import module taninim.taninim;
-import module uplift.kernel;
-import module uplift.s3;
+import com.github.kjetilv.uplift.kernel.io.BytesIO;
+import com.github.kjetilv.uplift.kernel.io.Range;
+import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.music.medias.MediaIds;
+import taninim.music.medias.UserAuths;
 
 public record MemoryS3(
     Map<String, S3Data> s3,

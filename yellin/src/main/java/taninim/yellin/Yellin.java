@@ -1,13 +1,19 @@
 package taninim.yellin;
 
 import module java.base;
-import module taninim.fb;
-import module taninim.taninim;
-import module uplift.hash;
-import module uplift.json;
-import module uplift.json.mame;
-import module uplift.s3;
-import module uplift.util;
+import com.github.kjetilv.uplift.hash.HashKind;
+import com.github.kjetilv.uplift.json.Json;
+import com.github.kjetilv.uplift.json.mame.CachingJsonSessions;
+import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.util.OnDemand;
+import taninim.fb.FbAuthenticator;
+import taninim.music.Archives;
+import taninim.music.legal.ArchivedLeasesRegistry;
+import taninim.music.legal.CloudMediaLibrary;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.MediaIds;
+import taninim.music.medias.MediaLibrary;
+import taninim.music.medias.UserAuths;
 
 public final class Yellin {
 
@@ -18,8 +24,8 @@ public final class Yellin {
         Duration ticketDuration,
         FbAuthenticator fbAuthenticator
     ) {
-        var s3Archives = S3Archives.create(s3Accessor);
-        var mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
+        Archives s3Archives = S3Archives.create(s3Accessor);
+        MediaLibrary mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
         var leasesRegistry =
             ArchivedLeasesRegistry.create(s3Archives, ticketDuration, time);
 

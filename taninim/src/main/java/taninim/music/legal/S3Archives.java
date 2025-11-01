@@ -1,8 +1,8 @@
 package taninim.music.legal;
 
 import module java.base;
-import module taninim.taninim;
-import module uplift.s3;
+import com.github.kjetilv.uplift.s3.S3Accessor;
+import taninim.music.Archives;
 
 import static java.util.Objects.requireNonNull;
 

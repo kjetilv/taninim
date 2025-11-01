@@ -1,7 +1,7 @@
 package taninim.music.aural;
 
 import module java.base;
-import module uplift.kernel;
+import com.github.kjetilv.uplift.kernel.io.Range;
 
 @SuppressWarnings("unused")
 public record Chunk(String format, long start, long end, long totalSize) {

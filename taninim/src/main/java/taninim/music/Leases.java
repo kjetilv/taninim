@@ -1,8 +1,8 @@
 package taninim.music;
 
 import module java.base;
-import module taninim.taninim;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
+import taninim.util.Maps;
 
 import static java.util.Objects.requireNonNull;
 

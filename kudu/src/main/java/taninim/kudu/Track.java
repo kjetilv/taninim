@@ -1,7 +1,7 @@
 package taninim.kudu;
 
 import module java.base;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static java.util.Objects.requireNonNull;
 import static taninim.util.ParseBits.tailString;

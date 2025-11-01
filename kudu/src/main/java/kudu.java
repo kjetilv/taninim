@@ -1,9 +1,11 @@
 import module java.base;
-import module taninim.taninim;
-import module uplift.flogs;
-import module uplift.kernel;
-import module uplift.lambda;
-import module uplift.s3;
+import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
+import com.github.kjetilv.uplift.lambda.LambdaHandler;
+import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
+import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import taninim.TaninimSettings;
 import taninim.kudu.KuduLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;

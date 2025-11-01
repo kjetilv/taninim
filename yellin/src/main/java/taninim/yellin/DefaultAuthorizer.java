@@ -1,7 +1,9 @@
 package taninim.yellin;
 
 import module java.base;
-import module taninim.taninim;
+import taninim.music.medias.UserAuth;
+import taninim.music.medias.UserAuths;
+import taninim.music.medias.UserRequest;
 
 import static java.util.Objects.requireNonNull;
 

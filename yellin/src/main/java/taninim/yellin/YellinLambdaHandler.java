@@ -1,11 +1,14 @@
 package taninim.yellin;
 
 import module java.base;
-import module taninim.fb;
-import module taninim.taninim;
-import module uplift.json;
-import module uplift.lambda;
-import module uplift.s3;
+import com.github.kjetilv.uplift.json.JsonReader;
+import com.github.kjetilv.uplift.json.JsonWriter;
+import com.github.kjetilv.uplift.lambda.*;
+import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import taninim.TaninimSettings;
+import taninim.fb.ExtAuthResponse;
+import taninim.fb.ExtAuthResponseRW;
+import taninim.fb.FbAuthenticator;
 
 import static java.util.Objects.requireNonNull;
 import static taninim.yellin.Yellin.leasesDispatcher;

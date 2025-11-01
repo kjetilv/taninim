@@ -1,5 +1,6 @@
 package taninim.kudu.server;
 
+import module java.base;
 import com.github.kjetilv.uplift.uuid.Uuid;
 import org.junit.jupiter.api.Test;
 import taninim.kudu.Track;

@@ -1,9 +1,12 @@
 package taninim.fb;
 
 import module java.base;
-import module java.net.http;
 import com.restfb.DebugHeaderInfo;
 import com.restfb.WebRequestor;
+
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 class SimpleRequestor implements WebRequestor {
 

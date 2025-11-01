@@ -1,7 +1,7 @@
 package taninim.music;
 
 import module java.base;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
 
 public interface Archives {
 

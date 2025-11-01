@@ -1,12 +1,13 @@
 package taninim.kudu.server;
 
 import module java.base;
-import module taninim.kudu;
-import module taninim.taninim;
-import module uplift.kernel;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
+import com.github.kjetilv.uplift.kernel.io.Range;
+import com.github.kjetilv.uplift.uuid.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.kudu.TrackRange;
+import taninim.util.ParseBits;
 
 import static taninim.util.ParseBits.tailString;
 

@@ -13,15 +13,6 @@ dependencies {
 
 apply<UpliftPlugin>()
 
-tasks.compileJava {
-    options.compilerArgs.addAll(
-        listOf(
-            "--add-reads", "taninim.ascension=ALL-UNNAMED"
-        )
-    )
-}
-
-
 tasks.withType<UpliftTask> {
     configure(stack = "taninim")
     env(

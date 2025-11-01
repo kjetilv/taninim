@@ -1,8 +1,5 @@
 package taninim.kudu.server;
 
-import module java.base;
-import module uplift.asynchttp;
-
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
 
 public record Parameters(int port, int buffer, boolean server) {

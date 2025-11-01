@@ -1,9 +1,16 @@
 package taninim.yellin;
 
 import module java.base;
-import module taninim.fb;
-import module taninim.taninim;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
+import taninim.fb.ExtAuthResponse;
+import taninim.fb.ExtUser;
+import taninim.fb.FbAuthenticator;
+import taninim.music.LeasePeriod;
+import taninim.music.Leases;
+import taninim.music.LeasesRegistry;
+import taninim.music.medias.MediaIds;
+import taninim.music.medias.UserAuth;
+import taninim.music.medias.UserRequest;
 
 import static java.util.Objects.requireNonNull;
 

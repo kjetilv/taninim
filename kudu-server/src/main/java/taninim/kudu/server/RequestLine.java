@@ -1,8 +1,8 @@
 package taninim.kudu.server;
 
 import module java.base;
-import module taninim.kudu;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.uuid.Uuid;
+import taninim.kudu.Track;
 
 import static taninim.util.ParseBits.tailString;
 

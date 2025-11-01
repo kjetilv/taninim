@@ -1,8 +1,9 @@
 import module java.base;
-import module taninim.taninim;
-import module uplift.flogs;
-import module uplift.kernel;
-import module uplift.s3;
+import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.s3.S3Accessor;
+import taninim.music.Archives;
+import taninim.music.legal.S3Archives;
+import taninim.music.medias.UserAuths;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
 

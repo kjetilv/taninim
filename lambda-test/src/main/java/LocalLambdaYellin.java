@@ -1,14 +1,17 @@
 import module java.base;
-import module taninim.fb;
-import module taninim.taninim;
-import module taninim.yellin;
-import module uplift.flambda;
-import module uplift.kernel;
-import module uplift.lambda;
-import module uplift.s3;
-import module uplift.util;
+import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.flambda.LocalLambda;
+import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
+import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
+import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
+import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.LoggerFactory;
+import taninim.TaninimSettings;
+import taninim.fb.FbAuthenticator;
+import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
 

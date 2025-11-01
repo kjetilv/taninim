@@ -1,15 +1,14 @@
 package taninim.kudu.server;
 
 import module java.base;
-import module taninim.kudu;
-import module taninim.taninim;
-import module uplift.asynchttp;
-import module uplift.uuid;
+import com.github.kjetilv.uplift.asynchttp.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.kudu.Kudu;
+import taninim.kudu.TrackRange;
+import taninim.music.aural.Chunk;
 
 import static com.github.kjetilv.uplift.asynchttp.Processing.*;
-
 final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, KuduChannelHandler> {
 
     private static final Logger log = LoggerFactory.getLogger(KuduChannelHandler.class);
@@ -63,8 +62,8 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
             .map(receivedRequest ->
                 receivedRequest.reject() ? REJECTED
                     : receivedRequest.retry() ? INCOMPLETE
-                        : receivedRequest.preflight() ? handlePreflight(receivedRequest, false)
-                            : receivedRequest.health() ? handleHealth(receivedRequest)
+                        : receivedRequest.preflight() ? handlePreflight(false)
+                            : receivedRequest.health() ? handleHealth()
                                 : handleStream(state, receivedRequest))
             .orElseGet(() -> {
                 log.debug("No request read from {}", byteBuffer);

@@ -20,9 +20,7 @@ final class DefaultFbAuthenticator implements FbAuthenticator {
     }
 
     DefaultFbAuthenticator(FbListener fbListener) {
-        this.fbListener = fbListener == null ? new FbListener() {
-
-        } : fbListener;
+        this.fbListener = fbListener == null ? NOOP : fbListener;
     }
 
     @Override
@@ -78,4 +76,8 @@ final class DefaultFbAuthenticator implements FbAuthenticator {
     }
 
     private static final String UNKNOWN_USER = "Unknown user";
+
+    private static final FbListener NOOP = new FbListener() {
+
+    };
 }

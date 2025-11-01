@@ -1,12 +1,15 @@
 package taninim.yellin.server;
 
 import module java.base;
-import module taninim.fb;
-import module taninim.yellin;
-import module uplift.asynchttp;
-import module uplift.json;
+import com.github.kjetilv.uplift.asynchttp.*;
+import com.github.kjetilv.uplift.json.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.fb.ExtAuthResponse;
+import taninim.yellin.LeasesActivation;
+import taninim.yellin.LeasesActivationRW;
+import taninim.yellin.LeasesDispatcher;
+import taninim.yellin.LeasesRequest;
 
 import static java.util.Objects.requireNonNull;
 
@@ -39,26 +42,20 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
 
     @Override
     protected Processing process(BufferState state) {
-        return YellinRequest.read(state.requestBuffer())
+        return YellinRequests.read(state.requestBuffer())
             .map(this::processing)
             .orElse(Processing.INCOMPLETE);
     }
 
     private Processing processing(YellinRequest request) {
         log.debug("Processing {}", request);
-        if (request.isAuthRequest()) {
-            return handleCurrentLease(request.fbAuth());
-        }
-        if (request.isLeaseRequest()) {
-            return handleNewLease(request.request());
-        }
-        if (request.isPreflight()) {
-            return handlePreflight(request.admin(), true);
-        }
-        if (request.isHealth()) {
-            return handleHealth(request.admin());
-        }
-        return fail(request);
+        return switch (request) {
+            case YellinRequest.Preflight _ -> handlePreflight(true);
+            case YellinRequest.Health ignored -> handleHealth();
+            case YellinRequest.Auth(ExtAuthResponse response) -> handleCurrentLease(response);
+            case YellinRequest.Lease(LeasesRequest leasesRequest) -> handleNewLease(leasesRequest);
+            case YellinRequest.Unknown unknown -> fail(unknown);
+        };
     }
 
     private Processing handleCurrentLease(ExtAuthResponse extAuthResponse) {
