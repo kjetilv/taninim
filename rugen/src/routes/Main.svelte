@@ -87,8 +87,8 @@
     // const kuduUrl = "https://hdhk322i6jbamxue3l7npdxwem0nybdl.lambda-url.eu-north-1.on.aws";
     // const yellUrl = "https://36ndlyu7vkc7xl3hfbjjrkzrxy0uneqt.lambda-url.eu-north-1.on.aws";
     //
-    const kuduUrl = "https://zxrshfhaveu2bylo4fm4kysxs40twpmc.lambda-url.eu-north-1.on.aws/";
-    const yellUrl = "https://3mexcbauwacf2rquoiyv4jr3we0tivem.lambda-url.eu-north-1.on.aws/";
+    const kuduUrl = "https://irltdgn6vqkgol6rgrd4hprfp40yutvw.lambda-url.eu-north-1.on.aws/";
+    const yellUrl = "https://iaasxfw4me2vteua3jzmorfj7e0nchgf.lambda-url.eu-north-1.on.aws//";
 
     const isAuthorized = track =>
       track && track.uuid && authorization.trackUUIDs && authorization.trackUUIDs.includes(track.uuid);
