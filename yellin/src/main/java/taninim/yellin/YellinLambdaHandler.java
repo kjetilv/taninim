@@ -8,7 +8,7 @@ import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.Authenticator;
 
 import static java.util.Objects.requireNonNull;
 import static taninim.yellin.Yellin.leasesDispatcher;
@@ -19,7 +19,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         LambdaClientSettings clientSettings,
         TaninimSettings taninimSettings,
         S3AccessorFactory s3AccessorFactory,
-        FbAuthenticator fbAuthenticator
+        Authenticator authenticator
     ) {
         var s3Accessor = s3AccessorFactory.create();
         var leasesDispatcher = leasesDispatcher(
@@ -27,7 +27,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
             clientSettings.time(),
             taninimSettings.sessionDuration(),
             taninimSettings.leaseDuration(),
-            fbAuthenticator
+            authenticator
         );
         return new YellinLambdaHandler(leasesDispatcher);
     }

@@ -7,7 +7,8 @@ import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.util.Time;
 import taninim.TaninimSettings;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.Authenticator;
+import taninim.fb.DefaultFbAuthenticator;
 import taninim.yellin.YellinLambdaHandler;
 
 void main() {
@@ -21,7 +22,8 @@ void main() {
     );
 
     var s3AccessorFactory = S3AccessorFactory.defaultFactory(ENV);
-    var fbAuthenticator = FbAuthenticator.simple();
+
+    var fbAuthenticator = (Authenticator) new DefaultFbAuthenticator();
 
     var handler = YellinLambdaHandler.handler(
         clientSettings,
@@ -29,6 +31,7 @@ void main() {
         s3AccessorFactory,
         fbAuthenticator
     );
+
     try (var lamdbdaManaged = LamdbdaManaged.create(ENV.awsLambdaUri(), clientSettings, handler)) {
         lamdbdaManaged.run();
     } catch (Exception e) {

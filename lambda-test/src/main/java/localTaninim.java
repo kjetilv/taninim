@@ -8,7 +8,7 @@ import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.DefaultFbAuthenticator;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.yellin.YellinLambdaHandler;
 
@@ -18,18 +18,19 @@ import static com.github.kjetilv.uplift.util.Time.utcSupplier;
 
 void main() {
     initialize(DEBUG);
+
     var logger = LoggerFactory.getLogger("LocalTaninim");
     var time = utcSupplier();
 
     var taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
 
     var kuduCors = new CorsSettings(
-        List.of("https://kjetilv.github.io"),
+        List.of("https://kjetilv.github.io", "https://localhost:5173"),
         List.of("GET"),
         List.of("content-type", "range")
     );
     var yellinCors = new CorsSettings(
-        List.of("https://kjetilv.github.io"),
+        List.of("https://kjetilv.github.io", "https://localhost:5173"),
         List.of("POST", "DELETE"),
         List.of("content-type")
     );
@@ -46,7 +47,7 @@ void main() {
 
     var kuduClientSettings =
         new LambdaClientSettings(ENV, utcSupplier());
-    var handler = KuduLambdaHandler.create(
+    var kudu = KuduLambdaHandler.create(
         kuduClientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV)
@@ -54,10 +55,8 @@ void main() {
     var kuduLambdaManaged = LamdbdaManaged.create(
         kuduLocalLambda.getLambdaUri(),
         kuduClientSettings,
-        handler
+        kudu
     );
-
-    logger.info("Kudu: {}", handler);
 
     var yellinSize = 8 * K;
     var yellinLocalLambda = new LocalLambda(
@@ -78,21 +77,24 @@ void main() {
         yellinClientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV),
-        FbAuthenticator.simple()
+        new DefaultFbAuthenticator()
     );
     var yellinLamdbdaManaged = LamdbdaManaged.create(
         yellinLocalLambda.getLambdaUri(),
         yellinClientSettings,
         yellin
     );
-    logger.info("Yellin: {}", yellin);
 
     try (var executor = Executors.newFixedThreadPool(4)) {
-        executor.submit(kuduLocalLambda);
-        executor.submit(yellinLocalLambda);
-        executor.submit(kuduLambdaManaged);
-        executor.submit(yellinLamdbdaManaged);
-        logger.info("Started");
+        List.of(
+                kuduLocalLambda,
+                yellinLocalLambda,
+                kuduLambdaManaged,
+                yellinLamdbdaManaged
+            )
+            .forEach(executor::submit);
+        logger.info("Yellin @ {}: {}", yellinLamdbdaManaged.lambdaUri(), yellin);
+        logger.info("Kudu   @ {}: {}", kuduLambdaManaged.lambdaUri(), kudu);
     }
     logger.info("Stopped");
 }

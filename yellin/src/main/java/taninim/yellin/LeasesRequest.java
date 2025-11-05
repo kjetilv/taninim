@@ -7,14 +7,9 @@ import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static java.util.Objects.requireNonNull;
 
-public record LeasesRequest(
-    Op op,
-    LeasesData leasesData
-) {
+public record LeasesRequest(Op op, LeasesData leasesData) {
 
-    public static LeasesRequest acquire(
-        String body
-    ) {
+    public static LeasesRequest acquire(String body) {
         return new LeasesRequest(Op.ACQUIRE, LEASES_DATA_READER.read(body));
     }
 
@@ -38,12 +33,12 @@ public record LeasesRequest(
         requireNonNull(leasesData, "leasesData");
     }
 
+    private static final JsonReader<String, LeasesData> LEASES_DATA_READER = LeasesDataRW.INSTANCE.stringReader();
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + op + " " + leasesData + "]";
     }
-
-    private static final JsonReader<String, LeasesData> LEASES_DATA_READER = LeasesDataRW.INSTANCE.stringReader();
 
     public enum Op {
         ACQUIRE,

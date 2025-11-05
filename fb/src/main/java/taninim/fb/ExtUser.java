@@ -6,10 +6,8 @@ import com.github.kjetilv.uplift.json.anno.JsonRecord;
 import static java.util.Objects.requireNonNull;
 
 @JsonRecord
-public record ExtUser(
-    String name,
-    String id
-) {
+public record ExtUser(String name, String id) {
+
     public ExtUser {
         requireNonNull(name, "name");
         requireNonNull(id, "id");

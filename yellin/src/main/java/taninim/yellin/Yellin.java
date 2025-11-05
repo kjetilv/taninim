@@ -6,8 +6,7 @@ import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.json.mame.CachingJsonSessions;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.util.OnDemand;
-import taninim.fb.FbAuthenticator;
-import taninim.music.Archives;
+import taninim.fb.Authenticator;
 import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
 import taninim.music.legal.S3Archives;
@@ -22,7 +21,7 @@ public final class Yellin {
         Supplier<Instant> time,
         Duration sessionDuration,
         Duration ticketDuration,
-        FbAuthenticator fbAuthenticator
+        Authenticator authenticator
     ) {
         var s3Archives = S3Archives.create(s3Accessor);
         var mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
@@ -45,6 +44,7 @@ public final class Yellin {
 
         Consumer<UserAuths> updateAuthIds = userAuths ->
             authIds(mediaLibrary, userAuths);
+
         Consumer<UserAuths> forceUpdate = userAuths ->
             onDemand.force(authIds, userAuths);
 
@@ -56,13 +56,13 @@ public final class Yellin {
             time
         );
 
-        FbAuthenticator userFbAuthenticator = authResponse ->
-            fbAuthenticator.authenticate(authResponse)
+        Authenticator userAuthenticator = authResponse ->
+            authenticator.authenticate(authResponse)
                 .filter(extUser ->
                     users.get().contains(extUser.id()));
 
         return new DefaultLeasesDispatcher(
-            userFbAuthenticator,
+            userAuthenticator,
             authorizer,
             leasesRegistry,
             mediaIds,

@@ -4,7 +4,7 @@ import module java.base;
 import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.Authenticator;
 import taninim.music.LeasePeriod;
 import taninim.music.Leases;
 import taninim.music.LeasesRegistry;
@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 
 public class DefaultLeasesDispatcher implements LeasesDispatcher {
 
-    private final FbAuthenticator fbAuthenticator;
+    private final Authenticator authenticator;
 
     private final Authorizer authorizer;
 
@@ -29,14 +29,14 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
     private final Supplier<Instant> time;
 
     DefaultLeasesDispatcher(
-        FbAuthenticator fbAuthenticator,
+        Authenticator authenticator,
         Authorizer authorizer,
         LeasesRegistry leasesRegistry,
         Supplier<MediaIds> mediaIds,
         Duration leaseTime,
         Supplier<Instant> time
     ) {
-        this.fbAuthenticator = requireNonNull(fbAuthenticator, "authenticator");
+        this.authenticator = requireNonNull(authenticator, "authenticator");
         this.authorizer = requireNonNull(authorizer, "authorizer");
         this.leasesRegistry = requireNonNull(leasesRegistry, "ticketOffice");
         this.mediaIds = requireNonNull(mediaIds, "mediaIds");
@@ -76,7 +76,7 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
 
     private Optional<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
         var time = this.time.get();
-        return fbAuthenticator.authenticate(extAuthResponse).flatMap(auth ->
+        return authenticator.authenticate(extAuthResponse).flatMap(auth ->
             authorizer.login(auth.id(), refresh)
                 .filter(userAuth ->
                     userAuth.validAt(time))

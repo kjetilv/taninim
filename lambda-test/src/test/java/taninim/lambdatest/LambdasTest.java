@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.Authenticator;
 import taninim.kudu.DefaultKudu;
 import taninim.kudu.Kudu;
 import taninim.kudu.Track;
@@ -121,7 +121,7 @@ class LambdasTest {
     }
 
     private void setupDispatcher(Duration sessionDuration, Duration ticketDuration) {
-        FbAuthenticator fbAuthenticator = authResponse -> Optional.of(new ExtUser(
+        Authenticator authenticator = authResponse -> Optional.of(new ExtUser(
             authResponse.userID(),
             authResponse.userID()
         ));
@@ -135,7 +135,7 @@ class LambdasTest {
             this::now,
             sessionDuration,
             ticketDuration,
-            fbAuthenticator
+            authenticator
         );
         kudu = new DefaultKudu(leasesRegistry, mediaLibrary, 16, this::now);
     }

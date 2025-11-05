@@ -14,24 +14,20 @@ record SimpleMapper() implements JsonMapper {
 
     @Override
     public <T> List<T> toJavaList(String json, Class<T> type) {
-        return fail();
+        throw new UnsupportedOperationException("Not supported: To java list: " + type);
     }
 
     @Override
     public String toJson(Object object) {
-        return fail();
+        throw new UnsupportedOperationException("Not supported: To json " + object);
     }
 
     @Override
     public String toJson(Object object, boolean ignoreNullValuedProperties) {
-        return fail();
+        throw new UnsupportedOperationException("Not supported: To json " + object);
     }
 
     @Override
     public void setFacebookClient(FacebookClient facebookClient) {
-    }
-
-    private static <T> T fail() {
-        throw new UnsupportedOperationException("Not supported");
     }
 }

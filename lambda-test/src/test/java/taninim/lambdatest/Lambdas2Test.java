@@ -20,7 +20,7 @@ import taninim.TaninimSettings;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
 import taninim.fb.ExtUser;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.Authenticator;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
@@ -110,7 +110,11 @@ class Lambdas2Test {
             FB_AUTHENTICATOR
         );
 
-        kuduHandler = KuduLambdaHandler.create(kuduClientSettings, taninimSettings, () -> s3Accessor);
+        kuduHandler = KuduLambdaHandler.create(
+            kuduClientSettings,
+            taninimSettings,
+            () -> s3Accessor
+        );
 
         yellinHarness = new LambdaHarness("yellin", yellinHandler, yellinCors, timeRetriever);
         kuduHarness = new LambdaHarness("kudu", kuduHandler, kuduCors, timeRetriever);
@@ -405,7 +409,7 @@ class Lambdas2Test {
     private static final JsonWriter<String, ExtAuthResponse, StringBuilder>
         RESPONSE_WRITER = ExtAuthResponseRW.INSTANCE.stringWriter();
 
-    private static final FbAuthenticator FB_AUTHENTICATOR = authResponse ->
+    private static final Authenticator FB_AUTHENTICATOR = authResponse ->
         Optional.of(new ExtUser("dave", authResponse.userID()));
 
     private static final String idsJson = """

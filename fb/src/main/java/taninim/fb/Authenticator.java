@@ -3,11 +3,7 @@ package taninim.fb;
 import module java.base;
 
 @FunctionalInterface
-public interface FbAuthenticator {
-
-    static FbAuthenticator simple() {
-        return new DefaultFbAuthenticator();
-    }
+public interface Authenticator {
 
     Optional<ExtUser> authenticate(ExtAuthResponse authResponse);
 }

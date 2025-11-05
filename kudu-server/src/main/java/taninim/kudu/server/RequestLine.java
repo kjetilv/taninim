@@ -13,7 +13,7 @@ record RequestLine(Track track, Uuid token) {
     }
 
     private static Optional<RequestLine> parse(String request) {
-        return Track.parse(request)
+        return Track.parse(path(request))
             .flatMap(track ->
                 requestedTrack(request, track));
     }
@@ -28,5 +28,12 @@ record RequestLine(Track track, Uuid token) {
             .flatMap(Uuid::maybeFrom)
             .map(uuid ->
                 new RequestLine(track, uuid));
+    }
+
+    private static String path(String request) {
+        int queryIndex = request.indexOf("?t=");
+        return queryIndex < 0
+            ? request
+            : request.substring(0, queryIndex);
     }
 }

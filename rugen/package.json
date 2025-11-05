@@ -3,9 +3,9 @@
     "version": "0.0.1",
     "private": true,
     "scripts": {
-        "dev": "vite dev",
-        "build": "vite build",
-        "preview": "vite preview",
+        "dev": "/Users/kjetilvalstadsve/.nvm/versions/node/v24.11.0/bin/node node_modules/vite/bin/vite.js dev",
+        "build": "/Users/kjetilvalstadsve/.nvm/versions/node/v24.11.0/bin/node node_modules/vite/bin/vite.js build",
+        "preview": "/Users/kjetilvalstadsve/.nvm/versions/node/v24.11.0/bin/node node_modules/vite/bin/vite.js preview",
         "test": "playwright test",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

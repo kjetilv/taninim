@@ -18,6 +18,7 @@ void main() {
         .map(inputStream ->
             UserAuths.from(new DataInputStream(inputStream)))
         .ifPresent(userAuths -> {
+
             System.out.println("  User-auths:");
             userAuths.userAuths()
                 .forEach(userAuth -> {
@@ -33,13 +34,16 @@ void main() {
     System.out.println("Leases:");
     s3Accessor.listInfos("lease")
         .forEach(info -> {
+
             var lease = info.key();
             var instant =
                 Instant.ofEpochSecond(SECONDS_PER_HOUR * epochHour(lease));
             var time =
                 info.lastModified().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
             System.out.println(
-                "  " + instant.atOffset(ZoneOffset.UTC).format(DAY_HOUR) + ": (" + time + ")");
+                "  " + instant.atOffset(ZoneOffset.UTC).format(DAY_HOUR) + ": (" + time + ")"
+            );
+
             s3Accessor.stream(lease)
                 .ifPresent(_ -> {
                     archives.retrieveRecord(lease)

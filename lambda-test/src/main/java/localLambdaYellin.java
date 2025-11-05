@@ -10,7 +10,7 @@ import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.DefaultFbAuthenticator;
 import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
@@ -49,7 +49,7 @@ void main() {
         clientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(Env.actual()),
-        FbAuthenticator.simple()
+        new DefaultFbAuthenticator()
     );
 
     var lamdbdaManaged = LamdbdaManaged.create(

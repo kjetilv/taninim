@@ -6,7 +6,7 @@ import com.github.kjetilv.uplift.asynchttp.ChannelHandler;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.util.Time;
-import taninim.fb.FbAuthenticator;
+import taninim.fb.DefaultFbAuthenticator;
 import taninim.yellin.Yellin;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
@@ -26,7 +26,7 @@ public record ServerYellin(Map<String, String> parameters) implements Runnable {
                 Time.UTC_CLOCK::instant,
                 Duration.ofDays(1),
                 Duration.ofHours(1),
-                FbAuthenticator.simple()
+                new DefaultFbAuthenticator()
             ),
             null,
             MAX_REQUEST_SIZE,

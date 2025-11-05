@@ -7,21 +7,11 @@ import com.restfb.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class DefaultFbAuthenticator implements FbAuthenticator {
+public final class DefaultFbAuthenticator implements Authenticator {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultFbAuthenticator.class);
 
     private final Supplier<char[]> appSecret = FbSec.secretsProvider();
-
-    private final FbListener fbListener;
-
-    DefaultFbAuthenticator() {
-        this(null);
-    }
-
-    DefaultFbAuthenticator(FbListener fbListener) {
-        this.fbListener = fbListener == null ? NOOP : fbListener;
-    }
 
     @Override
     public Optional<ExtUser> authenticate(ExtAuthResponse authResponse) {
@@ -30,14 +20,10 @@ final class DefaultFbAuthenticator implements FbAuthenticator {
             log.debug("Looking up {}", authResponse);
             return getExtUser(authResponse, id).map(remoteUser -> {
                 log.debug("Retrieved user {}/{}, {}", remoteUser, remoteUser.id(), authResponse);
-                var userId = remoteUser.id();
-                fbListener.response(remoteUser.name(), userId, authResponse.expiresIn());
                 if (remoteUser.hasId(id)) {
-                    fbListener.allowed(remoteUser.name(), userId);
                     return remoteUser;
                 }
                 log.debug("Disallowed {}: {}", authResponse, remoteUser);
-                fbListener.disallowed(UNKNOWN_USER, id);
                 return null;
             });
         } catch (Exception e) {
@@ -74,10 +60,4 @@ final class DefaultFbAuthenticator implements FbAuthenticator {
                 }
             });
     }
-
-    private static final String UNKNOWN_USER = "Unknown user";
-
-    private static final FbListener NOOP = new FbListener() {
-
-    };
 }

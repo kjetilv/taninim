@@ -24,12 +24,12 @@ class SimpleRequestor implements WebRequestor {
 
     @Override
     public Response executePost(Request request) {
-        return fail();
+        throw new UnsupportedOperationException("Not supported: Post " + request);
     }
 
     @Override
     public Response executeDelete(Request request) {
-        return fail();
+        throw new UnsupportedOperationException("Not supported: Delete " + request);
     }
 
     @Override
@@ -43,9 +43,5 @@ class SimpleRequestor implements WebRequestor {
 
     private static HttpRequest getBuild(Request request) {
         return HttpRequest.newBuilder().GET().uri(URI.create(request.getFullUrl())).build();
-    }
-
-    private static <T> T fail() {
-        throw new UnsupportedOperationException("Not supported");
     }
 }
