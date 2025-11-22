@@ -16,8 +16,8 @@ apply<UpliftPlugin>()
 tasks.withType<UpliftTask> {
     configure(stack = "taninim")
     env(
-        "fbSec" to get(name = "fbSec"),
-        "taninimBucket" to get(name = "taninimBucket")
+        "fbSec" to get("fbSec"),
+        "taninimBucket" to get("taninimBucket")
     )
     stackWith("taninim.uplift.LambdaStacker")
     dependsOn(
