@@ -5,22 +5,24 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind;
+import com.github.kjetilv.uplift.hash.HashKind.K128;
 import com.github.kjetilv.uplift.json.JsonWriter;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.S3Accessor;
-import com.github.kjetilv.uplift.uuid.Uuid;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
+import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
 import taninim.fb.ExtUser;
-import taninim.fb.Authenticator;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
@@ -75,7 +77,7 @@ class Lambdas2Test {
         put("media-digest.bin", mediaIds);
         List.of(track1a, track1b, track2a, track2b, track2c)
             .forEach(track ->
-                putRandomBytes(track.uuid().toString() + ".m4a"));
+                putRandomBytes(track.asUuid() + ".m4a"));
 
         var timeRetriever = timeRetriever();
 
@@ -144,7 +146,7 @@ class Lambdas2Test {
 
     @Test
     void shouldRejectStrangers() {
-        var response = authAs(Uuid.random().digest()).join();
+        var response = authAs(HashKind.K128.random().digest()).join();
         assertThat(response.statusCode()).isBetween(400, 500);
     }
 
@@ -163,7 +165,7 @@ class Lambdas2Test {
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         var leasesActivation =
-            leasesActivation(ok(lease(Uuid.from(auth1.token()), album2).join()).body());
+            leasesActivation(ok(lease(Hash.from(auth1.token()), album2).join()).body());
         assertThat(leasesActivation.trackUUIDs())
             .containsExactly(track2a.digest(), track2b.digest(), track2c.digest());
     }
@@ -174,7 +176,7 @@ class Lambdas2Test {
         var auth1 = authResponse(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
-        var token = Uuid.from(auth1.token());
+        var token = Hash.<K128>from(auth1.token());
         var leaseResponse1 = ok(lease(token, album2).join());
         var leaseResponse2 = ok(lease(token, album1).join());
 
@@ -194,7 +196,7 @@ class Lambdas2Test {
         var auth1 = authResponse(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
-        var token = Uuid.from(auth1.token());
+        var token = Hash.<K128>from(auth1.token());
 
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
@@ -211,7 +213,7 @@ class Lambdas2Test {
         var auth1 = authResponse(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
-        var token = Uuid.from(auth1.token());
+        var token = Hash.<K128>from(auth1.token());
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
 
@@ -224,7 +226,7 @@ class Lambdas2Test {
         var auth1 = authResponse(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
-        var token = Uuid.from(auth1.token());
+        var token = Hash.<K128>from(auth1.token());
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
 
@@ -246,7 +248,7 @@ class Lambdas2Test {
         var auth1 = authResponse(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
-        var token = Uuid.from(auth1.token());
+        var token = Hash.<K128>from(auth1.token());
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
 
@@ -265,7 +267,7 @@ class Lambdas2Test {
     void shouldBeAbleToDropLeaseAgain() {
         var authResponse = authAs(userId).join();
         var auth1 = authResponse(authResponse.body());
-        var token = Uuid.from(auth1.token());
+        var token = Hash.<K128>from(auth1.token());
 
         var leaseResponse1 = ok(lease(token, album2).join());
         var leaseResponse2 = ok(lease(token, album1).join());
@@ -282,7 +284,10 @@ class Lambdas2Test {
         var auth1 = authResponse(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
-        var leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
+        var leaseResponse = ok(lease(
+            Hash.from(auth1.token()),
+            album2
+        ).join());
 
         var authResponse2 = authAs(userId).join();
         var auth2 = authResponse(authResponse2.body());
@@ -295,7 +300,10 @@ class Lambdas2Test {
         var authResponse = authAs(userId).join();
         var auth1 = authResponse(authResponse.body());
 
-        var leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
+        var leaseResponse = ok(lease(
+            Hash.from(auth1.token()),
+            album2
+        ).join());
 
         passTime(Duration.ofHours(6));
 
@@ -310,11 +318,17 @@ class Lambdas2Test {
         var authResponse1 = authAs(userId).join();
         var auth1 = authResponse(authResponse1.body());
 
-        var leaseResponse = ok(lease(Uuid.from(auth1.token()), album2).join());
+        var leaseResponse = ok(lease(
+            Hash.from(auth1.token()),
+            album2
+        ).join());
 
         passTime(Duration.ofDays(1));
 
-        var tooLateLeaseResponse = lease(Uuid.from(auth1.token()), album2).join();
+        var tooLateLeaseResponse = lease(
+            Hash.from(auth1.token()),
+            album2
+        ).join();
         assertThat(tooLateLeaseResponse.statusCode()).isEqualTo(400);
 
         var authResponse2 = authAs(userId).join();
@@ -322,17 +336,20 @@ class Lambdas2Test {
         assertThat(auth2.token()).isNotEqualTo(auth1.token());
         assertThat(auth2.trackUUIDs()).isNullOrEmpty();
 
-        var renewedLeaseResponse = ok(lease(Uuid.from(auth2.token()), album1).join());
+        var renewedLeaseResponse = ok(lease(
+            Hash.from(auth2.token()),
+            album1
+        ).join());
 
         var reauthResponse = authResponse(renewedLeaseResponse.body());
         assertThat(reauthResponse.trackUUIDs()).containsExactly(track1a.digest(), track1b.digest());
     }
 
-    private CompletableFuture<HttpResponse<String>> release(Uuid token, Uuid album) {
+    private CompletableFuture<HttpResponse<String>> release(Hash<K128> token, Hash<K128> album) {
         return lease("DELETE", token, album);
     }
 
-    private CompletableFuture<HttpResponse<String>> lease(Uuid token, Uuid album) {
+    private CompletableFuture<HttpResponse<String>> lease(Hash<K128> token, Hash<K128> album) {
         return lease("POST", token, album);
     }
 
@@ -340,7 +357,11 @@ class Lambdas2Test {
         return yellinReqs.path("/auth").execute("POST", extAuthResponse(id));
     }
 
-    private CompletableFuture<HttpResponse<String>> stream(Uuid token, Uuid track, String range) {
+    private CompletableFuture<HttpResponse<String>> stream(
+        Hash<K128> token,
+        Hash<K128> track,
+        String range
+    ) {
         var headers = Optional.ofNullable(range)
             .map(header -> Map.of("Range", header)).orElseGet(
                 Collections::emptyMap);
@@ -370,10 +391,14 @@ class Lambdas2Test {
         }
     }
 
-    private CompletableFuture<HttpResponse<String>> lease(String method, Uuid token, Uuid album) {
+    private CompletableFuture<HttpResponse<String>> lease(String method, Hash<K128> token, Hash<K128> album) {
         return yellinReqs.path("/lease").execute(
             method, LEASES_DATA_WRITER.write(
-                new LeasesData(userId, token, album)
+                new LeasesData(
+                    userId,
+                    token.digest(),
+                    album.digest()
+                )
             )
         );
     }
@@ -390,21 +415,21 @@ class Lambdas2Test {
         return time.get();
     }
 
-    private static final Uuid album1 = Uuid.random();
+    private static final Hash<K128> album1 = HashKind.K128.random();
 
-    private static final Uuid track1a = Uuid.random();
+    private static final Hash<K128> track1a = HashKind.K128.random();
 
-    private static final Uuid track1b = Uuid.random();
+    private static final Hash<K128> track1b = HashKind.K128.random();
 
-    private static final Uuid album2 = Uuid.random();
+    private static final Hash<K128> album2 = HashKind.K128.random();
 
-    private static final Uuid track2a = Uuid.random();
+    private static final Hash<K128> track2a = HashKind.K128.random();
 
-    private static final Uuid track2b = Uuid.random();
+    private static final Hash<K128> track2b = HashKind.K128.random();
 
-    private static final Uuid track2c = Uuid.random();
+    private static final Hash<K128> track2c = HashKind.K128.random();
 
-    private static final String userId = Uuid.random().digest();
+    private static final String userId = HashKind.K128.random().digest();
 
     private static final JsonWriter<String, ExtAuthResponse, StringBuilder>
         RESPONSE_WRITER = ExtAuthResponseRW.INSTANCE.stringWriter();
@@ -663,8 +688,8 @@ class Lambdas2Test {
                 .add(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
         return RESPONSE_WRITER.write(new ExtAuthResponse(
             userId,
-            Uuid.random().digest(),
-            Uuid.random().digest(),
+            HashKind.K128.random().digest(),
+            HashKind.K128.random().digest(),
             Duration.ofHours(1),
             expirationTime
         ));
@@ -688,7 +713,8 @@ class Lambdas2Test {
         return new MediaIds(Arrays.asList(albumTrackIds));
     }
 
-    private static AlbumTrackIds album(Uuid albumId, Uuid... tracks) {
+    @SafeVarargs
+    private static AlbumTrackIds album(Hash<K128> albumId, Hash<K128>... tracks) {
         return new AlbumTrackIds(albumId, Arrays.asList(tracks));
     }
 

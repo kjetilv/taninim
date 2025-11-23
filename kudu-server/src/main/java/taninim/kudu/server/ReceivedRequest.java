@@ -1,9 +1,9 @@
 package taninim.kudu.server;
 
 import module java.base;
+import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
 import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.uuid.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.TrackRange;
@@ -16,19 +16,22 @@ record ReceivedRequest(TrackRange trackRange, LibraryRequest libraryRequest, Adm
     private static final Logger log = LoggerFactory.getLogger(ReceivedRequest.class);
 
     static Optional<ReceivedRequest> fromHttp(ByteBuffer byteBuffer) {
-        return ByteBuffers.readBuffer(byteBuffer, nextLine -> {
-            try {
-                return nextLine.get().map(String::trim)
-                    .filter(NON_EMPTY)
-                    .map(line ->
-                        receivedRequest(line, nextLine))
-                    .or(() ->
-                        Optional.of(RETRY_REQ));
-            } catch (Exception e) {
-                log.error("Failed to parse request", e);
-                return Optional.empty();
+        return ByteBuffers.readBuffer(
+            byteBuffer, nextLine -> {
+                try {
+                    return nextLine.get()
+                        .map(String::trim)
+                        .filter(NON_EMPTY)
+                        .map(line ->
+                            receivedRequest(line, nextLine))
+                        .or(() ->
+                            Optional.of(RETRY_REQ));
+                } catch (Exception e) {
+                    log.error("Failed to parse request", e);
+                    return Optional.empty();
+                }
             }
-        });
+        );
     }
 
     public boolean library() {
@@ -90,7 +93,7 @@ record ReceivedRequest(TrackRange trackRange, LibraryRequest libraryRequest, Adm
     private static ReceivedRequest libraryRequest(String line) {
         return tailString(line, "get /library.json?t=")
             .map(token ->
-                new LibraryRequest(Uuid.from(token)))
+                new LibraryRequest(Hash.from(token)))
             .map(libraryRequest ->
                 new ReceivedRequest(null, libraryRequest, null))
             .orElse(REJECT_REQ);
@@ -109,7 +112,8 @@ record ReceivedRequest(TrackRange trackRange, LibraryRequest libraryRequest, Adm
             var headerLine = rawHeader.map(ReceivedRequest::toLowerCase);
             var header = headerLine.flatMap(ReceivedRequest::header);
             headersParsed++;
-            var rangeHeader = header.filter(ReceivedRequest::isRange).map(Map.Entry::getValue);
+            var rangeHeader = header.filter(ReceivedRequest::isRange)
+                .map(Map.Entry::getValue);
             if (rangeHeader.isPresent()) {
                 var arg = rangeHeader.get();
                 return rangeHeader.flatMap(Range::read)

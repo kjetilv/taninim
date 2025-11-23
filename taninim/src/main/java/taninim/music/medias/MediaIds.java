@@ -1,15 +1,17 @@
 package taninim.music.medias;
 
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
+import com.github.kjetilv.uplift.kernel.io.BytesIO;
+import taninim.util.Maps;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
-import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.uuid.Uuid;
-import taninim.util.Maps;
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 
 public record MediaIds(List<AlbumTrackIds> albumTrackIds) implements BinaryWritable {
 
@@ -33,7 +35,7 @@ public record MediaIds(List<AlbumTrackIds> albumTrackIds) implements BinaryWrita
         return BytesIO.writeWritables(dos, albumTrackIds);
     }
 
-    public Map<Uuid, List<Uuid>> albumTracks() {
+    public Map<Hash<K128>, List<Hash<K128>>> albumTracks() {
         return Maps.toMap(albumTrackIds, AlbumTrackIds::title, AlbumTrackIds::tracks);
     }
 }

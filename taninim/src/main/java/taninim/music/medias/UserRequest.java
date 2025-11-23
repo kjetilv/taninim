@@ -1,18 +1,19 @@
 package taninim.music.medias;
 
-import java.util.Objects;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind.K128;
 
-import com.github.kjetilv.uplift.uuid.Uuid;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
 public record UserRequest(
     String userId,
-    Uuid token,
-    Uuid albumId
+    Hash<K128> token,
+    Hash<K128> albumId
 ) {
 
-    public UserRequest(String userId, Uuid token, Uuid albumId) {
+    public UserRequest(String userId, Hash<K128> token, Hash<K128> albumId) {
         this.userId = requireNonNull(userId, "userId");
         this.token = requireNonNull(token, "token");
         this.albumId = requireNonNull(albumId, "albumId");

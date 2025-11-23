@@ -1,7 +1,9 @@
 package taninim.music;
 
 import module java.base;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import com.github.kjetilv.uplift.hash.Hash;
+
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 
 public record LeasesPath(
     Leases leases,
@@ -18,7 +20,7 @@ public record LeasesPath(
         );
     }
 
-    public LeasesPath withTracks(List<? extends Uuid> uuids, Instant lapse) {
+    public LeasesPath withTracks(List<? extends Hash<K128>> uuids, Instant lapse) {
         return new LeasesPath(leases.withTracks(uuids, lapse), leasePeriod);
     }
 

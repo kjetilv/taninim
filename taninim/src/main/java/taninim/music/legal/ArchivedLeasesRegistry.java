@@ -1,15 +1,12 @@
 package taninim.music.legal;
 
 import module java.base;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import taninim.music.Archives;
+import taninim.music.*;
 import taninim.music.Archives.ArchivedRecord;
-import taninim.music.LeasePeriod;
-import taninim.music.Leases;
-import taninim.music.LeasesPath;
-import taninim.music.LeasesRegistry;
 
 import static java.util.Objects.requireNonNull;
 
@@ -42,7 +39,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     @Override
-    public Optional<LeasesPath> getActive(Uuid token) {
+    public Optional<LeasesPath> getActive(Hash<HashKind.K128> token) {
         var time = this.time.get();
         var leasePeriod = LeasePeriod.starting(time).ofLength(leaseDuration);
         try (var pathsForToken = archives.retrievePaths(LEASE_PREFIX, recordFor(token))) {
@@ -113,12 +110,12 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         return new ArchivedRecord(leasesPath.toPath(), leasesPath.leases().toLines());
     }
 
-    private static Predicate<String> recordFor(Uuid token) {
+    private static Predicate<String> recordFor(Hash<HashKind.K128> token) {
         var endPath = token.digest() + LEASE_SUFFIX;
         return path -> path.endsWith(endPath);
     }
 
-    private static Leases leases(Uuid token, ArchivedRecord archivedRecord) {
+    private static Leases leases(Hash<HashKind.K128> token, ArchivedRecord archivedRecord) {
         return new Leases(token, leases(archivedRecord));
     }
 
@@ -131,7 +128,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
                 line.split(" ", 2))
             .map(tokenLease ->
                 new Leases.Lease(
-                    Uuid.from(tokenLease[0]),
+                    Hash.from(tokenLease[0]),
                     Instant.ofEpochSecond(Long.parseLong(tokenLease[1]))
                 ))
             .toList();

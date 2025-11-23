@@ -2,10 +2,9 @@ package taninim.yellin;
 
 import module java.base;
 import com.github.kjetilv.uplift.json.anno.JsonRecord;
-import com.github.kjetilv.uplift.uuid.Uuid;
 
 @JsonRecord
-public record LeasesData(String userId, Uuid token, Uuid album) {
+public record LeasesData(String userId, String token, String album) {
 
     @Override
     public String toString() {

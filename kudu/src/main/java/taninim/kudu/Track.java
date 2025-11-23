@@ -1,16 +1,17 @@
 package taninim.kudu;
 
 import module java.base;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import com.github.kjetilv.uplift.hash.Hash;
 
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static java.util.Objects.requireNonNull;
 import static taninim.util.ParseBits.tailString;
 
-public record Track(Uuid trackUUID, Format format) {
+public record Track(Hash<K128> trackUUID, Format format) {
 
     public static Optional<Track> parse(String audioFile) {
         return format(audioFile).map(format ->
-            new Track(Uuid.from(audioFile), format));
+            new Track(Hash.from(audioFile), format));
     }
 
     public Track {
@@ -19,11 +20,11 @@ public record Track(Uuid trackUUID, Format format) {
     }
 
     String file() {
-        return trackUUID.uuid() + "." + format.suffix();
+        return trackUUID.asUuid() + "." + format.suffix();
     }
 
     private static Optional<Format> format(String audioId) {
-        return tailString(audioId, Uuid.DIGEST_LENGTH + 1)
+        return tailString(audioId, K128.totalDigestLength())
             .map(Track::lc)
             .flatMap(Track::toFormat);
     }

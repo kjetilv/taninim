@@ -2,31 +2,32 @@ package taninim.yellin;
 
 import module java.base;
 import com.github.kjetilv.uplift.json.anno.JsonRecord;
-import com.github.kjetilv.uplift.uuid.Uuid;
+
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 
 @JsonRecord
 public record LeasesActivation(
     String name,
     String userId,
-    Uuid token,
-    List<Uuid> trackUUIDs,
+    String token,
+    List<String> trackUUIDs,
     Instant expiry
 ) {
 
-    public LeasesActivation(String name, String userId, List<Uuid> trackUUIDs, Instant expiry) {
+    public LeasesActivation(String name, String userId, List<String> trackUUIDs, Instant expiry) {
         this(name, userId, null, trackUUIDs, expiry);
     }
 
-    public LeasesActivation(String name, String userId, Uuid token, List<Uuid> trackUUIDs, Instant expiry) {
+    public LeasesActivation(String name, String userId, String token, List<String> trackUUIDs, Instant expiry) {
         this.name = name;
         this.userId = userId;
-        this.token = token == null ? Uuid.random() : token;
+        this.token = token == null ? K128.random().digest() : token;
         this.trackUUIDs = trackUUIDs == null || trackUUIDs.isEmpty() ? Collections.emptyList() : trackUUIDs;
         this.expiry = Objects.requireNonNull(expiry, "expiry");
     }
 
     @Override
-    public List<Uuid> trackUUIDs() {
+    public List<String> trackUUIDs() {
         return trackUUIDs == null ? Collections.emptyList() : trackUUIDs;
     }
 
@@ -39,8 +40,7 @@ public record LeasesActivation(
     }
 
     public Optional<String> digest() {
-        return Optional.ofNullable(token)
-            .map(Uuid::digest);
+        return Optional.ofNullable(token);
     }
 
     @Override

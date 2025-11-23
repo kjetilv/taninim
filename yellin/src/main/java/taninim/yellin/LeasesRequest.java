@@ -1,9 +1,10 @@
 package taninim.yellin;
 
 import module java.base;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind.K128;
 import com.github.kjetilv.uplift.json.JsonReader;
 import com.github.kjetilv.uplift.kernel.http.QueryParams;
-import com.github.kjetilv.uplift.uuid.Uuid;
 
 import static java.util.Objects.requireNonNull;
 
@@ -21,11 +22,18 @@ public record LeasesRequest(Op op, LeasesData leasesData) {
         var look = QueryParams.get(path);
         return look.up("userId")
             .flatMap(userId ->
-                look.up("album").flatMap(Uuid::maybeFrom)
+                look.up("album").flatMap(Hash::<K128>maybe)
                     .flatMap(album ->
-                        look.up("token").flatMap(Uuid::maybeFrom)
+                        look.up("token").flatMap(Hash::<K128>maybe)
                             .map(token ->
-                                new LeasesRequest(Op.RELEASE, new LeasesData(userId, token, album)))));
+                                new LeasesRequest(
+                                    Op.RELEASE,
+                                    new LeasesData(
+                                        userId,
+                                        token.digest(),
+                                        album.digest()
+                                    )
+                                ))));
     }
 
     public LeasesRequest {

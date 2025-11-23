@@ -1,37 +1,38 @@
 package taninim.music.medias;
 
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
+import com.github.kjetilv.uplift.kernel.io.BytesIO;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.util.Collections;
 import java.util.List;
 
-import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
-import com.github.kjetilv.uplift.kernel.io.BytesIO;
-import com.github.kjetilv.uplift.uuid.Uuid;
-
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static java.util.Objects.requireNonNull;
 
 public record AlbumTrackIds(
-    Uuid title,
-    List<Uuid> tracks
+    Hash<K128> title,
+    List<Hash<K128>> tracks
 ) implements BinaryWritable {
 
     static AlbumTrackIds from(DataInput input) {
         try {
-            var title = Uuid.read(input);
-            return new AlbumTrackIds(title, BytesIO.readUuids(input));
+            var title = Hash.of(input, K128);
+            return new AlbumTrackIds(title, BytesIO.readHashes128(input));
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
-    public AlbumTrackIds(Uuid title, List<Uuid> tracks) {
+    public AlbumTrackIds(Hash<K128> title, List<Hash<K128>> tracks) {
         this.title = requireNonNull(title, "title");
         this.tracks = tracks == null || tracks.isEmpty() ? Collections.emptyList() : tracks;
     }
 
     @Override
     public int writeTo(DataOutput dos) {
-        return BytesIO.writeUuid(dos, title) + BytesIO.writeUuids(dos, tracks);
+        return BytesIO.writeHash128(dos, title) + BytesIO.writeHashes128(dos, tracks);
     }
 }

@@ -2,7 +2,6 @@ package taninim.lambdatest;
 
 import module java.base;
 import com.github.kjetilv.uplift.json.JsonReader;
-import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.yellin.LeasesActivation;
 import taninim.yellin.LeasesActivationRW;
 final class Parse {
@@ -16,8 +15,8 @@ final class Parse {
         return new Lambdas2Test.LeasesActivation(
             read.name(),
             read.userId(),
-            read.token().digest(),
-            read.trackUUIDs().stream().map(Uuid::digest).toList(),
+            read.token(),
+            read.trackUUIDs(),
             read.expiry().toEpochMilli()
         );
     }
@@ -27,8 +26,8 @@ final class Parse {
         return new Lambdas2Test.AuthResponse(
             read.name(),
             read.userId(),
-            read.token().digest(),
-            read.trackUUIDs().stream().map(Uuid::digest).toList(),
+            read.token(),
+            read.trackUUIDs(),
             read.expiry().getEpochSecond()
         );
     }

@@ -1,10 +1,11 @@
 package taninim.kudu;
 
 import module java.base;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind;
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.TaninimSettings;
 import taninim.music.LeasesRegistry;
 import taninim.music.aural.Chunk;
@@ -39,7 +40,7 @@ public record DefaultKudu(
     }
 
     @Override
-    public Optional<Library> libraryStream(Uuid token) {
+    public Optional<Library> libraryStream(Hash<HashKind.K128> token) {
         return leasesRegistry.getActive(token).flatMap(_ ->
             mediaLibrary.fileSize("media.jsonl.gz").flatMap(size ->
                 mediaLibrary.stream(null, "media.jsonl.gz")

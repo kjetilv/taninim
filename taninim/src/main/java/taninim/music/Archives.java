@@ -1,7 +1,8 @@
 package taninim.music;
 
 import module java.base;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind.K128;
 
 public interface Archives {
 
@@ -40,7 +41,7 @@ public interface Archives {
         }
 
         private static String printEntry(String spec) {
-            var uuid = Uuid.from(spec);
+            var uuid = Hash.<K128>from(spec);
             var epochSec = Long.parseLong(spec.substring(spec.indexOf(' ') + 1));
             return uuid + "@" + Instant.ofEpochSecond(epochSec).atOffset(ZoneOffset.UTC).format(
                 DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT));

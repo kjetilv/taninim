@@ -3,8 +3,8 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
-import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.kudu.KuduLambdaHandler;
@@ -41,7 +41,7 @@ void main() {
     );
 
     var lamdbdaManaged =
-        LamdbdaManaged.create(localLambda.getLambdaUri(), clientSettings, handler);
+        Lambda.managed(localLambda.getLambdaUri(), clientSettings, handler);
 
     try (var executor = Executors.newFixedThreadPool(2)) {
         executor.submit(localLambda);

@@ -1,12 +1,13 @@
 package taninim.kudu;
 
 import module java.base;
+import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.lambda.*;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import com.github.kjetilv.uplift.uuid.Uuid;
 import taninim.TaninimSettings;
 
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static java.util.Map.entry;
 
 public final class KuduLambdaHandler extends LambdaHandlerSupport {
@@ -33,7 +34,7 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
                 : Optional.empty();
     }
 
-    private Optional<LambdaResult> handleAudio(LambdaPayload payload, Uuid token) {
+    private Optional<LambdaResult> handleAudio(LambdaPayload payload, Hash<K128> token) {
         var path = payload.path("/audio/");
         var range = payload.header("range")
             .flatMap(Range::read)
@@ -46,7 +47,7 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
             .map(KuduLambdaHandler::toResult);
     }
 
-    private Optional<LambdaResult> handleLibrary(Uuid token) {
+    private Optional<LambdaResult> handleLibrary(Hash<K128> token) {
         return kudu.library(token).map(KuduLambdaHandler::zippedJsonResult);
     }
 
@@ -54,8 +55,8 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
 
     private static final long DEFAULT_START_RANGE = 1_024L;
 
-    private static Uuid token(LambdaPayload payload) {
-        return Uuid.from(payload.queryParam("t"));
+    private static Hash<K128> token(LambdaPayload payload) {
+        return Hash.from(payload.queryParam("t"));
     }
 
     private static LambdaResult toResult(Kudu.AudioBytes audioBytes) {

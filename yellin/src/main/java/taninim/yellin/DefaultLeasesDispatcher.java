@@ -1,10 +1,11 @@
 package taninim.yellin;
 
 import module java.base;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind.K128;
+import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
-import taninim.fb.Authenticator;
 import taninim.music.LeasePeriod;
 import taninim.music.Leases;
 import taninim.music.LeasesRegistry;
@@ -89,8 +90,10 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
         return new LeasesActivation(
             fbUser.name(),
             fbUser.id(),
-            userAuth.token(),
-            tracks(userAuth, time),
+            userAuth.token().digest(),
+            tracks(userAuth, time).stream()
+                .map(Hash::digest)
+                .toList(),
             userAuth.expiry()
         );
     }
@@ -100,7 +103,9 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
             null,
             leasesRequest.leasesData().userId(),
             leasesRequest.leasesData().token(),
-            tracks(userAuth, time),
+            tracks(userAuth, time).stream()
+                .map(Hash::digest)
+                .toList(),
             userAuth.expiry()
         );
     }
@@ -109,22 +114,31 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
         return new LeasesActivation(
             null,
             deauthorized.userId(),
-            tracks(deauthorized, time.get()),
+            tracks(deauthorized, time.get()).stream()
+                .map(Hash::digest)
+                .toList(),
             deauthorized.expiry()
         );
     }
 
     private LeasesActivation storeActivated(LeasesActivation activation) {
         var leasePeriod = new LeasePeriod(time.get(), leaseTime);
-        var leasesPath = leasesRegistry.getActive(activation.token())
+        var leasesPath = leasesRegistry.getActive(Hash.from(activation.token()))
             .orElseGet(() ->
-                leasesRegistry.setActive(new Leases(activation.token()), leasePeriod));
-        var activePath = leasesPath.withTracks(activation.trackUUIDs(), leasePeriod.getLapse());
+                leasesRegistry.setActive(new Leases(Hash.from(activation.token())), leasePeriod));
+        var list = activation.trackUUIDs()
+            .stream()
+            .<Hash<K128>>map(Hash::from)
+            .toList();
+        var activePath = leasesPath.withTracks(
+            list,
+            leasePeriod.getLapse()
+        );
         leasesRegistry.setActive(activePath.leases(), leasePeriod);
         return activation;
     }
 
-    private List<Uuid> tracks(UserAuth userAuth, Instant time) {
+    private List<Hash<K128>> tracks(UserAuth userAuth, Instant time) {
         return userAuth.albumLeases()
             .stream()
             .filter(auth ->
@@ -133,7 +147,7 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
             .toList();
     }
 
-    private Stream<Uuid> trackUuids(UserAuth.AlbumLease auth) {
+    private Stream<Hash<K128>> trackUuids(UserAuth.AlbumLease auth) {
         if (auth == null) {
             throw new IllegalArgumentException("Null auth");
         }
@@ -145,7 +159,11 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
 
     private static UserRequest userRequest(LeasesRequest leasesRequest) {
         var data = leasesRequest.leasesData();
-        return new UserRequest(data.userId(), data.token(), data.album());
+        return new UserRequest(
+            data.userId(),
+            Hash.from(data.token()),
+            Hash.from(data.album())
+        );
     }
 
     @Override

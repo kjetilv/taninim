@@ -1,12 +1,13 @@
 package taninim.kudu.server;
 
 import module java.base;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind.K128;
 import taninim.kudu.Track;
 
 import static taninim.util.ParseBits.tailString;
 
-record RequestLine(Track track, Uuid token) {
+record RequestLine(Track track, Hash<K128> token) {
 
     static Optional<RequestLine> parseRequestLine(String requestLine) {
         return tailString(requestLine, "get /audio/").flatMap(RequestLine::parse);
@@ -25,7 +26,7 @@ record RequestLine(Track track, Uuid token) {
         }
         var queryStart = queryIndex + "?t=".length();
         return tailString(request, queryStart)
-            .flatMap(Uuid::maybeFrom)
+            .flatMap(Hash::<K128>maybe)
             .map(uuid ->
                 new RequestLine(track, uuid));
     }

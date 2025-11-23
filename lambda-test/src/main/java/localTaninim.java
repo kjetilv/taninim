@@ -3,8 +3,8 @@ import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
+import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
-import com.github.kjetilv.uplift.lambda.LamdbdaManaged;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
@@ -52,7 +52,7 @@ void main() {
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV)
     );
-    var kuduLambdaManaged = LamdbdaManaged.create(
+    var kuduLambdaManaged = Lambda.managed(
         kuduLocalLambda.getLambdaUri(),
         kuduClientSettings,
         kudu
@@ -79,7 +79,7 @@ void main() {
         S3AccessorFactory.defaultFactory(ENV),
         new DefaultFbAuthenticator()
     );
-    var yellinLamdbdaManaged = LamdbdaManaged.create(
+    var yellinLamdbdaManaged = Lambda.managed(
         yellinLocalLambda.getLambdaUri(),
         yellinClientSettings,
         yellin

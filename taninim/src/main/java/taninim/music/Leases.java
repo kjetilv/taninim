@@ -1,28 +1,29 @@
 package taninim.music;
 
 import module java.base;
-import com.github.kjetilv.uplift.uuid.Uuid;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind.K128;
 import taninim.util.Maps;
 
 import static java.util.Objects.requireNonNull;
 
 public record Leases(
-    Uuid token,
+    Hash<K128> token,
     List<Lease> leases
 ) {
 
-    public Leases(Uuid token) {
+    public Leases(Hash<K128> token) {
         this(token, null);
     }
 
-    public Leases(Uuid token, List<Lease> leases) {
+    public Leases(Hash<K128> token, List<Lease> leases) {
         this.token = requireNonNull(token, "token");
         this.leases = leases == null || leases.isEmpty()
             ? Collections.emptyList()
             : sorted(leases);
     }
 
-    public boolean validFor(Uuid trackUUID, Instant time) {
+    public boolean validFor(Hash<K128> trackUUID, Instant time) {
         return leases.stream().anyMatch(lease ->
             lease.isFor(trackUUID) && lease.validAt(time));
     }
@@ -37,7 +38,11 @@ public record Leases(
         }
         return new Leases(
             token,
-            this.leases().stream().filter(lease -> lease.validAt(time)).toList());
+            this.leases()
+                .stream()
+                .filter(lease -> lease.validAt(time))
+                .toList()
+        );
     }
 
     public List<String> toLines() {
@@ -46,19 +51,21 @@ public record Leases(
             .toList();
     }
 
-    Leases withTracks(List<? extends Uuid> tracks, Instant lapse) {
+    Leases withTracks(List<? extends Hash<K128>> tracks, Instant lapse) {
         return new Leases(
             token,
             Stream.concat(
-                leases.stream(),
-                leases(tracks, lapse)
-            ).toList()
+                    leases.stream(),
+                    leases(tracks, lapse)
+                )
+                .toList()
         );
     }
 
     private static List<Lease> sorted(List<Lease> leases) {
         return Maps.groupBy(leases, Lease::track)
-            .values().stream()
+            .values()
+            .stream()
             .map(entries ->
                 entries.stream()
                     .max(Comparator.comparing(Lease::lapse)))
@@ -66,17 +73,14 @@ public record Leases(
             .toList();
     }
 
-    private static Stream<Lease> leases(Collection<? extends Uuid> tracks, Instant lapse) {
-        return tracks.stream().map(track -> new Lease(track, lapse));
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + token + " " + leases.size() + "]";
+    private static Stream<Lease> leases(Collection<? extends Hash<K128>> tracks, Instant lapse) {
+        return tracks.stream()
+            .map(track ->
+                new Lease(track, lapse));
     }
 
     public record Lease(
-        Uuid track,
+        Hash<K128> track,
         Instant lapse
     ) {
 
@@ -93,12 +97,17 @@ public record Leases(
             );
         }
 
-        private boolean isFor(Uuid uuid) {
+        private boolean isFor(Hash<K128> uuid) {
             return uuid.equals(track);
         }
 
         private boolean validAt(Instant time) {
             return lapse.isAfter(time);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + token + " " + leases.size() + "]";
     }
 }

@@ -1,17 +1,17 @@
 package taninim.lambdatest;
 
 import module java.base;
+import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.s3.S3Accessor;
-import com.github.kjetilv.uplift.uuid.Uuid;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
-import taninim.fb.Authenticator;
 import taninim.kudu.DefaultKudu;
 import taninim.kudu.Kudu;
 import taninim.kudu.Track;
@@ -26,6 +26,7 @@ import taninim.music.medias.MediaIds;
 import taninim.music.medias.MediaLibrary;
 import taninim.yellin.*;
 
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static org.assertj.core.api.Assertions.assertThat;
 import static taninim.yellin.LeasesRequest.Op.ACQUIRE;
 import static taninim.yellin.LeasesRequest.Op.RELEASE;
@@ -39,21 +40,21 @@ class LambdasTest {
 
     private final AtomicReference<Instant> time = new AtomicReference<>(Instant.EPOCH);
 
-    private final Uuid album1 = Uuid.random();
+    private final Hash<K128> album1 = K128.random();
 
-    private final Uuid track1a = Uuid.random();
+    private final Hash<K128> track1a = K128.random();
 
-    private final Uuid track1b = Uuid.random();
+    private final Hash<K128> track1b = K128.random();
 
-    private final Uuid album2 = Uuid.random();
+    private final Hash<K128> album2 = K128.random();
 
-    private final Uuid track2a = Uuid.random();
+    private final Hash<K128> track2a = K128.random();
 
-    private final Uuid track2b = Uuid.random();
+    private final Hash<K128> track2b = K128.random();
 
-    private final Uuid track2c = Uuid.random();
+    private final Hash<K128> track2c = K128.random();
 
-    private final String userId = Uuid.random().digest();
+    private final String userId = K128.random().digest();
 
     private final String idsJson = """
         {
@@ -78,7 +79,20 @@ class LambdasTest {
     private MediaLibrary mediaLibrary;
 
     void initLibrary() {
-        put("media-digest.bin", mediaIds(album(album1, track1a, track1b), album(album2, track2a, track2b, track2c)));
+        put(
+            "media-digest.bin", mediaIds(
+                album(
+                    album1,
+                    track1a,
+                    track1b
+                ), album(
+                    album2,
+                    track2a,
+                    track2b,
+                    track2c
+                )
+            )
+        );
         storeSongs(track1a, track1b, track2a, track2b, track2c);
     }
 
@@ -98,9 +112,10 @@ class LambdasTest {
         leasesDispatcher = null;
     }
 
-    private void storeSongs(Uuid... tracks) {
+    @SafeVarargs
+    private void storeSongs(Hash<K128>... tracks) {
         for (var track : tracks) {
-            put(track.uuid().toString() + ".m4a");
+            put(track.asUuid().toString() + ".m4a");
         }
     }
 
@@ -162,9 +177,9 @@ class LambdasTest {
         var expiresIn = Duration.ofMinutes(1);
         var expirationTime = Instant.now().plus(expiresIn);
         return new ExtAuthResponse(
-            id == null ? Uuid.random().digest() : id,
-            Uuid.random().digest(),
-            Uuid.random().digest(),
+            id == null ? K128.random().digest() : id,
+            K128.random().digest(),
+            K128.random().digest(),
             expiresIn,
             BigInteger.valueOf(expirationTime.getEpochSecond())
         );
@@ -174,7 +189,8 @@ class LambdasTest {
         return new MediaIds(Arrays.asList(albumTrackIds));
     }
 
-    private static AlbumTrackIds album(Uuid albumId, Uuid... tracks) {
+    @SafeVarargs
+    private static AlbumTrackIds album(Hash<K128> albumId, Hash<K128>... tracks) {
         return new AlbumTrackIds(albumId, Arrays.asList(tracks));
     }
 
@@ -202,7 +218,7 @@ class LambdasTest {
                 new LeasesData(
                     userId,
                     firstToken,
-                    album2
+                    album2.digest()
                 )
             ))).isEmpty();
         }
@@ -219,7 +235,7 @@ class LambdasTest {
             tick(1, 4, leaseDuration);
 
             assertThat(leasesDispatcher.requestLease(
-                new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2)))
+                new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2.digest())))
             ).hasValueSatisfying(activation -> {
                 assertThat(activation.token()).isEqualTo(firstToken);
                 assertThat(activation.trackUUIDs()).describedAs(
@@ -227,9 +243,9 @@ class LambdasTest {
                     "UUID %s",
                     album2
                 ).containsExactly(
-                    track2a,
-                    track2b,
-                    track2c
+                    track2a.digest(),
+                    track2b.digest(),
+                    track2c.digest()
                 );
             });
 
@@ -245,9 +261,9 @@ class LambdasTest {
                         "UUID %s",
                         album2
                     ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
+                        track2a.digest(),
+                        track2b.digest(),
+                        track2c.digest()
                     );
                 });
 
@@ -261,16 +277,16 @@ class LambdasTest {
                     .map(LeasesActivation::token)
                     .orElseThrow();
             assertThat(leasesDispatcher.requestLease(
-                new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2))
+                new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2.digest()))
             )).hasValueSatisfying(result -> {
                 assertThat(result.token()).isEqualTo(firstToken);
                 assertThat(result.trackUUIDs()).describedAs(
                     "Expected two tracks and definitely not album UUID %s",
                     album2
                 ).containsExactly(
-                    track2a,
-                    track2b,
-                    track2c
+                    track2a.digest(),
+                    track2b.digest(),
+                    track2c.digest()
                 );
             });
 
@@ -282,9 +298,9 @@ class LambdasTest {
                     "Expected three tracks and definitely not album UUID %s",
                     album2
                 ).containsExactly(
-                    track2a,
-                    track2b,
-                    track2c
+                    track2a.digest(),
+                    track2b.digest(),
+                    track2c.digest()
                 );
             });
 
@@ -302,13 +318,20 @@ class LambdasTest {
             var firstToken =
                 leasesDispatcher.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
+                    .<Hash<K128>>map(Hash::from)
                     .orElseThrow();
-            leasesDispatcher.requestLease(new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2)));
+            leasesDispatcher.requestLease(new LeasesRequest(
+                ACQUIRE, new LeasesData(
+                userId,
+                firstToken.digest(),
+                album2.digest()
+            )
+            ));
             var track = new Track(track2b, Track.Format.M4A);
             var trackRange = new TrackRange(track, new Range(0L, 10L), firstToken);
 
             assertThat(kudu.library(firstToken)).isPresent();
-            assertThat(kudu.library(Uuid.random())).isNotPresent();
+            assertThat(kudu.library(K128.random())).isNotPresent();
 
             tick(Duration.ofDays(1));
 
@@ -332,7 +355,7 @@ class LambdasTest {
         @Test
         void rejectStrangers() {
             setupDispatcher();
-            assertThat(leasesDispatcher.createLease(authResponse(Uuid.random().digest()))).isEmpty();
+            assertThat(leasesDispatcher.createLease(authResponse(K128.random().digest()))).isEmpty();
         }
 
         @Test
@@ -371,7 +394,7 @@ class LambdasTest {
                         new LeasesData(
                             userId,
                             result.token(),
-                            album1
+                            album1.digest()
                         )
                     );
                     assertThat(leasesDispatcher.requestLease(leasesRequest))
@@ -379,7 +402,10 @@ class LambdasTest {
                             assertThat(requestResult.trackUUIDs()).describedAs(
                                 "Expected two tracks and definitely not album UUID %s",
                                 album1
-                            ).containsExactly(track1a, track1b));
+                            ).containsExactly(
+                                track1a.digest(),
+                                track1b.digest()
+                            ));
                 });
             }
 
@@ -401,7 +427,7 @@ class LambdasTest {
                     new LeasesData(
                         userId,
                         firstToken,
-                        album2
+                        album2.digest()
                     )
                 ))).hasValueSatisfying(result -> {
                     assertThat(result.token()).isEqualTo(firstToken);
@@ -410,9 +436,9 @@ class LambdasTest {
                         "UUID %s",
                         album2
                     ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
+                        track2a.digest(),
+                        track2b.digest(),
+                        track2c.digest()
                     );
                 });
                 assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
@@ -422,9 +448,9 @@ class LambdasTest {
                         "UUID %s",
                         album2
                     ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
+                        track2a.digest(),
+                        track2b.digest(),
+                        track2c.digest()
                     );
                 });
             }
@@ -440,7 +466,7 @@ class LambdasTest {
                     new LeasesData(
                         userId,
                         firstToken,
-                        album2
+                        album2.digest()
                     )
                 ))).hasValueSatisfying(result -> {
                     assertThat(result.token()).isEqualTo(firstToken);
@@ -449,9 +475,9 @@ class LambdasTest {
                         "UUID %s",
                         album2
                     ).containsExactly(
-                        track2a,
-                        track2b,
-                        track2c
+                        track2a.digest(),
+                        track2b.digest(),
+                        track2c.digest()
                     );
                 });
 
@@ -460,7 +486,7 @@ class LambdasTest {
                     new LeasesData(
                         userId,
                         firstToken,
-                        album2
+                        album2.digest()
                     )
                 ))).hasValueSatisfying(result ->
                     assertThat(result.trackUUIDs()).isEmpty());
@@ -470,21 +496,26 @@ class LambdasTest {
             void rentAndPlay() {
                 var firstToken = leasesDispatcher.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
+                    .<Hash<K128>>map(Hash::from)
                     .orElseThrow();
                 assertThat(
                     leasesDispatcher.requestLease(new LeasesRequest(
                         ACQUIRE,
                         new LeasesData(
                             userId,
-                            firstToken,
-                            album2
+                            firstToken.digest(),
+                            album2.digest()
                         )
                     ))
                 ).hasValueSatisfying(result ->
                     assertThat(result.trackUUIDs()).hasSize(3));
 
                 var track = new Track(track2b, Track.Format.M4A);
-                var trackRange = new TrackRange(track, new Range(0L, 10L).withLength(256L), firstToken);
+                var trackRange = new TrackRange(
+                    track,
+                    new Range(0L, 10L).withLength(256L),
+                    firstToken
+                );
 
                 assertThat(kudu.audioBytes(trackRange)).hasValueSatisfying(audioBytes -> {
                     assertThat(audioBytes.chunk()).isEqualTo(new Chunk("m4a", 0L, 10L, 256L));

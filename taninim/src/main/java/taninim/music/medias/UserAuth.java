@@ -1,29 +1,24 @@
 package taninim.music.medias;
 
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
+import taninim.util.Maps;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
-import com.github.kjetilv.uplift.uuid.Uuid;
-import taninim.util.Maps;
-
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static com.github.kjetilv.uplift.kernel.io.BytesIO.*;
 import static java.util.Objects.requireNonNull;
 
 public record UserAuth(
     String userId,
     Instant expiry,
-    Uuid token,
+    Hash<K128> token,
     List<AlbumLease> albumLeases
 ) implements BinaryWritable, Comparable<UserAuth> {
 
@@ -31,11 +26,11 @@ public record UserAuth(
         try {
             var userId = readString(input);
             var time = readInstant(input);
-            var token = readUuid(input);
+            var token = Hash.of(input, K128);
             var count = input.readInt();
             List<AlbumLease> albumLeases = new ArrayList<>(count);
             for (var i = 0; i < count; i++) {
-                var uuid = readUuid(input);
+                var uuid = Hash.of(input, K128);
                 var expiry = readInstant(input);
                 albumLeases.add(new AlbumLease(uuid, expiry));
             }
@@ -53,10 +48,10 @@ public record UserAuth(
         this(userId, expiry, null, albumLeases);
     }
 
-    public UserAuth(String userId, Instant expiry, Uuid token, List<AlbumLease> albumLeases) {
+    public UserAuth(String userId, Instant expiry, Hash<K128> token, List<AlbumLease> albumLeases) {
         this.userId = requireNonNull(userId, "userId");
         this.expiry = requireNonNull(expiry, "expiry");
-        this.token = token == null ? Uuid.random() : token;
+        this.token = token == null ? K128.random() : token;
         if (this.userId.isBlank()) {
             throw new IllegalArgumentException(this + ": No user id");
         }
@@ -69,7 +64,7 @@ public record UserAuth(
     public int writeTo(DataOutput output) {
         return writeString(output, userId) +
                writeInstant(output, expiry) +
-               writeUuid(output, token) +
+               writeHash128(output, token) +
                writeWritables(output, albumLeases);
     }
 
@@ -93,9 +88,11 @@ public record UserAuth(
     public UserAuth combine(UserAuth update) {
         if (matches(update)) {
             var combinedAlbumLeases = Stream.concat(
-                albumLeases.stream(),
-                update.albumLeases().stream()
-            ).toList();
+                    albumLeases.stream(),
+                    update.albumLeases()
+                        .stream()
+                )
+                .toList();
             var newestAlbumLeases = Maps.groupBy(combinedAlbumLeases, AlbumLease::albumId)
                 .values()
                 .stream()
@@ -116,8 +113,11 @@ public record UserAuth(
 
     public UserAuth without(UserAuth userAuth) {
         if (matches(userAuth)) {
-            Collection<Uuid> clearedUuids =
-                userAuth.albumLeases().stream().map(AlbumLease::albumId).collect(Collectors.toSet());
+            Collection<Hash<K128>> clearedUuids =
+                userAuth.albumLeases()
+                    .stream()
+                    .map(AlbumLease::albumId)
+                    .collect(Collectors.toSet());
             return new UserAuth(
                 userId,
                 expiry,
@@ -144,21 +144,21 @@ public record UserAuth(
     }
 
     public record AlbumLease(
-        Uuid albumId,
+        Hash<K128> albumId,
         Instant expiry
     ) implements BinaryWritable {
 
-        public AlbumLease(Uuid albumId, Instant expiry) {
+        public AlbumLease(Hash<K128> albumId, Instant expiry) {
             this.albumId = requireNonNull(albumId, "albumId");
             this.expiry = requireNonNull(expiry, "expiry");
         }
 
         @Override
         public int writeTo(DataOutput dos) {
-            return writeUuid(dos, albumId) + writeEpoch(dos, expiry);
+            return writeHash128(dos, albumId) + writeEpoch(dos, expiry);
         }
 
-        public boolean isFor(Uuid uuid) {
+        public boolean isFor(Hash<K128> uuid) {
             return albumId.equals(uuid);
         }
 

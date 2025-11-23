@@ -1,5 +1,5 @@
 dependencies {
-    implementation("com.github.kjetilv.uplift:uplift-uuid:0.1.1-SNAPSHOT")
+    implementation("com.github.kjetilv.uplift:uplift-hash:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-json:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-json-anno:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-json-gen:0.1.1-SNAPSHOT")
@@ -11,12 +11,4 @@ dependencies {
     }
 
     annotationProcessor("com.github.kjetilv.uplift:uplift-json-gen:0.1.1-SNAPSHOT")
-}
-
-tasks.compileJava {
-    options.compilerArgs.addAll(
-        listOf(
-            "--add-reads", "taninim.fb=ALL-UNNAMED"
-        )
-    )
 }
