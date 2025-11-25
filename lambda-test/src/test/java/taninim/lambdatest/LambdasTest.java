@@ -28,8 +28,8 @@ import taninim.yellin.*;
 
 import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static org.assertj.core.api.Assertions.assertThat;
-import static taninim.yellin.LeasesRequest.Op.ACQUIRE;
-import static taninim.yellin.LeasesRequest.Op.RELEASE;
+import static taninim.yellin.Operation.ACQUIRE;
+import static taninim.yellin.Operation.RELEASE;
 
 @SuppressWarnings("MagicNumber")
 class LambdasTest {

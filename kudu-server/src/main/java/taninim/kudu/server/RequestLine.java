@@ -26,9 +26,8 @@ record RequestLine(Track track, Hash<K128> token) {
         }
         var queryStart = queryIndex + "?t=".length();
         return tailString(request, queryStart)
-            .flatMap(Hash::<K128>maybe)
-            .map(uuid ->
-                new RequestLine(track, uuid));
+            .map(Hash::<K128>from)
+            .map(uuid -> new RequestLine(track, uuid));
     }
 
     private static String path(String request) {
