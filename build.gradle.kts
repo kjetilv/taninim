@@ -47,9 +47,14 @@ subprojects {
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
+    tasks.withType<JavaCompile>().all {
+        options.compilerArgs.add("--enable-preview")
+    }
+
     tasks {
         withType<Test>().all {
             useJUnitPlatform()
+            jvmArgs("--enable-preview")
         }
     }
 }
