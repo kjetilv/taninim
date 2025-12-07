@@ -9,7 +9,7 @@ import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
 import taninim.music.legal.S3Archives;
 
-import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
+import static com.github.kjetilv.uplift.asynchttp.AsyncServerRunner.create;
 
 public record ServerKudu(Parameters parameters) implements Runnable {
 
@@ -26,7 +26,7 @@ public record ServerKudu(Parameters parameters) implements Runnable {
 
         var mediaLibrary = CloudMediaLibrary.create(s3Accessor, Time.utcSupplier());
 
-        var handler = KuduChannelHandler.create(
+        var handler = KuduAsyncChannelHandler.create(
             new DefaultKudu(
                 leasesRegistry,
                 mediaLibrary,

@@ -2,7 +2,7 @@ package taninim.yellin.server;
 
 import module java.base;
 import com.github.kjetilv.uplift.asynchttp.BufferState;
-import com.github.kjetilv.uplift.asynchttp.ChannelHandler;
+import com.github.kjetilv.uplift.asynchttp.AsyncChannelHandler;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.util.Time;
@@ -10,7 +10,7 @@ import taninim.fb.DefaultFbAuthenticator;
 import taninim.yellin.Yellin;
 
 import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
-import static com.github.kjetilv.uplift.asynchttp.ServerRunner.create;
+import static com.github.kjetilv.uplift.asynchttp.AsyncServerRunner.create;
 
 public record ServerYellin(Map<String, String> parameters) implements Runnable {
 
@@ -20,7 +20,7 @@ public record ServerYellin(Map<String, String> parameters) implements Runnable {
     public void run() {
         var executorService = Executors.newVirtualThreadPerTaskExecutor();
         var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
-        ChannelHandler<BufferState, YellinChannelHandler> handler = new YellinChannelHandler(
+        AsyncChannelHandler<BufferState, YellinAsyncChannelHandler> handler = new YellinAsyncChannelHandler(
             Yellin.leasesDispatcher(
                 s3Accessor,
                 Time.UTC_CLOCK::instant,

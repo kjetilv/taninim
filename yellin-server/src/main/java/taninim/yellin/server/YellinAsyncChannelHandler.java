@@ -14,13 +14,13 @@ import taninim.yellin.LeasesRequest;
 import static java.util.Objects.requireNonNull;
 
 @SuppressWarnings("LoggingSimilarMessage")
-class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandler> {
+class YellinAsyncChannelHandler extends BufferStateAsyncChannelHandler<YellinAsyncChannelHandler> {
 
-    private static final Logger log = LoggerFactory.getLogger(YellinChannelHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(YellinAsyncChannelHandler.class);
 
     private final LeasesDispatcher leasesDispatcher;
 
-    YellinChannelHandler(
+    YellinAsyncChannelHandler(
         LeasesDispatcher leasesDispatcher,
         AsynchronousByteChannel channel,
         int maxRequestLength,
@@ -31,8 +31,8 @@ class YellinChannelHandler extends BufferStateChannelHandler<YellinChannelHandle
     }
 
     @Override
-    public YellinChannelHandler bind(AsynchronousByteChannel channel) {
-        return new YellinChannelHandler(
+    public YellinAsyncChannelHandler bind(AsynchronousByteChannel channel) {
+        return new YellinAsyncChannelHandler(
             leasesDispatcher,
             requireNonNull(channel, "channel"),
             maxRequestLength(),

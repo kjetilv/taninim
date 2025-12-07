@@ -9,28 +9,28 @@ import taninim.kudu.TrackRange;
 import taninim.music.aural.Chunk;
 
 import static com.github.kjetilv.uplift.asynchttp.Processing.*;
-final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, KuduChannelHandler> {
+final class KuduAsyncChannelHandler extends AbstractAsyncChannelHandler<StreamingState, KuduAsyncChannelHandler> {
 
-    private static final Logger log = LoggerFactory.getLogger(KuduChannelHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(KuduAsyncChannelHandler.class);
 
-    static ChannelHandler<StreamingState, KuduChannelHandler> create(
+    static AsyncChannelHandler<StreamingState, KuduAsyncChannelHandler> create(
         Kudu kudu,
         int maxRequestLength,
         int bufferSize,
         Supplier<Instant> time
     ) {
-        return new KuduChannelHandler(kudu, maxRequestLength, bufferSize, time);
+        return new KuduAsyncChannelHandler(kudu, maxRequestLength, bufferSize, time);
     }
 
     private final Kudu kudu;
 
     private final int bufferSize;
 
-    private KuduChannelHandler(Kudu kudu, int maxRequestLength, int bufferSize, Supplier<Instant> time) {
+    private KuduAsyncChannelHandler(Kudu kudu, int maxRequestLength, int bufferSize, Supplier<Instant> time) {
         this(kudu, null, maxRequestLength, bufferSize, time);
     }
 
-    private KuduChannelHandler(
+    private KuduAsyncChannelHandler(
         Kudu kudu,
         AsynchronousByteChannel channel,
         int maxRequestLength,
@@ -48,8 +48,8 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
     }
 
     @Override
-    public KuduChannelHandler bind(AsynchronousByteChannel channel) {
-        return new KuduChannelHandler(kudu, channel, maxRequestLength(), bufferSize, clock());
+    public KuduAsyncChannelHandler bind(AsynchronousByteChannel channel) {
+        return new KuduAsyncChannelHandler(kudu, channel, maxRequestLength(), bufferSize, clock());
     }
 
     @Override
@@ -91,14 +91,14 @@ final class KuduChannelHandler extends AbstractChannelHandler<StreamingState, Ku
         log.debug("Accepted request: {}", trackRange);
         return kudu.audioStream(trackRange).map(streamable ->
                 transferAudio(state, streamable.chunk(), streamable.stream()))
-            .map(KuduChannelHandler::complete);
+            .map(KuduAsyncChannelHandler::complete);
     }
 
     private Optional<Processing> handleLibrary(StreamingState state, ReceivedRequest receivedRequest) {
         var token = receivedRequest.libraryRequest().token();
         return kudu.libraryStream(token).map(library ->
                 transferLibrary(state, library))
-            .map(KuduChannelHandler::complete);
+            .map(KuduAsyncChannelHandler::complete);
     }
 
     private StreamingState transferLibrary(StreamingState streamingState, Kudu.Library library) {
