@@ -41,7 +41,7 @@ subprojects {
 
         testImplementation("org.junit.jupiter:junit-jupiter-api")
         testImplementation("org.junit.jupiter:junit-jupiter")
-        testImplementation("org.assertj:assertj-core:3.27.4")
+        testImplementation("org.assertj:assertj-core:3.27.6")
 
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -51,11 +51,9 @@ subprojects {
         options.compilerArgs.addAll(listOf("--enable-preview", "--add-modules", "jdk.incubator.vector"))
     }
 
-    tasks {
-        withType<Test>().all {
-            useJUnitPlatform()
-            jvmArgs("--enable-preview")
-        }
+    tasks.withType<Test>().all {
+        useJUnitPlatform()
+        jvmArgs("--enable-preview", "--add-modules", "jdk.incubator.vector")
     }
 }
 
