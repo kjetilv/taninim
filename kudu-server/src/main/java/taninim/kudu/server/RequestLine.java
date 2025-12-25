@@ -31,7 +31,7 @@ record RequestLine(Track track, Hash<K128> token) {
     }
 
     private static String path(String request) {
-        int queryIndex = request.indexOf("?t=");
+        var queryIndex = request.indexOf("?t=");
         return queryIndex < 0
             ? request
             : request.substring(0, queryIndex);
