@@ -66,14 +66,14 @@ public record MemoryS3(
         if (remoteName.startsWith("auth-digest")) {
             try (var input = new DataInputStream(new ByteArrayInputStream(bytes))) {
                 return UserAuths.from(input).toString();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         }
         if (remoteName.startsWith("media-digest")) {
             try (var input = new DataInputStream(new ByteArrayInputStream(bytes))) {
                 return MediaIds.from(input).toString();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         }
