@@ -1,6 +1,8 @@
 package taninim.yellin.server;
 
 import module java.base;
+import com.github.kjetilv.uplift.asynchttp.rere.HttpRequest;
+import com.github.kjetilv.uplift.json.FieldEvents;
 import com.github.kjetilv.uplift.json.JsonReader;
 import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
 import org.slf4j.Logger;
@@ -31,6 +33,10 @@ final class YellinRequests {
             log.warn("Failed to read auth request: {}", requestBuffer, e);
             return Optional.empty();
         }
+    }
+
+    public static Optional<YellinRequest> read(HttpRequest httpReq) {
+        return null;
     }
 
     private YellinRequests() {
