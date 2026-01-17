@@ -1,7 +1,10 @@
 package taninim.yellin.server;
 
 import module java.base;
-import com.github.kjetilv.uplift.asynchttp.*;
+import com.github.kjetilv.uplift.asynchttp.HttpSyncHandler;
+import com.github.kjetilv.uplift.asynchttp.Processing;
+import com.github.kjetilv.uplift.asynchttp.Writable;
+import com.github.kjetilv.uplift.asynchttp.WritableBuffer;
 import com.github.kjetilv.uplift.asynchttp.rere.HttpRequest;
 import com.github.kjetilv.uplift.asynchttp.rere.HttpResponse;
 import com.github.kjetilv.uplift.json.JsonWriter;
@@ -14,7 +17,6 @@ import taninim.yellin.LeasesDispatcher;
 import taninim.yellin.LeasesRequest;
 
 import static com.github.kjetilv.uplift.asynchttp.Processing.*;
-import static java.util.Objects.requireNonNull;
 
 @SuppressWarnings("LoggingSimilarMessage")
 class YellinSyncChannelHandler implements HttpSyncHandler.Server {
@@ -37,15 +39,14 @@ class YellinSyncChannelHandler implements HttpSyncHandler.Server {
             .map(this::processing)
             .map(response -> )
         return new HttpResponse(
-            switch (processing) {
+            , switch (processing) {
                 case REJECTED -> 400;
                 case FAIL -> 500;
                 case OK -> 200;
                 case INCOMPLETE -> 100;
             },
 
-
-        );
+            );
     }
 
     private HttpResponse processing(YellinRequest request) {
