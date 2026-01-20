@@ -1,21 +1,25 @@
 package taninim.yellin.server;
 
 import module java.base;
-import com.github.kjetilv.uplift.asynchttp.rere.HttpRequest;
-import com.github.kjetilv.uplift.json.FieldEvents;
 import com.github.kjetilv.uplift.json.JsonReader;
 import com.github.kjetilv.uplift.kernel.io.ByteBuffers;
+import com.github.kjetilv.uplift.synchttp.req.HttpReq;
+import com.github.kjetilv.uplift.synchttp.req.QueryParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
+import taninim.yellin.LeasesData;
+import taninim.yellin.LeasesDataRW;
 import taninim.yellin.LeasesRequest;
 
 import static taninim.util.ParseBits.tailString;
+import static taninim.yellin.Operation.ACQUIRE;
+import static taninim.yellin.Operation.RELEASE;
 
 final class YellinRequests {
 
-    public static final Logger log = LoggerFactory.getLogger(YellinRequests.class);
+    private static final Logger log = LoggerFactory.getLogger(YellinRequests.class);
 
     public static final JsonReader<String, ExtAuthResponse> EXT_AUTH_READER =
         ExtAuthResponseRW.INSTANCE.stringReader();
@@ -35,8 +39,44 @@ final class YellinRequests {
         }
     }
 
-    public static Optional<YellinRequest> read(HttpRequest httpReq) {
-        return null;
+    public static Optional<YellinRequest> read(HttpReq httpReq) {
+        var requestLine = httpReq.reqLine();
+        var body = httpReq.body();
+        return switch (httpReq.method()) {
+            case POST -> {
+                var length = httpReq.contentLength();
+                if (requestLine.urlPrefixed("/auth")) {
+                    yield Optional.of(new YellinRequest.Auth(
+                        ExtAuthResponseRW.INSTANCE.channelReader(length).read(body)
+                    ));
+                }
+                if (requestLine.urlPrefixed("/lease")) {
+                    yield Optional.of(new YellinRequest.Lease(
+                        new LeasesRequest(
+                            ACQUIRE,
+                            LeasesDataRW.INSTANCE.channelReader(length).read(body)
+                        )));
+                }
+                yield Optional.empty();
+            }
+            case DELETE -> {
+                if (httpReq.queryParameters() instanceof QueryParameters qps &&
+                    qps.par("userId") instanceof String userId &&
+                    qps.par("token") instanceof String token &&
+                    qps.par("album") instanceof String album) {
+                    yield Optional.of(new YellinRequest.Lease(new LeasesRequest(
+                        RELEASE,
+                        new LeasesData(userId, token, album)
+                    )));
+                }
+                yield Optional.empty();
+            }
+            case OPTIONS, HEAD -> Optional.of(YellinRequest.PREFLIGHT_REQ);
+            case GET -> requestLine.urlPrefixed("/health")
+                ? Optional.of(YellinRequest.HEALTH_REQ)
+                : Optional.empty();
+            case null, default -> Optional.empty();
+        };
     }
 
     private YellinRequests() {

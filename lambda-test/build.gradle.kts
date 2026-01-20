@@ -4,6 +4,7 @@ dependencies {
     implementation("com.github.kjetilv.uplift:uplift-flogs:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-s3:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-asynchttp:0.1.1-SNAPSHOT")
+    implementation("com.github.kjetilv.uplift:uplift-synchttp:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-json:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-json-gen:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-lambda:0.1.1-SNAPSHOT")

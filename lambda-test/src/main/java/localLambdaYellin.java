@@ -1,7 +1,7 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
-import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
+import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
@@ -21,7 +21,7 @@ void main() {
 
     var logger = LoggerFactory.getLogger("LocalLambdaYellin");
 
-    var settings = new LocalLambdaSettings(
+    var settings = new FlambdaSettings(
         9001,
         8081,
         8 * 8192,

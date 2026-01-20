@@ -1,7 +1,7 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
-import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
+import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -35,7 +35,7 @@ void main() {
         List.of("content-type")
     );
     var kuduLocalLambda = new LocalLambda(
-        new LocalLambdaSettings(
+        new FlambdaSettings(
             9002,
             8080,
             K * K * 2,
@@ -60,7 +60,7 @@ void main() {
 
     var yellinSize = 8 * K;
     var yellinLocalLambda = new LocalLambda(
-        new LocalLambdaSettings(
+        new FlambdaSettings(
             9001,
             8081,
             yellinSize * 2,

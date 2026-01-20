@@ -1,7 +1,8 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
-import com.github.kjetilv.uplift.flambda.LocalLambdaSettings;
+import com.github.kjetilv.uplift.flambda.FlambdaSettings;
+import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -9,8 +10,12 @@ import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
 import taninim.kudu.KuduLambdaHandler;
 
+import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
+
 @SuppressWarnings({"MagicNumber"})
 void main() {
+    initialize(LogLevel.DEBUG);
+
     var corsSettings = new CorsSettings(
         List.of("https://kjetilv.github.io"),
         List.of("GET"),
@@ -18,7 +23,7 @@ void main() {
     );
 
     Supplier<Instant> clock = Clock.systemUTC()::instant;
-    var settings = new LocalLambdaSettings(
+    var settings = new FlambdaSettings(
         9002,
         8080,
         8 * 8192,

@@ -1,6 +1,6 @@
 package taninim.kudu.server;
 
-import static com.github.kjetilv.uplift.asynchttp.MainSupport.*;
+import static com.github.kjetilv.uplift.util.MainSupport.*;
 
 public record Parameters(int port, int buffer, boolean server) {
 
