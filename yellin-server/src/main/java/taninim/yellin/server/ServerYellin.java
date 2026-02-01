@@ -19,8 +19,6 @@ public record ServerYellin(Map<String, String> parameters) implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(ServerYellin.class);
 
-    public static final int PORT_80 = 80;
-
     @Override
     public void run() {
         var s3Accessor = S3Accessor.fromEnvironment(
@@ -52,6 +50,6 @@ public record ServerYellin(Map<String, String> parameters) implements Runnable {
     }
 
     private int resolvePort() {
-        return validatePort(possibleIntArg(parameters, "port").orElse(PORT_80));
+        return validatePort(possibleIntArg(parameters, "port").orElse(8080));
     }
 }

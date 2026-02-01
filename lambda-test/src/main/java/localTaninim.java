@@ -1,5 +1,6 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
@@ -34,26 +35,25 @@ void main() {
         List.of("POST", "DELETE"),
         List.of("content-type")
     );
-    var kuduLocalLambda = new LocalLambda(
+    var flambda = new Flambda(
         new FlambdaSettings(
-            9002,
-            8080,
-            K * K * 2,
+            8082,
+            9003,
+            K * K,
             10,
             kuduCors,
             time
-        )
-    );
+        ));
 
-    var kuduClientSettings =
-        new LambdaClientSettings(ENV, utcSupplier());
+    var kuduClientSettings = new LambdaClientSettings(ENV, utcSupplier());
+
     var kudu = KuduLambdaHandler.create(
         kuduClientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV)
     );
     var kuduLambdaManaged = Lambda.managed(
-        kuduLocalLambda.getLambdaUri(),
+        flambda.lambdaUri(),
         kuduClientSettings,
         kudu
     );
@@ -87,7 +87,6 @@ void main() {
 
     try (var executor = Executors.newFixedThreadPool(4)) {
         List.of(
-                kuduLocalLambda,
                 yellinLocalLambda,
                 kuduLambdaManaged,
                 yellinLamdbdaManaged

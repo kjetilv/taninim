@@ -1,5 +1,6 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
@@ -34,7 +35,7 @@ void main() {
         Time.utcSupplier()
     );
 
-    var localLambda = new LocalLambda(settings);
+    var flambda = new Flambda(settings);
 
     var clientSettings =
         new LambdaClientSettings(Env.actual(), Time.utcSupplier());
@@ -53,12 +54,11 @@ void main() {
     );
 
     var lamdbdaManaged = Lambda.managed(
-        localLambda.getLambdaUri(),
+        flambda.lambdaUri(),
         clientSettings,
         yellin
     );
     try (var executor = Executors.newFixedThreadPool(2)) {
-        executor.submit(localLambda);
         executor.submit(lamdbdaManaged);
         logger.info("Started");
     }

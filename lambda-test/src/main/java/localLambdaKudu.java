@@ -1,5 +1,6 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
@@ -32,7 +33,7 @@ void main() {
         clock
     );
 
-    var localLambda = new LocalLambda(settings);
+    var flambda = new Flambda(settings);
     var clientSettings = new LambdaClientSettings(ENV, clock);
     var taninimSettings = new TaninimSettings(
         Duration.ofDays(1),
@@ -46,10 +47,9 @@ void main() {
     );
 
     var lamdbdaManaged =
-        Lambda.managed(localLambda.getLambdaUri(), clientSettings, handler);
+        Lambda.managed(flambda.lambdaUri(), clientSettings, handler);
 
     try (var executor = Executors.newFixedThreadPool(2)) {
-        executor.submit(localLambda);
         executor.submit(lamdbdaManaged);
     }
 }

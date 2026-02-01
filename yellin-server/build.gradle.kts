@@ -16,6 +16,4 @@ dependencies {
     implementation(project(":taninim"))
     implementation(project(":yellin"))
     implementation(project(":fb"))
-
-    testImplementation("com.github.kjetilv.uplift:uplift-asynchttp:0.1.1-SNAPSHOT")
 }
