@@ -1,7 +1,6 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.CorsSettings;
 import com.github.kjetilv.uplift.flambda.Flambda;
-import com.github.kjetilv.uplift.flambda.LocalLambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
@@ -35,7 +34,7 @@ void main() {
         List.of("POST", "DELETE"),
         List.of("content-type")
     );
-    var flambda = new Flambda(
+    var kuduFlambda = new Flambda(
         new FlambdaSettings(
             8082,
             9003,
@@ -53,13 +52,13 @@ void main() {
         S3AccessorFactory.defaultFactory(ENV)
     );
     var kuduLambdaManaged = Lambda.managed(
-        flambda.lambdaUri(),
+        kuduFlambda.lambdaUri(),
         kuduClientSettings,
         kudu
     );
 
     var yellinSize = 8 * K;
-    var yellinLocalLambda = new LocalLambda(
+    var yellinFlambda = new Flambda(
         new FlambdaSettings(
             9001,
             8081,
@@ -80,14 +79,15 @@ void main() {
         new DefaultFbAuthenticator()
     );
     var yellinLamdbdaManaged = Lambda.managed(
-        yellinLocalLambda.getLambdaUri(),
+        yellinFlambda.lambdaUri(),
         yellinClientSettings,
         yellin
     );
 
     try (var executor = Executors.newFixedThreadPool(4)) {
         List.of(
-                yellinLocalLambda,
+                kuduFlambda,
+                yellinFlambda,
                 kuduLambdaManaged,
                 yellinLamdbdaManaged
             )

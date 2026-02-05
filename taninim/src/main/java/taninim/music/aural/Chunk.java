@@ -56,6 +56,10 @@ public record Chunk(String format, long start, long end, long totalSize) {
         return end - start;
     }
 
+    public String contentType() {
+        return "audio/" + format();
+    }
+
     private String rangeRequest() {
         return start + "-" + (end - 1);
     }
