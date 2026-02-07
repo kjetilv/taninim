@@ -387,26 +387,21 @@ class LambdasTest {
 
             @Test
             void lookupExisting() {
-                assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
-                    assertThat(result.trackUUIDs()).isEmpty();
-                    var leasesRequest = new LeasesRequest(
-                        ACQUIRE,
-                        new LeasesData(
-                            userId,
-                            result.token(),
-                            album1.digest()
-                        )
-                    );
-                    assertThat(leasesDispatcher.requestLease(leasesRequest))
-                        .hasValueSatisfying(requestResult ->
-                            assertThat(requestResult.trackUUIDs()).describedAs(
-                                "Expected two tracks and definitely not album UUID %s",
-                                album1
-                            ).containsExactly(
-                                track1a.digest(),
-                                track1b.digest()
-                            ));
-                });
+                assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                    .hasValueSatisfying(result -> {
+                        assertThat(result.trackUUIDs()).isEmpty();
+                        var leasesData = new LeasesData(userId, result.token(), album1.digest());
+                        var leasesRequest = new LeasesRequest(ACQUIRE, leasesData);
+                        assertThat(leasesDispatcher.requestLease(leasesRequest))
+                            .hasValueSatisfying(requestResult ->
+                                assertThat(requestResult.trackUUIDs()).describedAs(
+                                    "Expected two tracks and definitely not album UUID %s",
+                                    album1
+                                ).containsExactly(
+                                    track1a.digest(),
+                                    track1b.digest()
+                                ));
+                    });
             }
 
             @Test
@@ -494,27 +489,30 @@ class LambdasTest {
 
             @Test
             void rentAndPlay() {
-                var firstToken = leasesDispatcher.createLease(authResponse(userId))
+                var extAuthResponse = authResponse(userId);
+
+                var lease = leasesDispatcher.createLease(extAuthResponse);
+
+                var activationToken = lease
                     .map(LeasesActivation::token)
                     .<Hash<K128>>map(Hash::from)
                     .orElseThrow();
-                assertThat(
-                    leasesDispatcher.requestLease(new LeasesRequest(
-                        ACQUIRE,
-                        new LeasesData(
-                            userId,
-                            firstToken.digest(),
-                            album2.digest()
-                        )
-                    ))
-                ).hasValueSatisfying(result ->
-                    assertThat(result.trackUUIDs()).hasSize(3));
+
+                var leasesData = new LeasesData(userId, activationToken.digest(), album2.digest());
+
+                var leasesRequest = new LeasesRequest(ACQUIRE, leasesData);
+
+                var leasesActivation = leasesDispatcher.requestLease(leasesRequest);
+
+                assertThat(leasesActivation)
+                    .hasValueSatisfying(result ->
+                        assertThat(result.trackUUIDs()).hasSize(3));
 
                 var track = new Track(track2b, Track.Format.M4A);
                 var trackRange = new TrackRange(
                     track,
                     new Range(0L, 10L).withLength(256L),
-                    firstToken
+                    activationToken
                 );
 
                 assertThat(kudu.audioBytes(trackRange)).hasValueSatisfying(audioBytes -> {

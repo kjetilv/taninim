@@ -61,11 +61,13 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
         return authorizer.login(leasesRequest.leasesData().userId(), false)
             .filter(userAuth ->
                 userAuth.validAt(time))
-            .flatMap(_ ->
-                authorizer.authorize(userRequest(leasesRequest))
+            .flatMap(_ -> {
+                var userRequest = userRequest(leasesRequest);
+                return authorizer.authorize(userRequest)
                     .map(authorized ->
                         requestedActivation(authorized, leasesRequest, time))
-                    .map(this::storeActivated));
+                    .map(this::storeActivated);
+            });
     }
 
     @Override
@@ -151,7 +153,8 @@ public class DefaultLeasesDispatcher implements LeasesDispatcher {
         if (auth == null) {
             throw new IllegalArgumentException("Null auth");
         }
-        var value = mediaIds.get().albumTracks().get(auth.albumId());
+        var albumTracks = mediaIds.get().albumTracks();
+        var value = albumTracks.get(auth.albumId());
         return value == null
             ? Stream.empty()
             : value.stream();

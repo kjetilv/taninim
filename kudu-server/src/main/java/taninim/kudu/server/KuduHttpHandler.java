@@ -10,7 +10,6 @@ import taninim.kudu.Kudu;
 import taninim.kudu.TrackRange;
 
 import static com.github.kjetilv.uplift.synchttp.HttpMethod.*;
-import static com.github.kjetilv.uplift.util.Maybe.maybe;
 
 public final class KuduHttpHandler
     implements HttpCallbackProcessor.HttpHandler {
@@ -23,10 +22,10 @@ public final class KuduHttpHandler
 
     @Override
     public void handle(HttpReq httpReq, HttpResponseCallback callback) {
-        switch (maybe(KuduRequest.from(httpReq))) {
-            case Maybe.Just(KuduRequest.Audio(var track, var range, var token)) -> {
-                if (maybe(kudu.audioBytes(new TrackRange(track, range, token))) instanceof
-                    Maybe.Just(Kudu.AudioBytes(_, var chunk, var bytes))
+        switch (Maybe.a(KuduRequest.from(httpReq))) {
+            case Maybe.A(KuduRequest.Audio(var track, var range, var token)) -> {
+                if (Maybe.a(kudu.audioBytes(new TrackRange(track, range, token))) instanceof
+                    Maybe.A(Kudu.AudioBytes(_, var chunk, var bytes))
                 ) {
                     callback.status(206)
                         .headers(
@@ -42,18 +41,19 @@ public final class KuduHttpHandler
                     callback.status(404);
                 }
             }
-            case Maybe.Just(KuduRequest.Library(var token)) -> {
-                if (maybe(kudu.library(token)) instanceof Maybe.Just(var bytes)) {
+            case Maybe.A(KuduRequest.Library(var token)) -> {
+                if (Maybe.a(kudu.library(token)) instanceof Maybe.A(var bytes)) {
                     callback.status(200)
+                        .contentType("application/json")
                         .contentLength(bytes.length)
                         .body(bytes);
                 } else {
                     callback.status(404);
                 }
             }
-            case Maybe.Just(KuduRequest.Health()) -> callback.status(200)
+            case Maybe.A(KuduRequest.Health()) -> callback.status(200)
                 .headers("cache-control: no-cache");
-            case Maybe.Just(KuduRequest.Preflight()) -> callback.status(204)
+            case Maybe.A(KuduRequest.Preflight()) -> callback.status(204)
                 .cors(OPTIONS, GET, post(httpReq))
                 .headers(
                     "access-control-max-age: 86400",
@@ -62,7 +62,6 @@ public final class KuduHttpHandler
                 );
             case Maybe.Nothing<?> _ -> callback.status(404);
         }
-        ;
     }
 
     private static HttpMethod post(HttpReq httpReq) {
