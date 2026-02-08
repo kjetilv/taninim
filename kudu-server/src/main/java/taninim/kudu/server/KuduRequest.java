@@ -73,11 +73,7 @@ public sealed interface KuduRequest {
     record Library(Hash<HashKind.K128> token) implements KuduRequest {
     }
 
-    record Audio(
-        Track track,
-        Range range,
-        Hash<HashKind.K128> token
-    ) implements KuduRequest {
+    record Audio(Track track, Range range, Hash<HashKind.K128> token) implements KuduRequest {
     }
 
     record Preflight() implements KuduRequest {

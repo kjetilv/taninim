@@ -14,11 +14,7 @@ import static taninim.yellin.Operation.RELEASE;
 
 sealed interface YellinRequest {
 
-    YellinRequest PREFLIGHT_REQ = new Preflight();
-
-    YellinRequest HEALTH_REQ = new Health();
-
-    static Optional<YellinRequest> from(HttpReq httpReq) {
+    static Optional<? extends YellinRequest> from(HttpReq httpReq) {
         var requestLine = httpReq.reqLine();
         var body = httpReq.body();
         return switch (httpReq.method()) {
@@ -50,11 +46,11 @@ sealed interface YellinRequest {
                 }
                 yield Optional.empty();
             }
-            case OPTIONS, HEAD -> Optional.of(PREFLIGHT_REQ);
+            case OPTIONS, HEAD -> Optional.of(new Preflight());
             case GET -> requestLine.urlPrefixed("/health")
-                ? Optional.of(HEALTH_REQ)
+                ? Optional.of(new Health())
                 : Optional.empty();
-            case null, default -> Optional.empty();
+            default -> Optional.empty();
         };
     }
 
@@ -68,8 +64,5 @@ sealed interface YellinRequest {
     }
 
     record Auth(ExtAuthResponse response) implements YellinRequest {
-    }
-
-    record Unknown() implements YellinRequest {
     }
 }

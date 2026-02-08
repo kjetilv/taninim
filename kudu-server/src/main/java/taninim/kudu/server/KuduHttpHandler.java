@@ -24,10 +24,8 @@ public final class KuduHttpHandler
     public void handle(HttpReq httpReq, HttpResponseCallback callback) {
         switch (Maybe.a(KuduRequest.from(httpReq))) {
             case Maybe.A(KuduRequest.Audio(var track, var range, var token)) -> {
-                if (Maybe.a(kudu.audioBytes(new TrackRange(track, range, token))) instanceof
-                    Maybe.A(Kudu.AudioBytes(_, var chunk, var bytes))
-                ) {
-                    callback.status(206)
+                switch (Maybe.a(kudu.audioBytes(new TrackRange(track, range, token)))) {
+                    case Maybe.A(Kudu.AudioBytes(_, var chunk, var bytes)) -> callback.status(206)
                         .headers(
                             "accept-ranges: bytes",
                             "content-range: " + chunk.rangeResponseHeader(),
@@ -37,18 +35,16 @@ public final class KuduHttpHandler
                         .contentType(chunk.contentType())
                         .contentLength(chunk.length())
                         .body(bytes);
-                } else {
-                    callback.status(404);
+                    case Maybe.Nothing<?> _ -> callback.status(404);
                 }
             }
             case Maybe.A(KuduRequest.Library(var token)) -> {
-                if (Maybe.a(kudu.library(token)) instanceof Maybe.A(var bytes)) {
-                    callback.status(200)
+                switch (Maybe.a(kudu.library(token))) {
+                    case Maybe.A(var bytes) -> callback.status(200)
                         .contentType("application/json")
                         .contentLength(bytes.length)
                         .body(bytes);
-                } else {
-                    callback.status(404);
+                    case Maybe.Nothing<?> _ -> callback.status(404);
                 }
             }
             case Maybe.A(KuduRequest.Health()) -> callback.status(200)
