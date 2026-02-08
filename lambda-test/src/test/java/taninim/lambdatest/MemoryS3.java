@@ -83,5 +83,11 @@ public record MemoryS3(
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" +
+               (s3.size() > 3 ? s3.size() + " keys" : s3) +
+               "]";
+    }
 }
 

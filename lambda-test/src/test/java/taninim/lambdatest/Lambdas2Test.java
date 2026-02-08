@@ -192,11 +192,11 @@ class Lambdas2Test {
 
     @Test
     void shouldBeAbleToDropLease() {
-        var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
-        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
+        var httpResponse = authAs(userId).join();
+        var authResponse = authResponse(httpResponse.body());
+        assertThat(authResponse.trackUUIDs()).isNullOrEmpty();
 
-        var token = Hash.<K128>from(auth1.token());
+        var token = Hash.<K128>from(authResponse.token());
 
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
@@ -217,7 +217,8 @@ class Lambdas2Test {
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
 
-        assertThat(stream(token, track1a, "bytes=0-15").join().statusCode()).isEqualTo(206);
+        var response = audioStream(token, track1a, "bytes=0-15").join();
+        assertThat(response.statusCode()).isEqualTo(206);
     }
 
     @Test
@@ -233,7 +234,7 @@ class Lambdas2Test {
         IntStream.range(0, 128).mapToObj(i -> {
                 var start = i * 2;
                 var end = start + 1;
-                return stream(token, track1a, "bytes=" + start + "-" + end);
+                return audioStream(token, track1a, "bytes=" + start + "-" + end);
             })
             .forEach(action -> {
                 var response = action.join();
@@ -252,11 +253,11 @@ class Lambdas2Test {
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
 
-        assertThat(stream(token, track1a, "bytes=0-1024").join()).satisfies(response -> {
+        assertThat(audioStream(token, track1a, "bytes=0-1024").join()).satisfies(response -> {
             assertThat(response.statusCode()).isEqualTo(206);
             assertThat(response.headers().allValues("content-range")).containsExactly("bytes 0-15/256");
         });
-        assertThat(stream(token, track1a, "bytes=0-7").join()).satisfies(response -> {
+        assertThat(audioStream(token, track1a, "bytes=0-7").join()).satisfies(response -> {
             assertThat(response.statusCode()).isEqualTo(206);
             assertThat(response.headers().allValues("content-range")).containsExactly("bytes 0-7/256");
             assertThat(response.headers().firstValueAsLong("content-length")).hasValue(8L);
@@ -357,7 +358,7 @@ class Lambdas2Test {
         return yellinReqs.path("/auth").execute("POST", extAuthResponse(id));
     }
 
-    private CompletableFuture<HttpResponse<String>> stream(
+    private CompletableFuture<HttpResponse<String>> audioStream(
         Hash<K128> token,
         Hash<K128> track,
         String range
@@ -365,7 +366,9 @@ class Lambdas2Test {
         var headers = Optional.ofNullable(range)
             .map(header -> Map.of("Range", header)).orElseGet(
                 Collections::emptyMap);
-        return kuduReqs.path("/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest())).get(headers);
+        var formatted = "/audio/%1$s.m4a?t=%2$s".formatted(track.digest(), token.digest());
+        return kuduReqs.path(formatted)
+            .get(headers);
     }
 
     private void putRandomBytes(String file) {
@@ -393,7 +396,8 @@ class Lambdas2Test {
 
     private CompletableFuture<HttpResponse<String>> lease(String method, Hash<K128> token, Hash<K128> album) {
         return yellinReqs.path("/lease").execute(
-            method, LEASES_DATA_WRITER.write(
+            method,
+            LEASES_DATA_WRITER.write(
                 new LeasesData(
                     userId,
                     token.digest(),

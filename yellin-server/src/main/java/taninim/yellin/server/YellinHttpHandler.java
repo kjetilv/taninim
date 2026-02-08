@@ -74,7 +74,7 @@ public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
                 ).orElse(REJECTED);
                 case YellinRequest.Unknown unknown -> {
                     log.warn("Unhandled request: {}", unknown);
-                    yield Processing.FAIL;
+                    yield FAIL;
                 }
             };
         } catch (Exception e) {

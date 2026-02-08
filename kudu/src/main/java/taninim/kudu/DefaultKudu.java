@@ -86,4 +86,13 @@ public record DefaultKudu(
         return mediaLibrary.fileSize(trackRange.track().file()).flatMap(fileSize ->
             Chunk.create(trackRange.range().withLength(fileSize), trackRange.track().format().suffix(), transferSize));
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+               "[leasesRegistry:" + leasesRegistry +
+               " mediaLibrary:" + mediaLibrary +
+               " transferSize:" + transferSize +
+               "]";
+    }
 }

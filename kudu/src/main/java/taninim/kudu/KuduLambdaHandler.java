@@ -36,19 +36,21 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
 
     private Optional<LambdaResult> handleAudio(LambdaPayload payload, Hash<K128> token) {
         var path = payload.path("/audio/");
-        var range = payload.header("range")
-            .flatMap(Range::read)
-            .orElseGet(() ->
-                new Range(0L, DEFAULT_START_RANGE));
         return Track.parse(path)
-            .map(track ->
-                new TrackRange(track, range, token))
+            .map(track -> {
+                var range = payload.header("range")
+                    .flatMap(Range::read)
+                    .orElseGet(() ->
+                        new Range(0L, DEFAULT_START_RANGE));
+                return new TrackRange(track, range, token);
+            })
             .flatMap(kudu::audioBytes)
             .map(KuduLambdaHandler::toResult);
     }
 
     private Optional<LambdaResult> handleLibrary(Hash<K128> token) {
-        return kudu.library(token).map(KuduLambdaHandler::zippedJsonResult);
+        return kudu.library(token)
+            .map(KuduLambdaHandler::zippedJsonResult);
     }
 
     private static final int PARTIAL_RESULT = 206;

@@ -10,8 +10,11 @@ import static taninim.util.ParseBits.tailString;
 public record Track(Hash<K128> trackUUID, Format format) {
 
     public static Optional<Track> parse(String audioFile) {
-        return format(audioFile).map(format ->
-            new Track(Hash.from(audioFile), format));
+        return format(audioFile).map(format -> {
+            var endIndex = audioFile.length() - format.tail();
+            var fileName = audioFile.substring(0, endIndex);
+            return new Track(Hash.from(fileName), format);
+        });
     }
 
     public Track {
@@ -24,7 +27,7 @@ public record Track(Hash<K128> trackUUID, Format format) {
     }
 
     private static Optional<Format> format(String audioId) {
-        return tailString(audioId, K128.totalDigestLength())
+        return tailString(audioId, K128.digestLength())
             .map(Track::lc)
             .flatMap(Track::toFormat);
     }
@@ -55,6 +58,10 @@ public record Track(Hash<K128> trackUUID, Format format) {
 
         public boolean matches(String fileName) {
             return fileName.endsWith(suffix());
+        }
+
+        public int tail() {
+            return name().length() + 1;
         }
     }
 }
