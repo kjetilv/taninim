@@ -9,6 +9,7 @@ import com.github.kjetilv.uplift.util.Time;
 import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.DefaultFbAuthenticator;
+import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
 
 void main() {
@@ -22,20 +23,27 @@ void main() {
 
     var fbAuthenticator = (Authenticator) new DefaultFbAuthenticator();
 
-    var yellin = YellinLambdaHandler.handler(
-        clientSettings,
-        new TaninimSettings(
-            Duration.ofDays(1),
-            Duration.ofHours(1),
-            1024 * 1024
-        ),
-        s3AccessorFactory,
+    var taninimSettings = new TaninimSettings(
+        Duration.ofDays(1),
+        Duration.ofHours(1),
+        1024 * 1024
+    );
+
+    var yellin = DefaultYellin.create(
+        s3AccessorFactory.create(),
+        clientSettings.time(),
+        taninimSettings.sessionDuration(),
+        taninimSettings.leaseDuration(),
         fbAuthenticator
     );
 
     var uri = env.awsLambdaUri();
     try (
-        var managed = Lambda.managed(uri, clientSettings, yellin)
+        var managed = Lambda.managed(
+            uri,
+            clientSettings,
+            new YellinLambdaHandler(yellin)
+        )
     ) {
         managed.run();
     } catch (Exception e) {

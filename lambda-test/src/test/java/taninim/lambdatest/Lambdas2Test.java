@@ -23,12 +23,11 @@ import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
 import taninim.fb.ExtUser;
+import taninim.kudu.DefaultKudu;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
-import taninim.yellin.LeasesData;
-import taninim.yellin.LeasesDataRW;
-import taninim.yellin.YellinLambdaHandler;
+import taninim.yellin.*;
 
 import java.net.http.HttpResponse;
 
@@ -105,18 +104,15 @@ class Lambdas2Test {
         var kuduClientSettings =
             new LambdaClientSettings(new EmptyEnv(), timeRetriever);
 
-        yellinHandler = YellinLambdaHandler.handler(
-            yellinClientSettings,
-            taninimSettings,
-            () -> s3Accessor,
+        yellinHandler = new YellinLambdaHandler(DefaultYellin.create(
+            s3Accessor,
+            yellinClientSettings.time(),
+            taninimSettings.sessionDuration(),
+            taninimSettings.leaseDuration(),
             FB_AUTHENTICATOR
-        );
+        ));
 
-        kuduHandler = KuduLambdaHandler.create(
-            kuduClientSettings,
-            taninimSettings,
-            () -> s3Accessor
-        );
+        kuduHandler = new KuduLambdaHandler(DefaultKudu.create(kuduClientSettings, taninimSettings, () -> s3Accessor));
 
         yellinHarness = new LambdaHarness("yellin", yellinHandler, yellinCors, timeRetriever);
         kuduHarness = new LambdaHarness("kudu", kuduHandler, kuduCors, timeRetriever);

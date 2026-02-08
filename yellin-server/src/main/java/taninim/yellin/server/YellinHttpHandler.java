@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import taninim.fb.ExtAuthResponse;
 import taninim.yellin.LeasesActivationRW;
 import taninim.yellin.LeasesDataRW;
-import taninim.yellin.LeasesDispatcher;
+import taninim.yellin.Yellin;
 import taninim.yellin.LeasesRequest;
 
 import static com.github.kjetilv.uplift.synchttp.HttpMethod.*;
@@ -22,10 +22,10 @@ public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
 
     private static final Logger log = LoggerFactory.getLogger(YellinHttpHandler.class);
 
-    private final LeasesDispatcher leasesDispatcher;
+    private final Yellin yellin;
 
-    public YellinHttpHandler(LeasesDispatcher leasesDispatcher) {
-        this.leasesDispatcher = Objects.requireNonNull(leasesDispatcher, "leasesDispatcher");
+    public YellinHttpHandler(Yellin yellin) {
+        this.yellin = Objects.requireNonNull(yellin, "leasesDispatcher");
     }
 
     @Override
@@ -84,7 +84,7 @@ public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
     }
 
     private Optional<Processing> handleCurrentLease(ExtAuthResponse extAuthResponse, HttpResponseCallback callback) {
-        return leasesDispatcher.currentLease(extAuthResponse)
+        return yellin.currentLease(extAuthResponse)
             .map(activation -> {
                 log.debug("User {} has access to {} tracks", activation.name(), activation.size());
                 write(
@@ -98,7 +98,7 @@ public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
     }
 
     private Optional<Processing> handleNewLease(LeasesRequest leasesRequest, HttpResponseCallback callback) {
-        return leasesDispatcher.requestLease(leasesRequest)
+        return yellin.requestLease(leasesRequest)
             .map(result -> {
                 log.debug("User {} gets access to {} tracks", result.trackUUIDs().size(), result);
                 write(

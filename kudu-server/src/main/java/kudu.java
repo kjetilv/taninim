@@ -32,7 +32,7 @@ void main(String[] args) {
 
     var mediaLibrary = CloudMediaLibrary.create(s3Accessor, Time.utcSupplier());
 
-    var kudu = new DefaultKudu(
+    var kudu = DefaultKudu.create(
         leasesRegistry,
         mediaLibrary,
         parameters.buffer(),

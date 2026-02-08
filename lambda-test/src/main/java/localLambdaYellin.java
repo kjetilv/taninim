@@ -11,6 +11,7 @@ import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;
+import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
@@ -45,12 +46,15 @@ void main() {
         1024 * 1024
     );
 
-    var yellin = YellinLambdaHandler.handler(
-        clientSettings,
-        taninimSettings,
-        S3AccessorFactory.defaultFactory(Env.actual()),
-        new DefaultFbAuthenticator()
-    );
+    var authenticator = new DefaultFbAuthenticator();
+
+    var yellin = new YellinLambdaHandler(DefaultYellin.create(
+        S3AccessorFactory.defaultFactory(Env.actual()).create(),
+        clientSettings.time(),
+        taninimSettings.sessionDuration(),
+        taninimSettings.leaseDuration(),
+        authenticator
+    ));
 
     var lamdbdaManaged = Lambda.managed(
         flambda.lambdaUri(),

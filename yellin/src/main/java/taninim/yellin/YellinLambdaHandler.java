@@ -3,44 +3,20 @@ package taninim.yellin;
 import module java.base;
 import com.github.kjetilv.uplift.json.JsonReader;
 import com.github.kjetilv.uplift.json.JsonWriter;
-import com.github.kjetilv.uplift.lambda.*;
-import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import taninim.TaninimSettings;
+import com.github.kjetilv.uplift.lambda.LambdaHandlerSupport;
+import com.github.kjetilv.uplift.lambda.LambdaPayload;
+import com.github.kjetilv.uplift.lambda.LambdaResult;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
-import taninim.fb.Authenticator;
 
 import static java.util.Objects.requireNonNull;
-import static taninim.yellin.Yellin.leasesDispatcher;
 
 public final class YellinLambdaHandler extends LambdaHandlerSupport {
 
-    public static LambdaHandler handler(
-        LambdaClientSettings clientSettings,
-        TaninimSettings taninimSettings,
-        S3AccessorFactory s3AccessorFactory,
-        Authenticator authenticator
-    ) {
-        var s3Accessor = s3AccessorFactory.create();
-        var leasesDispatcher = leasesDispatcher(
-            s3Accessor,
-            clientSettings.time(),
-            taninimSettings.sessionDuration(),
-            taninimSettings.leaseDuration(),
-            authenticator
-        );
-        return new YellinLambdaHandler(leasesDispatcher);
-    }
+    private final Yellin yellin;
 
-    private final LeasesDispatcher leasesDispatcher;
-
-    private YellinLambdaHandler(LeasesDispatcher leasesDispatcher) {
-        this.leasesDispatcher = requireNonNull(leasesDispatcher, "ticketDispatcher");
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + leasesDispatcher + "]";
+    public YellinLambdaHandler(Yellin yellin) {
+        this.yellin = requireNonNull(yellin, "ticketDispatcher");
     }
 
     @Override
@@ -64,7 +40,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
 
     private LambdaResult authenticate(String body) {
         var extAuthResponse = RESPONSE_JSON_READER.read(body);
-        return leasesDispatcher.createLease(extAuthResponse)
+        return yellin.createLease(extAuthResponse)
             .map(result ->
                 lambdaResult(LEASES_WRITER.write(result)))
             .orElseGet(
@@ -72,17 +48,15 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     private LambdaResult addLease(String body) {
-        var leasesRequest = LeasesRequest.acquire(body);
-        var leasesActivation = leasesDispatcher.requestLease(leasesRequest);
-        return leasesActivation.map(activation ->
+        return yellin.requestLease(LeasesRequest.acquire(body))
+            .map(activation ->
                 lambdaResult(LEASES_WRITER.write(activation)))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
 
     private LambdaResult removeLease(String body) {
-        var leasesRequest = LeasesRequest.release(body);
-        return leasesDispatcher.dismissLease(leasesRequest)
+        return yellin.dismissLease(LeasesRequest.release(body))
             .map(result ->
                 lambdaResult(LEASES_WRITER.write(result)))
             .orElseGet(
@@ -96,6 +70,12 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         ExtAuthResponseRW.INSTANCE.stringReader();
 
     private static Optional<LambdaResult> handle(String body, Function<String, LambdaResult> bodyHandler) {
-        return Optional.ofNullable(body).map(bodyHandler);
+        return Optional.ofNullable(body)
+            .map(bodyHandler);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + yellin + "]";
     }
 }

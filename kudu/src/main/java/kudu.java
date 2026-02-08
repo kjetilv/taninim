@@ -3,8 +3,10 @@ import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
+import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
+import taninim.kudu.DefaultKudu;
 import taninim.kudu.KuduLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
@@ -21,7 +23,7 @@ void main() {
     );
 
     var s3 = S3AccessorFactory.defaultFactory(env);
-    var kudu = KuduLambdaHandler.create(clientSettings, taninimSettings, s3);
+    var kudu = (LambdaHandler) new KuduLambdaHandler(DefaultKudu.create(clientSettings, taninimSettings, s3));
     var uri = env.awsLambdaUri();
 
     try {

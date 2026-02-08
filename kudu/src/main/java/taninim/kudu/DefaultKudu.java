@@ -14,14 +14,9 @@ import taninim.music.legal.CloudMediaLibrary;
 import taninim.music.legal.S3Archives;
 import taninim.music.medias.MediaLibrary;
 
-public record DefaultKudu(
-    LeasesRegistry leasesRegistry,
-    MediaLibrary mediaLibrary,
-    int transferSize,
-    Supplier<Instant> time
-) implements Kudu {
+public final class DefaultKudu implements Kudu {
 
-    static Kudu create(
+    public static Kudu create(
         LambdaClientSettings clientSettings,
         TaninimSettings taninimSettings,
         S3AccessorFactory s3AccessorFactory
@@ -36,7 +31,36 @@ public record DefaultKudu(
                 time
             );
         var mediaLibrary = CloudMediaLibrary.create(s3Accessor, time);
-        return new DefaultKudu(leasesRegistry, mediaLibrary, taninimSettings.transferSize(), time);
+        return create(leasesRegistry, mediaLibrary, taninimSettings.transferSize(), time);
+    }
+
+    public static DefaultKudu create(
+        LeasesRegistry leasesRegistry,
+        MediaLibrary mediaLibrary,
+        int transferSize,
+        Supplier<Instant> time
+    ) {
+        return new DefaultKudu(leasesRegistry, mediaLibrary, transferSize, time);
+    }
+
+    private final LeasesRegistry leasesRegistry;
+
+    private final MediaLibrary mediaLibrary;
+
+    private final int transferSize;
+
+    private final Supplier<Instant> time;
+
+    private DefaultKudu(
+        LeasesRegistry leasesRegistry,
+        MediaLibrary mediaLibrary,
+        int transferSize,
+        Supplier<Instant> time
+    ) {
+        this.leasesRegistry = leasesRegistry;
+        this.mediaLibrary = mediaLibrary;
+        this.transferSize = transferSize;
+        this.time = time;
     }
 
     @Override

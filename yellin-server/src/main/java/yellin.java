@@ -7,7 +7,7 @@ import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.DefaultFbAuthenticator;
-import taninim.yellin.Yellin;
+import taninim.yellin.DefaultYellin;
 import taninim.yellin.server.YellinHttpHandler;
 
 import java.lang.management.ManagementFactory;
@@ -26,7 +26,7 @@ void main(String[] args) {
     );
 
     HttpCallbackProcessor.HttpHandler httpHandler = new YellinHttpHandler(
-        Yellin.leasesDispatcher(
+        DefaultYellin.create(
             s3Accessor,
             Time.UTC_CLOCK::instant,
             Duration.ofDays(1),

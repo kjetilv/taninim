@@ -72,7 +72,7 @@ class LambdasTest {
 
     private Archives archives;
 
-    private LeasesDispatcher leasesDispatcher;
+    private Yellin yellin;
 
     private Kudu kudu;
 
@@ -109,7 +109,7 @@ class LambdasTest {
     @AfterEach
     void tearDown() {
         archives = null;
-        leasesDispatcher = null;
+        yellin = null;
     }
 
     @SafeVarargs
@@ -145,14 +145,14 @@ class LambdasTest {
             ticketDuration,
             this::now
         );
-        leasesDispatcher = Yellin.leasesDispatcher(
+        yellin = DefaultYellin.create(
             s3Accessor,
             this::now,
             sessionDuration,
             ticketDuration,
             authenticator
         );
-        kudu = new DefaultKudu(leasesRegistry, mediaLibrary, 16, this::now);
+        kudu = DefaultKudu.create(leasesRegistry, mediaLibrary, 16, this::now);
     }
 
     private void put(String file, BinaryWritable id) {
@@ -207,13 +207,13 @@ class LambdasTest {
         @Test
         void noRentIntime() {
             var firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
+                yellin.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
 
             tick(5, 4, sessionDuration);
 
-            assertThat(leasesDispatcher.requestLease(new LeasesRequest(
+            assertThat(yellin.requestLease(new LeasesRequest(
                 ACQUIRE,
                 new LeasesData(
                     userId,
@@ -228,13 +228,13 @@ class LambdasTest {
             time(Instant.EPOCH.plus(Duration.ofDays(1).plusHours(8)));
 
             var firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
+                yellin.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
 
             tick(1, 4, leaseDuration);
 
-            assertThat(leasesDispatcher.requestLease(
+            assertThat(yellin.requestLease(
                 new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2.digest())))
             ).hasValueSatisfying(activation -> {
                 assertThat(activation.token()).isEqualTo(firstToken);
@@ -253,7 +253,7 @@ class LambdasTest {
 
             tick(1, 2, leaseDuration);
 
-            assertThat(leasesDispatcher.currentLease(authResponse(userId)))
+            assertThat(yellin.currentLease(authResponse(userId)))
                 .hasValueSatisfying(result -> {
                     assertThat(result.token()).isEqualTo(firstToken);
                     assertThat(result.trackUUIDs()).describedAs(
@@ -273,10 +273,10 @@ class LambdasTest {
         @Test
         void rentAndTimeoutPlay() {
             var firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
+                yellin.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .orElseThrow();
-            assertThat(leasesDispatcher.requestLease(
+            assertThat(yellin.requestLease(
                 new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2.digest()))
             )).hasValueSatisfying(result -> {
                 assertThat(result.token()).isEqualTo(firstToken);
@@ -292,7 +292,7 @@ class LambdasTest {
 
             tick(Duration.ofMinutes(leaseDuration.toMinutes() / 2));
 
-            assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
+            assertThat(yellin.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
                 assertThat(result.token()).isEqualTo(firstToken);
                 assertThat(result.trackUUIDs()).describedAs(
                     "Expected three tracks and definitely not album UUID %s",
@@ -306,7 +306,7 @@ class LambdasTest {
 
             tick(leaseDuration);
 
-            assertThat(leasesDispatcher.createLease(authResponse(userId)))
+            assertThat(yellin.createLease(authResponse(userId)))
                 .hasValueSatisfying(result -> {
                     assertThat(result.token()).isNotEqualTo(firstToken);
                     assertThat(result.trackUUIDs()).describedAs("Expected timed-out rental")
@@ -316,11 +316,11 @@ class LambdasTest {
 
         void rentAndPlayThenTimeout() {
             var firstToken =
-                leasesDispatcher.createLease(authResponse(userId))
+                yellin.createLease(authResponse(userId))
                     .map(LeasesActivation::token)
                     .<Hash<K128>>map(Hash::from)
                     .orElseThrow();
-            leasesDispatcher.requestLease(new LeasesRequest(
+            yellin.requestLease(new LeasesRequest(
                 ACQUIRE, new LeasesData(
                 userId,
                 firstToken.digest(),
@@ -355,13 +355,13 @@ class LambdasTest {
         @Test
         void rejectStrangers() {
             setupDispatcher();
-            assertThat(leasesDispatcher.createLease(authResponse(K128.random().digest()))).isEmpty();
+            assertThat(yellin.createLease(authResponse(K128.random().digest()))).isEmpty();
         }
 
         @Test
         void authUserWithoutRentals() {
             setupDispatcher();
-            assertThat(leasesDispatcher.createLease(authResponse(userId)))
+            assertThat(yellin.createLease(authResponse(userId)))
                 .hasValueSatisfying(result ->
                     assertThat(result.isEmpty()).isTrue());
         }
@@ -369,9 +369,9 @@ class LambdasTest {
         @Test
         void authUserShouldProduceRecord() {
             setupDispatcher();
-            assertThat(leasesDispatcher.createLease(authResponse(userId))).hasValueSatisfying(result -> {
+            assertThat(yellin.createLease(authResponse(userId))).hasValueSatisfying(result -> {
                 assertThat(result.isEmpty()).isTrue();
-                assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                assertThat(yellin.createLease(authResponse(userId)))
                     .hasValueSatisfying(activation ->
                         assertThat(activation.token()).isEqualTo(result.token()));
             });
@@ -387,12 +387,12 @@ class LambdasTest {
 
             @Test
             void lookupExisting() {
-                assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                assertThat(yellin.createLease(authResponse(userId)))
                     .hasValueSatisfying(result -> {
                         assertThat(result.trackUUIDs()).isEmpty();
                         var leasesData = new LeasesData(userId, result.token(), album1.digest());
                         var leasesRequest = new LeasesRequest(ACQUIRE, leasesData);
-                        assertThat(leasesDispatcher.requestLease(leasesRequest))
+                        assertThat(yellin.requestLease(leasesRequest))
                             .hasValueSatisfying(requestResult ->
                                 assertThat(requestResult.trackUUIDs()).describedAs(
                                     "Expected two tracks and definitely not album UUID %s",
@@ -406,7 +406,7 @@ class LambdasTest {
 
             @Test
             void failedRent() {
-                assertThat(leasesDispatcher.createLease(authResponse(userId)))
+                assertThat(yellin.createLease(authResponse(userId)))
                     .hasValueSatisfying(result ->
                         assertThat(result.isEmpty()).isTrue());
             }
@@ -414,10 +414,10 @@ class LambdasTest {
             @Test
             void rentAndReauth() {
                 var firstToken =
-                    leasesDispatcher.createLease(authResponse(userId))
+                    yellin.createLease(authResponse(userId))
                         .map(LeasesActivation::token)
                         .orElseThrow();
-                assertThat(leasesDispatcher.requestLease(new LeasesRequest(
+                assertThat(yellin.requestLease(new LeasesRequest(
                     ACQUIRE,
                     new LeasesData(
                         userId,
@@ -436,7 +436,7 @@ class LambdasTest {
                         track2c.digest()
                     );
                 });
-                assertThat(leasesDispatcher.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
+                assertThat(yellin.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
                     assertThat(result.token()).isEqualTo(firstToken);
                     assertThat(result.trackUUIDs()).describedAs(
                         "Expected three tracks and definitely not album " +
@@ -453,10 +453,10 @@ class LambdasTest {
             @Test
             void rentAndRelease() {
                 var firstToken =
-                    leasesDispatcher.createLease(authResponse(userId))
+                    yellin.createLease(authResponse(userId))
                         .map(LeasesActivation::token)
                         .orElseThrow();
-                assertThat(leasesDispatcher.requestLease(new LeasesRequest(
+                assertThat(yellin.requestLease(new LeasesRequest(
                     ACQUIRE,
                     new LeasesData(
                         userId,
@@ -476,7 +476,7 @@ class LambdasTest {
                     );
                 });
 
-                assertThat(leasesDispatcher.dismissLease(new LeasesRequest(
+                assertThat(yellin.dismissLease(new LeasesRequest(
                     RELEASE,
                     new LeasesData(
                         userId,
@@ -491,7 +491,7 @@ class LambdasTest {
             void rentAndPlay() {
                 var extAuthResponse = authResponse(userId);
 
-                var lease = leasesDispatcher.createLease(extAuthResponse);
+                var lease = yellin.createLease(extAuthResponse);
 
                 var activationToken = lease
                     .map(LeasesActivation::token)
@@ -502,7 +502,7 @@ class LambdasTest {
 
                 var leasesRequest = new LeasesRequest(ACQUIRE, leasesData);
 
-                var leasesActivation = leasesDispatcher.requestLease(leasesRequest);
+                var leasesActivation = yellin.requestLease(leasesRequest);
 
                 assertThat(leasesActivation)
                     .hasValueSatisfying(result ->

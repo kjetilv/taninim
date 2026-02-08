@@ -3,27 +3,18 @@ package taninim.kudu;
 import module java.base;
 import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.lambda.*;
-import com.github.kjetilv.uplift.s3.S3AccessorFactory;
-import taninim.TaninimSettings;
+import com.github.kjetilv.uplift.lambda.LambdaHandlerSupport;
+import com.github.kjetilv.uplift.lambda.LambdaPayload;
+import com.github.kjetilv.uplift.lambda.LambdaResult;
 
 import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static java.util.Map.entry;
 
 public final class KuduLambdaHandler extends LambdaHandlerSupport {
 
-    public static LambdaHandler create(
-        LambdaClientSettings clientSettings,
-        TaninimSettings taninimSettings,
-        S3AccessorFactory s3AccessorFactory
-    ) {
-        return new KuduLambdaHandler(
-            DefaultKudu.create(clientSettings, taninimSettings, s3AccessorFactory));
-    }
-
     private final Kudu kudu;
 
-    private KuduLambdaHandler(Kudu kudu) {
+    public KuduLambdaHandler(Kudu kudu) {
         this.kudu = Objects.requireNonNull(kudu, "kudu");
     }
 

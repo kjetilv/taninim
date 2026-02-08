@@ -9,7 +9,9 @@ import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;
+import taninim.kudu.DefaultKudu;
 import taninim.kudu.KuduLambdaHandler;
+import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
@@ -45,12 +47,11 @@ void main() {
         ));
 
     var kuduClientSettings = new LambdaClientSettings(ENV, utcSupplier());
-
-    var kudu = KuduLambdaHandler.create(
+    var kudu = new KuduLambdaHandler(DefaultKudu.create(
         kuduClientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV)
-    );
+    ));
     var kuduLambdaManaged = Lambda.managed(
         kuduFlambda.lambdaUri(),
         kuduClientSettings,
@@ -72,16 +73,22 @@ void main() {
     var yellinClientSettings =
         new LambdaClientSettings(ENV, utcSupplier());
 
-    var yellin = YellinLambdaHandler.handler(
-        yellinClientSettings,
-        taninimSettings,
-        S3AccessorFactory.defaultFactory(ENV),
-        new DefaultFbAuthenticator()
+    var authenticator = new DefaultFbAuthenticator();
+
+    var yellin = DefaultYellin.create(
+        S3AccessorFactory.defaultFactory(ENV).create(),
+        yellinClientSettings.time(),
+        taninimSettings.sessionDuration(),
+        taninimSettings.leaseDuration(),
+        authenticator
     );
+
+    var yellinHandler = new YellinLambdaHandler(yellin);
+
     var yellinLamdbdaManaged = Lambda.managed(
         yellinFlambda.lambdaUri(),
         yellinClientSettings,
-        yellin
+        yellinHandler
     );
 
     try (var executor = Executors.newFixedThreadPool(4)) {
@@ -92,7 +99,7 @@ void main() {
                 yellinLamdbdaManaged
             )
             .forEach(executor::submit);
-        logger.info("Yellin @ {}: {}", yellinLamdbdaManaged.lambdaUri(), yellin);
+        logger.info("Yellin @ {}: {}", yellinLamdbdaManaged.lambdaUri(), yellinHandler);
         logger.info("Kudu   @ {}: {}", kuduLambdaManaged.lambdaUri(), kudu);
     }
     logger.info("Stopped");
