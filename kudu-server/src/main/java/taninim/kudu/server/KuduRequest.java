@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.Track;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public sealed interface KuduRequest {
 
@@ -22,15 +22,17 @@ public sealed interface KuduRequest {
 
     static Optional<? extends KuduRequest> from(HttpReq httpReq) {
         return switch (httpReq.method()) {
-            case OPTIONS -> Optional.of(PREFLIGHT_REQ);
-            case HEAD -> httpReq.path().startsWith("/health")
-                ? Optional.of(HEALTH_REQ)
-                : Optional.of(PREFLIGHT_REQ);
-            case GET -> switch (match(httpReq.path())) {
+            case GET -> switch (match(httpReq.path(), "/library.json", "/audio/")) {
                 case "/library.json" -> Optional.of(new Library(token(httpReq)));
                 case "/audio/" -> trackRange(httpReq);
                 default -> Optional.empty();
             };
+            case HEAD -> switch (match(httpReq.path(), "/health", "")) {
+                case "/health" -> Optional.of(HEALTH_REQ);
+                case "" -> Optional.of(PREFLIGHT_REQ);
+                default -> Optional.empty();
+            };
+            case OPTIONS -> Optional.of(PREFLIGHT_REQ);
             default -> Optional.empty();
         };
     }
@@ -56,11 +58,8 @@ public sealed interface KuduRequest {
         }
     }
 
-    private static String match(String path) {
-        return Stream.of(
-                "/library.json",
-                "/audio/"
-            )
+    private static String match(String path, String... prefixes) {
+        return Arrays.stream(prefixes)
             .filter(path::startsWith)
             .findFirst()
             .orElse(null);

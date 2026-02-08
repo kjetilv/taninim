@@ -10,7 +10,8 @@ import static com.github.kjetilv.uplift.hash.HashKind.K128;
 public interface Kudu {
 
     default Optional<byte[]> library(Hash<K128> token) {
-        return libraryStream(token).map(Library::stream)
+        return libraryStream(token)
+            .map(Library::stream)
             .map(BytesIO::readInputStream);
     }
 
