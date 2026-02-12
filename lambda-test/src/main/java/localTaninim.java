@@ -27,19 +27,18 @@ void main() {
     var taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
 
     var kuduCors = new CorsSettings(
-        List.of("https://kjetilv.github.io", "https://localhost:5173"),
-        List.of("GET"),
+        List.of(
+//            "https://kjetilv.github.io",
+            "https://localhost:8443"
+//            "https://localhost:5173"
+        ),
+        List.of("GET", "OPTIONS", "HEAD"),
         List.of("content-type", "range")
-    );
-    var yellinCors = new CorsSettings(
-        List.of("https://kjetilv.github.io", "https://localhost:5173"),
-        List.of("POST", "DELETE"),
-        List.of("content-type")
     );
     var kuduFlambda = new Flambda(
         new FlambdaSettings(
+            9002,
             8082,
-            9003,
             K * K,
             10,
             kuduCors,
@@ -58,6 +57,15 @@ void main() {
         kudu
     );
 
+    var yellinCors = new CorsSettings(
+        List.of(
+//            "https://kjetilv.github.io",
+            "https://localhost:8443"
+//            "https://localhost:5173"
+        ),
+        List.of("POST", "DELETE", "OPTIONS", "HEAD"),
+        List.of("content-type")
+    );
     var yellinSize = 8 * K;
     var yellinFlambda = new Flambda(
         new FlambdaSettings(
@@ -99,8 +107,16 @@ void main() {
                 yellinLamdbdaManaged
             )
             .forEach(executor::submit);
-        logger.info("Yellin @ {}: {}", yellinLamdbdaManaged.lambdaUri(), yellinHandler);
-        logger.info("Kudu   @ {}: {}", kuduLambdaManaged.lambdaUri(), kudu);
+        logger.info(
+            "Yellin @ lambda/{} <-> api/{}: {}",
+            yellinFlambda.lambdaUri(),
+            yellinFlambda.apiUri(),
+            yellinHandler
+        );
+        logger.info("Kudu   @ lambda/{} <-> api/{}: {}",
+            kuduFlambda.lambdaUri(),
+            kuduFlambda.apiUri(),
+            kudu);
     }
     logger.info("Stopped");
 }

@@ -14,7 +14,7 @@
         dispatchEvent({ __clear: true });
         let response;
         try {
-            let url = `${endpoint}/library.json?t=${authorization.token}`;
+            let url = `${endpoint}/library.jsonl?t=${authorization.token}`;
             response = await fetch(url);
         } catch (e) {
             return dispatchEvent({ __error: true, error: e });

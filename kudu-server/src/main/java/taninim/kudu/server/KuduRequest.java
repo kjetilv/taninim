@@ -22,8 +22,8 @@ public sealed interface KuduRequest {
 
     static Optional<? extends KuduRequest> from(HttpReq httpReq) {
         return switch (httpReq.method()) {
-            case GET -> switch (match(httpReq.path(), "/library.json", "/audio/")) {
-                case "/library.json" -> Optional.of(new Library(token(httpReq)));
+            case GET -> switch (match(httpReq.path(), "/library.jsonl", "/audio/")) {
+                case "/library.jsonl" -> Optional.of(new Library(token(httpReq)));
                 case "/audio/" -> trackRange(httpReq);
                 default -> Optional.empty();
             };

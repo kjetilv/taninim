@@ -91,11 +91,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
             var paths = records.toList();
             if (!paths.isEmpty()) {
                 archives.clearRecords(paths);
-                log.debug(
-                    "{} outdated prefixes gone, {} still active",
-                    (Supplier<Integer>) paths::size,
-                    (Supplier<Integer>) active::size
-                );
+                log.debug("{} outdated prefixes gone, {} still active", paths.size(), active.size());
             }
         }
     }

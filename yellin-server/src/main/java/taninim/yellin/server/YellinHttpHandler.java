@@ -28,17 +28,15 @@ public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
         switch (Maybe.a(YellinRequest.from(httpReq))) {
             case Maybe.A(YellinRequest.Auth(var response)) -> yellin.currentLease(response)
                 .ifPresentOrElse(
-                    activation -> {
-                        respondWith(activation, callback);
-                    },
+                    activation ->
+                        respondWith(activation, callback),
                     () ->
                         callback.status(400)
                 );
             case Maybe.A(YellinRequest.Lease(var leasesRequest)) -> yellin.requestLease(leasesRequest)
                 .ifPresentOrElse(
-                    result -> {
-                        respondWith(leasesRequest, result, callback);
-                    },
+                    result ->
+                        respondWith(leasesRequest, result, callback),
                     () ->
                         callback.status(400)
                 );
@@ -49,13 +47,15 @@ public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
                     vary: Accept-Encoding, Origin
                     cache-control: no-cache
                     """);
-            case Maybe.A(YellinRequest.Health()) -> {
-                callback.status(200);
-            }
-            case Maybe.Nothing<?> _ -> {
-                callback.status(404);
-            }
+            case Maybe.A(YellinRequest.Health()) -> callback.status(200);
+            case Maybe.Nothing<?> _ -> callback.status(404);
         }
+    }
+
+    protected static <T extends Record> void write(HttpResponseCallback.Headers headers, JsonRW<T> instance, T t) {
+        headers.channel(out ->
+            instance.chunkedChannelWriter(1024)
+                .write(t, out));
     }
 
     private static void respondWith(
@@ -87,12 +87,6 @@ public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
             activation
         );
         log.debug("Wrote back {}", activation);
-    }
-
-    protected static <T extends Record> void write(HttpResponseCallback.Headers headers, JsonRW<T> instance, T t) {
-        headers.channel(out ->
-            instance.chunkedChannelWriter(1024)
-                .write(t, out));
     }
 
 }
