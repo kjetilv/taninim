@@ -1,5 +1,5 @@
 import module java.base;
-import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
@@ -23,6 +23,7 @@ void main() {
     var logger = LoggerFactory.getLogger("LocalLambdaYellin");
 
     var settings = new FlambdaSettings(
+        "yellin",
         9001,
         8081,
         8 * 8192,
@@ -62,7 +63,8 @@ void main() {
         yellin
     );
     try (var executor = Executors.newFixedThreadPool(2)) {
-        executor.submit(lamdbdaManaged);
+        executor.submit(() ->
+            lamdbdaManaged.accept("yellin"));
         logger.info("Started");
     }
 }

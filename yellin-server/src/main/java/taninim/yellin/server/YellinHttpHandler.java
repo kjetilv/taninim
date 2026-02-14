@@ -2,8 +2,8 @@ package taninim.yellin.server;
 
 import module java.base;
 import com.github.kjetilv.uplift.json.gen.JsonRW;
-import com.github.kjetilv.uplift.synchttp.HttpCallbackProcessor;
-import com.github.kjetilv.uplift.synchttp.req.HttpReq;
+import com.github.kjetilv.uplift.synchttp.HttpHandler;
+import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
 import com.github.kjetilv.uplift.synchttp.write.HttpResponseCallback;
 import com.github.kjetilv.uplift.util.Maybe;
 import org.slf4j.Logger;
@@ -13,7 +13,7 @@ import taninim.yellin.*;
 import static com.github.kjetilv.uplift.synchttp.HttpMethod.*;
 
 @SuppressWarnings("LoggingSimilarMessage")
-public class YellinHttpHandler implements HttpCallbackProcessor.HttpHandler {
+public class YellinHttpHandler implements HttpHandler {
 
     private static final Logger log = LoggerFactory.getLogger(YellinHttpHandler.class);
 

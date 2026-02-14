@@ -2,6 +2,7 @@ import module java.base;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.synchttp.HttpCallbackProcessor;
+import com.github.kjetilv.uplift.synchttp.HttpHandler;
 import com.github.kjetilv.uplift.synchttp.Server;
 import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ void main(String[] args) {
         Executors.newVirtualThreadPerTaskExecutor()
     );
 
-    HttpCallbackProcessor.HttpHandler httpHandler = new YellinHttpHandler(
+    HttpHandler httpHandler = new YellinHttpHandler(
         DefaultYellin.create(
             s3Accessor,
             Time.UTC_CLOCK::instant,

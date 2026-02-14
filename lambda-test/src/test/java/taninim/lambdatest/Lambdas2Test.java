@@ -1,7 +1,7 @@
 package taninim.lambdatest;
 
 import module java.base;
-import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;

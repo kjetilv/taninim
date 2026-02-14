@@ -1,9 +1,9 @@
 package taninim.kudu.server;
 
 import module java.base;
-import com.github.kjetilv.uplift.synchttp.HttpCallbackProcessor;
+import com.github.kjetilv.uplift.synchttp.HttpHandler;
 import com.github.kjetilv.uplift.synchttp.HttpMethod;
-import com.github.kjetilv.uplift.synchttp.req.HttpReq;
+import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
 import com.github.kjetilv.uplift.synchttp.write.HttpResponseCallback;
 import com.github.kjetilv.uplift.util.Maybe;
 import taninim.kudu.Kudu;
@@ -12,7 +12,7 @@ import taninim.kudu.TrackRange;
 import static com.github.kjetilv.uplift.synchttp.HttpMethod.*;
 
 public final class KuduHttpHandler
-    implements HttpCallbackProcessor.HttpHandler {
+    implements HttpHandler {
 
     private final Kudu kudu;
 

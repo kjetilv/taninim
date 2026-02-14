@@ -28,7 +28,7 @@ void main() {
 
     try {
         try (var managed = Lambda.managed(uri, clientSettings, kudu)) {
-            managed.run();
+            managed.accept("kudu");
         }
     } catch (Exception e) {
         throw new RuntimeException("Failed to close/run", e);

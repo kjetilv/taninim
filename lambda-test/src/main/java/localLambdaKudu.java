@@ -1,5 +1,5 @@
 import module java.base;
-import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
@@ -26,6 +26,7 @@ void main() {
 
     Supplier<Instant> clock = Clock.systemUTC()::instant;
     var settings = new FlambdaSettings(
+        "kudu",
         9002,
         8080,
         8 * 8192,
@@ -51,7 +52,7 @@ void main() {
         Lambda.managed(flambda.lambdaUri(), clientSettings, handler);
 
     try (var executor = Executors.newFixedThreadPool(2)) {
-        executor.submit(lamdbdaManaged);
+        executor.submit(() -> lamdbdaManaged.accept("kudu"));
     }
 }
 

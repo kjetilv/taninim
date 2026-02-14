@@ -1,5 +1,5 @@
 import module java.base;
-import com.github.kjetilv.uplift.flambda.CorsSettings;
+import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
@@ -37,6 +37,7 @@ void main() {
     );
     var kuduFlambda = new Flambda(
         new FlambdaSettings(
+            "kudu",
             9002,
             8082,
             K * K,
@@ -69,6 +70,7 @@ void main() {
     var yellinSize = 8 * K;
     var yellinFlambda = new Flambda(
         new FlambdaSettings(
+            "yellin",
             9001,
             8081,
             yellinSize * 2,
@@ -101,10 +103,10 @@ void main() {
 
     try (var executor = Executors.newFixedThreadPool(4)) {
         List.of(
+                (Runnable) () -> kuduLambdaManaged.looper("kudu"),
+                () -> yellinLamdbdaManaged.looper("yellin"),
                 kuduFlambda,
-                yellinFlambda,
-                kuduLambdaManaged,
-                yellinLamdbdaManaged
+                yellinFlambda
             )
             .forEach(executor::submit);
         logger.info(
@@ -113,10 +115,12 @@ void main() {
             yellinFlambda.apiUri(),
             yellinHandler
         );
-        logger.info("Kudu   @ lambda/{} <-> api/{}: {}",
+        logger.info(
+            "Kudu   @ lambda/{} <-> api/{}: {}",
             kuduFlambda.lambdaUri(),
             kuduFlambda.apiUri(),
-            kudu);
+            kudu
+        );
     }
     logger.info("Stopped");
 }

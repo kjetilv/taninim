@@ -1,8 +1,8 @@
 package taninim.yellin.server;
 
 import module java.base;
-import com.github.kjetilv.uplift.synchttp.req.HttpReq;
-import com.github.kjetilv.uplift.synchttp.req.QueryParameters;
+import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
+import com.github.kjetilv.uplift.synchttp.rere.QueryParameters;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
 import taninim.yellin.LeasesData;

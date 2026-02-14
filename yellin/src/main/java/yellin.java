@@ -45,7 +45,7 @@ void main() {
             new YellinLambdaHandler(yellin)
         )
     ) {
-        managed.run();
+        managed.accept("yellin");
     } catch (Exception e) {
         throw new RuntimeException("Failed to run/close", e);
     }

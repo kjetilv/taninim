@@ -3,7 +3,7 @@ package taninim.kudu.server;
 import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.hash.HashKind;
 import com.github.kjetilv.uplift.kernel.io.Range;
-import com.github.kjetilv.uplift.synchttp.req.HttpReq;
+import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.Track;
