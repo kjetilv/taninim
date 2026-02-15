@@ -40,13 +40,7 @@ public class YellinHttpHandler implements HttpHandler {
                     () ->
                         callback.status(400)
                 );
-            case Maybe.A(YellinRequest.Preflight()) -> callback.status(200)
-                .cors("*", GET, HEAD, POST, DELETE)
-                .headers("""
-                    access-control-max-age: 86400
-                    vary: Accept-Encoding, Origin
-                    cache-control: no-cache
-                    """);
+            case Maybe.A(YellinRequest.Preflight()) -> callback.status(204);
             case Maybe.A(YellinRequest.Health()) -> callback.status(200);
             case Maybe.Nothing<?> _ -> callback.status(404);
         }

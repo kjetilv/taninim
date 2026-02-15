@@ -47,8 +47,6 @@ void main(String[] args) {
     }
 }
 
-private static final int MAX_REQUEST_LENGTH = 1024;
-
 private record Parameters(int port, int buffer, boolean server) {
 
     private static Parameters parse(String[] args) {

@@ -2,14 +2,11 @@ package taninim.kudu.server;
 
 import module java.base;
 import com.github.kjetilv.uplift.synchttp.HttpHandler;
-import com.github.kjetilv.uplift.synchttp.HttpMethod;
 import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
 import com.github.kjetilv.uplift.synchttp.write.HttpResponseCallback;
 import com.github.kjetilv.uplift.util.Maybe;
 import taninim.kudu.Kudu;
 import taninim.kudu.TrackRange;
-
-import static com.github.kjetilv.uplift.synchttp.HttpMethod.*;
 
 public final class KuduHttpHandler
     implements HttpHandler {
@@ -49,18 +46,8 @@ public final class KuduHttpHandler
             }
             case Maybe.A(KuduRequest.Health()) -> callback.status(200)
                 .headers("cache-control: no-cache");
-            case Maybe.A(KuduRequest.Preflight()) -> callback.status(204)
-                .cors(OPTIONS, GET, post(httpReq))
-                .headers(
-                    "access-control-max-age: 86400",
-                    "vary: Accept-Encoding, Origin",
-                    "cache-control: no-cache"
-                );
+            case Maybe.A(KuduRequest.Preflight()) -> callback.status(204);
             case Maybe.Nothing<?> _ -> callback.status(404);
         }
-    }
-
-    private static HttpMethod post(HttpReq httpReq) {
-        return httpReq.isPost() ? POST : null;
     }
 }
