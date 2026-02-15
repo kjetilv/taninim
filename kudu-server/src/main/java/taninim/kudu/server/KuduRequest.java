@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.Track;
 
+import java.lang.foreign.MemorySegment;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +21,8 @@ public sealed interface KuduRequest {
     KuduRequest PREFLIGHT_REQ = new Preflight();
 
     KuduRequest HEALTH_REQ = new Health();
+
+    MemorySegment RANGE = MemorySegment.ofArray("range".getBytes(StandardCharsets.UTF_8));
 
     static Optional<? extends KuduRequest> from(HttpReq httpReq) {
         return switch (httpReq.method()) {
@@ -48,8 +52,9 @@ public sealed interface KuduRequest {
                     Hash.fromUuid(uuid),
                     Track.Format.valueOf(file.substring(dotIndex + 1))
                 ),
-                req.headers().header("range").flatMap(Range::read).orElseThrow(() ->
-                    new IllegalStateException("Failed to parse range: " + req.headers())),
+                req.headers().header(RANGE)
+                    .flatMap(Range::read).orElseThrow(() ->
+                        new IllegalStateException("Failed to parse range: " + req.headers())),
                 token(req)
             ));
         } catch (Exception e) {
