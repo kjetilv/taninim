@@ -37,8 +37,7 @@ void main(String[] args) {
 
     Server.Processor processor = new HttpCallbackProcessor(
         httpHandler,
-        Arena.ofAuto(),
-        MAX_REQUEST_SIZE
+        Arena.ofAuto()
     );
 
     var port = resolvePort(parameters);
