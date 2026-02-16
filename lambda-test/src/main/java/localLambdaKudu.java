@@ -1,5 +1,4 @@
 import module java.base;
-import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
@@ -8,6 +7,7 @@ import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import taninim.TaninimSettings;
 import taninim.kudu.DefaultKudu;
 import taninim.kudu.KuduLambdaHandler;
@@ -35,24 +35,25 @@ void main() {
         clock
     );
 
-    var flambda = new Flambda(settings);
-    var clientSettings = new LambdaClientSettings(ENV, clock);
-    var taninimSettings = new TaninimSettings(
-        Duration.ofDays(1),
-        Duration.ofHours(4),
-        1024 * 1024
-    );
-    var handler = (LambdaHandler) new KuduLambdaHandler(DefaultKudu.create(
-        clientSettings,
-        taninimSettings,
-        S3AccessorFactory.defaultFactory(ENV)
-    ));
+    try (var flambda = new Flambda(settings)) {
+        var clientSettings = new LambdaClientSettings(ENV, clock);
+        var taninimSettings = new TaninimSettings(
+            Duration.ofDays(1),
+            Duration.ofHours(4),
+            1024 * 1024
+        );
+        var handler = (LambdaHandler) new KuduLambdaHandler(DefaultKudu.create(
+            clientSettings,
+            taninimSettings,
+            S3AccessorFactory.defaultFactory(ENV)
+        ));
 
-    var lamdbdaManaged =
-        Lambda.managed(flambda.lambdaUri(), clientSettings, handler);
-
-    try (var executor = Executors.newFixedThreadPool(2)) {
-        executor.submit(() -> lamdbdaManaged.accept("kudu"));
+        try (
+            var lamdbdaManaged = Lambda.managed(flambda.lambdaUri(), clientSettings, handler);
+            var executor = Executors.newFixedThreadPool(2)
+        ) {
+            executor.submit(() -> lamdbdaManaged.accept("kudu"));
+        }
     }
 }
 

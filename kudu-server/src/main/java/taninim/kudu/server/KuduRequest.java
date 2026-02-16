@@ -28,7 +28,7 @@ public sealed interface KuduRequest {
         return switch (httpReq.method()) {
             case GET -> switch (match(httpReq.path(), "/library.jsonl", "/audio/")) {
                 case "/library.jsonl" -> Optional.of(new Library(token(httpReq)));
-                case "/audio/" -> trackRange(httpReq);
+                case "/audio/" -> audio(httpReq);
                 default -> Optional.empty();
             };
             case HEAD -> switch (match(httpReq.path(), "/health", "")) {
@@ -41,24 +41,21 @@ public sealed interface KuduRequest {
         };
     }
 
-    private static Optional<Audio> trackRange(HttpReq httpReq) {
-        var req = httpReq.withQueryParameters();
+    private static Optional<Audio> audio(HttpReq httpReq) {
         try {
+            var req = httpReq.withQueryParameters();
             var file = req.path("/audio/");
             var dotIndex = req.path().lastIndexOf('.');
-            var uuid = UUID.fromString(file.substring(0, dotIndex));
-            return Optional.of(new Audio(
-                new Track(
-                    Hash.fromUuid(uuid),
-                    Track.Format.valueOf(file.substring(dotIndex + 1))
-                ),
-                req.headers().header(RANGE)
-                    .flatMap(Range::read).orElseThrow(() ->
-                        new IllegalStateException("Failed to parse range: " + req.headers())),
-                token(req)
-            ));
+            var trackUUID = Hash.fromUuid(UUID.fromString(file.substring(0, dotIndex)));
+            var format = Track.Format.valueOf(file.substring(dotIndex + 1));
+            var track = new Track(trackUUID, format);
+            return Optional.ofNullable(req.headers().header(RANGE))
+                .flatMap(header ->
+                    Range.read(header)
+                        .map(range ->
+                            new Audio(track, range, token(req))));
         } catch (Exception e) {
-            log.warn("Failed to parse track range from {}", req.path(), e);
+            log.warn("Failed to parse track range from {}", httpReq, e);
             return Optional.empty();
         }
     }

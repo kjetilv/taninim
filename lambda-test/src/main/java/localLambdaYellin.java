@@ -1,5 +1,4 @@
 import module java.base;
-import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.LogLevel;
@@ -7,6 +6,7 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
@@ -36,35 +36,38 @@ void main() {
         Time.utcSupplier()
     );
 
-    var flambda = new Flambda(settings);
+    try (var flambda = new Flambda(settings)) {
 
-    var clientSettings =
-        new LambdaClientSettings(Env.actual(), Time.utcSupplier());
+        var clientSettings =
+            new LambdaClientSettings(Env.actual(), Time.utcSupplier());
 
-    var taninimSettings = new TaninimSettings(
-        Duration.ofDays(1),
-        Duration.ofHours(1),
-        1024 * 1024
-    );
+        var taninimSettings = new TaninimSettings(
+            Duration.ofDays(1),
+            Duration.ofHours(1),
+            1024 * 1024
+        );
 
-    var authenticator = new DefaultFbAuthenticator();
+        var authenticator = new DefaultFbAuthenticator();
 
-    var yellin = new YellinLambdaHandler(DefaultYellin.create(
-        S3AccessorFactory.defaultFactory(Env.actual()).create(),
-        clientSettings.time(),
-        taninimSettings.sessionDuration(),
-        taninimSettings.leaseDuration(),
-        authenticator
-    ));
+        var yellin = new YellinLambdaHandler(DefaultYellin.create(
+            S3AccessorFactory.defaultFactory(Env.actual()).create(),
+            clientSettings.time(),
+            taninimSettings.sessionDuration(),
+            taninimSettings.leaseDuration(),
+            authenticator
+        ));
 
-    var lamdbdaManaged = Lambda.managed(
-        flambda.lambdaUri(),
-        clientSettings,
-        yellin
-    );
-    try (var executor = Executors.newFixedThreadPool(2)) {
-        executor.submit(() ->
-            lamdbdaManaged.accept("yellin"));
-        logger.info("Started");
+        try (
+            var lamdbdaManaged = Lambda.managed(
+                flambda.lambdaUri(),
+                clientSettings,
+                yellin
+            );
+            var executor = Executors.newFixedThreadPool(2)
+        ) {
+            executor.submit(() ->
+                lamdbdaManaged.accept("yellin"));
+            logger.info("Started");
+        }
     }
 }

@@ -1,11 +1,11 @@
 import module java.base;
-import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
+import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;
@@ -103,8 +103,8 @@ void main() {
 
     try (var executor = Executors.newFixedThreadPool(4)) {
         List.of(
-                (Runnable) () -> kuduLambdaManaged.looper("kudu"),
-                () -> yellinLamdbdaManaged.looper("yellin"),
+                kuduLambdaManaged.looper("kudu"),
+                yellinLamdbdaManaged.looper("yellin"),
                 kuduFlambda,
                 yellinFlambda
             )
