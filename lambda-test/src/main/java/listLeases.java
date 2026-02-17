@@ -3,6 +3,7 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import taninim.music.Archives;
 import taninim.music.legal.S3Archives;
+import taninim.music.medias.UserAuth;
 import taninim.music.medias.UserAuths;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
@@ -22,16 +23,19 @@ void main() {
             System.out.println("  User-auths:");
             userAuths.userAuths()
                 .forEach(userAuth -> {
+                    var leases = userAuth.albumLeases();
                     System.out.println(
-                        "    User: " + userAuth.userId() + ", " + userAuth.albumLeases().size() + " leases:");
-                    userAuth.albumLeases()
+                        "    User: " + userAuth.userId() + ", " + leases.size() + " lease" +
+                        (leases.size() == 1 ? "" : "s") +
+                        (leases.isEmpty() ? "" : ":"));
+                    leases
                         .forEach(lease ->
                             System.out.println(
                                 "      " + lease.albumId() + " @ " + lease.expiry()));
                 });
         });
 
-    System.out.println("Leases:");
+    System.out.println("\nLeases:");
     s3Accessor.listInfos("lease")
         .forEach(info -> {
 

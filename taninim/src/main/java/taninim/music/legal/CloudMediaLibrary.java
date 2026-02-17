@@ -13,6 +13,10 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     private static final Logger log = LoggerFactory.getLogger(CloudMediaLibrary.class);
 
+    public static MediaLibrary create(S3Accessor s3, Supplier<Instant> time) {
+        return new CloudMediaLibrary(s3, time);
+    }
+
     private final Map<String, Cached<Map<String, S3Accessor.RemoteInfo>>> infos = new ConcurrentHashMap<>();
 
     private final Map<String, Cached<byte[]>> fileCache = new ConcurrentHashMap<>();
@@ -20,10 +24,6 @@ public final class CloudMediaLibrary implements MediaLibrary {
     private final S3Accessor s3;
 
     private final Supplier<Instant> time;
-
-    public static MediaLibrary create(S3Accessor s3, Supplier<Instant> time) {
-        return new CloudMediaLibrary(s3, time);
-    }
 
     public CloudMediaLibrary(S3Accessor s3, Supplier<Instant> time) {
         this.s3 = requireNonNull(s3, "s3");
@@ -44,7 +44,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
             return needsUpdate(info, lastCached)
                 ? update(time.get(), file, info, getLastValidTime(lastCached))
                 : lastCached.optionalData()
-                    .map(ByteArrayInputStream::new);
+                  .map(ByteArrayInputStream::new);
         });
     }
 
@@ -66,11 +66,6 @@ public final class CloudMediaLibrary implements MediaLibrary {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to write " + file + " to " + writer, e);
         }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[infos:" + infos.size() + " fileCache:" + fileCache.size() + "]";
     }
 
     private Optional<ByteArrayInputStream> update(
@@ -102,8 +97,13 @@ public final class CloudMediaLibrary implements MediaLibrary {
     private Map<String, S3Accessor.RemoteInfo> infosWithPrefix(String file) {
         var prefix = file.substring(0, 1);
         var time = this.time.get();
-        return update(infos, prefix, time, time.plus(TIMEOUT), () ->
-            Optional.ofNullable(s3.remoteInfos(prefix))
+        return update(
+            infos,
+            prefix,
+            time,
+            time.plus(TIMEOUT),
+            () ->
+                Optional.ofNullable(s3.remoteInfos(prefix))
         ).orElseGet(Collections::emptyMap);
     }
 
@@ -142,15 +142,18 @@ public final class CloudMediaLibrary implements MediaLibrary {
         Supplier<Optional<T>> refresher
     ) {
         return Optional.ofNullable(
-                map.compute(key, (_, cached) ->
-                    Optional.ofNullable(cached)
-                        .filter(c ->
-                            !c.outdatedAt(lastValidTime))
-                        .or(() ->
-                            refresher.get()
-                                .map(t ->
-                                    new Cached<>(time, t)))
-                        .orElse(null))
+                map.compute(
+                    key,
+                    (_, cached) ->
+                        Optional.ofNullable(cached)
+                            .filter(c ->
+                                !c.outdatedAt(lastValidTime))
+                            .or(() ->
+                                refresher.get()
+                                    .map(t ->
+                                        new Cached<>(time, t)))
+                            .orElse(null)
+                )
             )
             .map(Cached::data);
     }
@@ -167,5 +170,10 @@ public final class CloudMediaLibrary implements MediaLibrary {
         private Optional<T> optionalData() {
             return Optional.ofNullable(data());
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[infos:" + infos.size() + " fileCache:" + fileCache.size() + "]";
     }
 }
