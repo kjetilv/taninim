@@ -1,6 +1,8 @@
 package taninim.yellin;
 
 import module java.base;
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind;
 import taninim.music.medias.UserAuth;
 import taninim.music.medias.UserAuths;
 import taninim.music.medias.UserRequest;
@@ -61,38 +63,30 @@ final class DefaultAuthorizer implements Authorizer {
     @Override
     public Optional<UserAuth> authorize(UserRequest request) {
         var userAuths = this.authIds.get();
-        return conflictingLease(request, userAuths)
+        return conflictingLease(userAuths, request.userId(), request.albumId())
             .map(_ ->
                 Optional.<UserAuth>empty())
-            .orElseGet(() ->
-                addAuth(userAuths, request));
+            .orElseGet(() -> {
+                var time = this.time.get();
+                var requested = requestedAuth(request, time);
+                var auths = userAuths.updatedWith(requested, time);
+                updateAuthIds.accept(auths);
+                return auths.requestedAuth(request);
+            });
     }
 
     @Override
     public Optional<UserAuth> deauthorize(UserRequest request) {
         var userAuths = this.authIds.get();
-        return updatedUserAuths(
-            request,
-            userAuths.without(requestedAuth(request, time.get()))
-        );
-    }
-
-    private Optional<UserAuth> addAuth(UserAuths userAuths, UserRequest request) {
-        var time = this.time.get();
-        var requestedAuth = requestedAuth(request, time);
-        var updatedAuths = userAuths.updatedWith(requestedAuth, time);
-        return updatedUserAuths(request, updatedAuths);
+        UserAuths auths = userAuths.without(requestedAuth(request, time.get()));
+        updateAuthIds.accept(auths);
+        return auths.requestedAuth(request);
     }
 
     private UserAuth createLogin(UserAuths userAuths, String userId, Instant time) {
         var userAuth = new UserAuth(userId, time.plus(sessionDuration));
         updateAuthIds.accept(userAuths.updatedWith(userAuth, time));
         return userAuth;
-    }
-
-    private Optional<UserAuth> updatedUserAuths(UserRequest request, UserAuths auths) {
-        updateAuthIds.accept(auths);
-        return auths.forAuth(request);
     }
 
     private UserAuth requestedAuth(UserRequest request, Instant time) {
@@ -109,22 +103,27 @@ final class DefaultAuthorizer implements Authorizer {
     }
 
     private static Optional<UserAuth.AlbumLease> conflictingLease(
-        UserRequest request,
-        UserAuths userAuths
+        UserAuths userAuths,
+        String userId,
+        Hash<HashKind.K128> uuid
     ) {
-        return userAuths.userAuths()
+        return userAuths.auths()
             .stream()
-            .filter(userAuth ->
-                isForOther(userAuth, request))
+            .filter(notFor(userId))
             .flatMap(existingAuth ->
-                existingAuth.albumLeases()
-                    .stream()
-                    .filter(lease ->
-                        lease.isFor(request.albumId())))
+                conflictingLeases(existingAuth, uuid))
             .findFirst();
     }
 
-    private static boolean isForOther(UserAuth userAuth, UserRequest request) {
-        return !userAuth.matches(request.userId());
+    private static Predicate<UserAuth> notFor(String userId) {
+        return userAuth ->
+            !userAuth.matches(userId);
+    }
+
+    private static Stream<UserAuth.AlbumLease> conflictingLeases(UserAuth existingAuth, Hash<HashKind.K128> uuid) {
+        return existingAuth.albumLeases()
+            .stream()
+            .filter(lease ->
+                lease.isFor(uuid));
     }
 }

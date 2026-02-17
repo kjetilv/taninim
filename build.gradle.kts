@@ -37,7 +37,7 @@ subprojects {
     }
 
     dependencies {
-        testImplementation(platform("org.junit:junit-bom:6.0.1"))
+        testImplementation(platform("org.junit:junit-bom:6.0.3"))
 
         testImplementation("org.junit.jupiter:junit-jupiter-api")
         testImplementation("org.junit.jupiter:junit-jupiter")

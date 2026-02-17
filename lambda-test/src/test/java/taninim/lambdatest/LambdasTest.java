@@ -5,10 +5,7 @@ import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.s3.S3Accessor;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
@@ -31,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static taninim.yellin.Operation.ACQUIRE;
 import static taninim.yellin.Operation.RELEASE;
 
+@Timeout(3)
 @SuppressWarnings("MagicNumber")
 class LambdasTest {
 

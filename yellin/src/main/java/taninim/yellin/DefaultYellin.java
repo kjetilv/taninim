@@ -264,7 +264,8 @@ public final class DefaultYellin implements Yellin {
 
     private static void authIds(MediaLibrary mediaLibrary, UserAuths userAuths) {
         mediaLibrary.write(
-            "auth-digest.bin", outputStream -> {
+            "auth-digest.bin",
+            outputStream -> {
                 try (var dos = new DataOutputStream(outputStream)) {
                     userAuths.writeTo(dos);
                 } catch (IOException e) {

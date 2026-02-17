@@ -6,8 +6,6 @@ import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.synchttp.CorsSettings;
-import jdk.incubator.vector.ByteVector;
-import jdk.incubator.vector.IntVector;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;

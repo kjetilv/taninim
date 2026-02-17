@@ -1,23 +1,18 @@
 package taninim.music.medias;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.EOFException;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
 import taninim.util.Maps;
 
-public record UserAuths(List<UserAuth> userAuths) implements BinaryWritable {
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+public record UserAuths(List<UserAuth> auths) implements BinaryWritable {
 
     public static UserAuths from(DataInput input) {
         int count;
@@ -28,63 +23,65 @@ public record UserAuths(List<UserAuth> userAuths) implements BinaryWritable {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-        return new UserAuths(IntStream.range(0, count).mapToObj(__ -> UserAuth.from(input)).toList());
+        return new UserAuths(IntStream.range(0, count).mapToObj(__ -> UserAuth.from(input))
+            .toList());
     }
 
     public UserAuths() {
         this(null);
     }
 
-    public UserAuths(List<UserAuth> userAuths) {
-        this.userAuths = userAuths == null || userAuths.isEmpty()
+    public UserAuths(List<UserAuth> auths) {
+        this.auths = auths == null || auths.isEmpty()
             ? Collections.emptyList()
-            : userAuths;
+            : auths;
     }
 
     @Override
     public int writeTo(DataOutput dos) {
-        return userAuths.isEmpty() ? 0 : BytesIO.writeWritables(dos, userAuths);
+        return auths.isEmpty() ? 0 : BytesIO.writeWritables(dos, auths);
     }
 
     public UserAuths without(UserAuth userAuth) {
-        return new UserAuths(userAuths.stream()
+        return new UserAuths(auths.stream()
             .map(existing ->
                 existing.matches(userAuth) ? existing.without(userAuth) : existing)
             .toList());
     }
 
     public UserAuths updatedWith(UserAuth userAuth, Instant time) {
-        var authList = Stream.concat(userAuths.stream(), Stream.of(userAuth))
+        var authList = Stream.concat(auths.stream(), Stream.of(userAuth))
             .map(auth ->
                 auth.withoutExpiredLeasesAt(time))
             .toList();
         var grouped = Maps.groupBy(authList, UserAuth::userId);
-        return new UserAuths(grouped.entrySet()
+        var auths = grouped.entrySet()
             .stream()
             .map(entry ->
-                auths(entry.getKey(), entry.getValue()))
-            .toList());
-    }
-
-    private static UserAuth auths(String name, List<UserAuth> auths) {
-        return auths.stream()
-            .sorted(Comparator.naturalOrder())
-            .reduce(UserAuth::combine)
-            .orElseThrow(() ->
-                new IllegalStateException("Execpted auths for " + name));
+                auths(entry.getValue())
+                    .orElseThrow(() ->
+                        new IllegalStateException("Execpted auths for " + entry.getKey())))
+            .toList();
+        return new UserAuths(auths);
     }
 
     public Optional<UserAuth> forUser(String userId) {
-        return find(auth -> Objects.equals(auth.userId(), userId));
-    }
-
-    public Optional<UserAuth> forAuth(UserRequest userRequest) {
-        return find(userRequest::matches);
-    }
-
-    private Optional<UserAuth> find(Predicate<? super UserAuth> userAuthPredicate) {
-        return userAuths.stream()
-            .filter(userAuthPredicate)
+        return auths.stream()
+            .filter(auth ->
+                Objects.equals(auth.userId(), userId))
             .findFirst();
     }
+
+    public Optional<UserAuth> requestedAuth(UserRequest userRequest) {
+        return auths.stream()
+            .filter(userRequest::matches)
+            .findFirst();
+    }
+
+    private static Optional<UserAuth> auths(List<UserAuth> auths) {
+        return auths.stream()
+            .sorted(Comparator.naturalOrder())
+            .reduce(UserAuth::combine);
+    }
+
 }

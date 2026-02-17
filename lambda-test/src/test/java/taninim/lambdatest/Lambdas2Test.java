@@ -16,6 +16,7 @@ import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
@@ -40,6 +41,7 @@ import static taninim.lambdatest.Parse.leasesActivation;
         "MagicNumber", "SameParameterValue", "FieldCanBeLocal", "WeakerAccess", "unused"
     }
 )
+//@Timeout(3)
 class Lambdas2Test {
 
     private Map<String, S3Data> s3 = new ConcurrentHashMap<>();

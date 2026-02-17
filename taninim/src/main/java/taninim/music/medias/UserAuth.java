@@ -8,6 +8,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,8 +80,7 @@ public record UserAuth(
             expiry(),
             token(),
             albumLeases().stream()
-                .filter(albumLease ->
-                    albumLease.expiry().isAfter(time))
+                .filter(activeAt(time))
                 .toList()
         );
     }
@@ -143,10 +143,12 @@ public record UserAuth(
         return expiry.isAfter(requireNonNull(time, "time"));
     }
 
-    public record AlbumLease(
-        Hash<K128> albumId,
-        Instant expiry
-    ) implements BinaryWritable {
+    private static Predicate<AlbumLease> activeAt(Instant time) {
+        return albumLease ->
+            time.isBefore(albumLease.expiry());
+    }
+
+    public record AlbumLease(Hash<K128> albumId, Instant expiry) implements BinaryWritable {
 
         public AlbumLease(Hash<K128> albumId, Instant expiry) {
             this.albumId = requireNonNull(albumId, "albumId");

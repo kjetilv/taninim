@@ -3,7 +3,6 @@ import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import taninim.music.Archives;
 import taninim.music.legal.S3Archives;
-import taninim.music.medias.UserAuth;
 import taninim.music.medias.UserAuths;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
@@ -21,7 +20,7 @@ void main() {
         .ifPresent(userAuths -> {
 
             System.out.println("  User-auths:");
-            userAuths.userAuths()
+            userAuths.auths()
                 .forEach(userAuth -> {
                     var leases = userAuth.albumLeases();
                     System.out.println(

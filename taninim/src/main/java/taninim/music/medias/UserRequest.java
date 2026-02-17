@@ -7,11 +7,7 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-public record UserRequest(
-    String userId,
-    Hash<K128> token,
-    Hash<K128> albumId
-) {
+public record UserRequest(String userId, Hash<K128> token, Hash<K128> albumId) {
 
     public UserRequest(String userId, Hash<K128> token, Hash<K128> albumId) {
         this.userId = requireNonNull(userId, "userId");
