@@ -8,11 +8,11 @@ import static java.util.Objects.requireNonNull;
 
 public final class S3Archives implements Archives {
 
-    private final S3Accessor s3;
-
     public static Archives create(S3Accessor s3) {
         return new S3Archives(s3);
     }
+
+    private final S3Accessor s3;
 
     private S3Archives(S3Accessor s3) {
         this.s3 = requireNonNull(s3, "s3");
@@ -43,22 +43,23 @@ public final class S3Archives implements Archives {
         s3.remove(paths);
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + s3 + "]";
-    }
-
     private static List<String> stream(String path, InputStream is) {
         try (
             var reader = new InputStreamReader(is, StandardCharsets.UTF_8);
             var bufferedReader = new BufferedReader(reader)
         ) {
             return bufferedReader.lines()
-                .filter(s -> !s.isBlank())
+                .filter(line ->
+                    !line.isBlank())
                 .map(String::trim)
                 .toList();
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read " + path, e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + s3 + "]";
     }
 }
