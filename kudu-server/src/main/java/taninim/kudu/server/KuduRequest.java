@@ -1,5 +1,6 @@
 package taninim.kudu.server;
 
+import module java.base;
 import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.hash.HashKind;
 import com.github.kjetilv.uplift.kernel.io.Range;
@@ -7,12 +8,6 @@ import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.Track;
-
-import java.lang.foreign.MemorySegment;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
 
 public sealed interface KuduRequest {
 

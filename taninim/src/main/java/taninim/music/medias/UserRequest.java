@@ -1,9 +1,8 @@
 package taninim.music.medias;
 
+import module java.base;
 import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.hash.HashKind.K128;
-
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
