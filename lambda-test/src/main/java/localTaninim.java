@@ -1,6 +1,8 @@
 import module java.base;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
+import com.github.kjetilv.uplift.flogs.BriefLogEntryFormatter;
+import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -14,12 +16,11 @@ import taninim.kudu.KuduLambdaHandler;
 import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
 
-import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
-import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
+import static com.github.kjetilv.uplift.flogs.LogLevel.INFO;
 import static com.github.kjetilv.uplift.util.Time.utcSupplier;
 
 void main() {
-    initialize(DEBUG);
+    Flogs.initialize(INFO, new BriefLogEntryFormatter());
 
     var logger = LoggerFactory.getLogger("LocalTaninim");
     var time = utcSupplier();
@@ -28,9 +29,8 @@ void main() {
 
     var kuduCors = new CorsSettings(
         List.of(
-//            "https://kjetilv.github.io",
+            "https://kjetilv.github.io",
             "https://localhost:8443"
-//            "https://localhost:5173"
         ),
         List.of("GET", "OPTIONS", "HEAD"),
         List.of("content-type", "range")
