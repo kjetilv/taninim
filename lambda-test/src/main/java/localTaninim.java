@@ -110,15 +110,15 @@ void main() {
             )
             .forEach(executor::submit);
         logger.info(
-            "Yellin @ lambda/{} <-> api/{}: {}",
-            yellinFlambda.lambdaUri(),
+            "Yellin ➤ {} ⇌ 𝛌⏐{}: {}",
             yellinFlambda.apiUri(),
+            yellinFlambda.lambdaUri(),
             yellinHandler
         );
         logger.info(
-            "Kudu   @ lambda/{} <-> api/{}: {}",
-            kuduFlambda.lambdaUri(),
+            "Kudu   ➤ {} ⇌ 𝛌⏐/{}: {}",
             kuduFlambda.apiUri(),
+            kuduFlambda.lambdaUri(),
             kudu
         );
     }
@@ -129,6 +129,6 @@ private static final int K = 1_024;
 
 private static final Duration ONE_DAY = Duration.ofDays(1);
 
-private static final Duration FOUR_HOURS = Duration.ofHours(1);
+private static final Duration FOUR_HOURS = Duration.ofHours(4);
 
 private static final Env ENV = Env.actual();
