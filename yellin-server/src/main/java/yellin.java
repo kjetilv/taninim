@@ -35,7 +35,7 @@ void main(String[] args) {
             new DefaultFbAuthenticator()
         ));
 
-    Server.Processor processor = new HttpCallbackProcessor(httpHandler, Arena.ofAuto());
+    Server.Processor processor = new HttpCallbackProcessor(httpHandler);
 
     var port = resolvePort(parameters);
     try (var server = Server.create(port).run(processor)) {

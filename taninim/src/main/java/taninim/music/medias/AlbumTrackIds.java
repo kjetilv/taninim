@@ -2,6 +2,7 @@ package taninim.music.medias;
 
 import module java.base;
 import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
 
@@ -15,8 +16,8 @@ public record AlbumTrackIds(
 
     static AlbumTrackIds from(DataInput input) {
         try {
-            var title = Hash.of(input, K128);
-            return new AlbumTrackIds(title, BytesIO.readHashes128(input));
+            var title = K128.from(input);
+            return new AlbumTrackIds(title, BytesIO.readHashes(K128, input));
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

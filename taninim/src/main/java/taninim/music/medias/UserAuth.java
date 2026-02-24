@@ -20,11 +20,11 @@ public record UserAuth(
         try {
             var userId = readString(input);
             var time = readInstant(input);
-            var token = Hash.of(input, K128);
+            var token = K128.from(input);
             var count = input.readInt();
             List<AlbumLease> albumLeases = new ArrayList<>(count);
             for (var i = 0; i < count; i++) {
-                var uuid = Hash.of(input, K128);
+                var uuid = K128.from(input);
                 var expiry = readInstant(input);
                 albumLeases.add(new AlbumLease(uuid, expiry));
             }

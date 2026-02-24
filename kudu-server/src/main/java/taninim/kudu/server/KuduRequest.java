@@ -2,12 +2,13 @@ package taninim.kudu.server;
 
 import module java.base;
 import com.github.kjetilv.uplift.hash.Hash;
-import com.github.kjetilv.uplift.hash.HashKind;
 import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.Track;
+
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 
 public sealed interface KuduRequest {
 
@@ -41,7 +42,7 @@ public sealed interface KuduRequest {
             var req = httpReq.withQueryParameters();
             var file = req.path("/audio/");
             var dotIndex = req.path().lastIndexOf('.');
-            var trackUUID = Hash.fromUuid(UUID.fromString(file.substring(0, dotIndex)));
+            var trackUUID = K128.fromUuid(UUID.fromString(file.substring(0, dotIndex)));
             var format = Track.Format.valueOf(file.substring(dotIndex + 1));
             var track = new Track(trackUUID, format);
             return Optional.ofNullable(req.headers().header(RANGE))
@@ -62,14 +63,14 @@ public sealed interface KuduRequest {
             .orElse(null);
     }
 
-    private static Hash<HashKind.K128> token(HttpReq httpReq) {
+    private static Hash<K128> token(HttpReq httpReq) {
         return Hash.from(httpReq.queryParameters().par("t"));
     }
 
-    record Library(Hash<HashKind.K128> token) implements KuduRequest {
+    record Library(Hash<K128> token) implements KuduRequest {
     }
 
-    record Audio(Track track, Range range, Hash<HashKind.K128> token) implements KuduRequest {
+    record Audio(Track track, Range range, Hash<K128> token) implements KuduRequest {
     }
 
     record Preflight() implements KuduRequest {
