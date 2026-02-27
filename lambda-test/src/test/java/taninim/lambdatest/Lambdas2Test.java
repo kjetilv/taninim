@@ -4,6 +4,9 @@ import module java.base;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
 import com.github.kjetilv.uplift.flambda.LambdaHarness;
 import com.github.kjetilv.uplift.flambda.Reqs;
+import com.github.kjetilv.uplift.flogs.BriefLogEntryFormatter;
+import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.hash.HashKind;
 import com.github.kjetilv.uplift.hash.HashKind.K128;
@@ -45,6 +48,10 @@ import static taninim.lambdatest.Parse.leasesActivation;
 )
 //@Timeout(3)
 class Lambdas2Test {
+
+    static {
+        Flogs.initialize(LogLevel.INFO, new BriefLogEntryFormatter());
+    }
 
     private Map<String, S3Data> s3 = new ConcurrentHashMap<>();
 

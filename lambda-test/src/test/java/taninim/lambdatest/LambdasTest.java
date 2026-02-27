@@ -1,6 +1,9 @@
 package taninim.lambdatest;
 
 import module java.base;
+import com.github.kjetilv.uplift.flogs.BriefLogEntryFormatter;
+import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.Range;
@@ -31,6 +34,10 @@ import static taninim.yellin.Operation.RELEASE;
 @Timeout(3)
 @SuppressWarnings("MagicNumber")
 class LambdasTest {
+
+    static {
+        Flogs.initialize(LogLevel.INFO, new BriefLogEntryFormatter());
+    }
 
     private final Duration sessionDuration = Duration.ofDays(1);
 

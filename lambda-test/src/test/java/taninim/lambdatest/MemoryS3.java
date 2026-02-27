@@ -31,7 +31,7 @@ public record MemoryS3(
 
     @Override
     public void put(String remoteName, InputStream inputStream, long length) {
-        log.info("Putting {} bytes into {}", length, remoteName);
+        log.debug("Putting {} bytes into {}", length, remoteName);
         var bytes = BytesIO.readInputStream(inputStream);
         s3.put(
             remoteName, new S3Data(
