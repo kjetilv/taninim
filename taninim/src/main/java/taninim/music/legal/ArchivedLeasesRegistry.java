@@ -5,6 +5,7 @@ import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.hash.HashKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.auth.Authed;
 import taninim.music.*;
 import taninim.music.Archives.ArchivedRecord;
 
@@ -39,19 +40,16 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     @Override
-    public Optional<LeasesPath> getActive(Hash<HashKind.K128> token) {
+    public Authed<LeasesPath> getActive(Hash<HashKind.K128> token) {
         var time = this.time.get();
         var leasePeriod = LeasePeriod.starting(time).ofLength(leaseDuration);
-        try (var pathsForToken = archives.retrievePaths(LEASE_PREFIX, recordFor(token))) {
-            return pathsForToken.max(BY_EPOCH_HOUR).flatMap(path ->
-                archives.retrieveRecord(path)
-                    .map(archivedRecord ->
-                        leases(token, archivedRecord).validAt(time))
-                    .filter(leases ->
-                        leases.stillActiveAt(leasePeriod.start()))
-                    .map(leases ->
-                        leases.validAt(time))
-                    .map(leases -> new LeasesPath(leases, leasePeriod)));
+        try (var pathsForToken = pathsFor(token)) {
+            return Authed.require(
+                latest(pathsForToken).flatMap(path ->
+                    validTokenAt(time, leasePeriod, path, token)),
+                () ->
+                    "Unauthorized: " + token
+            );
         }
     }
 
@@ -65,6 +63,27 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         } finally {
             deleteOutdated(time);
         }
+    }
+
+    private Stream<String> pathsFor(Hash<HashKind.K128> token) {
+        return archives.retrievePaths(LEASE_PREFIX, recordFor(token));
+    }
+
+    private Optional<LeasesPath> validTokenAt(
+        Instant time,
+        LeasePeriod leasePeriod,
+        String path,
+        Hash<HashKind.K128> token
+    ) {
+        return archives.retrieveRecord(path)
+            .map(archivedRecord ->
+                leases(token, archivedRecord).validAt(time))
+            .filter(leases ->
+                leases.stillActiveAt(leasePeriod.start()))
+            .map(leases ->
+                leases.validAt(time))
+            .map(leases ->
+                new LeasesPath(leases, leasePeriod));
     }
 
     private LeasesPath stored(LeasesPath leasesPath) {
@@ -101,6 +120,10 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     private static final String LEASE_SUFFIX = ".lease.txt";
 
     private static final Comparator<String> BY_EPOCH_HOUR = Comparator.comparing(ArchivedLeasesRegistry::epochHour);
+
+    private static Optional<String> latest(Stream<String> pathsForToken) {
+        return pathsForToken.max(BY_EPOCH_HOUR);
+    }
 
     private static ArchivedRecord recordOf(LeasesPath leasesPath) {
         return new ArchivedRecord(leasesPath.toPath(), leasesPath.leases().toLines());

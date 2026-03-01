@@ -1,15 +1,20 @@
 import module java.base;
+import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import taninim.music.Archives;
 import taninim.music.legal.S3Archives;
 import taninim.music.medias.UserAuths;
 
-import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
-
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
-void main() {
-    initialize();
+void main(String[] args) {
+    Flogs.initialize();
+
+    var log = LoggerFactory.getLogger("listLeases");
+
+    boolean clear = Arrays.stream(args).anyMatch("clear"::equalsIgnoreCase);
 
     var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Executors.newVirtualThreadPerTaskExecutor());
     var archives = S3Archives.create(s3Accessor);
@@ -63,6 +68,14 @@ void main() {
                     }
                 });
         });
+
+    if (clear) {
+        s3Accessor.listInfos("lease").forEach(remoteInfo -> {
+            log.info("Removing lease {}", remoteInfo.key());
+            s3Accessor.remove(remoteInfo.key());
+        });
+        s3Accessor.remove("auth-digest.bin");
+    }
 }
 
 private static final long SECONDS_PER_HOUR = Duration.ofHours(1).toSeconds();

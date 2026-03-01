@@ -67,7 +67,7 @@ void main() {
         List.of("POST", "DELETE", "OPTIONS", "HEAD"),
         List.of("content-type")
     );
-    var yellinSize = 8 * K;
+    var yellinSize = 64 * K;
     var yellinFlambda = new Flambda(
         new FlambdaSettings(
             "yellin",
@@ -80,8 +80,7 @@ void main() {
         )
     );
 
-    var yellinClientSettings =
-        new LambdaClientSettings(ENV, utcSupplier());
+    var yellinClientSettings = new LambdaClientSettings(ENV, utcSupplier());
 
     var authenticator = new DefaultFbAuthenticator();
 

@@ -2,18 +2,19 @@ package taninim.music.aural;
 
 import module java.base;
 import com.github.kjetilv.uplift.kernel.io.Range;
+import taninim.auth.Authed;
 
 @SuppressWarnings("unused")
 public record Chunk(String format, long start, long end, long totalSize) {
 
-    public static Optional<Chunk> create(Range range, String format, long transferSize) {
+    public static Authed<Chunk> create(Range range, String format, long transferSize) {
         if (range.length() == null) {
             throw new IllegalStateException("Cannot compute chunk, missing length: " + range);
         }
         var start = range.start();
         if (start == null || start < range.length()) {
             try {
-                return Optional.of(new Chunk(
+                return Authed.authorized(new Chunk(
                     format,
                     start == null ? 0 : start,
                     computeExclusiveEnd(range, range.length(), transferSize),
@@ -24,7 +25,7 @@ public record Chunk(String format, long start, long end, long totalSize) {
                     range + " could not create chunk for format " + format + ", transferSize " + transferSize, e);
             }
         }
-        return Optional.empty();
+        return Authed.empty();
     }
 
     public Chunk(String format, long totalSize) {

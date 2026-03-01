@@ -48,15 +48,17 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
     }
 
     private LambdaResult addLease(String body) {
-        return yellin.requestLease(LeasesRequest.acquire(body))
-            .map(activation ->
-                lambdaResult(LEASES_WRITER.write(activation)))
+        var acquire = LeasesRequest.acquire(body);
+        return yellin.requestLease(acquire)
+            .map(LEASES_WRITER::write)
+            .map(LambdaHandlerSupport::lambdaResult)
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
 
     private LambdaResult removeLease(String body) {
-        return yellin.dismissLease(LeasesRequest.release(body))
+        var release = LeasesRequest.release(body);
+        return yellin.dismissLease(release)
             .map(result ->
                 lambdaResult(LEASES_WRITER.write(result)))
             .orElseGet(

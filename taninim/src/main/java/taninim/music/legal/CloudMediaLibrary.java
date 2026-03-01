@@ -39,18 +39,22 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     @Override
     public Optional<? extends InputStream> stream(String file) {
-        return infoWithPrefix(file).flatMap(info -> {
-            var lastCached = fileCache.get(file);
-            return needsUpdate(info, lastCached)
-                ? update(time.get(), file, info, getLastValidTime(lastCached))
-                : lastCached.optionalData()
-                  .map(ByteArrayInputStream::new);
-        });
+        return infoWithPrefix(file)
+            .flatMap(info -> {
+                var lastCached = fileCache.get(file);
+                return needsUpdate(info, lastCached)
+                    ? update(time.get(), file, info, getLastValidTime(lastCached))
+                    : lastCached.optionalData()
+                      .map(ByteArrayInputStream::new);
+            });
     }
 
     @Override
     public Optional<? extends InputStream> stream(Chunk chunk, String file) {
-        return s3.stream(file, chunk == null ? null : chunk.range());
+        return s3.stream(
+            file,
+            chunk == null ? null : chunk.range()
+        );
     }
 
     @Override

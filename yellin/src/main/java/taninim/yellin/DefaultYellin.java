@@ -8,6 +8,7 @@ import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.json.mame.CachingJsonSessions;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.util.OnDemand;
+import taninim.auth.Authed;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
@@ -107,19 +108,20 @@ public final class DefaultYellin implements Yellin {
     }
 
     @Override
-    public Optional<LeasesActivation> currentLease(ExtAuthResponse extAuthResponse) {
+    public Authed<LeasesActivation> currentLease(ExtAuthResponse extAuthResponse) {
         return currentOrRefreshed(extAuthResponse, false);
     }
 
     @Override
-    public Optional<LeasesActivation> createLease(ExtAuthResponse extAuthResponse) {
+    public Authed<LeasesActivation> createLease(ExtAuthResponse extAuthResponse) {
         return currentOrRefreshed(extAuthResponse, true);
     }
 
     @Override
-    public Optional<LeasesActivation> requestLease(LeasesRequest leasesRequest) {
+    public Authed<LeasesActivation> requestLease(LeasesRequest leasesRequest) {
         var time = this.time.get();
-        return authorizer.login(leasesRequest.leasesData().userId(), false)
+        var userId = leasesRequest.leasesData().userId();
+        return authorizer.login(userId, false)
             .filter(userAuth ->
                 userAuth.validAt(time))
             .flatMap(_ -> {
@@ -132,21 +134,22 @@ public final class DefaultYellin implements Yellin {
     }
 
     @Override
-    public Optional<LeasesActivation> dismissLease(LeasesRequest leasesRequest) {
+    public Authed<LeasesActivation> dismissLease(LeasesRequest leasesRequest) {
         return authorizer.deauthorize(userRequest(leasesRequest))
             .map(this::requestedDismissal)
             .map(this::storeActivated);
     }
 
-    private Optional<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
+    private Authed<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
         var time = this.time.get();
-        return authenticator.authenticate(extAuthResponse).flatMap(auth ->
-            authorizer.login(auth.id(), refresh)
-                .filter(userAuth ->
-                    userAuth.validAt(time))
-                .map(userAuth ->
-                    initialActivation(auth, userAuth, time))
-                .map(this::storeActivated));
+        return Authed.require(authenticator.authenticate(extAuthResponse))
+            .flatMap(auth ->
+                authorizer.login(auth.id(), refresh)
+                    .filter(userAuth ->
+                        userAuth.validAt(time))
+                    .map(userAuth ->
+                        initialActivation(auth, userAuth, time))
+                    .map(this::storeActivated));
     }
 
     private LeasesActivation initialActivation(ExtUser fbUser, UserAuth userAuth, Instant time) {

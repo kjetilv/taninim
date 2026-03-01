@@ -9,6 +9,7 @@ import com.github.kjetilv.uplift.kernel.io.BinaryWritable;
 import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.junit.jupiter.api.*;
+import taninim.auth.Authed;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
@@ -34,10 +35,6 @@ import static taninim.yellin.Operation.RELEASE;
 @Timeout(3)
 @SuppressWarnings("MagicNumber")
 class LambdasTest {
-
-    static {
-        Flogs.initialize(LogLevel.INFO, new BriefLogEntryFormatter());
-    }
 
     private final Duration sessionDuration = Duration.ofDays(1);
 
@@ -178,6 +175,10 @@ class LambdasTest {
         s3Accessor.put(file, bytes);
     }
 
+    static {
+        Flogs.initialize(LogLevel.INFO, new BriefLogEntryFormatter());
+    }
+
     private static ExtAuthResponse authResponse(String id) {
         var expiresIn = Duration.ofMinutes(1);
         var expirationTime = Instant.now().plus(expiresIn);
@@ -211,10 +212,9 @@ class LambdasTest {
 
         @Test
         void noRentIntime() {
-            var firstToken =
-                yellin.createLease(authResponse(userId))
-                    .map(LeasesActivation::token)
-                    .orElseThrow();
+            var firstToken = yellin.createLease(authResponse(userId))
+                .map(LeasesActivation::token)
+                .orElseThrow();
 
             tick(5, 4, sessionDuration);
 
@@ -225,7 +225,7 @@ class LambdasTest {
                     firstToken,
                     album2.digest()
                 )
-            ))).isEmpty();
+            ))).isInstanceOf(Authed.Empty.class);
         }
 
         @Test
@@ -240,7 +240,8 @@ class LambdasTest {
             tick(1, 4, leaseDuration);
 
             assertThat(yellin.requestLease(
-                new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2.digest())))
+                    new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2.digest())))
+                .toOptional()
             ).hasValueSatisfying(activation -> {
                 assertThat(activation.token()).isEqualTo(firstToken);
                 assertThat(activation.trackUUIDs()).describedAs(
@@ -258,7 +259,7 @@ class LambdasTest {
 
             tick(1, 2, leaseDuration);
 
-            assertThat(yellin.currentLease(authResponse(userId)))
+            assertThat(yellin.currentLease(authResponse(userId)).toOptional())
                 .hasValueSatisfying(result -> {
                     assertThat(result.token()).isEqualTo(firstToken);
                     assertThat(result.trackUUIDs()).describedAs(
@@ -283,7 +284,7 @@ class LambdasTest {
                     .orElseThrow();
             assertThat(yellin.requestLease(
                 new LeasesRequest(ACQUIRE, new LeasesData(userId, firstToken, album2.digest()))
-            )).hasValueSatisfying(result -> {
+            ).toOptional()).hasValueSatisfying(result -> {
                 assertThat(result.token()).isEqualTo(firstToken);
                 assertThat(result.trackUUIDs()).describedAs(
                     "Expected two tracks and definitely not album UUID %s",
@@ -297,21 +298,22 @@ class LambdasTest {
 
             tick(Duration.ofMinutes(leaseDuration.toMinutes() / 2));
 
-            assertThat(yellin.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
-                assertThat(result.token()).isEqualTo(firstToken);
-                assertThat(result.trackUUIDs()).describedAs(
-                    "Expected three tracks and definitely not album UUID %s",
-                    album2
-                ).containsExactly(
-                    track2a.digest(),
-                    track2b.digest(),
-                    track2c.digest()
-                );
-            });
+            assertThat(yellin.currentLease(authResponse(userId)).toOptional())
+                .hasValueSatisfying(result -> {
+                    assertThat(result.token()).isEqualTo(firstToken);
+                    assertThat(result.trackUUIDs()).describedAs(
+                        "Expected three tracks and definitely not album UUID %s",
+                        album2
+                    ).containsExactly(
+                        track2a.digest(),
+                        track2b.digest(),
+                        track2c.digest()
+                    );
+                });
 
             tick(leaseDuration);
 
-            assertThat(yellin.createLease(authResponse(userId)))
+            assertThat(yellin.createLease(authResponse(userId)).toOptional())
                 .hasValueSatisfying(result -> {
                     assertThat(result.token()).isNotEqualTo(firstToken);
                     assertThat(result.trackUUIDs()).describedAs("Expected timed-out rental")
@@ -335,12 +337,12 @@ class LambdasTest {
             var track = new Track(track2b, Track.Format.M4A);
             var trackRange = new TrackRange(track, new Range(0L, 10L), firstToken);
 
-            assertThat(kudu.library(firstToken)).isPresent();
-            assertThat(kudu.library(K128.random())).isNotPresent();
+            assertThat(kudu.library(firstToken).toOptional()).isPresent();
+            assertThat(kudu.library(K128.random()).toOptional()).isNotPresent();
 
             tick(Duration.ofDays(1));
 
-            assertThat(kudu.library(firstToken)).isEmpty();
+            assertThat(kudu.library(firstToken).toOptional()).isEmpty();
         }
 
         @BeforeEach
@@ -360,13 +362,13 @@ class LambdasTest {
         @Test
         void rejectStrangers() {
             setupDispatcher();
-            assertThat(yellin.createLease(authResponse(K128.random().digest()))).isEmpty();
+            assertThat(yellin.createLease(authResponse(K128.random().digest())).toOptional()).isEmpty();
         }
 
         @Test
         void authUserWithoutRentals() {
             setupDispatcher();
-            assertThat(yellin.createLease(authResponse(userId)))
+            assertThat(yellin.createLease(authResponse(userId)).toOptional())
                 .hasValueSatisfying(result ->
                     assertThat(result.isEmpty()).isTrue());
         }
@@ -374,12 +376,13 @@ class LambdasTest {
         @Test
         void authUserShouldProduceRecord() {
             setupDispatcher();
-            assertThat(yellin.createLease(authResponse(userId))).hasValueSatisfying(result -> {
-                assertThat(result.isEmpty()).isTrue();
-                assertThat(yellin.createLease(authResponse(userId)))
-                    .hasValueSatisfying(activation ->
-                        assertThat(activation.token()).isEqualTo(result.token()));
-            });
+            assertThat(yellin.createLease(authResponse(userId)).toOptional())
+                .hasValueSatisfying(result -> {
+                    assertThat(result.isEmpty()).isTrue();
+                    assertThat(yellin.createLease(authResponse(userId)).toOptional())
+                        .hasValueSatisfying(activation ->
+                            assertThat(activation.token()).isEqualTo(result.token()));
+                });
         }
 
         @Nested
@@ -392,12 +395,12 @@ class LambdasTest {
 
             @Test
             void lookupExisting() {
-                assertThat(yellin.createLease(authResponse(userId)))
+                assertThat(yellin.createLease(authResponse(userId)).toOptional())
                     .hasValueSatisfying(result -> {
                         assertThat(result.trackUUIDs()).isEmpty();
                         var leasesData = new LeasesData(userId, result.token(), album1.digest());
                         var leasesRequest = new LeasesRequest(ACQUIRE, leasesData);
-                        assertThat(yellin.requestLease(leasesRequest))
+                        assertThat(yellin.requestLease(leasesRequest).toOptional())
                             .hasValueSatisfying(requestResult ->
                                 assertThat(requestResult.trackUUIDs()).describedAs(
                                     "Expected two tracks and definitely not album UUID %s",
@@ -411,7 +414,7 @@ class LambdasTest {
 
             @Test
             void failedRent() {
-                assertThat(yellin.createLease(authResponse(userId)))
+                assertThat(yellin.createLease(authResponse(userId)).toOptional())
                     .hasValueSatisfying(result ->
                         assertThat(result.isEmpty()).isTrue());
             }
@@ -429,30 +432,32 @@ class LambdasTest {
                         firstToken,
                         album2.digest()
                     )
-                ))).hasValueSatisfying(result -> {
-                    assertThat(result.token()).isEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs(
-                        "Expected two tracks and definitely not album " +
-                        "UUID %s",
-                        album2
-                    ).containsExactly(
-                        track2a.digest(),
-                        track2b.digest(),
-                        track2c.digest()
-                    );
-                });
-                assertThat(yellin.currentLease(authResponse(userId))).hasValueSatisfying(result -> {
-                    assertThat(result.token()).isEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs(
-                        "Expected three tracks and definitely not album " +
-                        "UUID %s",
-                        album2
-                    ).containsExactly(
-                        track2a.digest(),
-                        track2b.digest(),
-                        track2c.digest()
-                    );
-                });
+                )).toOptional())
+                    .hasValueSatisfying(result -> {
+                        assertThat(result.token()).isEqualTo(firstToken);
+                        assertThat(result.trackUUIDs()).describedAs(
+                            "Expected two tracks and definitely not album " +
+                            "UUID %s",
+                            album2
+                        ).containsExactly(
+                            track2a.digest(),
+                            track2b.digest(),
+                            track2c.digest()
+                        );
+                    });
+                assertThat(yellin.currentLease(authResponse(userId)).toOptional())
+                    .hasValueSatisfying(result -> {
+                        assertThat(result.token()).isEqualTo(firstToken);
+                        assertThat(result.trackUUIDs()).describedAs(
+                            "Expected three tracks and definitely not album " +
+                            "UUID %s",
+                            album2
+                        ).containsExactly(
+                            track2a.digest(),
+                            track2b.digest(),
+                            track2c.digest()
+                        );
+                    });
             }
 
             @Test
@@ -468,18 +473,19 @@ class LambdasTest {
                         firstToken,
                         album2.digest()
                     )
-                ))).hasValueSatisfying(result -> {
-                    assertThat(result.token()).isEqualTo(firstToken);
-                    assertThat(result.trackUUIDs()).describedAs(
-                        "Expected three tracks and definitely not album " +
-                        "UUID %s",
-                        album2
-                    ).containsExactly(
-                        track2a.digest(),
-                        track2b.digest(),
-                        track2c.digest()
-                    );
-                });
+                )).toOptional())
+                    .hasValueSatisfying(result -> {
+                        assertThat(result.token()).isEqualTo(firstToken);
+                        assertThat(result.trackUUIDs()).describedAs(
+                            "Expected three tracks and definitely not album " +
+                            "UUID %s",
+                            album2
+                        ).containsExactly(
+                            track2a.digest(),
+                            track2b.digest(),
+                            track2c.digest()
+                        );
+                    });
 
                 assertThat(yellin.dismissLease(new LeasesRequest(
                     RELEASE,
@@ -488,8 +494,9 @@ class LambdasTest {
                         firstToken,
                         album2.digest()
                     )
-                ))).hasValueSatisfying(result ->
-                    assertThat(result.trackUUIDs()).isEmpty());
+                )).toOptional())
+                    .hasValueSatisfying(result ->
+                        assertThat(result.trackUUIDs()).isEmpty());
             }
 
             @Test
@@ -509,7 +516,7 @@ class LambdasTest {
 
                 var leasesActivation = yellin.requestLease(leasesRequest);
 
-                assertThat(leasesActivation)
+                assertThat(leasesActivation.toOptional())
                     .hasValueSatisfying(result ->
                         assertThat(result.trackUUIDs()).hasSize(3));
 
@@ -520,10 +527,12 @@ class LambdasTest {
                     activationToken
                 );
 
-                assertThat(kudu.audioBytes(trackRange)).hasValueSatisfying(audioBytes -> {
-                    assertThat(audioBytes.chunk()).isEqualTo(new Chunk("m4a", 0L, 10L, 256L));
-                    assertThat(audioBytes.bytes()).hasSize(10);
-                });
+                assertThat(kudu.audioBytes(trackRange).toOptional())
+                    .hasValueSatisfying(audioBytes -> {
+                        assertThat(audioBytes.chunk()).isEqualTo(
+                            new Chunk("m4a", 0L, 10L, 256L));
+                        assertThat(audioBytes.bytes()).hasSize(10);
+                    });
             }
         }
     }

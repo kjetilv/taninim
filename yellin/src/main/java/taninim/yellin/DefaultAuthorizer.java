@@ -3,6 +3,7 @@ package taninim.yellin;
 import module java.base;
 import com.github.kjetilv.uplift.hash.Hash;
 import com.github.kjetilv.uplift.hash.HashKind;
+import taninim.auth.Authed;
 import taninim.music.medias.UserAuth;
 import taninim.music.medias.UserAuths;
 import taninim.music.medias.UserRequest;
@@ -46,7 +47,7 @@ final class DefaultAuthorizer implements Authorizer {
     }
 
     @Override
-    public Optional<UserAuth> login(String userId, boolean createSession) {
+    public Authed<UserAuth> login(String userId, boolean createSession) {
         var userAuths = this.authIds.get();
         var time = this.time.get();
         return userAuths.forUser(userId)
@@ -54,33 +55,39 @@ final class DefaultAuthorizer implements Authorizer {
                 userAuth.withoutExpiredLeasesAt(time))
             .filter(userAuth ->
                 userAuth.validAt(time))
-            .or(() ->
+            .map(Authed::authorized)
+            .orElseGet(() ->
                 createSession
-                    ? Optional.of(createLogin(userAuths, userId, time))
-                    : Optional.empty());
+                    ? Authed.authorized(createLogin(userAuths, userId, time))
+                    : Authed.unauthorized("No current session"));
     }
 
     @Override
-    public Optional<UserAuth> authorize(UserRequest request) {
+    public Authed<UserAuth> authorize(UserRequest request) {
         var userAuths = this.authIds.get();
         return conflictingLease(userAuths, request.userId(), request.albumId())
-            .map(_ ->
-                Optional.<UserAuth>empty())
+            .map(conflictingLease ->
+                Authed.<UserAuth>unauthorized(remaining(conflictingLease)))
             .orElseGet(() -> {
                 var time = this.time.get();
                 var requested = requestedAuth(request, time);
                 var auths = userAuths.updatedWith(requested, time);
                 updateAuthIds.accept(auths);
-                return auths.requestedAuth(request);
+                var userAuth = auths.requestedAuth(request);
+                return Authed.resolve(userAuth);
             });
     }
 
     @Override
-    public Optional<UserAuth> deauthorize(UserRequest request) {
+    public Authed<UserAuth> deauthorize(UserRequest request) {
         var userAuths = this.authIds.get();
         UserAuths auths = userAuths.without(requestedAuth(request, time.get()));
         updateAuthIds.accept(auths);
-        return auths.requestedAuth(request);
+        return Authed.resolve(auths.requestedAuth(request));
+    }
+
+    private String remaining(UserAuth.AlbumLease conflictingLease) {
+        return "Conflicting lease for " + Duration.between(time.get(), conflictingLease.expiry());
     }
 
     private UserAuth createLogin(UserAuths userAuths, String userId, Instant time) {

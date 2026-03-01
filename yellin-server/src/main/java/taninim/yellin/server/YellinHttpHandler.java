@@ -5,12 +5,10 @@ import com.github.kjetilv.uplift.json.gen.JsonRW;
 import com.github.kjetilv.uplift.synchttp.HttpHandler;
 import com.github.kjetilv.uplift.synchttp.rere.HttpReq;
 import com.github.kjetilv.uplift.synchttp.write.HttpResponseCallback;
-import com.github.kjetilv.uplift.util.Maybe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import taninim.auth.Authed;
 import taninim.yellin.*;
-
-import static com.github.kjetilv.uplift.synchttp.HttpMethod.*;
 
 @SuppressWarnings("LoggingSimilarMessage")
 public class YellinHttpHandler implements HttpHandler {
@@ -25,28 +23,34 @@ public class YellinHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpReq httpReq, HttpResponseCallback callback) {
-        switch (Maybe.a(YellinRequest.from(httpReq))) {
-            case Maybe.A(YellinRequest.Auth(var response)) -> yellin.currentLease(response)
-                .ifPresentOrElse(
-                    activation ->
-                        respondWith(activation, callback),
-                    () ->
-                        callback.status(400)
-                );
-            case Maybe.A(YellinRequest.Lease(var leasesRequest)) -> yellin.requestLease(leasesRequest)
-                .ifPresentOrElse(
-                    result ->
-                        respondWith(leasesRequest, result, callback),
-                    () ->
-                        callback.status(400)
-                );
-            case Maybe.A(YellinRequest.Preflight()) -> callback.status(204);
-            case Maybe.A(YellinRequest.Health()) -> callback.status(200);
-            case Maybe.Nothing<?> _ -> callback.status(404);
-        }
+        YellinRequest.from(httpReq)
+            .ifPresentOrElse(
+                yellinRequest -> {
+                    switch (yellinRequest) {
+                        case YellinRequest.Auth(var response) -> {
+                            switch (yellin.currentLease(response)) {
+                                case Authed.OK(var activation) -> respondWith(activation, callback);
+                                case Authed.Failed(_) -> callback.status(401);
+                                case Authed.Empty<?> _ -> callback.status(404);
+                            }
+                        }
+                        case YellinRequest.Lease(var leasesRequest) -> {
+                            switch (yellin.requestLease(leasesRequest)) {
+                                case Authed.OK(var result) -> respondWith(leasesRequest, result, callback);
+                                case Authed.Failed(_) -> callback.status(401);
+                                case Authed.Empty<?> _ -> callback.status(404);
+                            }
+                        }
+                        case YellinRequest.Health _ -> callback.status(200);
+                        case YellinRequest.Preflight _ -> callback.status(204);
+                    }
+                },
+                () ->
+                    callback.status(400)
+            );
     }
 
-    protected static <T extends Record> void write(HttpResponseCallback.Headers headers, JsonRW<T> instance, T t) {
+    private static <T extends Record> void write(HttpResponseCallback.Headers headers, JsonRW<T> instance, T t) {
         headers.channel(out ->
             instance.chunkedChannelWriter(1024)
                 .write(t, out));
