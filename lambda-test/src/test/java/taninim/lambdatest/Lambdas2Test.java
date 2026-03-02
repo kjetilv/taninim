@@ -26,20 +26,15 @@ import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtAuthResponseRW;
 import taninim.fb.ExtUser;
-import taninim.kudu.DefaultKudu;
+import taninim.kudu.Kudu;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.music.medias.AlbumTrackIds;
 import taninim.music.medias.MediaIds;
-import taninim.yellin.DefaultYellin;
-import taninim.yellin.LeasesData;
-import taninim.yellin.LeasesDataRW;
-import taninim.yellin.YellinLambdaHandler;
+import taninim.yellin.*;
 
 import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static taninim.lambdatest.Parse.authResponse;
-import static taninim.lambdatest.Parse.leasesActivation;
 
 @SuppressWarnings(
     {
@@ -48,10 +43,6 @@ import static taninim.lambdatest.Parse.leasesActivation;
 )
 //@Timeout(3)
 class Lambdas2Test {
-
-    static {
-        Flogs.initialize(LogLevel.INFO, new BriefLogEntryFormatter());
-    }
 
     private Map<String, S3Data> s3 = new ConcurrentHashMap<>();
 
@@ -76,7 +67,7 @@ class Lambdas2Test {
         setTime(Instant.EPOCH);
 
         s3Accessor = new MemoryS3(s3, this::now);
-        s3Accessor.put(idsJson, "ids.json");
+        s3Accessor.put("ids.json", idsJson);
         s3Accessor.put("media.jsonl.gz", zippedLibrary());
 
         var mediaIds = mediaIds(
@@ -123,7 +114,7 @@ class Lambdas2Test {
             FB_AUTHENTICATOR
         ));
 
-        kuduHandler = new KuduLambdaHandler(DefaultKudu.create(kuduClientSettings, taninimSettings, () -> s3Accessor));
+        kuduHandler = new KuduLambdaHandler(Kudu.create(kuduClientSettings, taninimSettings, () -> s3Accessor));
 
         yellinHarness = new LambdaHarness("yellin", yellinHandler, yellinCors, timeRetriever);
         kuduHarness = new LambdaHarness("kudu", kuduHandler, kuduCors, timeRetriever);
@@ -160,7 +151,7 @@ class Lambdas2Test {
     @Test
     void shouldAcceptKnownUser() {
         var response = ok(authAs(userId).join());
-        var authResponse = authResponse(response.body());
+        var authResponse = leasesActivation(response.body());
         assertThat(authResponse.trackUUIDs()).isNullOrEmpty();
         assertThat(authResponse.token()).isNotBlank();
     }
@@ -168,11 +159,12 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToRequestLease() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
+        var response = ok(lease(Hash.from(auth1.token()), album2).join());
         var leasesActivation =
-            leasesActivation(ok(lease(Hash.from(auth1.token()), album2).join()).body());
+            LeasesActivationRW.INSTANCE.stringReader().read(response.body());
         assertThat(leasesActivation.trackUUIDs())
             .containsExactly(track2a.digest(), track2b.digest(), track2c.digest());
     }
@@ -180,14 +172,15 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToRequestLeaseAgain() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         var token = Hash.<K128>from(auth1.token());
         var leaseResponse1 = ok(lease(token, album2).join());
         var leaseResponse2 = ok(lease(token, album1).join());
 
-        var leasesActivation = leasesActivation(leaseResponse2.body());
+        var leasesActivation = LeasesActivationRW.INSTANCE.stringReader()
+            .read(leaseResponse2.body());
         assertThat(leasesActivation.trackUUIDs()).containsExactlyInAnyOrder(
             track1a.digest(),
             track1b.digest(),
@@ -200,7 +193,7 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToDropLease() {
         var httpResponse = authAs(userId).join();
-        var authResponse = authResponse(httpResponse.body());
+        var authResponse = leasesActivation(httpResponse.body());
         assertThat(authResponse.trackUUIDs()).isNullOrEmpty();
 
         var token = Hash.<K128>from(authResponse.token());
@@ -217,7 +210,7 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToStreamAfterLease() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         var token = Hash.<K128>from(auth1.token());
@@ -229,9 +222,37 @@ class Lambdas2Test {
     }
 
     @Test
+    void shouldNotBeAbleToStreamAfterRelease() {
+        var authResponse = authAs(userId).join();
+        var auth1 = leasesActivation(authResponse.body());
+        assertThat(auth1.trackUUIDs()).isNullOrEmpty();
+
+        var token = Hash.<K128>from(auth1.token());
+        ok(lease(token, album2).join());
+        ok(lease(token, album1).join());
+
+        var response = audioStream(token, track1a, "bytes=0-15").join();
+        assertThat(response.statusCode()).isEqualTo(206);
+
+        ok(release(token, album2).join());
+
+        assertThat(audioStream(token, track1a, "bytes=0-15").join().statusCode())
+            .isEqualTo(206);
+        assertThat(audioStream(token, track2a, "bytes=0-15").join().statusCode())
+            .isEqualTo(401);
+
+        ok(release(token, album1).join());
+
+        assertThat(audioStream(token, track1a, "bytes=100-200").join().statusCode())
+            .isEqualTo(401);
+        assertThat(audioStream(token, track2a, "bytes=100-200").join().statusCode())
+            .isEqualTo(401);
+    }
+
+    @Test
     void shouldBeAbleToStreamALotAfterLease() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         var token = Hash.<K128>from(auth1.token());
@@ -253,7 +274,7 @@ class Lambdas2Test {
     @Test
     void shouldBeRestrictedToStreamingSize() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         var token = Hash.<K128>from(auth1.token());
@@ -274,7 +295,7 @@ class Lambdas2Test {
     @Test
     void shouldBeAbleToDropLeaseAgain() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
         var token = Hash.<K128>from(auth1.token());
 
         var leaseResponse1 = ok(lease(token, album2).join());
@@ -289,7 +310,7 @@ class Lambdas2Test {
     @Test
     void shouldFindAlbumsAfterLease() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
         assertThat(auth1.trackUUIDs()).isNullOrEmpty();
 
         var leaseResponse = ok(lease(
@@ -298,7 +319,7 @@ class Lambdas2Test {
         ).join());
 
         var authResponse2 = authAs(userId).join();
-        var auth2 = authResponse(authResponse2.body());
+        var auth2 = leasesActivation(authResponse2.body());
         assertThat(auth2.token()).isEqualTo(auth1.token());
         assertThat(auth2.trackUUIDs()).containsExactly(track2a.digest(), track2b.digest(), track2c.digest());
     }
@@ -306,7 +327,7 @@ class Lambdas2Test {
     @Test
     void leaseShouldTimeOut() {
         var authResponse = authAs(userId).join();
-        var auth1 = authResponse(authResponse.body());
+        var auth1 = leasesActivation(authResponse.body());
 
         var leaseResponse = ok(lease(
             Hash.from(auth1.token()),
@@ -316,7 +337,7 @@ class Lambdas2Test {
         passTime(Duration.ofHours(6));
 
         var authResponse2 = authAs(userId).join();
-        var auth2 = authResponse(authResponse2.body());
+        var auth2 = leasesActivation(authResponse2.body());
         assertThat(auth2.token()).isNotEqualTo(auth1.token());
         assertThat(auth2.trackUUIDs()).isNullOrEmpty();
     }
@@ -324,7 +345,7 @@ class Lambdas2Test {
     @Test
     void shouldRenewLeaseAfterTimeout() {
         var authResponse1 = authAs(userId).join();
-        var auth1 = authResponse(authResponse1.body());
+        var auth1 = leasesActivation(authResponse1.body());
 
         var leaseResponse = ok(lease(
             Hash.from(auth1.token()),
@@ -340,7 +361,7 @@ class Lambdas2Test {
         assertThat(tooLateLeaseResponse.statusCode()).isEqualTo(400);
 
         var authResponse2 = authAs(userId).join();
-        var auth2 = authResponse(authResponse2.body());
+        var auth2 = leasesActivation(authResponse2.body());
         assertThat(auth2.token()).isNotEqualTo(auth1.token());
         assertThat(auth2.trackUUIDs()).isNullOrEmpty();
 
@@ -349,7 +370,7 @@ class Lambdas2Test {
             album1
         ).join());
 
-        var reauthResponse = authResponse(renewedLeaseResponse.body());
+        var reauthResponse = leasesActivation(renewedLeaseResponse.body());
         assertThat(reauthResponse.trackUUIDs()).containsExactly(track1a.digest(), track1b.digest());
     }
 
@@ -442,243 +463,252 @@ class Lambdas2Test {
 
     private static final String userId = HashKind.K128.random().digest();
 
-    private static final JsonWriter<String, ExtAuthResponse, StringBuilder>
-        RESPONSE_WRITER = ExtAuthResponseRW.INSTANCE.stringWriter();
-
     private static final Authenticator FB_AUTHENTICATOR = authResponse ->
         Optional.of(new ExtUser("dave", authResponse.userID()));
 
-    private static final String idsJson = """
-        {
-          "acl": [
+    private static final String idsJson =
+        //language=json
+        """
             {
-              "ser": "%s"
+              "acl": [
+                {
+                  "ser": "%s"
+                }
+              ]
             }
-          ]
-        }
-        """.formatted(userId);
+            """.formatted(userId);
 
-    private static final String mediasJson = """
-        [
-          {
-            "uuid": "%s",
-            "name": "Buer: Book of Angels vol. 31",
-            "artist": "Brian Marsella",
-            "year": 2017,
-            "artists": [
+    private static final String mediasJson =
+        //language=json
+        """
+            [
               {
-                "uuid": "DZ8tx-pzPFa3UES6gswUYg",
-                "name": "Brian Marsella"
-              },
-              {
-                "uuid": "PYlV94yfO42XwBkNOQzLGQ",
-                "name": "Kenny Wollesen"
-              },
-              {
-                "uuid": "-QQNc2RfMaCH_VRyRsnVHw",
-                "name": "Trevor Dunn"
-              },
-              {
-                "uuid": "kpK9rVmrMO_opipEA3MhsA",
-                "name": "John Zorn"
-              },
-              {
-                "uuid": "ptJqfOSWN5a-Ky4VFSJSEQ",
-                "name": "Brian Marsella Trio"
-              }
-            ],
-            "credits": [
-              {
+                "uuid": "%s",
+                "name": "Buer: Book of Angels vol. 31",
                 "artist": "Brian Marsella",
-                "credit": "Piano"
-              },
-              {
-                "artist": "Kenny Wollesen",
-                "credit": "Drums"
-              },
-              {
-                "artist": "Trevor Dunn",
-                "credit": "Bass"
-              },
-              {
-                "artist": "John Zorn",
-                "credit": "Arranged By"
-              },
-              {
-                "artist": "Brian Marsella",
-                "credit": "Arranged By"
-              },
-              {
-                "artist": "Brian Marsella Trio"
-              },
-              {
-                "artist": "John Zorn"
-              }
-            ],
-            "prodCredits": [
-              {
-                "name": "Aaron Nevezie",
-                "credit": "Recorded By, Mixed By"
-              },
-              {
-                "name": "John Zorn",
-                "credit": "Producer [Produced By]"
-              },
-              {
-                "name": "Scott Hull (2)",
-                "credit": "Mastered By"
-              },
-              {
-                "name": "M. Jarrault",
-                "credit": "Illustration"
-              },
-              {
-                "name": "Kazunori Sugiyama",
-                "credit": "Executive-Producer [Associate Producer]"
-              },
-              {
-                "name": "John Zorn",
-                "credit": "Executive-Producer"
-              },
-              {
-                "name": "Heung-Heung Chin",
-                "credit": "Design"
-              },
-              {
-                "name": "Chippy (3)",
-                "credit": "Design"
-              },
-              {
-                "name": "John Zorn",
-                "credit": "Composed By [All Music Composed By]"
-              }
-            ],
-            "sections": [
-              {
-                "name": "1",
-                "tracks": [
+                "year": 2017,
+                "artists": [
                   {
-                    "uuid": "%s",
-                    "no": "1",
-                    "name": "Jekusiel",
-                    "seconds": 308
+                    "uuid": "DZ8tx-pzPFa3UES6gswUYg",
+                    "name": "Brian Marsella"
                   },
                   {
-                    "uuid": "%s",
-                    "no": "2",
-                    "name": "Diniel",
-                    "seconds": 259
+                    "uuid": "PYlV94yfO42XwBkNOQzLGQ",
+                    "name": "Kenny Wollesen"
+                  },
+                  {
+                    "uuid": "-QQNc2RfMaCH_VRyRsnVHw",
+                    "name": "Trevor Dunn"
+                  },
+                  {
+                    "uuid": "kpK9rVmrMO_opipEA3MhsA",
+                    "name": "John Zorn"
+                  },
+                  {
+                    "uuid": "ptJqfOSWN5a-Ky4VFSJSEQ",
+                    "name": "Brian Marsella Trio"
+                  }
+                ],
+                "credits": [
+                  {
+                    "artist": "Brian Marsella",
+                    "credit": "Piano"
+                  },
+                  {
+                    "artist": "Kenny Wollesen",
+                    "credit": "Drums"
+                  },
+                  {
+                    "artist": "Trevor Dunn",
+                    "credit": "Bass"
+                  },
+                  {
+                    "artist": "John Zorn",
+                    "credit": "Arranged By"
+                  },
+                  {
+                    "artist": "Brian Marsella",
+                    "credit": "Arranged By"
+                  },
+                  {
+                    "artist": "Brian Marsella Trio"
+                  },
+                  {
+                    "artist": "John Zorn"
+                  }
+                ],
+                "prodCredits": [
+                  {
+                    "name": "Aaron Nevezie",
+                    "credit": "Recorded By, Mixed By"
+                  },
+                  {
+                    "name": "John Zorn",
+                    "credit": "Producer [Produced By]"
+                  },
+                  {
+                    "name": "Scott Hull (2)",
+                    "credit": "Mastered By"
+                  },
+                  {
+                    "name": "M. Jarrault",
+                    "credit": "Illustration"
+                  },
+                  {
+                    "name": "Kazunori Sugiyama",
+                    "credit": "Executive-Producer [Associate Producer]"
+                  },
+                  {
+                    "name": "John Zorn",
+                    "credit": "Executive-Producer"
+                  },
+                  {
+                    "name": "Heung-Heung Chin",
+                    "credit": "Design"
+                  },
+                  {
+                    "name": "Chippy (3)",
+                    "credit": "Design"
+                  },
+                  {
+                    "name": "John Zorn",
+                    "credit": "Composed By [All Music Composed By]"
+                  }
+                ],
+                "sections": [
+                  {
+                    "name": "1",
+                    "tracks": [
+                      {
+                        "uuid": "%s",
+                        "no": "1",
+                        "name": "Jekusiel",
+                        "seconds": 308
+                      },
+                      {
+                        "uuid": "%s",
+                        "no": "2",
+                        "name": "Diniel",
+                        "seconds": 259
+                      }
+                    ]
+                  }
+                ],
+                "obi": "obi-1",
+                "discog": "https://www.discogs.com/release/10215523-John-Zorn-Brian-Marsella-Trio-Buer-Book-Of-Angels-Volume-31",
+                "discogImage": "https://i.discogs.com/SKSiB7vvKEWDEJL_s7EkpPw3Q127i-ixoDhX1b8JmLw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMjE1/NTIzLTE0OTM1NDE5/ODUtMTU4OS5qcGVn.jpeg",
+                "compilation": true,
+                "series": [
+                  {
+                    "name": "Archival Series"
+                  },
+                  {
+                    "name": "Book Of Angels"
                   }
                 ]
-              }
-            ],
-            "obi": "obi-1",
-            "discog": "https://www.discogs.com/release/10215523-John-Zorn-Brian-Marsella-Trio-Buer-Book-Of-Angels-Volume-31",
-            "discogImage": "https://i.discogs.com/SKSiB7vvKEWDEJL_s7EkpPw3Q127i-ixoDhX1b8JmLw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMjE1/NTIzLTE0OTM1NDE5/ODUtMTU4OS5qcGVn.jpeg",
-            "compilation": true,
-            "series": [
-              {
-                "name": "Archival Series"
               },
               {
-                "name": "Book Of Angels"
+                "uuid": "%s",
+                "name": "Yankees",
+                "artist": "Derek Bailey, George Lewis, John Zorn",
+                "year": 1998,
+                "artists": [
+                  {
+                    "uuid": "bfqedqONOwKiPnrTfBrXeQ",
+                    "name": "Derek Bailey"
+                  },
+                  {
+                    "uuid": "ALohcUuMMEOyHsW4vril7w",
+                    "name": "George Lewis"
+                  },
+                  {
+                    "uuid": "kpK9rVmrMO_opipEA3MhsA",
+                    "name": "John Zorn"
+                  }
+                ],
+                "credits": [
+                  {
+                    "artist": "George Lewis",
+                    "credit": "Trombone"
+                  },
+                  {
+                    "artist": "John Zorn",
+                    "credit": "Alto Saxophone, Soprano Saxophone, Clarinet, Featuring [Game Calls]"
+                  },
+                  {
+                    "artist": "Derek Bailey",
+                    "credit": "Acoustic Guitar, Electric Guitar"
+                  },
+                  {
+                    "artist": "John Zorn"
+                  },
+                  {
+                    "artist": "George Lewis"
+                  },
+                  {
+                    "artist": "Derek Bailey"
+                  }
+                ],
+                "prodCredits": [
+                  {
+                    "name": "Martin Bisi",
+                    "credit": "Recorded By"
+                  },
+                  {
+                    "name": "Howie Weinberg",
+                    "credit": "Mastered By"
+                  }
+                ],
+                "sections": [
+                  {
+                    "name": "1",
+                    "tracks": [
+                      {
+                        "uuid": "%s",
+                        "no": "1",
+                        "name": "City City City",
+                        "seconds": 509
+                      },
+                      {
+                        "uuid": "%s",
+                        "no": "2",
+                        "name": "The Legend Of Enos Slaughter",
+                        "seconds": 566
+                      },
+                      {
+                        "uuid": "%s",
+                        "no": "3",
+                        "name": "Who's On First",
+                        "seconds": 195
+                      }
+                    ]
+                  }
+                ],
+                "discog": "https://www.discogs.com/release/1147845-Derek-Bailey-George-Lewis-John-Zorn-Yankees",
+                "discogImage": "https://i.discogs.com/ArKKqO8J7ftuYQpKA1XAoRhg3dY-U9iixERzF6hyCAM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExNDc4/NDUtMTE5NTk3Mzk0/My5qcGVn.jpeg",
+                "compilation": true
               }
             ]
-          },
-          {
-            "uuid": "%s",
-            "name": "Yankees",
-            "artist": "Derek Bailey, George Lewis, John Zorn",
-            "year": 1998,
-            "artists": [
-              {
-                "uuid": "bfqedqONOwKiPnrTfBrXeQ",
-                "name": "Derek Bailey"
-              },
-              {
-                "uuid": "ALohcUuMMEOyHsW4vril7w",
-                "name": "George Lewis"
-              },
-              {
-                "uuid": "kpK9rVmrMO_opipEA3MhsA",
-                "name": "John Zorn"
-              }
-            ],
-            "credits": [
-              {
-                "artist": "George Lewis",
-                "credit": "Trombone"
-              },
-              {
-                "artist": "John Zorn",
-                "credit": "Alto Saxophone, Soprano Saxophone, Clarinet, Featuring [Game Calls]"
-              },
-              {
-                "artist": "Derek Bailey",
-                "credit": "Acoustic Guitar, Electric Guitar"
-              },
-              {
-                "artist": "John Zorn"
-              },
-              {
-                "artist": "George Lewis"
-              },
-              {
-                "artist": "Derek Bailey"
-              }
-            ],
-            "prodCredits": [
-              {
-                "name": "Martin Bisi",
-                "credit": "Recorded By"
-              },
-              {
-                "name": "Howie Weinberg",
-                "credit": "Mastered By"
-              }
-            ],
-            "sections": [
-              {
-                "name": "1",
-                "tracks": [
-                  {
-                    "uuid": "%s",
-                    "no": "1",
-                    "name": "City City City",
-                    "seconds": 509
-                  },
-                  {
-                    "uuid": "%s",
-                    "no": "2",
-                    "name": "The Legend Of Enos Slaughter",
-                    "seconds": 566
-                  },
-                  {
-                    "uuid": "%s",
-                    "no": "3",
-                    "name": "Who's On First",
-                    "seconds": 195
-                  }
-                ]
-              }
-            ],
-            "discog": "https://www.discogs.com/release/1147845-Derek-Bailey-George-Lewis-John-Zorn-Yankees",
-            "discogImage": "https://i.discogs.com/ArKKqO8J7ftuYQpKA1XAoRhg3dY-U9iixERzF6hyCAM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExNDc4/NDUtMTE5NTk3Mzk0/My5qcGVn.jpeg",
-            "compilation": true
-          }
-        ]
-        """.formatted(
-        album1.digest(),
-        track1a.digest(),
-        track2a.digest(),
-        album2.digest(),
-        track2a.digest(),
-        track2b.digest(),
-        track2c.digest()
-    );
+            """.formatted(
+            album1.digest(),
+            track1a.digest(),
+            track2a.digest(),
+            album2.digest(),
+            track2a.digest(),
+            track2b.digest(),
+            track2c.digest()
+        );
 
     private static final JsonWriter<String, LeasesData, StringBuilder> LEASES_DATA_WRITER =
         LeasesDataRW.INSTANCE.stringWriter();
+
+    static {
+        Flogs.initialize(LogLevel.INFO, new BriefLogEntryFormatter());
+    }
+
+    private static LeasesActivation leasesActivation(String body) {
+        return LeasesActivationRW.INSTANCE.stringReader().read(body);
+    }
 
     private static HttpResponse<String> ok(HttpResponse<String> response) {
         assertThat(response.statusCode()).isEqualTo(200);
@@ -697,7 +727,7 @@ class Lambdas2Test {
         var expirationTime =
             BigInteger.valueOf(Instant.now().getEpochSecond())
                 .add(BigInteger.valueOf(Duration.ofHours(1).getSeconds()));
-        return RESPONSE_WRITER.write(new ExtAuthResponse(
+        return ExtAuthResponseRW.INSTANCE.stringWriter().write(new ExtAuthResponse(
             userId,
             HashKind.K128.random().digest(),
             HashKind.K128.random().digest(),
@@ -727,30 +757,5 @@ class Lambdas2Test {
     @SafeVarargs
     private static AlbumTrackIds album(Hash<K128> albumId, Hash<K128>... tracks) {
         return new AlbumTrackIds(albumId, Arrays.asList(tracks));
-    }
-
-    public record LeaseRequest(
-        String userId,
-        String token,
-        String album
-    ) {
-    }
-
-    public record LeasesActivation(
-        String name,
-        String userId,
-        String token,
-        List<String> trackUUIDs,
-        Long expiry
-    ) {
-    }
-
-    record AuthResponse(
-        String name,
-        String userId,
-        String token,
-        List<String> trackUUIDs,
-        Long expiry
-    ) {
     }
 }

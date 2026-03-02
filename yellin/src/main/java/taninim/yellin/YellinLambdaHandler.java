@@ -24,12 +24,9 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         if (payload.isPost()) {
             if (payload.isExactly("/auth")) {
                 return handle(payload.body(), this::authenticate);
-            }
+            } else
             if (payload.isExactly("/lease")) {
                 return handle(payload.body(), this::addLease);
-            }
-            if (payload.isExactly("/unlease")) {
-                return handle(payload.body(), this::removeLease);
             }
         }
         if (payload.isExactly("DELETE", "/lease")) {

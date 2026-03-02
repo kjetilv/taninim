@@ -6,7 +6,7 @@ import com.github.kjetilv.uplift.synchttp.Server;
 import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import taninim.kudu.DefaultKudu;
+import taninim.kudu.Kudu;
 import taninim.kudu.server.KuduHttpHandler;
 import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
@@ -32,7 +32,7 @@ void main(String[] args) {
 
     var mediaLibrary = CloudMediaLibrary.create(s3Accessor, Time.utcSupplier());
 
-    var kudu = DefaultKudu.create(
+    var kudu = Kudu.create(
         leasesRegistry,
         mediaLibrary,
         parameters.buffer(),

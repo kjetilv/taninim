@@ -46,18 +46,18 @@ public final class DefaultYellin implements Yellin {
             onDemand.<MediaIds>after(REFRESH_INTERVAL).get(() ->
                 mediaIds(mediaLibrary));
 
-        var authIds =
+        var retrieveAuthIds =
             onDemand.<UserAuths>after(REFRESH_INTERVAL).get(() ->
-                authIds(mediaLibrary));
+                retriveAuthIds(mediaLibrary));
 
         Consumer<UserAuths> updateAuthIds = userAuths ->
-            authIds(mediaLibrary, userAuths);
+            updateAuthIds(mediaLibrary, userAuths);
 
         Consumer<UserAuths> forceUpdate = userAuths ->
-            onDemand.force(authIds, userAuths);
+            onDemand.force(retrieveAuthIds, userAuths);
 
         var authorizer = DefaultAuthorizer.create(
-            authIds,
+            retrieveAuthIds,
             updateAuthIds.andThen(forceUpdate),
             sessionDuration,
             ticketDuration,
@@ -177,12 +177,14 @@ public final class DefaultYellin implements Yellin {
     }
 
     private LeasesActivation requestedDismissal(UserAuth deauthorized) {
+        var tracks = tracks(deauthorized, time.get()).stream()
+            .map(Hash::digest)
+            .toList();
         return new LeasesActivation(
             null,
             deauthorized.userId(),
-            tracks(deauthorized, time.get()).stream()
-                .map(Hash::digest)
-                .toList(),
+            deauthorized.token().digest(),
+            tracks,
             deauthorized.expiry()
         );
     }
@@ -192,12 +194,12 @@ public final class DefaultYellin implements Yellin {
         var leasesPath = leasesRegistry.getActive(Hash.from(activation.token()))
             .orElseGet(() ->
                 leasesRegistry.setActive(new Leases(Hash.from(activation.token())), leasePeriod));
-        var list = activation.trackUUIDs()
+        var trackUuids = activation.trackUUIDs()
             .stream()
             .<Hash<K128>>map(Hash::from)
             .toList();
         var activePath = leasesPath.withTracks(
-            list,
+            trackUuids,
             leasePeriod.getLapse()
         );
         leasesRegistry.setActive(activePath.leases(), leasePeriod);
@@ -244,13 +246,6 @@ public final class DefaultYellin implements Yellin {
             .orElseGet(MediaIds::new);
     }
 
-    private static UserAuths authIds(MediaLibrary mediaLibrary) {
-        return mediaLibrary.stream("auth-digest.bin")
-            .map(inputStream ->
-                UserAuths.from(new DataInputStream(inputStream)))
-            .orElseGet(UserAuths::new);
-    }
-
     @SuppressWarnings("unchecked")
     private static List<String> ids(MediaLibrary mediaLibrary) {
         return mediaLibrary.stream("ids.json")
@@ -265,7 +260,14 @@ public final class DefaultYellin implements Yellin {
             }).orElseGet(Collections::emptyList);
     }
 
-    private static void authIds(MediaLibrary mediaLibrary, UserAuths userAuths) {
+    private static UserAuths retriveAuthIds(MediaLibrary mediaLibrary) {
+        return mediaLibrary.stream("auth-digest.bin")
+            .map(inputStream ->
+                UserAuths.from(new DataInputStream(inputStream)))
+            .orElseGet(UserAuths::new);
+    }
+
+    private static void updateAuthIds(MediaLibrary mediaLibrary, UserAuths userAuths) {
         mediaLibrary.write(
             "auth-digest.bin",
             outputStream -> {

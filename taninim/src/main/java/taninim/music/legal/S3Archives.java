@@ -2,6 +2,7 @@ package taninim.music.legal;
 
 import module java.base;
 import com.github.kjetilv.uplift.s3.S3Accessor;
+import taninim.music.ArchivedRecord;
 import taninim.music.Archives;
 
 import static java.util.Objects.requireNonNull;
@@ -20,7 +21,7 @@ public final class S3Archives implements Archives {
 
     @Override
     public void storeRecord(ArchivedRecord archivedRecord) {
-        s3.put(archivedRecord.body(), archivedRecord.path());
+        s3.put(archivedRecord.path(), archivedRecord.body());
     }
 
     @Override

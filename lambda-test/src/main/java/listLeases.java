@@ -2,9 +2,8 @@ import module java.base;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import taninim.music.Archives;
+import taninim.music.ArchivedRecord;
 import taninim.music.legal.S3Archives;
 import taninim.music.medias.UserAuths;
 
@@ -18,28 +17,28 @@ void main(String[] args) {
 
     var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Executors.newVirtualThreadPerTaskExecutor());
     var archives = S3Archives.create(s3Accessor);
-    System.out.println("auth-digest.bin:");
+    IO.println("auth-digest.bin:");
     s3Accessor.stream("auth-digest.bin")
         .map(inputStream ->
             UserAuths.from(new DataInputStream(inputStream)))
         .ifPresent(userAuths -> {
 
-            System.out.println("  User-auths:");
+            IO.println("  User-auths:");
             userAuths.auths()
                 .forEach(userAuth -> {
                     var leases = userAuth.albumLeases();
-                    System.out.println(
+                    IO.println(
                         "    User: " + userAuth.userId() + ", " + leases.size() + " lease" +
                         (leases.size() == 1 ? "" : "s") +
                         (leases.isEmpty() ? "" : ":"));
                     leases
                         .forEach(lease ->
-                            System.out.println(
+                            IO.println(
                                 "      " + lease.albumId() + " @ " + lease.expiry()));
                 });
         });
 
-    System.out.println("\nLeases:");
+    IO.println("\nLeases:");
     s3Accessor.listInfos("lease")
         .forEach(info -> {
 
@@ -48,7 +47,7 @@ void main(String[] args) {
                 Instant.ofEpochSecond(SECONDS_PER_HOUR * epochHour(lease));
             var time =
                 info.lastModified().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
-            System.out.println(
+            IO.println(
                 "  " + instant.atOffset(ZoneOffset.UTC).format(DAY_HOUR) + ": (" + time + ")"
             );
 
@@ -58,13 +57,13 @@ void main(String[] args) {
                         .stream()
                         .findFirst()
                         .ifPresent(archivedRecord ->
-                            System.out.println("    " + archivedRecord));
+                            IO.println("    " + archivedRecord));
                     int tracks = archives.retrieveRecord(lease)
-                        .map(Archives.ArchivedRecord::contents)
+                        .map(ArchivedRecord::contents)
                         .map(Collection::size)
                         .orElse(0);
                     if (tracks > 0) {
-                        System.out.println("    Tracks: " + tracks);
+                        IO.println("    Tracks: " + tracks);
                     }
                 });
         });

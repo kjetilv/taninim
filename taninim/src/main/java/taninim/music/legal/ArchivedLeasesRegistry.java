@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.auth.Authed;
 import taninim.music.*;
-import taninim.music.Archives.ArchivedRecord;
+import taninim.music.ArchivedRecord;
 
 import static java.util.Objects.requireNonNull;
 
@@ -15,11 +15,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(ArchivedLeasesRegistry.class);
 
-    public static LeasesRegistry create(
-        Archives archives,
-        Duration leaseDuration,
-        Supplier<Instant> time
-    ) {
+    public static LeasesRegistry create(Archives archives, Duration leaseDuration, Supplier<Instant> time) {
         return new ArchivedLeasesRegistry(archives, leaseDuration, time);
     }
 
@@ -29,11 +25,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     private final Archives archives;
 
-    private ArchivedLeasesRegistry(
-        Archives archives,
-        Duration leaseDuration,
-        Supplier<Instant> time
-    ) {
+    private ArchivedLeasesRegistry(Archives archives, Duration leaseDuration, Supplier<Instant> time) {
         this.archives = requireNonNull(archives, "archives");
         this.leaseDuration = requireNonNull(leaseDuration, "leaseLimit");
         this.time = requireNonNull(time, "clock");
@@ -41,16 +33,14 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     @Override
     public Authed<LeasesPath> getActive(Hash<HashKind.K128> token) {
+        var paths = pathsFor(token);
+        if (paths.isEmpty()) {
+            return Authed.unauthorized("No active leases for " + token);
+        }
         var time = this.time.get();
         var leasePeriod = LeasePeriod.starting(time).ofLength(leaseDuration);
-        try (var pathsForToken = pathsFor(token)) {
-            return Authed.require(
-                latest(pathsForToken).flatMap(path ->
-                    validTokenAt(time, leasePeriod, path, token)),
-                () ->
-                    "Unauthorized: " + token
-            );
-        }
+        var validToken = validToken(token, paths, time, leasePeriod);
+        return Authed.require(validToken, () -> "Unauthorized: " + token);
     }
 
     @Override
@@ -65,25 +55,30 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         }
     }
 
-    private Stream<String> pathsFor(Hash<HashKind.K128> token) {
-        return archives.retrievePaths(LEASE_PREFIX, recordFor(token));
+    private Optional<LeasesPath> validToken(
+        Hash<HashKind.K128> token,
+        List<String> pathsForToken,
+        Instant time,
+        LeasePeriod leasePeriod
+    ) {
+        return pathsForToken
+            .stream()
+            .max(BY_EPOCH_HOUR)
+            .flatMap(path ->
+                archives.retrieveRecord(path)
+                    .map(archivedRecord ->
+                        leases(token, archivedRecord).validAt(time))
+                    .filter(leases ->
+                        leases.stillActiveAt(leasePeriod.start()))
+                    .map(leases ->
+                        leases.validAt(time))
+                    .map(leases ->
+                        new LeasesPath(leases, leasePeriod)));
     }
 
-    private Optional<LeasesPath> validTokenAt(
-        Instant time,
-        LeasePeriod leasePeriod,
-        String path,
-        Hash<HashKind.K128> token
-    ) {
-        return archives.retrieveRecord(path)
-            .map(archivedRecord ->
-                leases(token, archivedRecord).validAt(time))
-            .filter(leases ->
-                leases.stillActiveAt(leasePeriod.start()))
-            .map(leases ->
-                leases.validAt(time))
-            .map(leases ->
-                new LeasesPath(leases, leasePeriod));
+    private List<String> pathsFor(Hash<HashKind.K128> token) {
+        return archives.retrievePaths(LEASE_PREFIX, recordFor(token))
+            .toList();
     }
 
     private LeasesPath stored(LeasesPath leasesPath) {
@@ -120,10 +115,6 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     private static final String LEASE_SUFFIX = ".lease.txt";
 
     private static final Comparator<String> BY_EPOCH_HOUR = Comparator.comparing(ArchivedLeasesRegistry::epochHour);
-
-    private static Optional<String> latest(Stream<String> pathsForToken) {
-        return pathsForToken.max(BY_EPOCH_HOUR);
-    }
 
     private static ArchivedRecord recordOf(LeasesPath leasesPath) {
         return new ArchivedRecord(leasesPath.toPath(), leasesPath.leases().toLines());

@@ -83,8 +83,8 @@ public final class CloudMediaLibrary implements MediaLibrary {
             return Optional.empty();
         }
         Supplier<Optional<byte[]>> optionalSupplier = () ->
-            s3.stream(file, null)
-                .map(inputStream -> bytes(info, inputStream));
+            s3.stream(file).map(inputStream ->
+                bytes(info, inputStream));
         return update(
             fileCache,
             file,

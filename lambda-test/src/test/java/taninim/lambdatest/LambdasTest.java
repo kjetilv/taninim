@@ -13,7 +13,6 @@ import taninim.auth.Authed;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
-import taninim.kudu.DefaultKudu;
 import taninim.kudu.Kudu;
 import taninim.kudu.Track;
 import taninim.kudu.TrackRange;
@@ -102,7 +101,7 @@ class LambdasTest {
     void setUp() {
         s3Accessor = new MemoryS3(s3, this::now);
         archives = S3Archives.create(s3Accessor);
-        s3Accessor.put(idsJson, "ids.json");
+        s3Accessor.put("ids.json", idsJson);
         mediaLibrary = CloudMediaLibrary.create(s3Accessor, this::now);
 
         initLibrary();
@@ -154,7 +153,7 @@ class LambdasTest {
             ticketDuration,
             authenticator
         );
-        kudu = DefaultKudu.create(leasesRegistry, mediaLibrary, 16, this::now);
+        kudu = Kudu.create(leasesRegistry, mediaLibrary, 16, this::now);
     }
 
     private void put(String file, BinaryWritable id) {

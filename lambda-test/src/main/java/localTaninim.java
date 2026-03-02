@@ -11,7 +11,7 @@ import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import org.slf4j.LoggerFactory;
 import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;
-import taninim.kudu.DefaultKudu;
+import taninim.kudu.Kudu;
 import taninim.kudu.KuduLambdaHandler;
 import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
@@ -47,7 +47,7 @@ void main() {
         ));
 
     var kuduClientSettings = new LambdaClientSettings(ENV, utcSupplier());
-    var kudu = new KuduLambdaHandler(DefaultKudu.create(
+    var kudu = new KuduLambdaHandler(Kudu.create(
         kuduClientSettings,
         taninimSettings,
         S3AccessorFactory.defaultFactory(ENV)
@@ -60,9 +60,8 @@ void main() {
 
     var yellinCors = new CorsSettings(
         List.of(
-//            "https://kjetilv.github.io",
+            "https://kjetilv.github.io",
             "https://localhost:8443"
-//            "https://localhost:5173"
         ),
         List.of("POST", "DELETE", "OPTIONS", "HEAD"),
         List.of("content-type")

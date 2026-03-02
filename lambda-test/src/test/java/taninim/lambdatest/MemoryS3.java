@@ -33,52 +33,60 @@ public record MemoryS3(
     public void put(String remoteName, InputStream inputStream, long length) {
         log.debug("Putting {} bytes into {}", length, remoteName);
         var bytes = BytesIO.readInputStream(inputStream);
-        s3.put(
-            remoteName, new S3Data(
-                bytes,
-                stringValue(remoteName, bytes),
-                time.get()
-            )
+        var s3Data = new S3Data(
+            bytes,
+            stringValue(remoteName, bytes),
+            time.get()
         );
+        s3.put(remoteName, s3Data);
     }
 
     @Override
     public Map<String, RemoteInfo> remoteInfos(String prefix) {
         return s3.entrySet()
             .stream()
-            .filter(e -> e.getKey().startsWith(prefix))
-            .map(e -> Map.entry(
-                e.getKey(),
-                new RemoteInfo(e.getKey(), e.getValue().time(), e.getValue().data().length)
-            ))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .filter(e ->
+                e.getKey().startsWith(prefix))
+            .map(e ->
+                Map.entry(
+                    e.getKey(),
+                    new RemoteInfo(
+                        e.getKey(),
+                        e.getValue().time(),
+                        e.getValue().data().length
+                    )
+                ))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            ));
     }
 
     @Override
     public void remove(Collection<String> objects) {
-        for (var object : objects) {
-            log.info("Removing {}", object);
-            s3.remove(object);
+        for (var obj : objects) {
+            log.info("Removing {}", obj);
+            s3.remove(obj);
         }
     }
 
-    private static String stringValue(String remoteName, byte[] bytes) {
+    private static Object stringValue(String remoteName, byte[] bytes) {
         if (remoteName.startsWith("auth-digest")) {
             try (var input = new DataInputStream(new ByteArrayInputStream(bytes))) {
-                return UserAuths.from(input).toString();
+                return UserAuths.from(input);
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         }
         if (remoteName.startsWith("media-digest")) {
             try (var input = new DataInputStream(new ByteArrayInputStream(bytes))) {
-                return MediaIds.from(input).toString();
+                return MediaIds.from(input);
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         }
         if (remoteName.endsWith("m4a")) {
-            return "[audio]";
+            return "[audio:" + bytes.length + "]";
         }
         return new String(bytes, StandardCharsets.UTF_8);
     }

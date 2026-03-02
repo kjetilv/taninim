@@ -77,4 +77,12 @@ public record UserAuths(List<UserAuth> auths) implements BinaryWritable {
             .reduce(UserAuth::combine);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" +
+               auths.stream()
+                   .map(UserAuth::toString)
+                   .collect(Collectors.joining(", ")) +
+               "]";
+    }
 }

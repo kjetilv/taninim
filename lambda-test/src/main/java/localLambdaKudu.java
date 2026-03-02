@@ -9,7 +9,7 @@ import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import taninim.TaninimSettings;
-import taninim.kudu.DefaultKudu;
+import taninim.kudu.Kudu;
 import taninim.kudu.KuduLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
@@ -42,7 +42,7 @@ void main() {
             Duration.ofHours(4),
             1024 * 1024
         );
-        var handler = (LambdaHandler) new KuduLambdaHandler(DefaultKudu.create(
+        var handler = (LambdaHandler) new KuduLambdaHandler(Kudu.create(
             clientSettings,
             taninimSettings,
             S3AccessorFactory.defaultFactory(ENV)

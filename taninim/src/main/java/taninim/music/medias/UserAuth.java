@@ -161,4 +161,10 @@ public record UserAuth(
             return expiry.isAfter(requireNonNull(time, "time"));
         }
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + userId + "/" + token + "=>" + expiry +
+               ", " + albumLeases.size() + " albums leased]";
+    }
 }

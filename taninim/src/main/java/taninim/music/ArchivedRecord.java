@@ -1,0 +1,59 @@
+package taninim.music;
+
+import com.github.kjetilv.uplift.hash.Hash;
+import com.github.kjetilv.uplift.hash.HashKind;
+
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
+public record ArchivedRecord(
+    String path,
+    List<String> contents,
+    int length
+) {
+
+    public ArchivedRecord(String path, List<String> contents) {
+        this(path, contents, -1);
+    }
+
+    public ArchivedRecord(String path, List<String> contents, int length) {
+        this.path = path;
+        this.contents = contents.stream()
+            .map(String::trim)
+            .filter(s -> !s.isBlank())
+            .toList();
+        this.length = length < 0 ? this.contents.stream().mapToInt(String::length).sum() : length;
+    }
+
+    public String body() {
+        var sb = new StringBuilder(length + contents.size());
+        contents.forEach(line ->
+            sb.append(line.trim()).append('\n'));
+        return sb.toString();
+    }
+
+    private static String printEntry(String spec) {
+        var uuid = Hash.<HashKind.K128>from(spec);
+        var epochSec = Long.parseLong(spec.substring(spec.indexOf(' ') + 1));
+        return uuid + "@" + Instant.ofEpochSecond(epochSec).atOffset(ZoneOffset.UTC).format(
+            DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT));
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + path + (empty()
+            ? ""
+            : ": " + contents.stream()
+                     .map(ArchivedRecord::printEntry)
+                     .map(String::valueOf)
+                     .collect(Collectors.joining(" "))) + "]";
+    }
+
+    private boolean empty() {
+        return contents == null || contents.isEmpty() || contents.stream().allMatch(String::isBlank);
+    }
+}
