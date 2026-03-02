@@ -21,9 +21,8 @@ public final class KuduHttpHandler
     public void handle(HttpReq httpReq, HttpResponseCallback callback) {
         KuduRequest.from(httpReq)
             .ifPresentOrElse(
-                kuduRequest -> {
-                    respond(kuduRequest, callback);
-                },
+                kuduRequest ->
+                    respond(kuduRequest, callback),
                 () ->
                     callback.status(400)
             );

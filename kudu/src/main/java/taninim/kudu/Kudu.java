@@ -59,9 +59,6 @@ public interface Kudu {
     record Library(long size, InputStream stream) {
     }
 
-    record AudioStream(TrackRange trackRange, Chunk chunk, InputStream stream) {
-    }
-
     record AudioBytes(TrackRange trackRange, Chunk chunk, byte[] bytes) {
     }
 }

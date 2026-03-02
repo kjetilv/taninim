@@ -16,7 +16,7 @@ public record UserAuths(List<UserAuth> auths) implements BinaryWritable {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-        return new UserAuths(IntStream.range(0, count).mapToObj(__ -> UserAuth.from(input))
+        return new UserAuths(IntStream.range(0, count).mapToObj(_ -> UserAuth.from(input))
             .toList());
     }
 

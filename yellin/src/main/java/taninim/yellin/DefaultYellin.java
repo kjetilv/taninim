@@ -14,7 +14,6 @@ import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
 import taninim.music.LeasePeriod;
 import taninim.music.Leases;
-import taninim.music.LeasesPath;
 import taninim.music.LeasesRegistry;
 import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
