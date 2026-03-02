@@ -20,8 +20,18 @@ public record LeasesPath(
         );
     }
 
+    public LeasesPath withTracks(List<? extends Hash<K128>> uuids, Instant lapse, boolean replace) {
+        return replace
+            ? replaceTracks(uuids, lapse)
+            : withTracks(uuids, lapse);
+    }
+
     public LeasesPath withTracks(List<? extends Hash<K128>> uuids, Instant lapse) {
         return new LeasesPath(leases.withTracks(uuids, lapse), leasePeriod);
+    }
+
+    public LeasesPath replaceTracks(List<? extends Hash<K128>> trackUuids, Instant lapse) {
+        return new LeasesPath(leases.replaceTracks(trackUuids, lapse), leasePeriod);
     }
 
     private static final String LEASE_PREFIX = "lease-";

@@ -24,7 +24,8 @@ public final class KuduHttpHandler
                 kuduRequest -> {
                     respond(kuduRequest, callback);
                 },
-                () -> callback.status(400)
+                () ->
+                    callback.status(400)
             );
     }
 

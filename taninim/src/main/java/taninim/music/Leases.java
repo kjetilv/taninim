@@ -51,15 +51,18 @@ public record Leases(
             .toList();
     }
 
-    Leases withTracks(List<? extends Hash<K128>> tracks, Instant lapse) {
-        return new Leases(
-            token,
-            Stream.concat(
-                    leases.stream(),
-                    leases(tracks, lapse)
-                )
-                .toList()
-        );
+    public Leases withTracks(List<? extends Hash<K128>> tracks, Instant lapse) {
+        var augmented = Stream.concat(
+                leases.stream(),
+                leases(tracks, lapse)
+            )
+            .toList();
+        return new Leases(token, augmented);
+    }
+
+    public Leases replaceTracks(List<? extends Hash<K128>> tracks, Instant lapse) {
+        var replaced = leases(tracks, lapse).toList();
+        return new Leases(token, replaced);
     }
 
     private static List<Lease> sorted(List<Lease> leases) {

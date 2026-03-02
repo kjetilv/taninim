@@ -7,7 +7,7 @@ import taninim.auth.Authed;
 
 public interface LeasesRegistry {
 
-    Authed<LeasesPath> getActive(Hash<HashKind.K128> token);
+    Authed<LeasesPath> active(Hash<HashKind.K128> token);
 
-    LeasesPath setActive(Leases leases, LeasePeriod leasePeriod);
+    LeasesPath activate(Leases leases, LeasePeriod leasePeriod);
 }

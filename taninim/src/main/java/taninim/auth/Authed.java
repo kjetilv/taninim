@@ -60,6 +60,10 @@ public sealed interface Authed<T> {
         return this;
     }
 
+    default Authed<T> filterOr(Predicate<T> test, Supplier<Authed<T>> supplier) {
+        return Objects.requireNonNull(supplier, "supplier").get();
+    }
+
     default T orElseGet(Supplier<T> supplier) {
         return supplier.get();
     }
@@ -96,6 +100,12 @@ public sealed interface Authed<T> {
         @Override
         public Authed<T> filter(Predicate<T> test) {
             return test.test(value) ? this : empty();
+        }
+
+        @Override
+        public Authed<T> filterOr(Predicate<T> test, Supplier<Authed<T>> supplier) {
+            var sup = Objects.requireNonNull(supplier, "supplier");
+            return test.test(value) ? this : sup.get();
         }
 
         @Override

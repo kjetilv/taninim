@@ -14,6 +14,7 @@ import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
 import taninim.music.LeasePeriod;
 import taninim.music.Leases;
+import taninim.music.LeasesPath;
 import taninim.music.LeasesRegistry;
 import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
@@ -137,7 +138,7 @@ public final class DefaultYellin implements Yellin {
     public Authed<LeasesActivation> dismissLease(LeasesRequest leasesRequest) {
         return authorizer.deauthorize(userRequest(leasesRequest))
             .map(this::requestedDismissal)
-            .map(this::storeActivated);
+            .map(this::storeDeactivated);
     }
 
     private Authed<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
@@ -190,19 +191,28 @@ public final class DefaultYellin implements Yellin {
     }
 
     private LeasesActivation storeActivated(LeasesActivation activation) {
+        return store(activation, false);
+    }
+
+    private LeasesActivation storeDeactivated(LeasesActivation activation) {
+        return store(activation, true);
+    }
+
+    private LeasesActivation store(LeasesActivation activation, boolean replace) {
         var leasePeriod = new LeasePeriod(time.get(), leaseTime);
-        var leasesPath = leasesRegistry.getActive(Hash.from(activation.token()))
+        var leasesPath = leasesRegistry.active(Hash.from(activation.token()))
             .orElseGet(() ->
-                leasesRegistry.setActive(new Leases(Hash.from(activation.token())), leasePeriod));
+                leasesRegistry.activate(new Leases(Hash.from(activation.token())), leasePeriod));
         var trackUuids = activation.trackUUIDs()
             .stream()
             .<Hash<K128>>map(Hash::from)
             .toList();
         var activePath = leasesPath.withTracks(
             trackUuids,
-            leasePeriod.getLapse()
+            leasePeriod.getLapse(),
+            replace
         );
-        leasesRegistry.setActive(activePath.leases(), leasePeriod);
+        leasesRegistry.activate(activePath.leases(), leasePeriod);
         return activation;
     }
 

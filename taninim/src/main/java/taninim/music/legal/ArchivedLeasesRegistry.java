@@ -32,7 +32,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     @Override
-    public Authed<LeasesPath> getActive(Hash<HashKind.K128> token) {
+    public Authed<LeasesPath> active(Hash<HashKind.K128> token) {
         var paths = pathsFor(token);
         if (paths.isEmpty()) {
             return Authed.unauthorized("No active leases for " + token);
@@ -44,7 +44,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
     }
 
     @Override
-    public LeasesPath setActive(Leases leases, LeasePeriod leasePeriod) {
+    public LeasesPath activate(Leases leases, LeasePeriod leasePeriod) {
         var time = this.time.get();
         try {
             var valid = leases.validAt(time);
