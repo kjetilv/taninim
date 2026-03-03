@@ -24,8 +24,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         if (payload.isPost()) {
             if (payload.isExactly("/auth")) {
                 return handle(payload.body(), this::authenticate);
-            } else
-            if (payload.isExactly("/lease")) {
+            } else if (payload.isExactly("/lease")) {
                 return handle(payload.body(), this::addLease);
             }
         }
@@ -46,11 +45,11 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
 
     private LambdaResult addLease(String body) {
         var acquire = LeasesRequest.acquire(body);
-        return yellin.requestLease(acquire)
+        var resultAuthed = yellin.requestLease(acquire)
             .map(LEASES_WRITER::write)
-            .map(LambdaHandlerSupport::lambdaResult)
-            .orElseGet(
-                errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
+            .map(LambdaHandlerSupport::lambdaResult);
+        return resultAuthed.orElseGet(
+            errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
     }
 
     private LambdaResult removeLease(String body) {

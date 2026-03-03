@@ -11,9 +11,18 @@ public sealed interface Authed<T> {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     static <T> Authed<T> resolve(Optional<T> optional) {
+        return resolveOr(optional, null);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    static <T> Authed<T> resolveOr(Optional<T> optional, Supplier<Authed<T>> elseGet) {
         return optional
             .map(Authed::authorized)
-            .orElseGet(Authed::empty);
+            .orElseGet(() ->
+                elseGet == null
+                    ? empty()
+                    : elseGet.get()
+            );
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

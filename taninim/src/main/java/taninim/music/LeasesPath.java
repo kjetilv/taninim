@@ -5,10 +5,7 @@ import com.github.kjetilv.uplift.hash.Hash;
 
 import static com.github.kjetilv.uplift.hash.HashKind.K128;
 
-public record LeasesPath(
-    Leases leases,
-    LeasePeriod leasePeriod
-) {
+public record LeasesPath(Leases leases, LeasePeriod leasePeriod) {
 
     public String toPath() {
         return MessageFormat.format(
@@ -20,13 +17,7 @@ public record LeasesPath(
         );
     }
 
-    public LeasesPath withTracks(List<? extends Hash<K128>> uuids, Instant lapse, boolean replace) {
-        return replace
-            ? replaceTracks(uuids, lapse)
-            : withTracks(uuids, lapse);
-    }
-
-    public LeasesPath withTracks(List<? extends Hash<K128>> uuids, Instant lapse) {
+    public LeasesPath addTracks(List<? extends Hash<K128>> uuids, Instant lapse) {
         return new LeasesPath(leases.withTracks(uuids, lapse), leasePeriod);
     }
 

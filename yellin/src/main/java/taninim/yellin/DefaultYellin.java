@@ -14,6 +14,7 @@ import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
 import taninim.music.LeasePeriod;
 import taninim.music.Leases;
+import taninim.music.LeasesPath;
 import taninim.music.LeasesRegistry;
 import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
@@ -122,8 +123,12 @@ public final class DefaultYellin implements Yellin {
         var time = this.time.get();
         var userId = leasesRequest.leasesData().userId();
         return authorizer.login(userId, false)
-            .filter(userAuth ->
-                userAuth.validAt(time))
+            .filterOr(
+                userAuth ->
+                    userAuth.validAt(time),
+                () ->
+                    Authed.unauthorized("User " + userId + "not logged in @ " + time)
+            )
             .flatMap(_ -> {
                 var userRequest = userRequest(leasesRequest);
                 return authorizer.authorize(userRequest)
@@ -199,20 +204,21 @@ public final class DefaultYellin implements Yellin {
 
     private LeasesActivation store(LeasesActivation activation, boolean replace) {
         var leasePeriod = new LeasePeriod(time.get(), leaseTime);
-        var leasesPath = leasesRegistry.active(Hash.from(activation.token()))
-            .orElseGet(() ->
-                leasesRegistry.activate(new Leases(Hash.from(activation.token())), leasePeriod));
-        var trackUuids = activation.trackUUIDs()
-            .stream()
-            .<Hash<K128>>map(Hash::from)
-            .toList();
-        var activePath = leasesPath.withTracks(
-            trackUuids,
-            leasePeriod.getLapse(),
-            replace
-        );
+        var leasesPath = leasesPath(activation, leasePeriod);
+        var trackUuids = trackUuids(activation);
+        Instant lapse = leasePeriod.getLapse();
+        var activePath = replace
+            ? leasesPath.replaceTracks(trackUuids, lapse)
+            : leasesPath.addTracks(trackUuids, lapse);
         leasesRegistry.activate(activePath.leases(), leasePeriod);
         return activation;
+    }
+
+    private LeasesPath leasesPath(LeasesActivation activation, LeasePeriod leasePeriod) {
+        return leasesRegistry.active(Hash.from(activation.token()))
+            .orElseGet(() ->
+                leasesRegistry.activate(
+                    new Leases(Hash.from(activation.token())), leasePeriod));
     }
 
     private List<Hash<K128>> tracks(UserAuth userAuth, Instant time) {
@@ -238,6 +244,13 @@ public final class DefaultYellin implements Yellin {
     static final Json JSON = Json.instance(CachingJsonSessions.create(HashKind.K128));
 
     private static final TemporalAmount REFRESH_INTERVAL = Duration.ofHours(1);
+
+    private static List<Hash<K128>> trackUuids(LeasesActivation activation) {
+        return activation.trackUUIDs()
+            .stream()
+            .<Hash<K128>>map(Hash::from)
+            .toList();
+    }
 
     private static UserRequest userRequest(LeasesRequest leasesRequest) {
         var data = leasesRequest.leasesData();

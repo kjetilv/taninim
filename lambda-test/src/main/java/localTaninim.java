@@ -114,7 +114,7 @@ void main() {
             yellinHandler
         );
         logger.info(
-            "Kudu   ➤ {} ⇌ 𝛌⏐/{}: {}",
+            "Kudu   ➤ {} ⇌ 𝛌⏐{}: {}",
             kuduFlambda.apiUri(),
             kuduFlambda.lambdaUri(),
             kudu

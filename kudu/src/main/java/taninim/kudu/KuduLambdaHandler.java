@@ -33,12 +33,16 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
     }
 
     private Authed<LambdaResult> handleAudio(LambdaPayload payload, Hash<K128> token) {
-        return Authed.resolve(getTrackRange(payload, token))
+        return Authed.resolve(trackRange(payload, token))
             .flatMap(kudu::audioBytes)
             .map(KuduLambdaHandler::toResult);
     }
 
-    private static Optional<TrackRange> getTrackRange(LambdaPayload payload, Hash<K128> token) {
+    private static final int PARTIAL_RESULT = 206;
+
+    private static final long DEFAULT_START_RANGE = 1_024L;
+
+    private static Optional<TrackRange> trackRange(LambdaPayload payload, Hash<K128> token) {
         return Track.parse(payload.path("/audio/"))
             .map(track -> {
                 var range = payload.header("range")
@@ -49,10 +53,6 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
             });
     }
 
-    private static final int PARTIAL_RESULT = 206;
-
-    private static final long DEFAULT_START_RANGE = 1_024L;
-
     private static Optional<LambdaResult> optionalResult(Authed<LambdaResult> lambdaResult) {
         return switch (lambdaResult) {
             case Authed.OK(var authorized) -> Optional.ofNullable(authorized);
@@ -60,7 +60,7 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
             case Authed.Failed<?>(var reason) -> Optional.of(
                 reason == null
                     ? LambdaResult.status(401)
-                    : LambdaResult.string(401, reason));
+                    : LambdaResult.string(451, reason));
         };
     }
 
