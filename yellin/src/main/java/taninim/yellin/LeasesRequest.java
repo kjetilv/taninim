@@ -4,7 +4,8 @@ import module java.base;
 import com.github.kjetilv.uplift.json.JsonReader;
 
 import static java.util.Objects.requireNonNull;
-import static taninim.yellin.Operation.*;
+import static taninim.yellin.Operation.ACQUIRE;
+import static taninim.yellin.Operation.RELEASE;
 
 public record LeasesRequest(Operation operation, LeasesData leasesData) {
 

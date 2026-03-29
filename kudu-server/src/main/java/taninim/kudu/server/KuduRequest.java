@@ -46,10 +46,17 @@ public sealed interface KuduRequest {
             var format = Track.Format.valueOf(file.substring(dotIndex + 1));
             var track = new Track(trackUUID, format);
             return Optional.ofNullable(req.headers().header(RANGE))
-                .flatMap(header ->
-                    Range.read(header)
-                        .map(range ->
-                            new Audio(track, range, token(req))));
+                .flatMap(value -> {
+                    try {
+                        return Range.read(value);
+                    } catch (Exception e) {
+                        log.warn("Failed to parse range from {}", value, e);
+                        return Optional.empty();
+                    }
+                })
+                .map(range ->
+                    new Audio(track, range, token(req))
+                );
         } catch (Exception e) {
             log.warn("Failed to parse track range from {}", httpReq, e);
             return Optional.empty();
