@@ -17,7 +17,7 @@
 
 <!--suppress JSUnresolvedVariable, JSUnresolvedFunction -->
 <script>
-    import { createEventDispatcher, onMount } from "svelte";
+    import {createEventDispatcher, onMount} from "svelte";
 
     export let endpoint;
 
