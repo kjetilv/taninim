@@ -85,7 +85,7 @@ class Lambdas2Test {
         var taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
             Duration.ofHours(4),
-            16
+            8
         );
 
         var kuduCors = new CorsSettings(

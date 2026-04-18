@@ -7,6 +7,8 @@ import com.github.kjetilv.uplift.lambda.LambdaHandlerSupport;
 import com.github.kjetilv.uplift.lambda.LambdaPayload;
 import com.github.kjetilv.uplift.lambda.LambdaResult;
 import taninim.auth.Authed;
+import taninim.auth.Authed.Failed;
+import taninim.auth.Authed.OK;
 
 import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static java.util.Map.entry;
@@ -21,10 +23,15 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
 
     @Override
     protected Optional<LambdaResult> lambdaResult(LambdaPayload payload) {
-        return optionalResult(
+        var authed =
             payload.isPrefixed("get", "/audio/") ? handleAudio(payload, token(payload))
                 : payload.isExactly("get", "/library.jsonl") ? handleLibrary(token(payload))
-                    : Authed.empty());
+                    : Authed.<LambdaResult>empty();
+        return Optional.ofNullable(switch (authed) {
+            case OK(var authorized) -> authorized;
+            case Failed<?>(var reason) -> LambdaResult.status(401, reason);
+            case Authed.Empty<?> _ -> null;
+        });
     }
 
     private Authed<LambdaResult> handleLibrary(Hash<K128> token) {
@@ -51,17 +58,6 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
                         new Range(0L, DEFAULT_START_RANGE));
                 return new TrackRange(track, range, token);
             });
-    }
-
-    private static Optional<LambdaResult> optionalResult(Authed<LambdaResult> lambdaResult) {
-        return switch (lambdaResult) {
-            case Authed.OK(var authorized) -> Optional.ofNullable(authorized);
-            case Authed.Empty<?> _ -> Optional.empty();
-            case Authed.Failed<?>(var reason) -> Optional.of(
-                reason == null
-                    ? LambdaResult.status(401)
-                    : LambdaResult.string(451, reason));
-        };
     }
 
     private static Hash<K128> token(LambdaPayload payload) {
