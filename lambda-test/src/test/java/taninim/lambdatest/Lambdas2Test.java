@@ -431,7 +431,7 @@ class Lambdas2Test {
                     token.digest(),
                     album.digest()
                 )
-            )
+            ).toString()
         );
     }
 
@@ -733,7 +733,7 @@ class Lambdas2Test {
             HashKind.K128.random().digest(),
             Duration.ofHours(1),
             expirationTime
-        ));
+        )).toString();
     }
 
     private static void close(Closeable lambda) {

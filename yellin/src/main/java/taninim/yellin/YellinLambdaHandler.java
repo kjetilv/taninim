@@ -38,7 +38,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         var extAuthResponse = RESPONSE_JSON_READER.read(body);
         return yellin.createLease(extAuthResponse)
             .map(result ->
-                lambdaResult(LEASES_WRITER.write(result)))
+                lambdaResult(LEASES_WRITER.write(result).toByteArray()))
             .orElseGet(
                 errorSupplier(UNAUTHORIZED, "Failed to authenticate: {}", this));
     }
@@ -47,6 +47,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         var acquire = LeasesRequest.acquire(body);
         var resultAuthed = yellin.requestLease(acquire)
             .map(LEASES_WRITER::write)
+            .map(ByteArrayOutputStream::toByteArray)
             .map(LambdaHandlerSupport::lambdaResult);
         return resultAuthed.orElseGet(
             errorSupplier(BAD_REQUEST, "Failed to add lease: {}", this));
@@ -56,7 +57,7 @@ public final class YellinLambdaHandler extends LambdaHandlerSupport {
         var release = LeasesRequest.release(body);
         return yellin.dismissLease(release)
             .map(result ->
-                lambdaResult(LEASES_WRITER.write(result)))
+                lambdaResult(LEASES_WRITER.write(result).toByteArray()))
             .orElseGet(
                 errorSupplier(BAD_REQUEST, "Failed to remove lease: {}", this));
     }
