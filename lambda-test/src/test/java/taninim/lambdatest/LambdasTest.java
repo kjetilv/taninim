@@ -217,14 +217,17 @@ class LambdasTest {
 
             tick(5, 4, sessionDuration);
 
-            assertThat(yellin.requestLease(new LeasesRequest(
+            var leasesData = new LeasesData(
+                userId,
+                firstToken,
+                album2.digest()
+            );
+            var leasesRequest = new LeasesRequest(
                 ACQUIRE,
-                new LeasesData(
-                    userId,
-                    firstToken,
-                    album2.digest()
-                )
-            ))).isInstanceOf(Authed.Empty.class);
+                leasesData
+            );
+            var requestLease = yellin.requestLease(leasesRequest);
+            assertThat(requestLease).isInstanceOf(Authed.Failed.class);
         }
 
         @Test

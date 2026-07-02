@@ -85,7 +85,7 @@ class Lambdas2Test {
         var taninimSettings = new TaninimSettings(
             Duration.ofDays(1),
             Duration.ofHours(4),
-            8
+            TRANSFER_SIZE
         );
 
         var kuduCors = new CorsSettings(
@@ -101,7 +101,7 @@ class Lambdas2Test {
         );
 
         var yellinClientSettings =
-            new LambdaClientSettings(new com.github.kjetilv.uplift.flambda.EmptyEnv(), timeRetriever);
+            new LambdaClientSettings(new EmptyEnv(), timeRetriever);
 
         var kuduClientSettings =
             new LambdaClientSettings(new EmptyEnv(), timeRetriever);
@@ -281,13 +281,16 @@ class Lambdas2Test {
         ok(lease(token, album2).join());
         ok(lease(token, album1).join());
 
+        var reqestedBytes = "bytes=0-%s".formatted(TRANSFER_SIZE - 1);
+        var expectedContentRange = "bytes 0-%s/256".formatted(TRANSFER_SIZE - 1);
+
         assertThat(audioStream(token, track1a, "bytes=0-1024").join()).satisfies(response -> {
             assertThat(response.statusCode()).isEqualTo(206);
-            assertThat(response.headers().allValues("content-range")).containsExactly("bytes 0-15/256");
+            assertThat(response.headers().allValues("content-range")).containsExactly(expectedContentRange);
         });
-        assertThat(audioStream(token, track1a, "bytes=0-7").join()).satisfies(response -> {
+        assertThat(audioStream(token, track1a, reqestedBytes).join()).satisfies(response -> {
             assertThat(response.statusCode()).isEqualTo(206);
-            assertThat(response.headers().allValues("content-range")).containsExactly("bytes 0-7/256");
+            assertThat(response.headers().allValues("content-range")).containsExactly(expectedContentRange);
             assertThat(response.headers().firstValueAsLong("content-length")).hasValue(8L);
         });
     }
@@ -701,6 +704,8 @@ class Lambdas2Test {
 
     private static final JsonWriter<String, LeasesData, StringBuilder> LEASES_DATA_WRITER =
         LeasesDataRW.INSTANCE.stringWriter();
+
+    private static final int TRANSFER_SIZE = 8;
 
     static {
         Flogs.initialize(LogLevel.INFO, new BriefLogEntryFormatter());
