@@ -6,6 +6,10 @@ import org.slf4j.LoggerFactory;
 
 public record VirtualRun(String name, Runnable runnable) {
 
+    public static void join(String name, Runnable runnable) {
+        new VirtualRun(name, runnable).join();
+    }
+
     private static final Logger log = LoggerFactory.getLogger(VirtualRun.class);
 
     public CompletableFuture<?> start() {
@@ -17,6 +21,10 @@ public record VirtualRun(String name, Runnable runnable) {
                     log.info("Completed: {}", name);
                 }
             });
+    }
+
+    public void join() {
+        start().join();
     }
 
     private static final ThreadFactory FACTORY = Thread.ofVirtual().factory();

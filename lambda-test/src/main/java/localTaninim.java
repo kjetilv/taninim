@@ -13,14 +13,19 @@ import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;
 import taninim.kudu.Kudu;
 import taninim.kudu.KuduLambdaHandler;
+import taninim.util.Sys;
 import taninim.util.VirtualRun;
 import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
 
-import java.lang.management.ManagementFactory;
-
 import static com.github.kjetilv.uplift.flogs.LogLevel.INFO;
 import static com.github.kjetilv.uplift.util.Time.utcSupplier;
+
+private static final Logger logger = Flogs.initializeAndGet(
+    "LocalTaninim",
+    INFO,
+    new BriefLogEntryFormatter()
+);
 
 @SuppressWarnings("resource")
 void main() {
@@ -100,13 +105,13 @@ void main() {
         yellinHandler
     );
 
-    LOGGER.info(
+    logger.info(
         "Yellin ➤ {} ⇌ 𝛌⏐{}: {}",
         yellinFlambda.apiUri(),
         yellinFlambda.lambdaUri(),
         yellinHandler
     );
-    LOGGER.info(
+    logger.info(
         "Kudu   ➤ {} ⇌ 𝛌⏐{}: {}",
         kuduFlambda.apiUri(),
         kuduFlambda.lambdaUri(),
@@ -120,10 +125,13 @@ void main() {
         )
         .map(VirtualRun::start)
         .toList();
-    var startupTime = startupTime();
-    LOGGER.info("Started in {}", startupTime);
+    Sys.logTimeSinceStartup(duration ->
+        logger.info("Started in {}", duration)
+    );
+    Sys.logTimeAtShutdown(duration ->
+        logger.info("Stopped after {}", duration)
+    );
     list.forEach(CompletableFuture::join);
-    LOGGER.info("Stopped");
 }
 
 private static final int K = 1_024;
@@ -133,16 +141,3 @@ private static final Duration ONE_DAY = Duration.ofDays(1);
 private static final Duration FOUR_HOURS = Duration.ofHours(4);
 
 private static final Env ENV = Env.actual();
-
-private static final Logger LOGGER = Flogs.initializeAndGet(
-    "LocalTaninim",
-    INFO,
-    new BriefLogEntryFormatter()
-);
-
-private static Duration startupTime() {
-    var startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-    var now = System.currentTimeMillis();
-    var startupTime = Duration.between(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(now));
-    return startupTime;
-}

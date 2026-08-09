@@ -8,20 +8,17 @@ import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.synchttp.CorsSettings;
 import com.github.kjetilv.uplift.util.Time;
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;
+import taninim.util.VirtualRun;
 import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
 
-import static com.github.kjetilv.uplift.flogs.Flogs.initialize;
+import static com.github.kjetilv.uplift.flogs.Flogs.initializeAndGet;
 
 @SuppressWarnings({"MagicNumber"})
 void main() {
-    initialize(LogLevel.DEBUG);
-
-    var logger = LoggerFactory.getLogger("LocalLambdaYellin");
-
     var settings = new FlambdaSettings(
         "yellin",
         9001,
@@ -56,18 +53,21 @@ void main() {
             taninimSettings.leaseDuration(),
             authenticator
         ));
-
-        try (
-            var lamdbdaManaged = Lambda.managed(
-                flambda.lambdaUri(),
-                clientSettings,
-                yellin
-            );
-            var executor = Executors.newFixedThreadPool(2)
-        ) {
-            executor.submit(() ->
-                lamdbdaManaged.accept("yellin"));
-            logger.info("Started");
-        }
+        VirtualRun.join(
+            "yellin",
+            () -> {
+                try (
+                    var managed = Lambda.managed(
+                        flambda.lambdaUri(),
+                        clientSettings,
+                        yellin
+                    )
+                ) {
+                    managed.accept("yellin");
+                }
+            }
+        );
     }
 }
+
+private static final Logger logger = initializeAndGet("localLambdaYellin", LogLevel.DEBUG);
