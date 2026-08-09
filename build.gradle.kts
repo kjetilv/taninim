@@ -65,7 +65,10 @@ fun resolveToken() = resolveProperty("githubToken", "GITHUB_TOKEN")
 
 fun resolveProperty(property: String, variable: String? = null, defValue: String? = null) =
     System.getProperty(property)
-        ?: variable?.let { System.getenv(it) }
-        ?: project.takeIf { it.hasProperty(property) }?.property(property)?.toString()
+        ?: variable
+            ?.let { System.getenv(it) }
+        ?: project.takeIf { it.hasProperty(property) }
+            ?.property(property)
+            ?.toString()
         ?: defValue
         ?: property

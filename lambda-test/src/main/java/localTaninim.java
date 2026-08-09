@@ -8,21 +8,22 @@ import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import com.github.kjetilv.uplift.synchttp.CorsSettings;
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import taninim.TaninimSettings;
 import taninim.fb.DefaultFbAuthenticator;
 import taninim.kudu.Kudu;
 import taninim.kudu.KuduLambdaHandler;
+import taninim.util.VirtualRun;
 import taninim.yellin.DefaultYellin;
 import taninim.yellin.YellinLambdaHandler;
+
+import java.lang.management.ManagementFactory;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.INFO;
 import static com.github.kjetilv.uplift.util.Time.utcSupplier;
 
+@SuppressWarnings("resource")
 void main() {
-    Flogs.initialize(INFO, new BriefLogEntryFormatter());
-
-    var logger = LoggerFactory.getLogger("LocalTaninim");
     var time = utcSupplier();
 
     var taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
@@ -99,28 +100,30 @@ void main() {
         yellinHandler
     );
 
-    try (var executor = Executors.newFixedThreadPool(4)) {
-        List.of(
-                kuduLambdaManaged.looper("kudu"),
-                yellinLamdbdaManaged.looper("yellin"),
-                kuduFlambda,
-                yellinFlambda
-            )
-            .forEach(executor::submit);
-        logger.info(
-            "Yellin ➤ {} ⇌ 𝛌⏐{}: {}",
-            yellinFlambda.apiUri(),
-            yellinFlambda.lambdaUri(),
-            yellinHandler
-        );
-        logger.info(
-            "Kudu   ➤ {} ⇌ 𝛌⏐{}: {}",
-            kuduFlambda.apiUri(),
-            kuduFlambda.lambdaUri(),
-            kudu
-        );
-    }
-    logger.info("Stopped");
+    LOGGER.info(
+        "Yellin ➤ {} ⇌ 𝛌⏐{}: {}",
+        yellinFlambda.apiUri(),
+        yellinFlambda.lambdaUri(),
+        yellinHandler
+    );
+    LOGGER.info(
+        "Kudu   ➤ {} ⇌ 𝛌⏐{}: {}",
+        kuduFlambda.apiUri(),
+        kuduFlambda.lambdaUri(),
+        kudu
+    );
+    var list = Stream.of(
+            new VirtualRun("kudu", kuduLambdaManaged.looper("kudu")),
+            new VirtualRun("yellin", yellinLamdbdaManaged.looper("yellin")),
+            new VirtualRun("kuduFlambda", kuduFlambda),
+            new VirtualRun("yellinFlambda", yellinFlambda)
+        )
+        .map(VirtualRun::start)
+        .toList();
+    var startupTime = startupTime();
+    LOGGER.info("Started in {}", startupTime);
+    list.forEach(CompletableFuture::join);
+    LOGGER.info("Stopped");
 }
 
 private static final int K = 1_024;
@@ -130,3 +133,16 @@ private static final Duration ONE_DAY = Duration.ofDays(1);
 private static final Duration FOUR_HOURS = Duration.ofHours(4);
 
 private static final Env ENV = Env.actual();
+
+private static final Logger LOGGER = Flogs.initializeAndGet(
+    "LocalTaninim",
+    INFO,
+    new BriefLogEntryFormatter()
+);
+
+private static Duration startupTime() {
+    var startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
+    var now = System.currentTimeMillis();
+    var startupTime = Duration.between(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(now));
+    return startupTime;
+}

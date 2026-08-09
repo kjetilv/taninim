@@ -22,7 +22,6 @@ void main(String[] args) {
         .map(inputStream ->
             UserAuths.from(new DataInputStream(inputStream)))
         .ifPresent(userAuths -> {
-
             IO.println("  User-auths:");
             userAuths.auths()
                 .forEach(userAuth -> {
