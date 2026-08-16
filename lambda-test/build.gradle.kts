@@ -1,3 +1,7 @@
+plugins {
+    id("org.graalvm.buildtools.native") version "0.11.0"
+}
+
 dependencies {
     implementation("com.github.kjetilv.uplift:uplift-hash:0.1.1-SNAPSHOT")
     implementation("com.github.kjetilv.uplift:uplift-kernel:0.1.1-SNAPSHOT")
@@ -14,4 +18,13 @@ dependencies {
     implementation(project(":kudu"))
     implementation(project(":taninim"))
     implementation(project(":yellin"))
+}
+
+graalvmNative {
+    binaries {
+        named("main") {
+            imageName = "localTaninim"
+            mainClass = "localTaninim"
+        }
+    }
 }

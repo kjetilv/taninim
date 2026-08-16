@@ -1,17 +1,13 @@
-import com.github.kjetilv.uplift.plugins.UpliftPlugin
 import com.github.kjetilv.uplift.plugins.UpliftTask
-import java.util.*
 
 plugins {
     id("com.github.kjetilv.uplift.plugins.uplift") version "0.1.1-SNAPSHOT"
 }
 
 dependencies {
-    implementation("software.amazon.awscdk:aws-cdk-lib:2.151.0")
-    implementation("software.constructs:constructs:10.3.0")
+    implementation("software.amazon.awscdk:aws-cdk-lib:2.264.0")
+    implementation("software.constructs:constructs:10.8.1")
 }
-
-apply<UpliftPlugin>()
 
 tasks.withType<UpliftTask> {
     configure(stack = "taninim")
@@ -28,7 +24,7 @@ tasks.withType<UpliftTask> {
 }
 
 fun get(name: String, needIt: Boolean = false): String =
-    System.getenv(name)?.takeIf { it.isNotBlank() }?.takeIf { it.lowercase(Locale.ROOT) != "null" }
+    System.getenv(name)?.takeIf { it.isNotBlank() }?.takeIf { it.lowercase() != "null" }
         ?: System.getProperty(name)
         ?: project.takeIf { it.hasProperty(name) }
             ?.property(name)

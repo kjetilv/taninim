@@ -24,6 +24,4 @@ dependencies {
     annotationProcessor("com.github.kjetilv.uplift:uplift-json-gen:0.1.1-SNAPSHOT")
 }
 
-apply<NativeLambdaPlugin>()
-
 tasks.withType<NativeLamdbdaTask> { main = "yellin" }

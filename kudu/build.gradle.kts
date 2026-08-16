@@ -17,6 +17,4 @@ dependencies {
     implementation("com.github.kjetilv.uplift:uplift-util:0.1.1-SNAPSHOT")
 }
 
-apply<NativeLambdaPlugin>()
-
 tasks.withType<NativeLamdbdaTask> { main = "kudu" }
