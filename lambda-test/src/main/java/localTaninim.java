@@ -59,6 +59,7 @@ void main() {
         S3AccessorFactory.defaultFactory(ENV)
     ));
     var kuduLambdaManaged = Lambda.managed(
+        "localTaninim-kudu",
         kuduFlambda.lambdaUri(),
         kuduClientSettings,
         kudu
@@ -100,6 +101,7 @@ void main() {
     var yellinHandler = new YellinLambdaHandler(yellin);
 
     var yellinLamdbdaManaged = Lambda.managed(
+        "localTaninim-yellin",
         yellinFlambda.lambdaUri(),
         yellinClientSettings,
         yellinHandler

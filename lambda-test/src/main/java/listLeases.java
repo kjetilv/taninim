@@ -2,6 +2,7 @@ import module java.base;
 import com.github.kjetilv.uplift.flogs.Flogs;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
+import com.github.kjetilv.uplift.util.Virtuals;
 import org.slf4j.LoggerFactory;
 import taninim.music.ArchivedRecord;
 import taninim.music.legal.S3Archives;
@@ -15,7 +16,7 @@ void main(String[] args) {
 
     boolean clear = Arrays.stream(args).anyMatch("clear"::equalsIgnoreCase);
 
-    var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Executors.newVirtualThreadPerTaskExecutor());
+    var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Virtuals.executor("listLeases"));
     var archives = S3Archives.create(s3Accessor);
     IO.println("auth-digest.bin:");
     s3Accessor.stream("auth-digest.bin")

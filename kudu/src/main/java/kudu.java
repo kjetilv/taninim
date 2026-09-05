@@ -27,7 +27,7 @@ void main() {
     var uri = env.awsLambdaUri();
 
     try {
-        try (var managed = Lambda.managed(uri, clientSettings, kudu)) {
+        try (var managed = Lambda.managed("kudu", uri, clientSettings, kudu)) {
             managed.accept("kudu");
         }
     } catch (Exception e) {

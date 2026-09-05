@@ -1,6 +1,7 @@
 package taninim.util;
 
 import module java.base;
+import com.github.kjetilv.uplift.util.Virtuals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,18 +37,17 @@ public final class Sys {
     private static final List<Runnable> AT_SHUTDOWN = new CopyOnWriteArrayList<>();
 
     static {
-        Runtime.getRuntime().addShutdownHook(
-            new Thread(
-                () ->
-                    AT_SHUTDOWN.forEach(action -> {
-                        try {
-                            action.run();
-                        } catch (Exception e) {
-                            log.warn("Shutdown hook failed...", e);
-                        }
-                    }),
-                Sys.class.getSimpleName().toLowerCase(Locale.ROOT) + "-shutdown"
-            )
-        );
+        var threadName = Sys.class.getSimpleName().toLowerCase(Locale.ROOT) + "-shutdown";
+        Runtime.getRuntime().addShutdownHook(Virtuals.thread(threadName, Sys::shutdown));
+    }
+
+    private static void shutdown() {
+        AT_SHUTDOWN.forEach(action -> {
+            try {
+                action.run();
+            } catch (Exception e) {
+                log.warn("Shutdown hook failed...", e);
+            }
+        });
     }
 }

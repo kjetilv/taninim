@@ -8,6 +8,7 @@ import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.DefaultFbAuthenticator;
+import com.github.kjetilv.uplift.util.Virtuals;
 import taninim.yellin.DefaultYellin;
 import taninim.yellin.server.YellinHttpHandler;
 
@@ -20,11 +21,7 @@ private static final Logger log = LoggerFactory.getLogger("yellin");
 void main(String[] args) {
 
     var parameters = parameterMap(args);
-
-    var s3Accessor = S3Accessor.fromEnvironment(
-        Env.actual(),
-        Executors.newVirtualThreadPerTaskExecutor()
-    );
+    var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Virtuals.executor("yellin"));
 
     HttpHandler httpHandler = new YellinHttpHandler(
         DefaultYellin.create(

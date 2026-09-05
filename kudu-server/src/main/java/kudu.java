@@ -4,6 +4,7 @@ import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.synchttp.HttpCallbackProcessor;
 import com.github.kjetilv.uplift.synchttp.Server;
 import com.github.kjetilv.uplift.util.Time;
+import com.github.kjetilv.uplift.util.Virtuals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.kudu.Kudu;
@@ -21,7 +22,7 @@ private static final Logger log = LoggerFactory.getLogger("kudu");
 void main(String[] args) {
     var parameters = Parameters.parse(args);
 
-    var executorService = Executors.newVirtualThreadPerTaskExecutor();
+    var executorService = Virtuals.executor("kudu");
     var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), executorService);
 
     var leasesRegistry = ArchivedLeasesRegistry.create(

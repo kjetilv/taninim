@@ -58,6 +58,7 @@ void main() {
             () -> {
                 try (
                     var managed = Lambda.managed(
+                        "yellin",
                         flambda.lambdaUri(),
                         clientSettings,
                         yellin

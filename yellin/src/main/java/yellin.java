@@ -40,6 +40,7 @@ void main() {
     var uri = env.awsLambdaUri();
     try (
         var managed = Lambda.managed(
+            "yellin",
             uri,
             clientSettings,
             new YellinLambdaHandler(yellin)

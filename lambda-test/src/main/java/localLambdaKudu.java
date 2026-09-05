@@ -51,7 +51,12 @@ void main() {
             "kudu",
             () -> {
                 try (
-                    var lamdbdaManaged = Lambda.managed(flambda.lambdaUri(), clientSettings, handler);
+                    var lamdbdaManaged = Lambda.managed(
+                        "kudu",
+                        flambda.lambdaUri(),
+                        clientSettings,
+                        handler
+                    );
                     var executor = Executors.newFixedThreadPool(2)
                 ) {
                     executor.submit(() -> lamdbdaManaged.accept("kudu"));
