@@ -22,3 +22,8 @@ gradle.properties
 **/src/main/generated
 **/src/test/generated
 **/src/test/generated_tests
+### Maven ###
+target/
+
+### Maven deployment coordinates, as gradle.properties was ###
+.mvn/maven.config

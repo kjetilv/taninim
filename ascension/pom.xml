@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.kjetilv.taninim</groupId>
+    <artifactId>taninim-parent</artifactId>
+    <version>0.1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>ascension</artifactId>
+
+  <description>Builds the stack and lifts it to AWS</description>
+
+  <properties>
+    <!--
+      Deployment coordinates are not kept here. account, region and profile come from
+      .mvn/maven.config, which is ignored by git the way ascension/gradle.properties was.
+      See .mvn/maven.config.template.
+    -->
+    <taninim.bucket>${env.taninimBucket}</taninim.bucket>
+    <taninim.fbSec>${env.fbSec}</taninim.fbSec>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>software.amazon.awscdk</groupId>
+      <artifactId>aws-cdk-lib</artifactId>
+      <version>2.264.0</version>
+    </dependency>
+    <dependency>
+      <groupId>software.constructs</groupId>
+      <artifactId>constructs</artifactId>
+      <version>10.8.1</version>
+    </dependency>
+
+    <!--
+      The lambdas, as zip artifacts attached by uplift:native-lambda. This replaces the
+      Gradle dependsOn(":kudu:native-lambda", ":yellin:native-lambda"), which read the
+      zips straight out of another project's task outputs. Maven has no equivalent, so
+      they travel as ordinary artifacts.
+    -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>kudu</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>yellin</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.kjetilv.uplift</groupId>
+        <artifactId>uplift-maven-plugin</artifactId>
+        <configuration>
+          <stack>taninim</stack>
+          <stackbuilderClass>taninim.uplift.LambdaStacker</stackbuilderClass>
+          <env>
+            <fbSec>${taninim.fbSec}</fbSec>
+            <taninimBucket>${taninim.bucket}</taninimBucket>
+          </env>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

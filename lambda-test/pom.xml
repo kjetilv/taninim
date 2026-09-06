@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.kjetilv.taninim</groupId>
+    <artifactId>taninim-parent</artifactId>
+    <version>0.1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>lambda-test</artifactId>
+
+  <description>Runs the lambdas locally, against a fake AWS</description>
+
+  <properties>
+    <native.maven.plugin.version>0.11.0</native.maven.plugin.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>kudu</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>taninim</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>yellin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-hash</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-kernel</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-flogs</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-s3</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-synchttp</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-json</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-json-gen</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-lambda</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-flambda</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-util</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Direct equivalent of the Gradle org.graalvm.buildtools.native plugin. -->
+      <plugin>
+        <groupId>org.graalvm.buildtools</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <version>${native.maven.plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <imageName>localTaninim</imageName>
+          <mainClass>localTaninim</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
