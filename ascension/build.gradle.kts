@@ -10,10 +10,12 @@ dependencies {
 }
 
 tasks.withType<UpliftTask> {
-    configure(stack = "taninim")
-    env(
-        "fbSec" to get("fbSec"),
-        "taninimBucket" to get("taninimBucket")
+    stack.set("taninim")
+    env.set(
+        mapOf(
+            "fbSec" to get("fbSec"),
+            "taninimBucket" to get("taninimBucket")
+        )
     )
     stackWith("taninim.uplift.LambdaStacker")
     dependsOn(

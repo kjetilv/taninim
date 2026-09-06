@@ -1,5 +1,4 @@
-import com.github.kjetilv.uplift.plugins.NativeLambdaPlugin
-import com.github.kjetilv.uplift.plugins.NativeLamdbdaTask
+import com.github.kjetilv.uplift.plugins.NativeLambdaTask
 
 plugins {
     id("com.github.kjetilv.uplift.plugins.lambda") version "0.1.1-SNAPSHOT"
@@ -17,4 +16,4 @@ dependencies {
     implementation("com.github.kjetilv.uplift:uplift-util:0.1.1-SNAPSHOT")
 }
 
-tasks.withType<NativeLamdbdaTask> { main = "kudu" }
+tasks.withType<NativeLambdaTask> { main.set("kudu") }
