@@ -6,3 +6,5 @@
 -Duplift.account=<your 12-digit AWS account id>
 -Duplift.region=<your preferred region>
 -Duplift.profile=<AWS profile holding key/secret>
+-Dtaninim.fbSec=<facebook token>
+-Dtaninim.bucket=<bucket name>

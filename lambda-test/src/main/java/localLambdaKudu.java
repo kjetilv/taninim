@@ -15,10 +15,16 @@ import taninim.util.VirtualRun;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initializeAndGet;
 
+@SuppressWarnings("unused")
+private static final Logger logger = initializeAndGet("localLambdaKudu", LogLevel.DEBUG);
+
 @SuppressWarnings({"MagicNumber"})
 void main() {
     var corsSettings = new CorsSettings(
-        List.of("https://kjetilv.github.io"),
+        List.of(
+            "https://kjetilv.github.io",
+            "https://localhost:8443"
+        ),
         List.of("GET"),
         List.of("content-type", "range")
     );
@@ -65,7 +71,5 @@ void main() {
         );
     }
 }
-
-private static final Logger logger = initializeAndGet("localLambdaKudu", LogLevel.DEBUG);
 
 private static final Env ENV = Env.actual();

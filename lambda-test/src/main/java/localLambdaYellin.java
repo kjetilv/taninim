@@ -17,6 +17,9 @@ import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initializeAndGet;
 
+@SuppressWarnings("unused")
+private static final Logger logger = initializeAndGet("localLambdaYellin", LogLevel.DEBUG);
+
 @SuppressWarnings({"MagicNumber"})
 void main() {
     var settings = new FlambdaSettings(
@@ -26,7 +29,10 @@ void main() {
         8 * 8192,
         10,
         new CorsSettings(
-            List.of("https://kjetilv.github.io"),
+            List.of(
+                "https://kjetilv.github.io",
+                "https://localhost:8443"
+            ),
             List.of("POST", "DELETE"),
             List.of("content-type")
         ),
@@ -70,5 +76,3 @@ void main() {
         );
     }
 }
-
-private static final Logger logger = initializeAndGet("localLambdaYellin", LogLevel.DEBUG);
