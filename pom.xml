@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.github.kjetilv.taninim</groupId>
+  <artifactId>taninim-parent</artifactId>
+  <version>0.1.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>taninim-parent</name>
+
+  <!--
+    Named taninim-parent, not taninim: Maven cannot have the aggregator and a module
+    share coordinates, and the taninim module keeps the published name.
+  -->
+
+  <!--
+    No parent. This repository is a git submodule of taninim-comp but must build on its
+    own, so it carries its own configuration rather than inheriting from the aggregator.
+
+    uplift must be installed first. Maven cannot resolve a build plugin from the same
+    reactor run, so uplift-maven-plugin has to exist in a repository before this build
+    starts. See MAVEN-MIGRATION.md section 3.
+  -->
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>25</maven.compiler.release>
+
+    <!--
+      Deliberately not named uplift.*: the uplift plugin has its own
+      uplift.addModules parameter for the native image, and a shared name would
+      silently feed this value to native-image, which the Gradle build never did.
+    -->
+    <jvm.addModules>jdk.incubator.vector</jvm.addModules>
+    <uplift.version>0.1.1-SNAPSHOT</uplift.version>
+
+    <junit.version>6.0.3</junit.version>
+    <assertj.version>3.27.7</assertj.version>
+
+    <compiler.plugin.version>3.14.0</compiler.plugin.version>
+    <surefire.plugin.version>3.6.0</surefire.plugin.version>
+    <source.plugin.version>3.3.1</source.plugin.version>
+  </properties>
+
+  <modules>
+    <!-- The river -->
+    <module>taninim</module>
+    <!-- Hell -->
+    <module>fb</module>
+    <!-- The gates -->
+    <module>yellin</module>
+    <module>yellin-server</module>
+    <!-- The horns -->
+    <module>kudu</module>
+    <module>kudu-server</module>
+    <!-- The cloud -->
+    <module>ascension</module>
+    <!-- The crucible -->
+    <module>lambda-test</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/kjetilv/uplift</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/kjetilv/uplift</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${compiler.plugin.version}</version>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+            <compilerArgs>
+              <arg>--enable-preview</arg>
+              <arg>--add-modules</arg>
+              <arg>${jvm.addModules}</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${surefire.plugin.version}</version>
+          <configuration>
+            <argLine>-ea --enable-preview --add-modules ${jvm.addModules}</argLine>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${source.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.github.kjetilv.uplift</groupId>
+          <artifactId>uplift-maven-plugin</artifactId>
+          <version>${uplift.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

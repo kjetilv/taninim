@@ -1,0 +1,8 @@
+# Copy to .mvn/maven.config and fill in. That file is ignored by git, the way
+# ascension/gradle.properties was.
+#
+# fbSec and taninimBucket are read from the environment instead, so they never
+# land in a file inside the tree.
+-Duplift.account=<your 12-digit AWS account id>
+-Duplift.region=<your preferred region>
+-Duplift.profile=<AWS profile holding key/secret>

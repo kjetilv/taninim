@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.kjetilv.taninim</groupId>
+    <artifactId>taninim-parent</artifactId>
+    <version>0.1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>taninim</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-flogs</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-hash</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-kernel</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-util</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-s3</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kjetilv.uplift</groupId>
+      <artifactId>uplift-synchttp</artifactId>
+      <version>${uplift.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>
