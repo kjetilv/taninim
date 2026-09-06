@@ -62,28 +62,34 @@
     <module>lambda-test</module>
   </modules>
 
-  <repositories>
-    <repository>
-      <id>github</id>
-      <name>GitHub Packages</name>
-      <url>https://maven.pkg.github.com/kjetilv/uplift</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </repository>
-  </repositories>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>github</id>
-      <name>GitHub Packages</name>
-      <url>https://maven.pkg.github.com/kjetilv/uplift</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </pluginRepository>
-  </pluginRepositories>
+
+  <!--
+    No <repositories> entry for GitHub Packages.
+    
+    Maven has no per-repository group filter, so declaring it here makes Maven query it
+    for every artifact, including everything on central. Without credentials that is 56
+    401s in one build; with them it is just as many pointless round trips. Gradle avoided
+    this with mavenContent { includeGroup("com.github.kjetilv.uplift") }.
+    
+    uplift is resolved from the local repository instead, which the two-phase build
+    already requires (see MAVEN-MIGRATION.md section 3). To consume published uplift
+    instead, put the repository and its credentials in ~/.m2/settings.xml, which is where
+    Maven expects a private registry to be configured.
+  -->
 
   <dependencyManagement>
     <dependencies>
+      <!--
+        aws-cdk-lib asks for constructs as the range [10.0.0,11.0.0). Maven resolves a
+        range by fetching the pom of every version in it, which cost 623 requests and
+        several minutes here. Pinning it makes the range moot.
+      -->
+      <dependency>
+        <groupId>software.constructs</groupId>
+        <artifactId>constructs</artifactId>
+        <version>10.8.1</version>
+      </dependency>
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
