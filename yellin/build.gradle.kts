@@ -1,5 +1,4 @@
-import com.github.kjetilv.uplift.plugins.NativeLambdaPlugin
-import com.github.kjetilv.uplift.plugins.NativeLamdbdaTask
+import com.github.kjetilv.uplift.plugins.NativeLambdaTask
 
 plugins {
     id("com.github.kjetilv.uplift.plugins.lambda") version "0.1.1-SNAPSHOT"
@@ -24,4 +23,4 @@ dependencies {
     annotationProcessor("com.github.kjetilv.uplift:uplift-json-gen:0.1.1-SNAPSHOT")
 }
 
-tasks.withType<NativeLamdbdaTask> { main = "yellin" }
+tasks.withType<NativeLambdaTask> { main.set("yellin") }
