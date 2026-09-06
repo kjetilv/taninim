@@ -86,7 +86,10 @@ public class LambdaStacker implements Consumer<Stack> {
     private static FunctionUrlCorsOptions corsOptions(List<HttpMethod> methods, List<String> headers) {
         var builder = FunctionUrlCorsOptions.builder()
             .allowedMethods(methods)
-            .allowedOrigins(List.of("https://kjetilv.github.io"))
+            .allowedOrigins(List.of(
+                "https://kjetilv.github.io",
+                "https://localhost:8443"
+            ))
             .maxAge(Duration.days(1))
             .allowCredentials(false);
         if (headers != null && !headers.isEmpty()) {
