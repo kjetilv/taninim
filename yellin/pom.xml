@@ -25,7 +25,7 @@
     </dependency>
     <dependency>
       <groupId>com.github.kjetilv.uplift</groupId>
-      <artifactId>uplift-hash</artifactId>
+      <artifactId>uplift.hash</artifactId>
       <version>${uplift.version}</version>
     </dependency>
     <dependency>
@@ -100,7 +100,7 @@
               <goal>native-lambda</goal>
             </goals>
             <configuration>
-              <main>yellin</main>
+              <main>taninim.yellin.Main</main>
             </configuration>
           </execution>
         </executions>

@@ -1,4 +1,4 @@
-package taninim.lambdatest;
+package taninim.lambdatest.test;
 
 import module java.base;
 
@@ -9,4 +9,3 @@ record S3Data(byte[] data, Object object, Instant time) {
         return getClass().getSimpleName() + "[" + (data == null ? "0" : data.length) + "->" + object + "]";
     }
 }
-

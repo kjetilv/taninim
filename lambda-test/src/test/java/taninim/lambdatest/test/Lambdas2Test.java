@@ -1,4 +1,4 @@
-package taninim.lambdatest;
+package taninim.lambdatest.test;
 
 import module java.base;
 import com.github.kjetilv.uplift.flambda.EmptyEnv;
