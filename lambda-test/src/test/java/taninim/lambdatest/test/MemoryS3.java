@@ -1,4 +1,4 @@
-package taninim.lambdatest;
+package taninim.lambdatest.test;
 
 import module java.base;
 import com.github.kjetilv.uplift.kernel.io.BytesIO;
@@ -98,4 +98,3 @@ public record MemoryS3(
                "]";
     }
 }
-

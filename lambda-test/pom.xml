@@ -42,7 +42,7 @@
 
     <dependency>
       <groupId>com.github.kjetilv.uplift</groupId>
-      <artifactId>uplift-hash</artifactId>
+      <artifactId>uplift.hash</artifactId>
       <version>${uplift.version}</version>
     </dependency>
     <dependency>

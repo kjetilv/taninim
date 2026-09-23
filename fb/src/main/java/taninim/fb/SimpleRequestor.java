@@ -32,11 +32,6 @@ class SimpleRequestor implements WebRequestor {
         throw new UnsupportedOperationException("Not supported: Delete " + request);
     }
 
-    @Override
-    public DebugHeaderInfo getDebugHeaderInfo() {
-        return null;
-    }
-
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder().build();
 
     private static final HttpResponse.BodyHandler<String> STRING = HttpResponse.BodyHandlers.ofString();
