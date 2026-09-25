@@ -1,3 +1,4 @@
+/// @jenesis.plugin uplift.json.gen
 module taninim.yellin {
     requires java.compiler;
     requires taninim.fb;

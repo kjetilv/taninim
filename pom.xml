@@ -66,12 +66,12 @@
 
   <!--
     No <repositories> entry for GitHub Packages.
-    
+
     Maven has no per-repository group filter, so declaring it here makes Maven query it
     for every artifact, including everything on central. Without credentials that is 56
     401s in one build; with them it is just as many pointless round trips. Gradle avoided
     this with mavenContent { includeGroup("com.github.kjetilv.uplift") }.
-    
+
     uplift is resolved from the local repository instead, which the two-phase build
     already requires (see MAVEN-MIGRATION.md section 3). To consume published uplift
     instead, put the repository and its credentials in ~/.m2/settings.xml, which is where
