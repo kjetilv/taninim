@@ -1,7 +1,7 @@
+/// @jenesis.plugin uplift.json.gen
 module taninim.fb {
     requires java.compiler;
     requires java.net.http;
-    requires restfb;
     requires uplift.flogs;
     requires uplift.json;
     requires uplift.json.anno;
