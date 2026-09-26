@@ -31,7 +31,7 @@ public class LocalLambdaKudu {
             List.of("GET"),
             List.of("content-type", "range")
         );
-        Supplier<Instant> clock = Clock.systemUTC()::instant;
+        InstantSource clock = Clock.systemUTC()::instant;
         try (
             var flambda = new Flambda(
                 new FlambdaSettings(

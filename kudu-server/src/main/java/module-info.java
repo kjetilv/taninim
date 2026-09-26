@@ -8,5 +8,4 @@ module taninim.kudu.server {
     requires uplift.s3;
     requires uplift.synchttp;
     requires uplift.util;
-
 }

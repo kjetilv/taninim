@@ -41,7 +41,7 @@ public interface Kudu {
         LeasesRegistry leasesRegistry,
         MediaLibrary mediaLibrary,
         int transferSize,
-        Supplier<Instant> time
+        InstantSource time
     ) {
         return new DefaultKudu(leasesRegistry, mediaLibrary, transferSize, time);
     }

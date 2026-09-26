@@ -408,7 +408,7 @@ class Lambdas2Test {
         s3Accessor.put(file, bytes);
     }
 
-    private Supplier<Instant> timeRetriever() {
+    private InstantSource timeRetriever() {
         return this.time::get;
     }
 
