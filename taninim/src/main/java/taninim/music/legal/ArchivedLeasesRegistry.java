@@ -14,17 +14,17 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(ArchivedLeasesRegistry.class);
 
-    public static LeasesRegistry create(Archives archives, Duration leaseDuration, Supplier<Instant> time) {
+    public static LeasesRegistry create(Archives archives, Duration leaseDuration, InstantSource time) {
         return new ArchivedLeasesRegistry(archives, leaseDuration, time);
     }
 
     private final Duration leaseDuration;
 
-    private final Supplier<Instant> time;
+    private final InstantSource time;
 
     private final Archives archives;
 
-    private ArchivedLeasesRegistry(Archives archives, Duration leaseDuration, Supplier<Instant> time) {
+    private ArchivedLeasesRegistry(Archives archives, Duration leaseDuration, InstantSource time) {
         this.archives = requireNonNull(archives, "archives");
         this.leaseDuration = requireNonNull(leaseDuration, "leaseLimit");
         this.time = requireNonNull(time, "clock");
@@ -36,7 +36,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
         if (paths.isEmpty()) {
             return Authed.unauthorized("No active leases for " + token);
         }
-        var time = this.time.get();
+        var time = this.time.instant();
         var leasePeriod = LeasePeriod.starting(time).ofLength(leaseDuration);
         var validToken = validToken(token, paths, time, leasePeriod);
         return Authed.require(validToken, () -> "Unauthorized: " + token);
@@ -44,7 +44,7 @@ public final class ArchivedLeasesRegistry implements LeasesRegistry {
 
     @Override
     public LeasesPath activate(Leases leases, LeasePeriod leasePeriod) {
-        var time = this.time.get();
+        var time = this.time.instant();
         try {
             var valid = leases.validAt(time);
             var leasesPath = new LeasesPath(valid, leasePeriod);

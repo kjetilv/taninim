@@ -17,13 +17,13 @@ public final class DefaultKudu implements Kudu {
 
     private final int transferSize;
 
-    private final Supplier<Instant> time;
+    private final InstantSource time;
 
     DefaultKudu(
         LeasesRegistry leasesRegistry,
         MediaLibrary mediaLibrary,
         int transferSize,
-        Supplier<Instant> time
+        InstantSource time
     ) {
         this.leasesRegistry = leasesRegistry;
         this.mediaLibrary = mediaLibrary;
@@ -46,7 +46,7 @@ public final class DefaultKudu implements Kudu {
         return leasesRegistry.active(trackRange.token())
             .filterOr(
                 leasesPath ->
-                    leasesPath.leases().validFor(trackRange.track().trackUUID(), time.get()),
+                    leasesPath.leases().validFor(trackRange.track().trackUUID(), time.instant()),
                 () ->
                     Authed.unauthorized("No lease for " + trackRange))
             .flatMap(_ ->

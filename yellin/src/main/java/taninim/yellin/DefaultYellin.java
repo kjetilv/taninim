@@ -27,7 +27,7 @@ public final class DefaultYellin implements Yellin {
 
     public static Yellin create(
         S3Accessor s3Accessor,
-        Supplier<Instant> time,
+        InstantSource time,
         Duration sessionDuration,
         Duration ticketDuration,
         Authenticator authenticator
@@ -90,7 +90,7 @@ public final class DefaultYellin implements Yellin {
 
     private final Duration leaseTime;
 
-    private final Supplier<Instant> time;
+    private final InstantSource time;
 
     private DefaultYellin(
         Authenticator authenticator,
@@ -98,7 +98,7 @@ public final class DefaultYellin implements Yellin {
         LeasesRegistry leasesRegistry,
         Supplier<MediaIds> mediaIds,
         Duration leaseTime,
-        Supplier<Instant> time
+        InstantSource time
     ) {
         this.authenticator = requireNonNull(authenticator, "authenticator");
         this.authorizer = requireNonNull(authorizer, "authorizer");
@@ -120,7 +120,7 @@ public final class DefaultYellin implements Yellin {
 
     @Override
     public Authed<LeasesActivation> requestLease(LeasesRequest leasesRequest) {
-        var time = this.time.get();
+        var time = this.time.instant();
         var userId = leasesRequest.leasesData().userId();
         return authorizer.login(userId, false)
             .filterOr(
@@ -146,7 +146,7 @@ public final class DefaultYellin implements Yellin {
     }
 
     private Authed<LeasesActivation> currentOrRefreshed(ExtAuthResponse extAuthResponse, boolean refresh) {
-        var time = this.time.get();
+        var time = this.time.instant();
         return Authed.require(authenticator.authenticate(extAuthResponse))
             .flatMap(auth ->
                 authorizer.login(auth.id(), refresh)
@@ -182,7 +182,7 @@ public final class DefaultYellin implements Yellin {
     }
 
     private LeasesActivation requestedDismissal(UserAuth deauthorized) {
-        var tracks = tracks(deauthorized, time.get()).stream()
+        var tracks = tracks(deauthorized, time.instant()).stream()
             .map(Hash::digest)
             .toList();
         return new LeasesActivation(
@@ -203,7 +203,7 @@ public final class DefaultYellin implements Yellin {
     }
 
     private LeasesActivation store(LeasesActivation activation, boolean replace) {
-        var leasePeriod = new LeasePeriod(time.get(), leaseTime);
+        var leasePeriod = new LeasePeriod(time.instant(), leaseTime);
         var leasesPath = leasesPath(activation, leasePeriod);
         var trackUuids = trackUuids(activation);
         Instant lapse = leasePeriod.getLapse();

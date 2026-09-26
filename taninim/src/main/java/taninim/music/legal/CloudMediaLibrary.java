@@ -13,7 +13,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     private static final Logger log = LoggerFactory.getLogger(CloudMediaLibrary.class);
 
-    public static MediaLibrary create(S3Accessor s3, Supplier<Instant> time) {
+    public static MediaLibrary create(S3Accessor s3, InstantSource time) {
         return new CloudMediaLibrary(s3, time);
     }
 
@@ -23,9 +23,9 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     private final S3Accessor s3;
 
-    private final Supplier<Instant> time;
+    private final InstantSource time;
 
-    public CloudMediaLibrary(S3Accessor s3, Supplier<Instant> time) {
+    public CloudMediaLibrary(S3Accessor s3, InstantSource time) {
         this.s3 = requireNonNull(s3, "s3");
         this.time = time;
     }
@@ -43,7 +43,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
             .flatMap(info -> {
                 var lastCached = fileCache.get(file);
                 return needsUpdate(info, lastCached)
-                    ? update(time.get(), file, info, getLastValidTime(lastCached))
+                    ? update(time.instant(), file, info, getLastValidTime(lastCached))
                     : lastCached.optionalData()
                       .map(ByteArrayInputStream::new);
             });
@@ -65,7 +65,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
             try (InputStream inputStream = new ByteArrayInputStream(baos.toByteArray())) {
                 s3.put(file, inputStream, baos.size());
             } finally {
-                fileCache.put(file, new Cached<>(time.get(), baos.toByteArray()));
+                fileCache.put(file, new Cached<>(time.instant(), baos.toByteArray()));
             }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to write " + file + " to " + writer, e);
@@ -100,7 +100,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     private Map<String, S3Accessor.RemoteInfo> infosWithPrefix(String file) {
         var prefix = file.substring(0, 1);
-        var time = this.time.get();
+        var time = this.time.instant();
         return update(
             infos,
             prefix,

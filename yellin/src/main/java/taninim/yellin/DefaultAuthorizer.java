@@ -17,7 +17,7 @@ final class DefaultAuthorizer implements Authorizer {
         Consumer<UserAuths> updateAuthIds,
         Duration sessionDuration,
         Duration leaseDuration,
-        Supplier<Instant> time
+        InstantSource time
     ) {
         return new DefaultAuthorizer(authIds, updateAuthIds, sessionDuration, leaseDuration, time);
     }
@@ -30,14 +30,14 @@ final class DefaultAuthorizer implements Authorizer {
 
     private final Duration leaseDuration;
 
-    private final Supplier<Instant> time;
+    private final InstantSource time;
 
     private DefaultAuthorizer(
         Supplier<UserAuths> authIds,
         Consumer<UserAuths> updateAuthIds,
         Duration sessionDuration,
         Duration leaseDuration,
-        Supplier<Instant> time
+        InstantSource time
     ) {
         this.authIds = requireNonNull(authIds, "authIds");
         this.updateAuthIds = requireNonNull(updateAuthIds, "updateAuthIds");
@@ -49,7 +49,7 @@ final class DefaultAuthorizer implements Authorizer {
     @Override
     public Authed<UserAuth> login(String userId, boolean createSession) {
         var userAuths = this.authIds.get();
-        var time = this.time.get();
+        var time = this.time.instant();
         return userAuths.forUser(userId)
             .map(userAuth ->
                 userAuth.withoutExpiredLeasesAt(time))
@@ -69,7 +69,7 @@ final class DefaultAuthorizer implements Authorizer {
             .map(conflictingLease ->
                 Authed.<UserAuth>unauthorized(remaining(conflictingLease)))
             .orElseGet(() -> {
-                var time = this.time.get();
+                var time = this.time.instant();
                 var requested = requestedAuth(request, time);
                 var auths = userAuths.updatedWith(requested, time);
                 updateAuthIds.accept(auths);
@@ -81,13 +81,13 @@ final class DefaultAuthorizer implements Authorizer {
     @Override
     public Authed<UserAuth> deauthorize(UserRequest request) {
         var userAuths = this.authIds.get();
-        UserAuths auths = userAuths.without(requestedAuth(request, time.get()));
+        UserAuths auths = userAuths.without(requestedAuth(request, time.instant()));
         updateAuthIds.accept(auths);
         return Authed.resolve(auths.requestedAuth(request));
     }
 
     private String remaining(UserAuth.AlbumLease conflictingLease) {
-        return "Conflicting lease for " + Duration.between(time.get(), conflictingLease.expiry());
+        return "Conflicting lease for " + Duration.between(time.instant(), conflictingLease.expiry());
     }
 
     private UserAuth createLogin(UserAuths userAuths, String userId, Instant time) {

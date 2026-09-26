@@ -9,10 +9,8 @@ import org.slf4j.LoggerFactory;
 import taninim.music.medias.MediaIds;
 import taninim.music.medias.UserAuths;
 
-public record MemoryS3(
-    Map<String, S3Data> s3,
-    Supplier<Instant> time
-) implements S3Accessor {
+public record MemoryS3(Map<String, S3Data> s3, InstantSource time)
+    implements S3Accessor {
 
     private static final Logger log = LoggerFactory.getLogger(MemoryS3.class);
 
@@ -36,7 +34,7 @@ public record MemoryS3(
         var s3Data = new S3Data(
             bytes,
             stringValue(remoteName, bytes),
-            time.get()
+            time.instant()
         );
         s3.put(remoteName, s3Data);
     }
