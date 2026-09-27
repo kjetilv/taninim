@@ -1,12 +1,9 @@
 package taninim.fb;
 
 import module java.base;
+import module java.net.http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
