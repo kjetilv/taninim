@@ -58,10 +58,7 @@
                 <configuration>
                     <stack>taninim</stack>
                     <stackbuilderClass>taninim.uplift.LambdaStacker</stackbuilderClass>
-                    <env>
-                        <fbSec>${taninim.fbSec}</fbSec>
-                        <taninimBucket>${taninim.bucket}</taninimBucket>
-                    </env>
+                    <bucket>taninim-water</bucket>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,10 +1,6 @@
 package taninim.auth;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import module java.base;
 
 @SuppressWarnings("unused")
 public sealed interface Authed<T> {
