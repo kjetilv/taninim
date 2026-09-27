@@ -58,7 +58,12 @@
                 <configuration>
                     <stack>taninim</stack>
                     <stackbuilderClass>taninim.uplift.LambdaStacker</stackbuilderClass>
-                    <bucket>taninim-water</bucket>
+
+                    <bucket>${uplift.bucket}}</bucket>
+                    <region>${uplift.region}</region>
+                    <profile>${uplift.profile}</profile>
+                    <account>${uplift.account}</account>
+                    <fb>${uplift.fb}</fb>
                 </configuration>
             </plugin>
         </plugins>
