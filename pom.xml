@@ -28,11 +28,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
 
-        <!--
-          Deliberately not named uplift.*: the uplift plugin has its own
-          uplift.addModules parameter for the native image, and a shared name would
-          silently feed this value to native-image, which the Gradle build never did.
-        -->
         <jvm.addModules>jdk.incubator.vector</jvm.addModules>
         <uplift.version>0.1.1-SNAPSHOT</uplift.version>
 
