@@ -31,10 +31,7 @@
         </dependency>
 
         <!--
-          The lambdas, as zip artifacts attached by uplift:native-lambda. This replaces the
-          Gradle dependsOn(":kudu:native-lambda", ":yellin:native-lambda"), which read the
-          zips straight out of another project's task outputs. Maven has no equivalent, so
-          they travel as ordinary artifacts.
+          The lambdas, as zip artifacts attached by uplift:native-lambda.
         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
