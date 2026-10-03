@@ -1,3 +1,4 @@
+/// @jenesis.test
 module taninim.lambdatest.test {
 
     requires java.net.http;
