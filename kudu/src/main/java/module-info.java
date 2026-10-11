@@ -7,5 +7,4 @@ module taninim.kudu {
     requires uplift.s3;
 
     exports taninim.kudu;
-    exports main;
 }

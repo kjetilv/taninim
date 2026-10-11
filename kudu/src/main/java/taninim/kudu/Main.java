@@ -1,4 +1,4 @@
-package main;
+package taninim.kudu;
 
 import module java.base;
 import com.github.kjetilv.uplift.flogs.Flogs;
@@ -8,11 +8,10 @@ import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.lambda.LambdaHandler;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
-import taninim.kudu.KuduLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 
-final class Kudu {
+final class Main {
 
     void main() {
         Flogs.initialize(DEBUG);

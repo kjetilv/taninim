@@ -1,4 +1,4 @@
-package main;
+package taninim.yellin;
 
 import module java.base;
 import com.github.kjetilv.uplift.flogs.Flogs;
@@ -11,10 +11,8 @@ import com.github.kjetilv.uplift.util.Time;
 import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.DefaultFbAuthenticator;
-import taninim.yellin.DefaultYellin;
-import taninim.yellin.YellinLambdaHandler;
 
-final class Yellin {
+final class Main {
 
     void main() {
         Flogs.initialize(LogLevel.DEBUG);
