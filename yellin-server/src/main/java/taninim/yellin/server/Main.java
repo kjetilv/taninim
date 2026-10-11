@@ -3,30 +3,23 @@ package taninim.yellin.server;
 import module java.base;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
-import com.github.kjetilv.uplift.synchttp.HttpCallbackProcessor;
 import com.github.kjetilv.uplift.synchttp.HttpHandler;
-import com.github.kjetilv.uplift.synchttp.Server;
+import com.github.kjetilv.uplift.synchttp.Servers;
 import com.github.kjetilv.uplift.util.Time;
 import com.github.kjetilv.uplift.util.Virtuals;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import taninim.fb.DefaultFbAuthenticator;
 import taninim.yellin.DefaultYellin;
-
-import java.lang.management.ManagementFactory;
 
 import static com.github.kjetilv.uplift.util.MainSupport.*;
 
 class Main {
-
-    private static final Logger log = LoggerFactory.getLogger("yellin");
 
     void main(String[] args) {
 
         var parameters = parameterMap(args);
         var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Virtuals.executor("yellin"));
 
-        HttpHandler httpHandler = new YellinHttpHandler(
+        HttpHandler handler = new YellinHttpHandler(
             DefaultYellin.create(
                 s3Accessor,
                 Time.UTC_CLOCK::instant,
@@ -35,14 +28,7 @@ class Main {
                 new DefaultFbAuthenticator()
             ));
 
-        Server.Processor processor = new HttpCallbackProcessor(httpHandler);
-
-        var port = resolvePort(parameters);
-        try (var server = Server.create(port).run(processor)) {
-            var uptime = Duration.ofMillis(ManagementFactory.getRuntimeMXBean().getUptime());
-            log.info("Yellin startup @ {}", uptime);
-            server.join();
-        }
+        Servers.await("Yellin", resolvePort(parameters), handler);
     }
 
     private int resolvePort(Map<String, String> parameters) {
