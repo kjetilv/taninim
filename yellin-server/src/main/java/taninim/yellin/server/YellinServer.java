@@ -7,12 +7,16 @@ import com.github.kjetilv.uplift.synchttp.HttpHandler;
 import com.github.kjetilv.uplift.synchttp.Servers;
 import com.github.kjetilv.uplift.util.Time;
 import com.github.kjetilv.uplift.util.Virtuals;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import taninim.fb.DefaultFbAuthenticator;
 import taninim.yellin.DefaultYellin;
 
 import static com.github.kjetilv.uplift.util.MainSupport.*;
 
-class Main {
+class YellinServer {
+
+    private static final Logger log = LoggerFactory.getLogger(YellinServer.class);
 
     void main(String[] args) {
 
@@ -28,7 +32,12 @@ class Main {
                 new DefaultFbAuthenticator()
             ));
 
-        Servers.await("Yellin", resolvePort(parameters), handler);
+        Servers.await("Yellin", resolvePort(parameters), handler)
+
+            .onOK(closed ->
+                log.info("Yellin closed: {}", closed))
+            .onDenied(address ->
+                log.error("Could not bind to {}", address));
     }
 
     private int resolvePort(Map<String, String> parameters) {

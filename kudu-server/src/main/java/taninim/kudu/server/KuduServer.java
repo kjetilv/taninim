@@ -6,14 +6,17 @@ import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.synchttp.Servers;
 import com.github.kjetilv.uplift.util.Time;
 import com.github.kjetilv.uplift.util.Virtuals;
-import taninim.kudu.Kudu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import taninim.music.legal.ArchivedLeasesRegistry;
 import taninim.music.legal.CloudMediaLibrary;
 import taninim.music.legal.S3Archives;
 
 import static com.github.kjetilv.uplift.util.MainSupport.*;
 
-public class Main {
+public class KuduServer {
+
+    private static final Logger log = LoggerFactory.getLogger(KuduServer.class);
 
     void main(String[] args) {
         var parameters = Parameters.parse(args);
@@ -29,14 +32,18 @@ public class Main {
 
         var mediaLibrary = CloudMediaLibrary.create(s3Accessor, Time.utcSupplier());
 
-        var kudu = Kudu.create(
+        var kudu = taninim.kudu.Kudu.create(
             leasesRegistry,
             mediaLibrary,
             parameters.buffer(),
             Time.utcSupplier()
         );
 
-        Servers.await("Kudu", parameters.port(), new KuduHttpHandler(kudu));
+        Servers.await("Kudu", parameters.port(), new KuduHttpHandler(kudu))
+            .onOK(closed ->
+                log.info("Kudu closed: {}", closed))
+            .onDenied(address ->
+                log.error("Could not bind to {}", address));
     }
 
     private record Parameters(int port, int buffer, boolean server) {

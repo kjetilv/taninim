@@ -18,7 +18,7 @@ public class YellinHttpHandler implements HttpHandler {
     private final Yellin yellin;
 
     public YellinHttpHandler(Yellin yellin) {
-        this.yellin = Objects.requireNonNull(yellin, "leasesDispatcher");
+        this.yellin = Objects.requireNonNull(yellin, "yellin");
     }
 
     @Override
