@@ -1,6 +1,7 @@
 /// Test module
 ///
-///  @jenesis.test
+/// @jenesis.test
+/// @jenesis.release 25
 module taninim.lambdatest.test {
 
     requires java.net.http;

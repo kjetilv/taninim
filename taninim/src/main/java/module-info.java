@@ -1,3 +1,4 @@
+/// @jenesis.release 25
 module taninim.taninim {
     requires java.management;
     requires uplift.flogs;

@@ -1,3 +1,5 @@
+/// @jenesis.main taninim.kudu.Main
+/// @jenesis.release 25
 module taninim.kudu {
     requires taninim.taninim;
     requires uplift.flogs;
@@ -7,4 +9,7 @@ module taninim.kudu {
     requires uplift.s3;
 
     exports taninim.kudu;
+
+    //noinspection JavaModuleDefinition
+    opens taninim.kudu to org.graalvm.nativeimage.guest.staging;
 }

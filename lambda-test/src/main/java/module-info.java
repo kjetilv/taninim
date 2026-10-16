@@ -1,3 +1,4 @@
+/// @jenesis.release 25
 module taninim.lambdatest {
     requires taninim.taninim;
     requires taninim.fb;

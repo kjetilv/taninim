@@ -1,3 +1,4 @@
+/// @jenesis.release 25
 /// @jenesis.plugin uplift.json.gen
 module taninim.fb {
     requires java.compiler;

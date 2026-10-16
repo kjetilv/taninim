@@ -47,6 +47,8 @@
         <!-- The Gates -->
         <module>yellin</module>
         <module>yellin-server</module>
+        <!-- The precursor -->
+        <module>server</module>
         <!-- The Horns -->
         <module>kudu</module>
         <module>kudu-server</module>
@@ -135,7 +137,6 @@
                     <configuration>
                         <release>${maven.compiler.release}</release>
                         <compilerArgs>
-                            <arg>--enable-preview</arg>
                             <arg>--add-modules</arg>
                             <arg>${jvm.addModules}</arg>
                         </compilerArgs>

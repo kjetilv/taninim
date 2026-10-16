@@ -87,4 +87,8 @@ public class YellinHttpHandler implements HttpHandler {
         log.debug("Wrote back {}", activation);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + yellin + "]";
+    }
 }

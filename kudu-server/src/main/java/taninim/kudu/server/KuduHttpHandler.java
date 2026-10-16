@@ -62,4 +62,9 @@ public final class KuduHttpHandler
             default -> callback.status(404);
         }
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + kudu + "]";
+    }
 }

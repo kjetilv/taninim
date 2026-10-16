@@ -1,46 +1,44 @@
 package taninim.yellin.server;
 
 import module java.base;
-import com.github.kjetilv.uplift.kernel.Env;
-import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.synchttp.HttpHandler;
 import com.github.kjetilv.uplift.synchttp.Servers;
 import com.github.kjetilv.uplift.util.Time;
-import com.github.kjetilv.uplift.util.Virtuals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taninim.fb.DefaultFbAuthenticator;
+import taninim.server.AbstractServer;
 import taninim.yellin.DefaultYellin;
 
-import static com.github.kjetilv.uplift.util.MainSupport.*;
-
-class YellinServer {
+final class YellinServer extends AbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(YellinServer.class);
 
-    void main(String[] args) {
+    static void main(String[] args) {
+        new YellinServer(args).run();
+    }
 
-        var parameters = parameterMap(args);
-        var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Virtuals.executor("yellin"));
+    private YellinServer(String... args) {
+        super("yellin", args);
+    }
+
+    @Override
+    public void run() {
 
         HttpHandler handler = new YellinHttpHandler(
             DefaultYellin.create(
-                s3Accessor,
+                s3Accessor(),
                 Time.UTC_CLOCK::instant,
                 Duration.ofDays(1),
                 Duration.ofHours(1),
                 new DefaultFbAuthenticator()
             ));
 
-        Servers.await("Yellin", resolvePort(parameters), handler)
+        Servers.await("Yellin", parameters().port(), handler)
 
             .onOK(closed ->
                 log.info("Yellin closed: {}", closed))
             .onDenied(address ->
                 log.error("Could not bind to {}", address));
-    }
-
-    private int resolvePort(Map<String, String> parameters) {
-        return validatePort(possibleIntArg(parameters, "port").orElse(8080));
     }
 }

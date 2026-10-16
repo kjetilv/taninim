@@ -1,4 +1,6 @@
 /// @jenesis.plugin uplift.json.gen
+/// @jenesis.main taninim.yellin.Main
+/// @jenesis.release 25
 module taninim.yellin {
     requires java.compiler;
     requires taninim.fb;
@@ -15,4 +17,7 @@ module taninim.yellin {
     requires uplift.util;
 
     exports taninim.yellin;
+
+    //noinspection JavaModuleDefinition
+    opens taninim.yellin to org.graalvm.nativeimage.guest.staging;
 }

@@ -1,4 +1,4 @@
-package taninim;
+package taninim.music.test;
 
 import module java.base;
 import org.junit.jupiter.api.Test;
