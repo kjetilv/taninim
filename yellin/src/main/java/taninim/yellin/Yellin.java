@@ -1,7 +1,8 @@
 package taninim.yellin;
 
 import module java.base;
-import taninim.auth.Authed;
+import module taninim.fb;
+import module taninim.taninim;
 import taninim.fb.ExtAuthResponse;
 
 public interface Yellin {

@@ -14,8 +14,11 @@ import taninim.fb.DefaultFbAuthenticator;
 
 public final class Main {
 
-    void main() {
+    static {
         Flogs.initialize(LogLevel.DEBUG);
+    }
+
+    void main() {
 
         var env = Env.actual();
 

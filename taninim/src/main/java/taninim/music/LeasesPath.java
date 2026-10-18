@@ -1,7 +1,7 @@
 package taninim.music;
 
 import module java.base;
-import com.github.kjetilv.uplift.hash.Hash;
+import module uplift.hash;
 
 import static com.github.kjetilv.uplift.hash.HashKind.K128;
 

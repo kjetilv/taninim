@@ -1,26 +1,17 @@
 package taninim.yellin;
 
 import module java.base;
+import module taninim.taninim;
 import com.github.kjetilv.uplift.hash.Hash;
-import com.github.kjetilv.uplift.hash.HashKind;
-import com.github.kjetilv.uplift.hash.HashKind.K128;
 import com.github.kjetilv.uplift.json.Json;
 import com.github.kjetilv.uplift.json.mame.CachingJsonSessions;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.util.OnDemand;
-import taninim.auth.Authed;
 import taninim.fb.Authenticator;
 import taninim.fb.ExtAuthResponse;
 import taninim.fb.ExtUser;
-import taninim.music.LeasePeriod;
-import taninim.music.Leases;
-import taninim.music.LeasesPath;
-import taninim.music.LeasesRegistry;
-import taninim.music.legal.ArchivedLeasesRegistry;
-import taninim.music.legal.CloudMediaLibrary;
-import taninim.music.legal.S3Archives;
-import taninim.music.medias.*;
 
+import static com.github.kjetilv.uplift.hash.HashKind.K128;
 import static java.util.Objects.requireNonNull;
 
 public final class DefaultYellin implements Yellin {
@@ -241,7 +232,7 @@ public final class DefaultYellin implements Yellin {
             : value.stream();
     }
 
-    static final Json JSON = Json.instance(CachingJsonSessions.create(HashKind.K128));
+    private static final Json JSON = Json.instance(CachingJsonSessions.create(K128));
 
     private static final TemporalAmount REFRESH_INTERVAL = Duration.ofHours(1);
 
