@@ -93,11 +93,6 @@ public sealed interface Authed<T> {
         }
 
         @Override
-        public Optional<T> toOptional() {
-            return Optional.of(value);
-        }
-
-        @Override
         public <R> Authed<R> map(Function<? super T, R> mapper) {
             return authorized(mapper.apply(value));
         }
@@ -121,6 +116,11 @@ public sealed interface Authed<T> {
         @Override
         public T orElseThrow() {
             return value;
+        }
+
+        @Override
+        public Optional<T> toOptional() {
+            return Optional.of(value);
         }
     }
 

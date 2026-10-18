@@ -48,7 +48,8 @@ public final class DefaultKudu implements Kudu {
                 leasesPath ->
                     leasesPath.leases().validFor(trackRange.track().trackUUID(), time.instant()),
                 () ->
-                    Authed.unauthorized("No lease for " + trackRange))
+                    Authed.unauthorized("No lease for " + trackRange)
+            )
             .flatMap(_ ->
                 chunk(trackRange, transferSize)
                     .flatMap(byteReader(trackRange)));

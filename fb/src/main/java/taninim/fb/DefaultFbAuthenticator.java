@@ -67,6 +67,14 @@ public final class DefaultFbAuthenticator implements Authenticator {
         }
     }
 
+    private static final String GRAPH = "https://graph.facebook.com/v26.0";
+
+    private static final String HMAC = "HmacSHA256";
+
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+
+    private static final HttpResponse.BodyHandler<String> STRING = HttpResponse.BodyHandlers.ofString();
+
     private static HttpResponse<String> send(URI uri) throws IOException {
         try {
             return HTTP_CLIENT.send(HttpRequest.newBuilder(uri).GET().build(), STRING);
@@ -79,12 +87,4 @@ public final class DefaultFbAuthenticator implements Authenticator {
     private static String encode(String value) {
         return URLEncoder.encode(value, UTF_8);
     }
-
-    private static final String GRAPH = "https://graph.facebook.com/v26.0";
-
-    private static final String HMAC = "HmacSHA256";
-
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-
-    private static final HttpResponse.BodyHandler<String> STRING = HttpResponse.BodyHandlers.ofString();
 }

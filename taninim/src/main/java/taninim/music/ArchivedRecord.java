@@ -36,6 +36,10 @@ public record ArchivedRecord(
         return sb.toString();
     }
 
+    private boolean empty() {
+        return contents == null || contents.isEmpty() || contents.stream().allMatch(String::isBlank);
+    }
+
     private static String printEntry(String spec) {
         var uuid = Hash.<HashKind.K128>from(spec);
         var epochSec = Long.parseLong(spec.substring(spec.indexOf(' ') + 1));
@@ -48,12 +52,8 @@ public record ArchivedRecord(
         return getClass().getSimpleName() + "[" + path + (empty()
             ? ""
             : ": " + contents.stream()
-                     .map(ArchivedRecord::printEntry)
-                     .map(String::valueOf)
-                     .collect(Collectors.joining(" "))) + "]";
-    }
-
-    private boolean empty() {
-        return contents == null || contents.isEmpty() || contents.stream().allMatch(String::isBlank);
+                .map(ArchivedRecord::printEntry)
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "))) + "]";
     }
 }

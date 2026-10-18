@@ -11,7 +11,7 @@ import taninim.TaninimSettings;
 
 import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 
-final class Main {
+public final class Main {
 
     void main() {
         Flogs.initialize(DEBUG);

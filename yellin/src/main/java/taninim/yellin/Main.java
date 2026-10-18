@@ -12,7 +12,7 @@ import taninim.TaninimSettings;
 import taninim.fb.Authenticator;
 import taninim.fb.DefaultFbAuthenticator;
 
-final class Main {
+public final class Main {
 
     void main() {
         Flogs.initialize(LogLevel.DEBUG);

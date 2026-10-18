@@ -5,7 +5,8 @@ import module java.base;
 public final class Maps {
 
     public static <K, V> Stream<V> get(Map<K, V> map, Predicate<K> keyLike) {
-        return map.entrySet().stream()
+        return map.entrySet()
+            .stream()
             .filter(e -> keyLike.test(e.getKey()))
             .map(Map.Entry::getValue);
     }
@@ -14,11 +15,12 @@ public final class Maps {
         Collection<? extends V> items,
         Function<? super V, ? extends K> mapping
     ) {
-        return Collections.unmodifiableMap(items.stream().collect(Collectors.groupingBy(
-            mapping,
-            LinkedHashMap::new,
-            Collectors.toList()
-        )));
+        return Collections.unmodifiableMap(items.stream()
+            .collect(Collectors.groupingBy(
+                mapping,
+                LinkedHashMap::new,
+                Collectors.toList()
+            )));
     }
 
     public static <V, T, I extends Collection<V>> I noDuplicates(I l, Function<V, T> id) {
@@ -40,12 +42,13 @@ public final class Maps {
         if (c == null) {
             return Collections.emptyMap();
         }
-        return c.stream().collect(Collectors.toMap(
-            key,
-            val,
-            noCombine(),
-            LinkedHashMap::new
-        ));
+        return c.stream()
+            .collect(Collectors.toMap(
+                key,
+                val,
+                noCombine(),
+                LinkedHashMap::new
+            ));
     }
 
     private Maps() {
@@ -62,7 +65,8 @@ public final class Maps {
         Function<? super V, ? extends T> id
     ) {
         Map<T, List<V>> map = groupBy(l, id);
-        return map.entrySet().stream()
+        return map.entrySet()
+            .stream()
             .filter(entry -> entry.getValue().size() > 1)
             .toList();
     }

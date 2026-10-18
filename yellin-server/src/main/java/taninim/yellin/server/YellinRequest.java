@@ -21,7 +21,7 @@ sealed interface YellinRequest {
             case POST -> requestLine.urlPrefixed("/auth")
                 ? Optional.of(new Auth(extAuth(httpReq, body)))
                 : requestLine.urlPrefixed("/lease")
-                  ? Optional.of(acquire(httpReq, body))
+                    ? Optional.of(acquire(httpReq, body))
                     : Optional.empty();
             case DELETE -> httpReq.queryParameters() instanceof QueryParameters qps &&
                            qps.par("userId") instanceof String userId &&

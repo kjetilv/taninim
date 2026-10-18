@@ -45,7 +45,7 @@ public final class CloudMediaLibrary implements MediaLibrary {
                 return needsUpdate(info, lastCached)
                     ? update(time.instant(), file, info, getLastValidTime(lastCached))
                     : lastCached.optionalData()
-                      .map(ByteArrayInputStream::new);
+                        .map(ByteArrayInputStream::new);
             });
     }
 
@@ -83,8 +83,9 @@ public final class CloudMediaLibrary implements MediaLibrary {
             return Optional.empty();
         }
         Supplier<Optional<byte[]>> optionalSupplier = () ->
-            s3.stream(file).map(inputStream ->
-                bytes(info, inputStream));
+            s3.stream(file)
+                .map(inputStream ->
+                    bytes(info, inputStream));
         return update(
             fileCache,
             file,
