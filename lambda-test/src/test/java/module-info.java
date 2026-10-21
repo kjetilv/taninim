@@ -1,6 +1,7 @@
 /// Test module
 ///
 /// @jenesis.test
+/// @jenesis.bom pin-test.properties
 /// @jenesis.release 25
 module taninim.lambdatest.test {
 
