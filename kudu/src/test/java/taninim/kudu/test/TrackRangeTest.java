@@ -1,4 +1,4 @@
-package taninim.kudu;
+package taninim.kudu.test;
 
 import org.junit.jupiter.api.Test;
 

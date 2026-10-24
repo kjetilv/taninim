@@ -1,4 +1,6 @@
+/// @jenesis.test
 /// @jenesis.release 25
+/// @jenesis.bom pin-test.properties
 module taninim.lambdatest {
     requires taninim.taninim;
     requires taninim.fb;
@@ -14,5 +16,4 @@ module taninim.lambdatest {
     requires uplift.s3;
     requires uplift.synchttp;
     requires uplift.util;
-
 }

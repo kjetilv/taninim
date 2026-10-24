@@ -20,7 +20,6 @@ module taninim.yellin.server {
     requires uplift.synchttp;
     requires uplift.util;
 
-
     //noinspection JavaModuleDefinition
     opens taninim.yellin.server to org.graalvm.nativeimage.guest.staging;
 }

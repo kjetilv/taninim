@@ -2,6 +2,7 @@
 /// @jenesis.release 25
 module taninim.kudu {
     requires taninim.taninim;
+
     requires uplift.flogs;
     requires uplift.hash;
     requires uplift.kernel;
