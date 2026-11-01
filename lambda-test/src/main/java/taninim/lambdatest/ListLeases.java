@@ -17,7 +17,7 @@ public class ListLeases {
 
         var log = LoggerFactory.getLogger("listLeases");
 
-        boolean clear = Arrays.stream(args).anyMatch("clear"::equalsIgnoreCase);
+        var clear = Arrays.stream(args).anyMatch("clear"::equalsIgnoreCase);
 
         var s3Accessor = S3Accessor.fromEnvironment(Env.actual(), Virtuals.executor("listLeases"));
         var archives = S3Archives.create(s3Accessor);

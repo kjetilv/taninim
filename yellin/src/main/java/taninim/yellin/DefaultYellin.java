@@ -197,7 +197,7 @@ public final class DefaultYellin implements Yellin {
         var leasePeriod = new LeasePeriod(time.instant(), leaseTime);
         var leasesPath = leasesPath(activation, leasePeriod);
         var trackUuids = trackUuids(activation);
-        Instant lapse = leasePeriod.getLapse();
+        var lapse = leasePeriod.getLapse();
         var activePath = replace
             ? leasesPath.replaceTracks(trackUuids, lapse)
             : leasesPath.addTracks(trackUuids, lapse);

@@ -81,7 +81,7 @@ final class DefaultAuthorizer implements Authorizer {
     @Override
     public Authed<UserAuth> deauthorize(UserRequest request) {
         var userAuths = this.authIds.get();
-        UserAuths auths = userAuths.without(requestedAuth(request, time.instant()));
+        var auths = userAuths.without(requestedAuth(request, time.instant()));
         updateAuthIds.accept(auths);
         return Authed.resolve(auths.requestedAuth(request));
     }
