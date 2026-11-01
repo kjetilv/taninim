@@ -27,3 +27,7 @@ target/
 
 ### Maven deployment coordinates, as gradle.properties was ###
 .mvn/maven.config
+
+###
+**/.classpath
+**/.project

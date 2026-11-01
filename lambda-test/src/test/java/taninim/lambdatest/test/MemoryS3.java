@@ -1,7 +1,6 @@
 package taninim.lambdatest.test;
 
 import module java.base;
-import com.github.kjetilv.uplift.kernel.io.BytesIO;
 import com.github.kjetilv.uplift.kernel.io.Range;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import org.slf4j.Logger;
@@ -28,9 +27,8 @@ public record MemoryS3(Map<String, S3Data> s3, InstantSource time)
     }
 
     @Override
-    public void put(String remoteName, InputStream inputStream, long length) {
-        log.debug("Putting {} bytes into {}", length, remoteName);
-        var bytes = BytesIO.readInputStream(inputStream);
+    public void put(String remoteName, byte[] bytes) {
+        log.debug("Putting {} bytes into {}", bytes.length, remoteName);
         var s3Data = new S3Data(
             bytes,
             stringValue(remoteName, bytes),
@@ -44,7 +42,7 @@ public record MemoryS3(Map<String, S3Data> s3, InstantSource time)
         return s3.entrySet()
             .stream()
             .filter(e ->
-                e.getKey().startsWith(prefix))
+                prefix == null || e.getKey().startsWith(prefix))
             .map(e ->
                 Map.entry(
                     e.getKey(),

@@ -59,13 +59,14 @@ public final class CloudMediaLibrary implements MediaLibrary {
 
     @Override
     public void write(String file, Consumer<? super OutputStream> writer) {
-        try (var baos = new ByteArrayOutputStream()) {
+        try {
+            var baos = new ByteArrayOutputStream();
             writer.accept(baos);
-            baos.close();
-            try (InputStream inputStream = new ByteArrayInputStream(baos.toByteArray())) {
-                s3.put(file, inputStream, baos.size());
+            var bytes = baos.toByteArray();
+            try {
+                s3.put(file, bytes);
             } finally {
-                fileCache.put(file, new Cached<>(time.instant(), baos.toByteArray()));
+                fileCache.put(file, new Cached<>(time.instant(), bytes));
             }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to write " + file + " to " + writer, e);
