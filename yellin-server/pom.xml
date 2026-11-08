@@ -79,5 +79,4 @@
             <version>${uplift.version}</version>
         </dependency>
     </dependencies>
-
 </project>
