@@ -2,6 +2,7 @@ package taninim.yellin;
 
 import module java.base;
 import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
@@ -14,11 +15,7 @@ import taninim.fb.DefaultFbAuthenticator;
 
 public final class Main {
 
-    static {
-        Flogs.initialize(LogLevel.DEBUG);
-    }
-
-    void main() {
+    static void main() {
 
         var env = Env.actual();
 
@@ -55,5 +52,13 @@ public final class Main {
         } catch (Exception e) {
             throw new RuntimeException("Failed to run/close", e);
         }
+    }
+
+    private Main() {
+    }
+
+    static {
+        Flogs.initialize(LogLevel.DEBUG);
+        FlogsHandler.install();
     }
 }

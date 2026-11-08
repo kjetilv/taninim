@@ -1,6 +1,7 @@
 package taninim.yellin.server;
 
 import module java.base;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.synchttp.HttpHandler;
 import com.github.kjetilv.uplift.synchttp.Servers;
 import com.github.kjetilv.uplift.util.Time;
@@ -40,5 +41,9 @@ final class YellinServer extends AbstractServer {
                 log.info("Yellin closed: {}", closed))
             .onDenied(address ->
                 log.error("Could not bind to {}", address));
+    }
+
+    static {
+        FlogsHandler.install();
     }
 }

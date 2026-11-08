@@ -3,6 +3,7 @@ package taninim.lambdatest;
 import module java.base;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
@@ -17,12 +18,13 @@ import taninim.util.VirtualRun;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initializeAndGet;
 
-public class LocalLambdaKudu {
+public final class LocalLambdaKudu {
+
     @SuppressWarnings("unused")
     private static final Logger logger = initializeAndGet("localLambdaKudu", LogLevel.DEBUG);
 
     @SuppressWarnings({"MagicNumber"})
-    void main() {
+    static void main() {
         var corsSettings = new CorsSettings(
             List.of(
                 "https://kjetilv.github.io",
@@ -75,5 +77,12 @@ public class LocalLambdaKudu {
         }
     }
 
+    private LocalLambdaKudu() {
+    }
+
     private static final Env ENV = Env.actual();
+
+    static {
+        FlogsHandler.install();
+    }
 }

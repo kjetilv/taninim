@@ -3,6 +3,7 @@ package taninim.lambdatest;
 import module java.base;
 import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.flogs.LogLevel;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
@@ -19,12 +20,12 @@ import taninim.yellin.YellinLambdaHandler;
 
 import static com.github.kjetilv.uplift.flogs.Flogs.initializeAndGet;
 
-public class LocalLambdaYellin {
+public final class LocalLambdaYellin {
     @SuppressWarnings("unused")
     private static final Logger logger = initializeAndGet("localLambdaYellin", LogLevel.DEBUG);
 
     @SuppressWarnings({"MagicNumber"})
-    void main() {
+    static void main() {
         var settings = new FlambdaSettings(
             "yellin",
             9001,
@@ -78,5 +79,12 @@ public class LocalLambdaYellin {
                 }
             );
         }
+    }
+
+    private LocalLambdaYellin() {
+    }
+
+    static {
+        FlogsHandler.install();
     }
 }

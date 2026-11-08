@@ -1,6 +1,7 @@
 package taninim.kudu.server;
 
 import module java.base;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.synchttp.Servers;
 import com.github.kjetilv.uplift.util.Time;
 import org.slf4j.Logger;
@@ -44,5 +45,9 @@ final class KuduServer extends AbstractServer {
                 log.info("Kudu closed: {}", closed))
             .onDenied(address ->
                 log.error("Could not bind to {}", address));
+    }
+
+    static {
+        FlogsHandler.install();
     }
 }

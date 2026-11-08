@@ -2,6 +2,7 @@ package taninim.kudu;
 
 import module java.base;
 import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -13,8 +14,7 @@ import static com.github.kjetilv.uplift.flogs.LogLevel.DEBUG;
 
 public final class Main {
 
-    void main() {
-        Flogs.initialize(DEBUG);
+    static void main() {
 
         var env = Env.actual();
         var clientSettings = new LambdaClientSettings(env, Clock.systemUTC()::instant);
@@ -35,5 +35,13 @@ public final class Main {
         } catch (Exception e) {
             throw new RuntimeException("Failed to close/run", e);
         }
+    }
+
+    private Main() {
+    }
+
+    static {
+        Flogs.initialize(DEBUG);
+        FlogsHandler.install();
     }
 }

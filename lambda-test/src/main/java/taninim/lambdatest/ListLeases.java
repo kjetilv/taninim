@@ -2,6 +2,7 @@ package taninim.lambdatest;
 
 import module java.base;
 import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.s3.S3Accessor;
 import com.github.kjetilv.uplift.util.Virtuals;
@@ -10,10 +11,10 @@ import taninim.music.ArchivedRecord;
 import taninim.music.legal.S3Archives;
 import taninim.music.medias.UserAuths;
 
-public class ListLeases {
+public final class ListLeases {
+
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
-    void main(String[] args) {
-        Flogs.initialize();
+    static void main(String[] args) {
 
         var log = LoggerFactory.getLogger("listLeases");
 
@@ -81,12 +82,20 @@ public class ListLeases {
         }
     }
 
+    private ListLeases() {
+    }
+
     private static final long SECONDS_PER_HOUR = Duration.ofHours(1).toSeconds();
 
     private static final String LEASE_PREFIX = "lease-";
 
     private static final DateTimeFormatter DAY_HOUR =
         DateTimeFormatter.ofPattern("HH @ MMM dd", Locale.ROOT);
+
+    static {
+        Flogs.initialize();
+        FlogsHandler.install();
+    }
 
     private static Long epochHour(String path) {
         var hourstamp = path.substring(LEASE_PREFIX.length());

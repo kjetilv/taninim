@@ -5,6 +5,7 @@ import com.github.kjetilv.uplift.flambda.Flambda;
 import com.github.kjetilv.uplift.flambda.FlambdaSettings;
 import com.github.kjetilv.uplift.flogs.BriefLogEntryFormatter;
 import com.github.kjetilv.uplift.flogs.Flogs;
+import com.github.kjetilv.uplift.flogs.FlogsHandler;
 import com.github.kjetilv.uplift.kernel.Env;
 import com.github.kjetilv.uplift.lambda.Lambda;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
@@ -23,7 +24,8 @@ import taninim.yellin.YellinLambdaHandler;
 import static com.github.kjetilv.uplift.flogs.LogLevel.INFO;
 import static com.github.kjetilv.uplift.util.Time.utcSupplier;
 
-public class LocalTaninim {
+public final class LocalTaninim {
+
     private static final Logger logger = Flogs.initializeAndGet(
         "LocalTaninim",
         INFO,
@@ -31,29 +33,12 @@ public class LocalTaninim {
     );
 
     @SuppressWarnings("resource")
-    void main() {
+    static void main() {
         var time = utcSupplier();
 
         var taninimSettings = new TaninimSettings(ONE_DAY, FOUR_HOURS, K * K);
 
-        var kuduCors = new CorsSettings(
-            List.of(
-                "https://kjetilv.github.io",
-                "https://localhost:8443"
-            ),
-            List.of("GET", "OPTIONS", "HEAD"),
-            List.of("content-type", "range")
-        );
-        var kuduFlambda = new Flambda(
-            new FlambdaSettings(
-                "kudu",
-                9002,
-                8082,
-                K * K,
-                10,
-                kuduCors,
-                time
-            ));
+        var kuduFlambda = kuduFlambda(time);
 
         var kuduClientSettings = new LambdaClientSettings(ENV, utcSupplier());
         var kudu = new KuduLambdaHandler(Kudu.create(
@@ -68,26 +53,7 @@ public class LocalTaninim {
             kudu
         );
 
-        var yellinCors = new CorsSettings(
-            List.of(
-                "https://kjetilv.github.io",
-                "https://localhost:8443"
-            ),
-            List.of("POST", "DELETE", "OPTIONS", "HEAD"),
-            List.of("content-type")
-        );
-        var yellinSize = 64 * K;
-        var yellinFlambda = new Flambda(
-            new FlambdaSettings(
-                "yellin",
-                9001,
-                8081,
-                yellinSize * 2,
-                10,
-                yellinCors,
-                time
-            )
-        );
+        var yellinFlambda = yellinFlambda(time);
 
         var yellinClientSettings = new LambdaClientSettings(ENV, utcSupplier());
 
@@ -139,6 +105,9 @@ public class LocalTaninim {
         list.forEach(CompletableFuture::join);
     }
 
+    private LocalTaninim() {
+    }
+
     private static final int K = 1_024;
 
     private static final Duration ONE_DAY = Duration.ofDays(1);
@@ -146,4 +115,52 @@ public class LocalTaninim {
     private static final Duration FOUR_HOURS = Duration.ofHours(4);
 
     private static final Env ENV = Env.actual();
+
+    static {
+        FlogsHandler.install();
+    }
+
+    private static Flambda kuduFlambda(InstantSource time) {
+        var kuduCors = new CorsSettings(
+            List.of(
+                "https://kjetilv.github.io",
+                "https://localhost:8443"
+            ),
+            List.of("GET", "OPTIONS", "HEAD"),
+            List.of("content-type", "range")
+        );
+        return new Flambda(
+            new FlambdaSettings(
+                "kudu",
+                9002,
+                8082,
+                K * K,
+                10,
+                kuduCors,
+                time
+            ));
+    }
+
+    private static Flambda yellinFlambda(InstantSource time) {
+        var yellinCors = new CorsSettings(
+            List.of(
+                "https://kjetilv.github.io",
+                "https://localhost:8443"
+            ),
+            List.of("POST", "DELETE", "OPTIONS", "HEAD"),
+            List.of("content-type")
+        );
+        var yellinSize = 64 * K;
+        return new Flambda(
+            new FlambdaSettings(
+                "yellin",
+                9001,
+                8081,
+                yellinSize * 2,
+                10,
+                yellinCors,
+                time
+            )
+        );
+    }
 }
