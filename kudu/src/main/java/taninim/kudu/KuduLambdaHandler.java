@@ -35,8 +35,7 @@ public final class KuduLambdaHandler extends LambdaHandlerSupport {
     }
 
     private Authed<LambdaResult> handleLibrary(Hash<K128> token) {
-        return kudu.library(token)
-            .map(KuduLambdaHandler::zippedJsonResult);
+        return kudu.library(token).map(KuduLambdaHandler::zippedJsonResult);
     }
 
     private Authed<LambdaResult> handleAudio(LambdaPayload payload, Hash<K128> token) {

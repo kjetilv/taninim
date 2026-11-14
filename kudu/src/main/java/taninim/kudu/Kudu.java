@@ -2,7 +2,6 @@ package taninim.kudu;
 
 import module java.base;
 import com.github.kjetilv.uplift.hash.Hash;
-import com.github.kjetilv.uplift.kernel.io.BytesIO;
 import com.github.kjetilv.uplift.lambda.LambdaClientSettings;
 import com.github.kjetilv.uplift.s3.S3AccessorFactory;
 import taninim.TaninimSettings;
@@ -46,13 +45,7 @@ public interface Kudu {
         return new DefaultKudu(leasesRegistry, mediaLibrary, transferSize, time);
     }
 
-    default Authed<byte[]> library(Hash<K128> token) {
-        return libraryStream(token)
-            .map(Library::stream)
-            .map(BytesIO::readInputStream);
-    }
-
-    Authed<Library> libraryStream(Hash<K128> token);
+    Authed<byte[]> library(Hash<K128> token);
 
     Authed<AudioBytes> audioBytes(TrackRange trackRange);
 

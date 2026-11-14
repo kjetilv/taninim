@@ -32,13 +32,10 @@ public final class DefaultKudu implements Kudu {
     }
 
     @Override
-    public Authed<Library> libraryStream(Hash<HashKind.K128> token) {
-        return leasesRegistry.active(token)
-            .flatMap(_ ->
-                Authed.resolve(mediaLibrary.fileSize("media.jsonl.gz").flatMap(size ->
-                    mediaLibrary.stream(null, "media.jsonl.gz")
-                        .map(inputStream ->
-                            new Library(size, inputStream)))));
+    public Authed<byte[]> library(Hash<HashKind.K128> token) {
+        return libraryStream(token)
+            .map(Library::stream)
+            .map(BytesIO::readInputStream);
     }
 
     @Override
@@ -53,6 +50,15 @@ public final class DefaultKudu implements Kudu {
             .flatMap(_ ->
                 chunk(trackRange, transferSize)
                     .flatMap(byteReader(trackRange)));
+    }
+
+    private Authed<Library> libraryStream(Hash<HashKind.K128> token) {
+        return leasesRegistry.active(token)
+            .flatMap(_ ->
+                Authed.resolve(mediaLibrary.fileSize("media.jsonl.gz").flatMap(size ->
+                    mediaLibrary.stream(null, "media.jsonl.gz")
+                        .map(inputStream ->
+                            new Library(size, inputStream)))));
     }
 
     private Function<Chunk, Authed<AudioBytes>> byteReader(TrackRange trackRange) {

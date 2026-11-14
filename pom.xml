@@ -37,6 +37,8 @@
         <compiler.plugin.version>3.16.0</compiler.plugin.version>
         <surefire.plugin.version>3.6.0</surefire.plugin.version>
         <source.plugin.version>3.4.0</source.plugin.version>
+        <aws-cdk-lib.version>2.267.0</aws-cdk-lib.version>
+        <constructs.version>10.8.1</constructs.version>
     </properties>
 
     <modules>
@@ -74,6 +76,93 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>fb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>kudu</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>taninim</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>yellin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-flambda</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-flogs</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-hash</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-json</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-json-anno</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-json-gen</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-json-mame</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-kernel</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-lambda</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-s3</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-synchttp</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.kjetilv.uplift</groupId>
+                <artifactId>uplift-util</artifactId>
+                <version>${uplift.version}</version>
+            </dependency>
+
             <!--
               aws-cdk-lib asks for constructs as the range [10.0.0,11.0.0). Maven resolves a
               range by fetching the pom of every version in it, which cost 623 requests and
@@ -82,19 +171,25 @@
             <dependency>
                 <groupId>software.constructs</groupId>
                 <artifactId>constructs</artifactId>
-                <version>10.8.1</version>
+                <version>${constructs.version}</version>
             </dependency>
+            <dependency>
+                <groupId>software.amazon.awscdk</groupId>
+                <artifactId>aws-cdk-lib</artifactId>
+                <version>${aws-cdk-lib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${assertj.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

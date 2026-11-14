@@ -14,22 +14,18 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>taninim</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-kernel</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-s3</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-util</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
     </dependencies>
 </project>

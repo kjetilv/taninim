@@ -16,32 +16,26 @@
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-flogs</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-hash</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-kernel</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-util</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-s3</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.kjetilv.uplift</groupId>
             <artifactId>uplift-synchttp</artifactId>
-            <version>${uplift.version}</version>
         </dependency>
     </dependencies>
 </project>
