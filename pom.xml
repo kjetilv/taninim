@@ -9,11 +9,7 @@
     <version>0.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <!--
-      Named taninim-parent, not taninim: Maven cannot have the aggregator and a module
-      share coordinates, and the taninim module keeps the published name.
-    -->
-    <name>taninim</name>
+    <name>taninim-parent</name>
 
     <!--
       No parent. This repository is a git submodule of taninim-comp but must build on its
@@ -35,7 +31,7 @@
         <assertj.version>3.27.7</assertj.version>
 
         <compiler.plugin.version>3.16.0</compiler.plugin.version>
-        <surefire.plugin.version>3.6.0</surefire.plugin.version>
+        <surefire.plugin.version>3.5.6</surefire.plugin.version>
         <source.plugin.version>3.4.0</source.plugin.version>
         <aws-cdk-lib.version>2.267.0</aws-cdk-lib.version>
         <constructs.version>10.8.1</constructs.version>
@@ -48,16 +44,17 @@
         <module>fb</module>
         <!-- The Gates -->
         <module>yellin</module>
-        <module>yellin-server</module>
-        <!-- The precursor -->
-        <module>server</module>
         <!-- The Horns -->
         <module>kudu</module>
-        <module>kudu-server</module>
-        <!-- The Cloud -->
-        <module>ascension</module>
         <!-- The Crucible -->
         <module>lambda-test</module>
+        <!-- The Acsension -->
+        <module>ascension</module>
+        <!-- The Harness -->
+        <module>server</module>
+        <!-- The Lowly Servants -->
+        <module>kudu-server</module>
+        <module>yellin-server</module>
     </modules>
 
     <!--
