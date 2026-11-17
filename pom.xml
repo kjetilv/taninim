@@ -17,12 +17,14 @@
 
       uplift must be installed first. Maven cannot resolve a build plugin from the same
       reactor run, so uplift-maven-plugin has to exist in a repository before this build
-      starts. See MAVEN-MIGRATION.md section 3.
+      starts.
     -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.compilerId>javac</maven.compiler.compilerId>
 
         <jvm.addModules>jdk.incubator.vector</jvm.addModules>
         <uplift.version>0.1.1-SNAPSHOT</uplift.version>
@@ -40,19 +42,19 @@
     <modules>
         <!-- The River -->
         <module>taninim</module>
-        <!-- Hell -->
-        <module>fb</module>
         <!-- The Gates -->
         <module>yellin</module>
         <!-- The Horns -->
         <module>kudu</module>
+        <!-- Hell -->
+        <module>fb</module>
         <!-- The Crucible -->
         <module>lambda-test</module>
-        <!-- The Acsension -->
+        <!-- The Stairway -->
         <module>ascension</module>
         <!-- The Harness -->
         <module>server</module>
-        <!-- The Lowly Servants -->
+        <!-- The Demons -->
         <module>kudu-server</module>
         <module>yellin-server</module>
     </modules>
